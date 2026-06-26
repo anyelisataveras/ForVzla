@@ -58,6 +58,13 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .privacy-line{font-size:12px;color:var(--txt2);margin-top:8px;line-height:1.5;display:flex;gap:7px;align-items:flex-start}
 .geo-btn{background:var(--blul);color:var(--blut);border:1.5px dashed var(--blu);border-radius:13px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;font-family:inherit}
 .geo-btn.ok{background:var(--grnl);color:var(--grnh);border:1.5px solid var(--grn)}
+.loc-or{text-align:center;font-size:12px;color:var(--txt3);margin:14px 0 2px;font-weight:600}
+.geo-btn.sec{margin-top:8px;font-size:14px;padding:13px}
+.geo-btn.edif-pick.ok{background:var(--redl);color:var(--redd);border:1.5px solid var(--red)}
+.edif-pick-wrap{display:none;margin-top:8px}
+.edif-pick-wrap.open{display:block}
+.edif-pick-map{height:220px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line2);margin-top:6px}
+.edif-pick-map .leaflet-container{height:100%;width:100%}
 .geo-mini{height:140px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line2);margin-top:8px;display:none}
 .geo-auto{font-size:12px;color:var(--txt);background:var(--surf);border-radius:var(--r);padding:8px 11px;margin-top:8px;display:none}.geo-auto b{color:var(--grn)}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
@@ -134,14 +141,34 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .dupe button{margin-top:7px;width:100%;background:var(--grn);color:#fff;border:none;border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
 .modal-new{width:100%;background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:13px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px;font-family:inherit}
 .modal-cancel{width:100%;background:none;border:none;color:var(--txt2);padding:10px;font-size:13px;cursor:pointer;font-family:inherit}
-.edif-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
-.edif-opt{width:100%;text-align:left;background:var(--surf);border:2px solid var(--line2);border-radius:var(--r);padding:11px 12px;font-size:13px;font-weight:600;cursor:pointer;color:var(--txt);font-family:inherit}
-.edif-opt.on{background:var(--redl);border-color:var(--red);color:var(--redd)}
-.edif-opt small{display:block;font-size:11px;font-weight:400;color:var(--txt2);margin-top:2px}
-.edif-hint{font-size:12px;color:var(--txt2);margin-bottom:8px;line-height:1.4}
+.loc-tabs{width:100%;display:flex;margin-bottom:12px}
+.loc-tabs button{flex:1;font-size:12px;padding:9px 4px;white-space:nowrap}
+.loc-panel{display:none}.loc-panel.on{display:block}
+.loc-hint{font-size:12px;color:var(--txt3);text-align:center;margin-top:8px;line-height:1.45}
+.loc-search{margin-bottom:8px}
+.loc-search input{width:100%;padding:14px 13px;border:1px solid var(--line2);border-radius:12px;font-size:16px;background:#fff;color:var(--txt);font-family:inherit;-webkit-appearance:none}
+.loc-search input:focus{outline:2px solid var(--blu);outline-offset:1px}
+.geo-btn.solid{background:var(--blu);color:#fff;border:1.5px solid var(--blu);border-style:solid;margin-top:0}
+.geo-btn.solid:disabled{opacity:.55;cursor:not-allowed}
+.loc-confirmed{background:var(--grnl);border:1.5px solid var(--grn);border-radius:13px;padding:14px 15px}
+.loc-confirmed-text{font-size:14px;font-weight:700;color:var(--grnh);line-height:1.45;display:block}
+.loc-change-btn{background:none;border:none;color:var(--blu);font-size:13px;font-weight:700;cursor:pointer;padding:6px 0 0;margin-top:2px;font-family:inherit}
+.loc-error{font-size:12px;color:var(--red);margin-top:8px;text-align:center;line-height:1.4}
+.edif-list{display:flex;flex-direction:column;gap:8px;margin:8px 0;max-height:min(42vh,320px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.edif-card{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:#fff;border:1px solid var(--line2);border-radius:13px;padding:12px 13px;cursor:pointer;font-family:inherit}
+.edif-card.on{background:var(--redl);border-color:var(--red)}
+.edif-card-ico{font-size:18px;flex-shrink:0;line-height:1}
+.edif-card-body{flex:1;min-width:0}
+.edif-card-name{font-size:14px;font-weight:800;color:var(--txt);display:block;line-height:1.25}
+.edif-card-meta{font-size:12px;color:var(--txt2);margin-top:2px;display:block;line-height:1.35}
+.edif-card-badge{font-size:11px;font-weight:800;padding:4px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0}
+.edif-card-badge.trap{background:var(--redl);color:var(--redd)}
+.edif-card-badge.dist{background:var(--line3);color:var(--txt2)}
+.edif-hint{font-size:12px;color:var(--txt2);margin-top:8px;line-height:1.45;text-align:center}
+.link-btn{background:none;border:none;color:var(--blu);font-size:12px;font-weight:700;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline}
 #lista-ayudar,#lista-acopio{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-top:14px;align-items:start}
 #lista-ayudar>.card,#lista-acopio>.card{margin-bottom:0}
-.info-btn:focus-visible,.hero-card:focus-visible,.more-btn:focus-visible,.back-btn:focus-visible,.chip:focus-visible,.gbtn:focus-visible,.ubtn:focus-visible,.geo-btn:focus-visible,.btn-primary:focus-visible,.fab:focus-visible,.edif-opt:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.info-btn:focus-visible,.hero-card:focus-visible,.more-btn:focus-visible,.back-btn:focus-visible,.chip:focus-visible,.gbtn:focus-visible,.ubtn:focus-visible,.geo-btn:focus-visible,.btn-primary:focus-visible,.fab:focus-visible,.edif-card:focus-visible,.loc-tabs button:focus-visible,.loc-change-btn:focus-visible,.link-btn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 @media (min-width:640px){.app{box-shadow:0 0 0 1px var(--line),0 8px 32px rgba(0,0,0,.06)}.hdr h1{font-size:16px}.hdr p{font-size:12px}}
 @media (min-width:960px){.modal{align-items:center;padding:20px}.modal-card{border-radius:20px;max-height:min(85vh,640px);box-shadow:0 12px 40px rgba(0,0,0,.2)}#view-reportar .fsec{max-width:580px;padding-bottom:40px}}
 </style>
@@ -200,17 +227,37 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     <div class="ftitle">🆘 Necesito ayuda</div>
     <div class="fsub">Tres pasos y un teléfono. Quien ayude cerca de ti lo verá enseguida.</div>
     <div class="fstep"><span class="n">1</span> ¿Dónde estás?</div>
-    <button class="geo-btn" id="geo-btn-r" onclick="captureGeo()">📍 Usar mi ubicación</button>
-    <div class="privacy-line"><span>🔒</span><span>Solo se usa para mostrar tu pin en el mapa. Sin registro de usuario ni rastreo de ningún tipo.</span></div>
-    <div class="geo-auto" id="geo-auto"></div>
-    <div class="geo-mini" id="geo-mini-r"><div id="geo-map-r" style="height:100%;width:100%"></div></div>
-    <input type="hidden" id="r-lat"><input type="hidden" id="r-lng"><input type="hidden" id="r-zona"><input type="hidden" id="r-dir"><input type="hidden" id="r-edif">
-    <div id="edif-step" style="display:none">
-      <p class="edif-hint" style="margin-top:12px">Si la ayuda es por un colapso cerca de ti, elige uno de la lista o escribe el nombre.</p>
-      <div class="edif-list" id="edif-list"></div>
-      <div class="fld"><label>Nombre del edificio <span style="font-weight:400;color:var(--txt3)">(si no está en la lista)</span></label>
-        <input type="text" id="r-edif-nombre" placeholder="Ej: Residencias El Faro" oninput="onEdifNombreInput()"></div>
+    <div class="loc-confirmed" id="loc-confirmed" style="display:none">
+      <span class="loc-confirmed-text" id="loc-confirmed-text"></span>
+      <button type="button" class="loc-change-btn" onclick="changeLocation()">Cambiar</button>
     </div>
+    <div class="loc-selector" id="loc-selector">
+      <div class="loc-tabs seg" role="tablist">
+        <button type="button" class="on" data-tab="gps" onclick="setLocTab('gps')">📍 Ubicación</button>
+        <button type="button" data-tab="dir" onclick="setLocTab('dir')">🔍 Dirección</button>
+        <button type="button" data-tab="edif" onclick="setLocTab('edif')">🏚 Edificio</button>
+      </div>
+      <div class="loc-panel on" id="loc-panel-gps">
+        <button type="button" class="geo-btn" id="geo-btn-r" onclick="captureGeo()">📍 Usar mi ubicación</button>
+        <p class="loc-hint">Lo más preciso si estás en el sitio.</p>
+      </div>
+      <div class="loc-panel" id="loc-panel-dir">
+        <div class="loc-search"><input type="text" id="r-dir-input" placeholder="Calle, sector, punto de referencia..." inputmode="text" autocomplete="street-address"></div>
+        <button type="button" class="geo-btn solid" id="geo-dir-btn" onclick="geocodeDir()">Usar esta dirección</button>
+        <p class="loc-hint">Útil si reportas desde lejos o el GPS no sirve.</p>
+        <div class="loc-error" id="loc-dir-error" style="display:none"></div>
+      </div>
+      <div class="loc-panel" id="loc-panel-edif">
+        <div class="loc-search"><input type="text" id="r-edif-search" placeholder="Busca un edificio..." oninput="filterEdifList()"></div>
+        <div class="edif-list" id="edif-list"></div>
+        <p class="edif-hint">¿No está en la lista? <button type="button" class="link-btn" onclick="toggleEdifPickMap()">Tócalo en el mapa</button></p>
+        <div class="edif-pick-wrap" id="edif-pick-wrap">
+          <div class="edif-pick-map"><div id="edif-pick-map-el"></div></div>
+        </div>
+      </div>
+      <div class="privacy-line"><span>🔒</span><span>Solo se usa para mostrar tu pin en el mapa. Sin registro de usuario ni rastreo de ningún tipo.</span></div>
+    </div>
+    <input type="hidden" id="r-lat"><input type="hidden" id="r-lng"><input type="hidden" id="r-zona"><input type="hidden" id="r-dir"><input type="hidden" id="r-edif"><input type="hidden" id="r-edif-nombre">
     <div class="fstep"><span class="n">2</span> ¿Qué necesitas? <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--txt3)">— marca las que quieras</span></div>
     <div class="grid" id="tipo-grid"></div>
     <div class="subbox" id="sub-box">
@@ -397,6 +444,7 @@ function openInfo(){document.getElementById('info-modal').classList.add('on')}
 function closeInfo(){document.getElementById('info-modal').classList.remove('on')}
 
 const EDIF_RADIO_M=500;
+let locationConfirmed=false,locMethod=null,gpsAccuracy=null,locTab='gps',edifListCache=[],edifRefLat=null,edifRefLng=null;
 async function ensureEdificios(){
   if(mapData?.edifs?.length)return mapData.edifs;
   const{data}=await db.from('edificios_colapsados').select('*');
@@ -405,24 +453,100 @@ async function ensureEdificios(){
 function nearbyEdificios(lat,lng,radioM=EDIF_RADIO_M){
   const edifs=mapData?.edifs||[];return edifs.filter(e=>e.lat&&e.lng&&dist0(lat,lng,e.lat,e.lng)*1000<=radioM)
     .map(e=>({...e,dist_m:Math.round(dist0(lat,lng,e.lat,e.lng)*1000)})).sort((a,b)=>a.dist_m-b.dist_m);}
-async function showNearbyEdificios(lat,lng,preselectId){
-  await ensureEdificios();const near=nearbyEdificios(lat,lng);const list=document.getElementById('edif-list'),step=document.getElementById('edif-step');
-  step.style.display='block';
-  if(!near.length){list.innerHTML='<p class="edif-hint">No hay edificios registrados muy cerca. Puedes escribir el nombre abajo o seguir sin marcar edificio.</p>';}
-  else{list.innerHTML=near.map(e=>`<button type="button" class="edif-opt" data-id="${e.id}" data-nombre="${escAttr(e.nombre)}" onclick="pickEdif(this)">🏚 ${escHtml(e.nombre)}<small>${escHtml(e.sector||e.zona)} · a ${fmDist(e.dist_m)}</small></button>`).join('');}
-  if(preselectId)document.querySelector(`.edif-opt[data-id="${preselectId}"]`)?.classList.add('on');}
+function setLocTab(tab){
+  locTab=tab;
+  document.querySelectorAll('.loc-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
+  document.querySelectorAll('.loc-panel').forEach(p=>p.classList.toggle('on',p.id==='loc-panel-'+tab));
+  if(tab==='edif')loadEdifTabList();}
+function confirmLocation(method,summary){
+  locationConfirmed=true;locMethod=method;
+  document.getElementById('loc-confirmed-text').textContent='✅ Ubicación lista — '+summary;
+  document.getElementById('loc-confirmed').style.display='block';
+  document.getElementById('loc-selector').style.display='none';}
+function changeLocation(){
+  locationConfirmed=false;locMethod=null;gpsAccuracy=null;locFromGps=false;
+  ['r-lat','r-lng','r-zona','r-dir','r-edif','r-edif-nombre'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('r-dir-input').value='';document.getElementById('r-edif-search').value='';
+  selectedReportEdifId=null;clearReportEdifHighlight();
+  document.getElementById('edif-pick-wrap').classList.remove('open');
+  document.getElementById('geo-btn-r').textContent='📍 Usar mi ubicación';document.getElementById('geo-btn-r').disabled=false;
+  document.getElementById('geo-dir-btn').textContent='Usar esta dirección';document.getElementById('geo-dir-btn').disabled=false;
+  document.getElementById('loc-dir-error').style.display='none';
+  document.getElementById('loc-confirmed').style.display='none';document.getElementById('loc-selector').style.display='block';
+  setLocTab('gps');}
+async function loadEdifTabList(){
+  const listEl=document.getElementById('edif-list');
+  listEl.innerHTML='<p class="edif-hint">Cargando edificios...</p>';
+  await ensureEdificios();
+  let la=parseFloat(document.getElementById('r-lat').value),lo=parseFloat(document.getElementById('r-lng').value);
+  if(!la||!lo){
+    await new Promise(resolve=>{
+      if(!navigator.geolocation){resolve();return;}
+      navigator.geolocation.getCurrentPosition(p=>{edifRefLat=p.coords.latitude;edifRefLng=p.coords.longitude;resolve();},
+        ()=>resolve(),{enableHighAccuracy:false,timeout:6000,maximumAge:120000});});
+    la=edifRefLat;lo=edifRefLng;
+  }else{edifRefLat=la;edifRefLng=lo;}
+  const all=(mapData?.edifs||[]).filter(e=>e.lat&&e.lng);
+  if(la&&lo)edifListCache=all.map(e=>({...e,dist_m:Math.round(dist0(la,lo,e.lat,e.lng)*1000)})).sort((a,b)=>a.dist_m-b.dist_m);
+  else edifListCache=all.map(e=>({...e,dist_m:null}));
+  renderEdifList();}
+function filterEdifList(){renderEdifList();}
+function renderEdifList(){
+  const listEl=document.getElementById('edif-list'),q=(document.getElementById('r-edif-search').value||'').trim().toLowerCase();
+  let items=edifListCache;
+  if(q)items=items.filter(e=>((e.nombre||'')+(e.sector||'')+(e.zona||'')).toLowerCase().includes(q));
+  if(!items.length){listEl.innerHTML='<p class="edif-hint">No hay edificios que coincidan. Prueba otra búsqueda o el mapa.</p>';return;}
+  const selId=document.getElementById('r-edif').value;
+  listEl.innerHTML=items.slice(0,40).map(e=>{
+    const meta=[e.sector||e.zona,e.dist_m!=null?'a '+fmDist(e.dist_m):''].filter(Boolean).join(' · ');
+    const badge=e.personas_atrapadas?'<span class="edif-card-badge trap">⚠️ Atrapados</span>':(e.dist_m!=null?`<span class="edif-card-badge dist">a ${fmDist(e.dist_m)}</span>`:'');
+    return `<button type="button" class="edif-card${selId===e.id?' on':''}" data-id="${e.id}" onclick="pickEdifFromList('${e.id}')"><span class="edif-card-ico">🏚</span><span class="edif-card-body"><span class="edif-card-name">${escHtml(e.nombre)}</span><span class="edif-card-meta">${escHtml(meta)}</span></span>${badge}</button>`;
+  }).join('');}
+function pickEdifFromList(id){
+  const e=(mapData?.edifs||[]).find(x=>x.id===id);
+  if(!e?.lat||!e?.lng)return;
+  document.getElementById('r-edif').value=e.id;document.getElementById('r-edif-nombre').value='';
+  document.getElementById('r-lat').value=e.lat;document.getElementById('r-lng').value=e.lng;
+  document.getElementById('r-zona').value=e.zona||'';
+  document.getElementById('r-dir').value=`🏚 ${e.nombre}${e.sector?', '+e.sector:''}`;
+  locFromGps=false;selectedReportEdifId=e.id;
+  confirmLocation('edif',`🏚 ${e.nombre} · ${e.sector||e.zona||''}`);}
 function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
 function escAttr(s){return(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
-function pickEdif(btn){
-  const on=btn.classList.contains('on');
-  document.querySelectorAll('.edif-opt').forEach(b=>b.classList.remove('on'));
-  if(on){document.getElementById('r-edif').value='';return;}
-  btn.classList.add('on');document.getElementById('r-edif').value=btn.dataset.id;
-  document.getElementById('r-edif-nombre').value='';}
-function onEdifNombreInput(){
-  if(document.getElementById('r-edif-nombre').value.trim()){
-    document.getElementById('r-edif').value='';
-    document.querySelectorAll('.edif-opt').forEach(b=>b.classList.remove('on'));}}
+
+let reportEdifMap,reportEdifLayer,reportEdifMarkers={},selectedReportEdifId=null;
+async function toggleEdifPickMap(){
+  const wrap=document.getElementById('edif-pick-wrap');
+  if(wrap.classList.contains('open')){wrap.classList.remove('open');return;}
+  wrap.classList.add('open');await renderReportEdifPickMap();}
+async function renderReportEdifPickMap(){
+  const edifs=(await ensureEdificios()).filter(e=>e.lat&&e.lng);
+  if(!reportEdifMap){
+    reportEdifMap=L.map('edif-pick-map-el',{zoomControl:true,attributionControl:false}).setView([10.611,-66.85],11);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(reportEdifMap);reportEdifLayer=L.layerGroup().addTo(reportEdifMap);}
+  else reportEdifLayer.clearLayers();
+  reportEdifMarkers={};const b=[];
+  edifs.forEach(e=>{const m=L.marker([e.lat,e.lng],{icon:dot('#C0392B',11)}).addTo(reportEdifLayer);
+    reportEdifMarkers[e.id]=m;const trap=e.personas_atrapadas?'<br><b style="color:#C0392B">⚠️ Posibles atrapados</b>':'';
+    m.bindPopup(`<b>🏚 ${escHtml(e.nombre)}</b><br>${escHtml(e.sector||e.zona||'')}${trap}`);
+    m.on('click',()=>selectReportEdif(e));b.push([e.lat,e.lng]);});
+  if(b.length)reportEdifMap.fitBounds(b,{padding:[24,24],maxZoom:13});
+  setTimeout(()=>reportEdifMap.invalidateSize(),180);
+  if(selectedReportEdifId)highlightReportEdif(selectedReportEdifId);}
+function selectReportEdifById(id){const e=(mapData?.edifs||[]).find(x=>x.id===id);if(e)selectReportEdif(e);}
+function selectReportEdif(e){
+  if(!e?.lat||!e?.lng)return;
+  pickEdifFromList(e.id);
+  if(!document.getElementById('edif-pick-wrap').classList.contains('open'))document.getElementById('edif-pick-wrap').classList.add('open');
+  highlightReportEdif(e.id);}
+function highlightReportEdif(id){
+  selectedReportEdifId=id;
+  Object.entries(reportEdifMarkers).forEach(([mid,m])=>{m.setIcon(dot(mid===id?'#922B21':'#C0392B',mid===id?16:11));});
+  const e=(mapData?.edifs||[]).find(x=>x.id===id);
+  if(e?.lat&&reportEdifMap)reportEdifMap.setView([e.lat,e.lng],15);}
+function clearReportEdifHighlight(){
+  selectedReportEdifId=null;
+  Object.values(reportEdifMarkers).forEach(m=>m.setIcon(dot('#C0392B',11)));}
 
 let mainMap,markersLayer,mapData=null;
 function initMainMap(){if(mainMap)return;mainMap=L.map('main-map',{zoomControl:true,attributionControl:false}).setView([10.55,-66.9],8);
@@ -448,29 +572,45 @@ function renderMap(){if(!mapData||!markersLayer)return;markersLayer.clearLayers(
     m.bindPopup(`<b>📦 ${a.nombre}</b><br>${a.estado_vzla}<br>${a.direccion}`);b.push([a.lat,a.lng]);});
   if(b.length)mainMap.fitBounds(b,{padding:[25,25],maxZoom:12});}
 function sosHere(lat,lng,nombre,zona,edifId){goScreen('reportar');
-  document.getElementById('r-lat').value=lat;document.getElementById('r-lng').value=lng;
-  document.getElementById('r-dir').value=nombre;document.getElementById('r-zona').value=zona||'';document.getElementById('r-edif').value=edifId||'';
-  const btn=document.getElementById('geo-btn-r');btn.className='geo-btn ok';btn.textContent='✅ '+nombre;
-  const a=document.getElementById('geo-auto');a.style.display='block';a.innerHTML=`📍 <b>${nombre}</b> — ubicación lista, no escribas dirección.`;
-  showNearbyEdificios(lat,lng,edifId||null);}
+  const e=(mapData?.edifs||[]).find(x=>x.id===edifId);
+  if(e)selectReportEdif(e);
+  else{document.getElementById('r-edif').value=edifId||'';document.getElementById('r-lat').value=lat;document.getElementById('r-lng').value=lng;
+    document.getElementById('r-zona').value=zona||'';document.getElementById('r-dir').value=nombre||'';
+    confirmLocation('edif',nombre||'Edificio colapsado');setLocTab('edif');}}
 
-let geoMiniMap;
+let locFromGps=false;
+function hasReportCoords(){return!!(document.getElementById('r-lat').value&&document.getElementById('r-lng').value);}
+async function geocodeDir(silent=false){
+  const q=document.getElementById('r-dir-input').value.trim(),errEl=document.getElementById('loc-dir-error');
+  if(!q){if(!silent){errEl.textContent='Escribe calle, sector y ciudad.';errEl.style.display='block';}return false;}
+  const btn=document.getElementById('geo-dir-btn');
+  if(!silent){btn.textContent='⏳ Buscando...';btn.disabled=true;errEl.style.display='none';}
+  try{const url=`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q+', Venezuela')}&limit=1&accept-language=es`;
+    const r=await fetch(url,{headers:{'Accept-Language':'es'}});const j=await r.json();
+    if(!j?.length){if(!silent){errEl.textContent='No encontramos esa dirección. Prueba con más detalle o usa GPS.';errEl.style.display='block';}
+      btn.textContent='Usar esta dirección';btn.disabled=false;return false;}
+    const hit=j[0],la=parseFloat(hit.lat),lo=parseFloat(hit.lon),dir=hit.display_name||q;
+    const zona=mapEstado((hit.address||{}).state||(hit.address||{}).region||'');
+    document.getElementById('r-lat').value=la;document.getElementById('r-lng').value=lo;
+    document.getElementById('r-zona').value=zona;document.getElementById('r-dir').value=dir;
+    document.getElementById('r-edif').value='';locFromGps=false;
+    btn.textContent='Usar esta dirección';btn.disabled=false;
+    const short=dir.length>72?dir.slice(0,69)+'…':dir;
+    confirmLocation('dir','Dirección: '+short);return true;
+  }catch{if(!silent){errEl.textContent='No se pudo buscar la dirección. Revisa tu conexión.';errEl.style.display='block';}
+    btn.textContent='Usar esta dirección';btn.disabled=false;return false;}}
 function captureGeo(){const btn=document.getElementById('geo-btn-r');btn.textContent='⏳ Buscando señal...';btn.disabled=true;
   navigator.geolocation.getCurrentPosition(async pos=>{const {latitude:la,longitude:lo,accuracy:ac}=pos.coords;
-    document.getElementById('r-lat').value=la;document.getElementById('r-lng').value=lo;
-    btn.className='geo-btn ok';btn.textContent=`✅ Ubicación lista (±${Math.round(ac)}m)`;btn.disabled=false;
-    const mini=document.getElementById('geo-mini-r');mini.style.display='block';
-    if(!geoMiniMap){geoMiniMap=L.map('geo-map-r',{zoomControl:false,attributionControl:false}).setView([la,lo],16);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(geoMiniMap);}
-    else geoMiniMap.setView([la,lo],16);
-    geoMiniMap.eachLayer(l=>{if(l instanceof L.Marker)geoMiniMap.removeLayer(l)});L.marker([la,lo]).addTo(geoMiniMap);setTimeout(()=>geoMiniMap.invalidateSize(),100);
-    const auto=document.getElementById('geo-auto');auto.style.display='block';auto.textContent='Detectando zona...';
+    gpsAccuracy=Math.round(ac);document.getElementById('r-lat').value=la;document.getElementById('r-lng').value=lo;
+    document.getElementById('r-edif').value='';locFromGps=true;
+    btn.textContent='📍 Usar mi ubicación';btn.disabled=false;
     try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${la}&lon=${lo}&zoom=14&accept-language=es`);const j=await r.json(),a=j.address||{};
       const zona=mapEstado(a.state||a.region||'');const dir=[a.road,a.neighbourhood||a.suburb,a.city||a.town||a.village].filter(Boolean).join(', ');
       document.getElementById('r-zona').value=zona;document.getElementById('r-dir').value=dir||'Ubicación GPS';
-      auto.innerHTML=`📍 Zona: <b>${zona||'—'}</b>${dir?' · '+dir:''}`;
-    }catch{document.getElementById('r-zona').value='';document.getElementById('r-dir').value='Ubicación GPS';auto.innerHTML='📍 Ubicación guardada (sin nombre de zona, no importa).';}
-    showNearbyEdificios(la,lo);
-  },()=>{btn.textContent='❌ Sin GPS. Abre el mapa en Quiero ayudar.';btn.disabled=false;},{enableHighAccuracy:true,timeout:12000});}
+    }catch{document.getElementById('r-zona').value='';document.getElementById('r-dir').value='Ubicación GPS';}
+    confirmLocation('gps',`Tu ubicación GPS (±${gpsAccuracy}m)`);
+  },()=>{btn.textContent='📍 Usar mi ubicación';btn.disabled=false;
+    showToast('r','No pudimos usar el GPS. Prueba la pestaña Dirección o Edificio.',true);},{enableHighAccuracy:true,timeout:12000});}
 function mapEstado(s){s=(s||'').toLowerCase();
   if(s.includes('guaira')||s.includes('vargas'))return'La Guaira';if(s.includes('capital')||s.includes('caracas'))return'Caracas';
   if(s.includes('yaracuy'))return'Yaracuy';if(s.includes('aragua'))return'Aragua';if(s.includes('carabobo'))return'Carabobo';
@@ -577,16 +717,14 @@ async function loadHomeStats(){
   document.getElementById('stat-needs').textContent=nc??0;
   document.getElementById('stat-centros').textContent=cc??0;}
 
-function startSOS(){goScreen('reportar');if(!document.getElementById('r-lat').value)captureGeo();}
+function startSOS(){goScreen('reportar');if(!locationConfirmed)captureGeo();}
 function gatherNeed(){const tipos=[...selTipos],labels=tipos.map(t=>SHORT[t]||t),otro=document.getElementById('r-otro').value.trim();
-  const edifNom=document.getElementById('r-edif-nombre').value.trim();
   let desc=document.getElementById('r-desc').value.trim();
-  if(edifNom&&!document.getElementById('r-edif').value)
-    desc=desc?`Edificio: ${edifNom} — ${desc}`:`Edificio: ${edifNom}`;
   if(otro&&!desc)desc=`Otro: ${otro}`;
   else if(otro)desc=`Otro: ${otro} — ${desc}`;
   if(!desc)desc=labels.length?`Necesita ${labels.join(', ')}`:(otro?`Necesita: ${otro}`:'Solicitud de ayuda');
-  return {zona:document.getElementById('r-zona').value||'Otra',direccion_exacta:document.getElementById('r-dir').value||'Ubicación GPS',
+  const dirTxt=document.getElementById('r-dir').value.trim()||document.getElementById('r-dir-input').value.trim();
+  return {zona:document.getElementById('r-zona').value||'Otra',direccion_exacta:dirTxt||'Ubicación GPS',
   lat:parseFloat(document.getElementById('r-lat').value)||null,lng:parseFloat(document.getElementById('r-lng').value)||null,
   tipo:tipos[0]||'Otro',tipos:tipos.length?tipos:null,subtipo:selSubs[0]||null,subtipos:selSubs.length?selSubs:null,otro:otro||null,
   urgencia:selUrg,descripcion:desc,cantidad:null,personas_afectadas:parseInt(document.getElementById('r-pers').value)||null,
@@ -598,7 +736,7 @@ async function findDupes(n){const{data}=await db.rpc('necesidades_cercanas',{p_l
   if(!data?.length)return[];const mine=needTipos(n);return data.filter(d=>tiposOverlap(mine,needTipos(d)));}
 async function checkAndSubmit(){
   const otro=document.getElementById('r-otro').value.trim();
-  if(!document.getElementById('r-lat').value){showToast('r','Primero marca tu ubicación (paso 1).',true);return;}
+  if(!locationConfirmed||!hasReportCoords()){showToast('r','Confirma tu ubicación en el paso 1 (GPS, dirección o edificio).',true);return;}
   if(!selTipos.length&&!otro){showToast('r','Toca qué necesitas o escribe en Otro (paso 2).',true);return;}
   if(!document.getElementById('r-tel').value.trim()){showToast('r','Falta tu teléfono para que te contacten.',true);return;}
   const n=gatherNeed();const btn=document.getElementById('btn-r');btn.disabled=true;btn.textContent='Revisando...';
@@ -613,14 +751,19 @@ async function forceNew(){closeDupe();if(pendingNeed)await doInsertNeed(pendingN
 async function doInsertNeed(n){const btn=document.getElementById('btn-r');btn.disabled=true;btn.textContent='Publicando...';
   const{error}=await db.from('necesidades').insert(n);btn.disabled=false;btn.textContent='Publicar SOS';
   if(error){showToast('r','Error al enviar. Revisa tu conexión.',true);return;}showToast('r','✅ SOS publicado. Quien ayude cerca lo verá enseguida.');resetNeed();}
-function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-edif','r-edif-nombre','r-tel','r-wa','r-desc','r-pers','r-nombre','r-otro'].forEach(i=>document.getElementById(i).value='');
-  selTipos=[];selSubs=[];selUrg='urgente';document.querySelectorAll('#tipo-grid .gbtn').forEach(b=>b.classList.remove('on'));
+function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-dir-input','r-edif','r-edif-nombre','r-edif-search','r-tel','r-wa','r-desc','r-pers','r-nombre','r-otro'].forEach(i=>document.getElementById(i).value='');
+  selTipos=[];selSubs=[];selUrg='urgente';locFromGps=false;locationConfirmed=false;locMethod=null;gpsAccuracy=null;edifListCache=[];
+  document.querySelectorAll('#tipo-grid .gbtn').forEach(b=>b.classList.remove('on'));
   document.querySelectorAll('.ubtn').forEach(b=>b.classList.remove('on'));document.querySelector('.ubtn.urg').classList.add('on');
-  document.querySelectorAll('.edif-opt').forEach(b=>b.classList.remove('on'));
-  document.getElementById('edif-list').innerHTML='';document.getElementById('edif-step').style.display='none';
+  document.getElementById('edif-list').innerHTML='';
   document.getElementById('sub-box').classList.remove('show');document.getElementById('sub-chips').innerHTML='';
-  document.getElementById('geo-btn-r').className='geo-btn';document.getElementById('geo-btn-r').textContent='📍 Usar mi ubicación';
-  document.getElementById('geo-mini-r').style.display='none';document.getElementById('geo-auto').style.display='none';}
+  document.getElementById('geo-btn-r').textContent='📍 Usar mi ubicación';document.getElementById('geo-btn-r').disabled=false;
+  document.getElementById('geo-dir-btn').textContent='Usar esta dirección';document.getElementById('geo-dir-btn').disabled=false;
+  document.getElementById('loc-dir-error').style.display='none';
+  selectedReportEdifId=null;clearReportEdifHighlight();
+  document.getElementById('edif-pick-wrap').classList.remove('open');
+  document.getElementById('loc-confirmed').style.display='none';document.getElementById('loc-selector').style.display='block';
+  setLocTab('gps');}
 
 async function submitRecurso(){if(!selTipoO){showToast('o','Toca qué ofreces.',true);return;}
   const qty=document.getElementById('o-qty').value.trim(),tel=document.getElementById('o-tel').value.trim();
@@ -646,7 +789,7 @@ function goScreen(name){document.querySelectorAll('.view').forEach(v=>v.classLis
   if(name==='acopio')loadAcopio();
   if(name==='ofrecer'&&!acopioCache.length)loadAcopio();
   window.scrollTo(0,0);
-  setTimeout(()=>{if(mainMap)mainMap.invalidateSize();if(geoMiniMap)geoMiniMap.invalidateSize();},150);}
+  setTimeout(()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();},150);}
 
 function onLiveData(){
   if(document.getElementById('view-home').classList.contains('on'))loadHomeStats();
@@ -654,7 +797,7 @@ function onLiveData(){
     if(ayudarView==='lista')loadHelp();else populateMap();}}
 db.channel('live').on('postgres_changes',{event:'*',schema:'public',table:'necesidades'},onLiveData)
   .on('postgres_changes',{event:'*',schema:'public',table:'edificios_colapsados'},onLiveData).subscribe();
-window.addEventListener('resize',()=>{if(mainMap)mainMap.invalidateSize();if(geoMiniMap)geoMiniMap.invalidateSize();});
+window.addEventListener('resize',()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();});
 
 buildGrid('tipo-grid',TIPOS,'pickTipo');
 buildGrid('tipo-grid-o',TIPOS_O,'pickTipoO','gbtn-g');
