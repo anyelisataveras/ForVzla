@@ -240,7 +240,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
   <div class="pad">
     <button class="back-btn" onclick="goScreen('home')">← Volver</button>
     <div class="sec-title">🤝 Quiero ayudar</div>
-    <p class="sec-sub">Elige <b>qué puedes dar</b> y verás quién lo necesita cerca de ti. Contacta directo.</p>
+    <p class="sec-sub">Elige <b>qué puedes dar</b> y contacta directo a quien lo pide cerca. Los colapsos de edificios están en <b>Mapa</b>.</p>
     <div class="chips-lbl">¿Qué puedes dar?</div>
     <div class="chips chips-help" id="help-chips">
       <button class="chip on" data-t="" onclick="setChip(this)">Todo</button>
@@ -350,6 +350,21 @@ function needTipos(n){return(n.tipos&&n.tipos.length)?n.tipos:[n.tipo].filter(Bo
 function tipoText(n){return needTipos(n).map(t=>SHORT[t]||t).join(', ')}
 function tipoIcons(n){return needTipos(n).map(t=>ei(t)).join(' ')}
 function subtiposText(n){if(n.subtipos&&n.subtipos.length)return n.subtipos.join(', ');return n.subtipo||''}
+function cleanPublicText(s){if(!s)return'';
+  return s.replace(/__tv_id:[0-9a-f-]{36}__/gi,'').replace(/\[terremotovenezuela\.com\][^·]*/gi,'')
+    .replace(/https?:\/\/\S+/gi,'').replace(/\bFoto:\s*/gi,'').replace(/\bFuente reporte:\s*/gi,'Fuente: ')
+    .replace(/\bCoord\.\s*verificada[^·]*/gi,'').replace(/\bDUPLICADO[^·]*/gi,'')
+    .replace(/\s*·\s*·+/g,' · ').replace(/^[·\s]+|[·\s]+$/g,'').trim();}
+function shortAddr(n){const d=(n.direccion_exacta||'').trim(),z=n.zona||'';
+  if(!d||d==='Ubicación GPS')return z||'Cerca de ti';
+  return d.length>72?d.slice(0,69)+'…':d;}
+function needTitle(n){const tip=tipoText(n);
+  if(n.nombre_contacto&&n.nombre_contacto!=='Vecino/a'&&n.nombre_contacto!=='Donante')return escHtml(n.nombre_contacto);
+  if(n.personas_afectadas>1)return escHtml(n.personas_afectadas+' personas — '+tip);
+  if(n.personas_afectadas===1)return escHtml('1 persona — '+tip);
+  return escHtml(tip);}
+function trapWarning(n){if(n.edificio_id)return true;
+  const d=(n.descripcion||'').toLowerCase();return/atrapad|soterrad|debajo del|escombros|no pueden salir/.test(d);}
 
 function buildGrid(elId,list,fn,cls=''){document.getElementById(elId).innerHTML=list.map(x=>`<button class="gbtn${cls?' '+cls:''}" data-t="${x.t}" onclick="${fn}(this)"><span class="e">${x.e}</span>${SHORT[x.t]||x.t}</button>`).join('');}
 let selTipos=[],selSubs=[],selUrg='urgente',selTipoO='',ayudarView='lista';
@@ -412,7 +427,8 @@ function renderMap(){if(!mapData||!markersLayer)return;markersLayer.clearLayers(
   edifs.forEach(e=>{if(!e.lat||!e.lng)return;const m=L.marker([e.lat,e.lng],{icon:dot('#C0392B',12)}).addTo(markersLayer);
     const safe=(e.nombre+', '+(e.sector||e.zona)).replace(/'/g,'');
     const trap=e.personas_atrapadas?'<br><b style="color:#C0392B">⚠️ Posibles personas atrapadas</b>':'';
-    m.bindPopup(`<b>🏚 ${e.nombre}</b><br>${e.sector||e.zona}<br><small>🔴 Crítica · ${e.estado_edificio.replace(/_/g,' ')}</small>${trap}<br><button type="button" class="btn-edif" onclick="sosHere(${e.lat},${e.lng},'${safe}','${e.zona}','${e.id}')">🆘 Pedir ayuda aquí</button>`);b.push([e.lat,e.lng]);});
+    const nota=cleanPublicText(e.notas);const notaHtml=nota?`<br><small>${nota.replace(/</g,'')}</small>`:'';
+    m.bindPopup(`<b>🏚 ${e.nombre}</b><br>${e.sector||e.zona}<br><small>🔴 Crítica · ${(e.estado_edificio||'colapsado').replace(/_/g,' ')}</small>${trap}${notaHtml}<br><button type="button" class="btn-edif" onclick="sosHere(${e.lat},${e.lng},'${safe}','${e.zona}','${e.id}')">🆘 Pedir ayuda aquí</button>`);b.push([e.lat,e.lng]);});
   needs.forEach(n=>{if(!n.lat||!n.lng)return;const c={critica:'#C0392B',urgente:'#E67E22',normal:'#27AE60'}[n.urgencia]||'#888';
     const m=L.marker([n.lat,n.lng],{icon:dot(c)}).addTo(markersLayer);const wa=n.whatsapp||n.telefono;
     m.bindPopup(`<b>${tipoIcons(n)} ${tipoText(n)}</b><br>${n.direccion_exacta}<br>📞 <a href="tel:${n.telefono}">${n.telefono}</a>${wa?`<br><a href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}`);b.push([n.lat,n.lng]);});
@@ -448,36 +464,28 @@ function mapEstado(s){s=(s||'').toLowerCase();
   if(s.includes('yaracuy'))return'Yaracuy';if(s.includes('aragua'))return'Aragua';if(s.includes('carabobo'))return'Carabobo';
   if(s.includes('falc'))return'Falcón';if(s.includes('miranda'))return'Miranda';if(s.includes('lara'))return'Lara';return'Otra';}
 
-function edifCard(e){const dist=e.distancia_m!=null?`<span class="c-dist">📍 a ${fmDist(e.distancia_m)} de ti</span><br>`:'';
-  const trap=e.personas_atrapadas?'<div class="c-nota">⚠️ Posibles personas atrapadas</div>':'';
-  const estado=(e.estado_edificio||'colapsado').replace(/_/g,' ');
-  const notas=e.notas?`<div class="c-desc">${escHtml(e.notas)}</div>`:'';
-  const loc=escHtml(e.sector?e.sector+' · '+e.zona:e.zona);
-  return `<div class="card r">${dist}
-    <div class="c-top"><div><div class="c-loc">🏚 ${loc}</div><div class="c-addr">${escHtml(e.nombre)}</div></div><span class="badge r">🔴 Crítica</span></div>
-    <div class="c-tipo">Edificio colapsado · ${estado}${e.created_at?' · ⏱ '+ago(e.created_at):''}</div>
-    ${trap}${notas}
-    <div class="actions"><a class="btn-map" href="${mapLink(e.lat,e.lng,e.nombre)}" target="_blank">🗺 Ruta</a><button class="btn-sh" onclick="focusEdifOnMap('${e.id}')">📍 Ver en mapa</button></div>
-  </div>`;}
 function focusEdifOnMap(id){goScreen('ayudar');setAyudarView('mapa');setTimeout(()=>{const e=(mapData?.edifs||[]).find(x=>x.id===id);if(e?.lat&&e?.lng)mainMap.setView([e.lat,e.lng],16);},350);}
-function helpSortKey(item){if(item.kind==='edif')return item.data.personas_atrapadas?-1:0;return{critica:0,urgente:1,normal:2}[item.data.urgencia]??3;}
+function needSortKey(n){return{critica:0,urgente:1,normal:2}[n.urgencia]??3;}
+function emptyHelpMsg(){const mapHint='<br><span style="font-size:12px;color:var(--txt3)">Los edificios colapsados están en la vista <button type="button" class="donar-link" style="font-size:12px;padding:0" onclick="setAyudarView(\'mapa\')">Mapa</button>.</span>';
+  return`<div class="empty">🎉 Nadie pide eso cerca ahora.${mapHint}</div>`;}
 function needCard(n){const done=n.estado==='cubierta',cls=done?'done':UE[n.urgencia]||'';
   const badge=done?'<span class="badge done">✓ Cubierta</span>':`<span class="badge ${UE[n.urgencia]||''}">${UL[n.urgencia]||''}</span>`;
-  const unval=!n.validada?'<span class="unval">Sin validar</span>':'';const wa=n.whatsapp||n.telefono;
+  const unval=!n.validada&&n.fuente!=='ciudadano'?'<span class="unval">Sin validar</span>':'';const wa=n.whatsapp||n.telefono;
   const waMsg=`Hola ${n.nombre_contacto||''}, vi tu solicitud de ${tipoText(n)} en Ayuda Venezuela. ¿Cómo ayudo?`;
-  const dist=n.distancia_m!=null?`<span class="c-dist">📍 a ${fmDist(n.distancia_m)} de ti</span>`:'';
-  const conf=n.confirmaciones>1?`<span class="c-conf">· ${n.confirmaciones} confirmaciones</span>`:'';
-  const subs=subtiposText(n);
-  return `<div class="card ${cls}">${dist?dist+'<br>':''}
-    <div class="c-top"><div><div class="c-loc">${escHtml(n.zona)}${srcTag(n.fuente)}${unval}</div><div class="c-addr">📍 ${escHtml(n.direccion_exacta)}</div></div>${badge}</div>
-    <div class="c-tipo"><b>${tipoText(n)}</b>${dist?' · '+fmDist(n.distancia_m):''} · ⏱ ${ago(n.created_at)}${conf}</div>
-    ${subs?`<span class="c-qty">🔧 ${escHtml(subs)}</span>`:''}
-    ${n.otro?`<span class="c-qty">➕ ${escHtml(n.otro)}</span>`:''}
-    <div class="c-desc">${escHtml(n.descripcion)}</div>
-    ${n.cantidad?`<span class="c-qty">Cantidad: ${escHtml(n.cantidad)}</span>`:''}
-    ${n.notas_coordinador?`<div class="c-nota">📋 ${escHtml(n.notas_coordinador)}</div>`:''}
-    ${n.nombre_contacto?`<div style="font-size:12px;font-weight:600;margin-top:5px">👤 ${escHtml(n.nombre_contacto)}</div>`:''}
-    ${!done?`<div class="actions"><a class="btn-call" href="tel:${n.telefono}">📞 Llamar</a>${wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank">💬 WhatsApp</a>`:''}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a><button class="btn-sh" onclick='shareNeed(${JSON.stringify(n).replace(/'/g,"&#39;")})'>📤</button></div>`:''}
+  const dist=n.distancia_m!=null?fmDist(n.distancia_m):'';
+  const conf=n.confirmaciones>1?` · ${n.confirmaciones} confirmaciones`:'';const subs=subtiposText(n);
+  const desc=cleanPublicText(n.descripcion);const extras=[];
+  if(subs)extras.push('🔧 '+subs);if(n.otro)extras.push('➕ '+n.otro);if(n.cantidad)extras.push(n.cantidad);
+  const extraLine=extras.length?`<div class="c-tipo" style="margin-top:6px">${escHtml(extras.join(' · '))}</div>`:'';
+  const loc=escHtml(n.zona)+(n.edificio_id?' 🏚':'');
+  return `<div class="card ${cls}">
+    <div class="c-top"><div><div class="c-loc">${needTitle(n)}</div><div class="c-addr">📍 ${escHtml(shortAddr(n))}${loc?` · ${loc}`:''}${srcTag(n.fuente)}${unval}</div></div>${badge}</div>
+    <div class="c-tipo"><b>${tipoIcons(n)} ${tipoText(n)}</b>${dist?' · a '+dist:''} · ⏱ ${ago(n.created_at)}${conf}</div>
+    ${extraLine}
+    ${desc?`<div class="c-desc">${escHtml(desc)}</div>`:''}
+    ${trapWarning(n)?'<div class="c-nota">⚠️ Posibles personas atrapadas</div>':''}
+    ${n.notas_coordinador?`<div class="c-nota" style="background:var(--blul);color:var(--blut);border-color:var(--blu)">📋 ${escHtml(cleanPublicText(n.notas_coordinador))}</div>`:''}
+    ${!done?`<div class="actions"><a class="btn-call" href="tel:${n.telefono}">📞 Llamar</a>${wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank">💬 WhatsApp</a>`:''}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a></div>`:''}
   </div>`;}
 
 let helpTipo='',helpPos=null;
@@ -494,18 +502,14 @@ function locateForHelp(){const btn=document.getElementById('geo-ayudar-btn');btn
   navigator.geolocation.getCurrentPosition(p=>{helpPos={lat:p.coords.latitude,lng:p.coords.longitude};btn.className='geo-btn ok geo-mini-btn';btn.textContent='✅ Ordenado por cercanía';btn.disabled=false;
     if(ayudarView==='lista')loadHelp();else populateMap();},
   ()=>{btn.textContent='❌ Sin GPS. Mostrando todas.';btn.disabled=false;if(ayudarView==='lista')loadHelp();},{enableHighAccuracy:true,timeout:10000});}
-async function loadHelp(){const el=document.getElementById('lista-ayudar');el.innerHTML='<div class="spin-wrap"><div class="spinner"></div>Buscando...</div>';
-  const[{data:needsRaw},{data:edifsRaw}]=await Promise.all([
-    helpPos?db.rpc('necesidades_cercanas',{p_lat:helpPos.lat,p_lng:helpPos.lng,p_radio_m:300000,p_tipo:null}):db.from('necesidades').select('*').neq('estado','cubierta').is('merged_into',null).order('urgencia'),
-    db.from('edificios_colapsados').select('*')]);
-  let needs=needsRaw||[],edifs=(edifsRaw||[]).filter(e=>e.lat&&e.lng);
-  if(helpPos)edifs=edifs.map(e=>({...e,distancia_m:Math.round(dist0(helpPos.lat,helpPos.lng,e.lat,e.lng)*1000)}));
-  if(helpTipo){needs=needs.filter(n=>needTipos(n).some(t=>(t||'').toLowerCase().includes(helpTipo.toLowerCase())));
-    if(!helpTipo.toLowerCase().includes('rescate'))edifs=[];}
-  const items=[...edifs.map(e=>({kind:'edif',data:e})),...needs.map(n=>({kind:'need',data:n}))];
-  items.sort((a,b)=>{const ka=helpSortKey(a),kb=helpSortKey(b);if(ka!==kb)return ka-kb;
-    return(a.data.distancia_m??999999999)-(b.data.distancia_m??999999999);});
-  el.innerHTML=items.map(it=>it.kind==='edif'?edifCard(it.data):needCard(it.data)).join('')||'<div class="empty">🎉 Sin necesidades de ese tipo cerca.</div>';}
+async function loadHelp(){const el=document.getElementById('lista-ayudar');el.innerHTML='<div class="spin-wrap"><div class="spinner"></div>Buscando solicitudes...</div>';
+  const{data:needsRaw}=helpPos?await db.rpc('necesidades_cercanas',{p_lat:helpPos.lat,p_lng:helpPos.lng,p_radio_m:300000,p_tipo:null})
+    :await db.from('necesidades').select('*').neq('estado','cubierta').is('merged_into',null).order('urgencia');
+  let needs=needsRaw||[];
+  if(helpTipo)needs=needs.filter(n=>needTipos(n).some(t=>(t||'').toLowerCase().includes(helpTipo.toLowerCase())));
+  needs.sort((a,b)=>{const ka=needSortKey(a),kb=needSortKey(b);if(ka!==kb)return ka-kb;
+    return(a.distancia_m??999999999)-(b.distancia_m??999999999);});
+  el.innerHTML=needs.map(needCard).join('')||emptyHelpMsg();}
 
 let acopioCache=[];
 async function loadAcopio(uLat,uLng){const el=document.getElementById('lista-acopio');
