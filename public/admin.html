@@ -119,6 +119,8 @@ details.sum summary::-webkit-details-marker{display:none}
       </div>
       <div class="fld"><label>Teléfono</label><input id="c-tel" inputmode="tel"></div>
       <div class="fld"><label>Horario</label><input id="c-horario" placeholder="8am - 8pm"></div>
+      <div class="fld"><label>Necesitan ahora</label><input id="c-necesita" placeholder="Agua, Medicinas, Palas (separado por comas)"></div>
+      <div class="fld"><label>Ya cubierto</label><input id="c-cubierto" placeholder="Ropa, comida (separado por comas)"></div>
       <button class="btn btn-g" onclick="saveCentro()">Guardar centro</button>
       <h3 style="font-size:14px;margin:20px 0 8px">Registrados</h3>
       <div id="lista-centros"></div>
@@ -468,6 +470,10 @@ async function loadEdificios() {
   ).join('') || '<div class="empty">Ninguno aún.</div>';
 }
 
+function parseListInput(id) {
+  return document.getElementById(id).value.split(',').map(s => s.trim()).filter(Boolean);
+}
+
 async function saveCentro() {
   const row = {
     nombre: document.getElementById('c-nombre').value.trim(),
@@ -478,6 +484,8 @@ async function saveCentro() {
     lng: +document.getElementById('c-lng').value,
     telefono: document.getElementById('c-tel').value.trim() || null,
     horario: document.getElementById('c-horario').value.trim() || null,
+    necesita_ahora: parseListInput('c-necesita'),
+    ya_cubierto: parseListInput('c-cubierto'),
     activo: true,
   };
   if (!row.nombre || !row.estado_vzla || !row.direccion || !row.lat || !row.lng) {
@@ -490,10 +498,12 @@ async function saveCentro() {
 }
 
 async function loadCentros() {
-  const { data } = await db.from('centros_acopio').select('id,nombre,estado_vzla,direccion,activo').order('created_at',{ascending:false}).limit(30);
-  document.getElementById('lista-centros').innerHTML = (data||[]).map(c =>
-    `<div class="card" style="border-left-color:var(--grn)"><b>${esc(c.nombre)}</b><div class="meta">${esc(c.estado_vzla)} · ${esc(c.direccion)}</div></div>`
-  ).join('') || '<div class="empty">Ninguno aún.</div>';
+  const { data } = await db.from('centros_acopio').select('id,nombre,estado_vzla,direccion,activo,necesita_ahora,ya_cubierto').order('created_at',{ascending:false}).limit(30);
+  document.getElementById('lista-centros').innerHTML = (data||[]).map(c => {
+    const nec = c.necesita_ahora?.length ? `<div class="meta" style="margin-top:4px;color:var(--red)">Necesitan: ${esc(c.necesita_ahora.join(', '))}</div>` : '';
+    const cub = c.ya_cubierto?.length ? `<div class="meta">Cubierto: ${esc(c.ya_cubierto.join(', '))}</div>` : '';
+    return `<div class="card" style="border-left-color:var(--grn)"><b>${esc(c.nombre)}</b><div class="meta">${esc(c.estado_vzla)} · ${esc(c.direccion)}</div>${nec}${cub}</div>`;
+  }).join('') || '<div class="empty">Ninguno aún.</div>';
 }
 
 async function runScraper() {

@@ -3,201 +3,246 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#C0392B">
+<meta name="theme-color" content="#F1EEEA">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>Ayuda Venezuela — SOS</title>
 <link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--red:#C0392B;--redd:#922B21;--redl:#FDEDEC;--ora:#E67E22;--oral:#FEF5E7;--grn:#1E8449;--grnl:#EAFAF1;--blu:#2471A3;--blul:#EBF5FB;--yel:#F39C12;--yell:#FEF9E7;--g0:#fff;--g1:#F8F9FA;--g2:#E9ECEF;--g3:#ADB5BD;--g4:#6C757D;--g5:#343A40;--r:8px;--rm:12px;--app-max:480px}
-html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--g1);color:var(--g5);font-size:16px;overscroll-behavior:none}
-.app{max-width:var(--app-max);margin:0 auto;min-height:100vh;background:var(--g0);display:flex;flex-direction:column;position:relative}
-.hdr{background:var(--red);color:#fff;padding:10px 14px 8px;flex-shrink:0}
-.hdr-row{display:flex;align-items:center;gap:8px}.hdr h1{font-size:15px;font-weight:700;line-height:1.2}.hdr p{font-size:11px;opacity:.9;margin-top:1px}
-.dot{display:inline-block;width:6px;height:6px;background:#7DCEA0;border-radius:50%;margin-right:4px;animation:blink 2s ease-in-out infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+:root{--bg:#F1EEEA;--surf:#FBFAF8;--red:#C0392B;--redd:#9B2418;--redh:#A93226;--redl:#FBEDEA;--ora:#E67E22;--oral:#FDF1E4;--grn:#1E8449;--grnh:#15603A;--grnl:#E9F6EE;--blu:#2471A3;--blul:#EBF3F9;--blut:#1E5F8C;--yel:#E8B72E;--yell:#FEF7E6;--yelt:#8A6D11;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--line3:#EDE8E1;--priv:#EDF6F0;--privb:#CDE8D8;--privt:#2C5A3F;--r:12px;--rm:14px;--app-max:1000px}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px;overscroll-behavior:none}
+.app{max-width:var(--app-max);margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;position:relative}
+.hdr{background:#fff;color:var(--txt);padding:11px 18px;border-bottom:1px solid var(--line);flex-shrink:0;position:sticky;top:0;z-index:30}
+.hdr-row{display:flex;align-items:center;gap:10px}.hdr h1{font-size:15px;font-weight:800;line-height:1.15}.hdr p{font-size:11px;color:var(--txt3);margin-top:1px}
+.dot{display:inline-block;width:6px;height:6px;background:#2ECC71;border-radius:50%;margin-right:5px;animation:blink 2s ease-in-out infinite;vertical-align:middle}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
 @media (prefers-reduced-motion:reduce){.dot,.spinner{animation:none}}
-.tabs{display:flex;background:var(--g0);border-bottom:1.5px solid var(--g2);flex-shrink:0;overflow-x:auto;scrollbar-width:none}
-.tabs::-webkit-scrollbar{display:none}
-.tab{flex:1 0 auto;padding:8px 12px;font-size:11px;font-weight:600;color:var(--g4);background:none;border:none;cursor:pointer;border-bottom:2.5px solid transparent;white-space:nowrap;line-height:1.3;text-align:center}
-.tab.on{color:var(--red);border-bottom-color:var(--red)}.tab-ico{display:block;font-size:18px;margin-bottom:1px}
+.info-btn{margin-left:auto;flex-shrink:0;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px;font-weight:800;background:var(--bg);border:1px solid var(--line2);color:var(--txt2)}
 .view{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}.view.on{display:flex;flex-direction:column}
-.pad{padding:12px}
-#view-mapa{padding:0}
-.map-stage{position:relative;flex:1;min-height:62vh}#main-map{position:absolute;inset:0}
-.map-strip{display:flex;gap:6px;padding:8px 10px;background:var(--g0);border-bottom:1px solid var(--g2);align-items:center;overflow-x:auto;scrollbar-width:none}
-.map-strip::-webkit-scrollbar{display:none}
-.mt{font-size:11px;font-weight:700;padding:6px 10px;border:1px solid var(--g2);border-radius:20px;background:var(--g0);color:var(--g4);cursor:pointer;white-space:nowrap}
-.mt.on{background:var(--redl);border-color:var(--red);color:var(--redd)}
-.leg{display:flex;gap:9px;font-size:10px;color:var(--g4);margin-left:auto;white-space:nowrap}
-.leg span{display:inline-flex;align-items:center;gap:3px}.leg i{width:9px;height:9px;border-radius:50%;display:inline-block}
-.map-hint{position:absolute;top:8px;left:8px;right:8px;z-index:500;background:rgba(255,255,255,.94);border-radius:var(--r);padding:7px 10px;font-size:11px;color:var(--g5);box-shadow:0 1px 6px rgba(0,0,0,.15);text-align:center}
-.fab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(var(--app-max),100vw);z-index:900;display:flex;justify-content:center;padding:0 14px calc(18px + env(safe-area-inset-bottom,0px));pointer-events:none}
-.fab{background:var(--red);color:#fff;border:none;border-radius:30px;padding:15px 26px;font-size:16px;font-weight:800;box-shadow:0 4px 16px rgba(192,57,43,.5);cursor:pointer;display:none;align-items:center;gap:8px;pointer-events:auto;min-height:48px}
-.fab.show{display:inline-flex}.fab:active{background:var(--redd)}
-.fsec{padding:14px}.ftitle{font-size:17px;font-weight:800;margin-bottom:2px}.fsub{font-size:12px;color:var(--g4);margin-bottom:12px;line-height:1.4}
-.fstep{font-size:11px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 8px;display:flex;align-items:center;gap:6px}
-.fstep .n{background:var(--red);color:#fff;width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px}
-.geo-btn{width:100%;background:var(--blul);color:var(--blu);border:1.5px dashed var(--blu);border-radius:var(--rm);padding:15px;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
-.geo-btn.ok{background:var(--grnl);color:var(--grn);border-color:var(--grn)}
-.geo-mini{height:140px;border-radius:var(--r);overflow:hidden;border:1px solid var(--g2);margin-top:8px;display:none}
-.geo-auto{font-size:12px;color:var(--g5);background:var(--g1);border-radius:var(--r);padding:8px 11px;margin-top:8px;display:none}.geo-auto b{color:var(--grn)}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.gbtn{background:var(--g1);border:2px solid transparent;border-radius:var(--rm);padding:12px 6px;text-align:center;cursor:pointer;font-size:12px;font-weight:700;color:var(--g5);line-height:1.2}
-.gbtn .e{display:block;font-size:26px;margin-bottom:4px}.gbtn.on{background:var(--redl);border-color:var(--red);color:var(--redd)}
-.urg{display:flex;gap:8px}.ubtn{flex:1;border:2px solid var(--g2);border-radius:var(--rm);padding:13px 6px;text-align:center;cursor:pointer;font-size:13px;font-weight:800;background:var(--g0);color:var(--g4)}
-.ubtn.on.crit{background:var(--redl);border-color:var(--red);color:var(--redd)}.ubtn.on.urg{background:var(--oral);border-color:var(--ora);color:#784212}.ubtn.on.nor{background:var(--grnl);border-color:var(--grn);color:#1D6A3E}
-.subchips{gap:6px;flex-wrap:wrap;margin-top:9px;display:none}.subchips.show{display:flex}
-.subchip{font-size:11px;padding:6px 10px;border:1px solid var(--g2);border-radius:20px;background:var(--g0);cursor:pointer;color:var(--g4)}.subchip.on{background:var(--blul);border-color:var(--blu);color:var(--blu);font-weight:700}
-.fld{margin-top:10px}.fld label{display:block;font-size:12px;font-weight:600;color:var(--g4);margin-bottom:4px}
-.fld input,.fld textarea,.fld select{width:100%;padding:13px 12px;border:1px solid var(--g2);border-radius:var(--r);font-size:16px;background:var(--g0);color:var(--g5);font-family:inherit;-webkit-appearance:none}
-.fld input:focus,.fld textarea:focus,.fld select:focus{outline:2px solid var(--red);outline-offset:1px;border-color:var(--red)}.fld textarea{height:64px;resize:none}.req{color:var(--red)}
-.optline{font-size:12px;color:var(--blu);background:none;border:none;cursor:pointer;padding:8px 0;font-weight:700}.opt{display:none}.opt.show{display:block}
-.btn-primary{width:100%;background:var(--red);color:#fff;border:none;border-radius:var(--rm);padding:16px;font-size:17px;font-weight:800;cursor:pointer;margin-top:16px}
-.btn-primary:disabled{background:var(--g3);cursor:not-allowed}.btn-primary:active:not(:disabled){background:var(--redd)}
-.toast{display:none;padding:12px 14px;font-size:13px;margin:0 14px 12px;border-radius:var(--r)}.toast.ok{background:#1E8449;color:#fff}.toast.err{background:var(--red);color:#fff}.toast.show{display:block}
-.chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}.chip{font-size:11px;padding:6px 10px;border:1px solid var(--g2);border-radius:20px;background:none;cursor:pointer;color:var(--g4);white-space:nowrap}.chip.on{background:var(--redl);border-color:var(--red);color:var(--redd);font-weight:700}
-.card{background:var(--g0);border:1px solid var(--g2);border-left:4px solid var(--g3);border-radius:var(--rm);padding:11px 12px;margin-bottom:9px}
-.card.r{border-left-color:var(--red)}.card.o{border-left-color:var(--ora)}.card.g{border-left-color:var(--grn)}.card.done{opacity:.55}.card.acopio{border-left-color:var(--grn);background:var(--grnl)}
-.c-top{display:flex;justify-content:space-between;align-items:flex-start;gap:6px;margin-bottom:5px}.c-loc{font-size:13px;font-weight:700;line-height:1.3}.c-addr{font-size:11px;color:var(--g4);margin-top:1px;line-height:1.4}
-.badge{font-size:10px;font-weight:700;padding:3px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0}.badge.r{background:var(--redl);color:var(--redd)}.badge.o{background:var(--oral);color:#784212}.badge.g{background:var(--grnl);color:#1D6A3E}.badge.done{background:var(--g2);color:var(--g4)}
-.c-tipo{font-size:12px;color:var(--g4);margin-bottom:4px}.c-desc{font-size:13px;line-height:1.5;margin-bottom:6px}
+.pad{padding:0 18px 60px}
+.back-btn{margin-top:18px;background:none;border:none;cursor:pointer;color:var(--txt2);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;padding:6px 0}
+.sec-title{font-size:24px;font-weight:800;margin-top:6px;display:flex;align-items:center;gap:9px}
+.sec-sub{font-size:14px;color:var(--txt2);margin-top:6px;line-height:1.5;max-width:46ch}
+.home-intro{padding:30px 2px 18px}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#A03228}
+.home-h1{font-size:30px;line-height:1.1;font-weight:800;margin-top:8px;max-width:14ch;text-wrap:balance}
+.home-p{font-size:15px;color:var(--txt2);margin-top:10px;max-width:46ch;line-height:1.5}
+.link-info{margin-top:12px;background:none;border:none;cursor:pointer;color:var(--blu);font-size:14px;font-weight:700;padding:4px 0;display:inline-flex;align-items:center;gap:6px}
+.hero-row{display:flex;flex-wrap:wrap;gap:14px;margin-top:6px}
+.hero-card{flex:1 1 270px;text-align:left;cursor:pointer;border:none;border-radius:20px;padding:24px 22px;color:#fff;display:flex;flex-direction:column;min-height:184px;font-family:inherit}
+.hero-card:active{transform:translateY(1px)}@media (hover:hover){.hero-card:hover{filter:brightness(1.05)}}
+.hero-red{background:linear-gradient(155deg,#C0392B,#9B2418);box-shadow:0 10px 26px rgba(155,36,24,.28)}
+.hero-grn{background:linear-gradient(155deg,#1E8449,#156034);box-shadow:0 10px 26px rgba(21,96,52,.26)}
+.hero-ico{font-size:34px;line-height:1}.hero-t{font-size:22px;font-weight:800;margin-top:14px}.hero-s{font-size:14px;opacity:.92;margin-top:6px;line-height:1.45}
+.hero-cta{margin-top:auto;padding-top:16px;font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
+.stats-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:22px;padding:14px 16px;background:#fff;border:1px solid var(--line);border-radius:16px;font-size:14px}
+.stats-row b{font-weight:800}.stat-dot{width:9px;height:9px;border-radius:50%;display:inline-block}.stat-sep{width:1px;height:16px;background:var(--line)}
+.more-lbl{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--txt3);margin:18px 0 9px}
+.more-row{display:flex;flex-wrap:wrap;gap:10px}
+.more-btn{flex:1 1 200px;cursor:pointer;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;font-size:14px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:9px;font-family:inherit}
+@media (hover:hover){.more-btn:hover{border-color:#CFC8BF}}
+.map-stage{position:relative;height:min(52vh,420px);border-radius:18px;overflow:hidden;border:1px solid var(--line2);background:#fff}#main-map{position:absolute;inset:0}
+.map-hint{position:absolute;top:8px;left:8px;right:8px;z-index:500;background:rgba(255,255,255,.94);border-radius:var(--r);padding:7px 10px;font-size:11px;color:var(--txt);box-shadow:0 1px 6px rgba(0,0,0,.15);text-align:center}
+.map-leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--txt2)}
+.map-leg span{display:inline-flex;align-items:center;gap:6px}.map-leg i{width:11px;height:11px;border-radius:50%;display:inline-block}
+.fab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(var(--app-max),100vw);z-index:900;display:flex;justify-content:flex-end;padding:0 18px calc(18px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.fab{background:var(--red);color:#fff;border:none;border-radius:30px;padding:14px 22px;font-size:15px;font-weight:800;box-shadow:0 8px 22px rgba(155,36,24,.42);cursor:pointer;display:none;align-items:center;gap:7px;pointer-events:auto}
+.fab.show{display:inline-flex}.fab:active{background:var(--redh)}
+.fsec{padding:0 18px 32px;max-width:580px;margin:0 auto;width:100%}
+.ftitle{font-size:24px;font-weight:800;margin-top:6px}.fsub{font-size:14px;color:var(--txt2);margin-top:6px;margin-bottom:12px;line-height:1.5}
+.fstep{font-size:12px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.05em;margin:22px 0 10px;display:flex;align-items:center;gap:7px}
+.fstep .n{background:var(--red);color:#fff;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.privacy-line{font-size:12px;color:var(--txt2);margin-top:8px;line-height:1.5;display:flex;gap:7px;align-items:flex-start}
+.geo-btn{background:var(--blul);color:var(--blut);border:1.5px dashed var(--blu);border-radius:13px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;font-family:inherit}
+.geo-btn.ok{background:var(--grnl);color:var(--grnh);border:1.5px solid var(--grn)}
+.geo-mini{height:140px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line2);margin-top:8px;display:none}
+.geo-auto{font-size:12px;color:var(--txt);background:var(--surf);border-radius:var(--r);padding:8px 11px;margin-top:8px;display:none}.geo-auto b{color:var(--grn)}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
+.gbtn{background:#fff;border:2px solid var(--line3);border-radius:14px;padding:14px 6px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#3A3530;line-height:1.2;font-family:inherit}
+.gbtn .e{display:block;font-size:25px;margin-bottom:4px}.gbtn.on{background:var(--redl);border-color:var(--red);color:var(--redd)}
+.gbtn-g.on{background:var(--grnl);border-color:var(--grn);color:var(--grnh)}
+.urg{display:flex;gap:8px}.ubtn{flex:1;border:2px solid var(--line3);border-radius:12px;padding:13px 6px;text-align:center;cursor:pointer;font-size:14px;font-weight:800;background:#fff;color:var(--txt3);font-family:inherit}
+.ubtn.on.crit{background:var(--red);border-color:var(--red);color:#fff}.ubtn.on.urg{background:var(--ora);border-color:var(--ora);color:#fff}.ubtn.on.nor{background:var(--grn);border-color:var(--grn);color:#fff}
+.subbox{margin-top:11px;background:#fff;border:1px solid var(--line2);border-radius:14px;padding:13px;display:none}.subbox.show{display:block}
+.subbox-lbl{font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:9px}
+.subchips{gap:7px;flex-wrap:wrap;display:flex}
+.subchip{font-size:13px;font-weight:600;padding:8px 12px;border-radius:10px;background:var(--surf);border:1.5px solid var(--line2);cursor:pointer;color:var(--txt2);font-family:inherit}
+.subchip.on{background:var(--blul);border-color:var(--blu);color:var(--blut)}
+.inp-otro{width:100%;padding:13px;border:1px dashed #C9C1B7;border-radius:12px;font-size:15px;background:var(--surf);color:var(--txt);margin-top:11px;font-family:inherit}
+.fld{margin-top:12px}.fld label{display:block;font-size:13px;font-weight:600;color:var(--txt2);margin-bottom:5px}
+.fld input,.fld textarea,.fld select{width:100%;padding:14px 13px;border:1px solid var(--line2);border-radius:12px;font-size:16px;background:#fff;color:var(--txt);font-family:inherit;-webkit-appearance:none}
+.fld input:focus,.fld textarea:focus,.fld select:focus{outline:2px solid var(--red);outline-offset:1px}.fld textarea{height:74px;resize:none}.req{color:var(--red)}
+.fld-row{display:block}.fld-row .fld{margin-top:12px}
+.btn-primary{width:100%;background:var(--red);color:#fff;border:none;border-radius:14px;padding:17px;font-size:17px;font-weight:800;cursor:pointer;margin-top:22px;font-family:inherit}
+.btn-primary.grn{background:var(--grn)}.btn-primary:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary:active:not(:disabled){background:var(--redh)}.btn-primary.grn:active:not(:disabled){background:var(--grnh)}
+.toast{display:none;padding:12px 14px;font-size:13px;margin:0 18px 12px;border-radius:var(--r)}.toast.ok{background:var(--grn);color:#fff}.toast.err{background:var(--red);color:#fff}.toast.show{display:block}
+.toast-fixed{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:90;max-width:90vw;padding:13px 18px;border-radius:12px;font-size:14px;font-weight:700;box-shadow:0 8px 26px rgba(0,0,0,.22);color:#fff;display:none}
+.toast-fixed.show{display:block}.toast-fixed.ok{background:var(--grn)}.toast-fixed.err{background:var(--red)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;flex-wrap:nowrap;margin:9px 0 0}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;background:#fff;border:1px solid var(--line2);cursor:pointer;color:var(--txt2);white-space:nowrap;font-family:inherit}
+.chips-help .chip.on{background:var(--grn);border-color:var(--grn);color:#fff}
+.chips-lbl{font-size:13px;font-weight:700;color:var(--txt2);margin-top:18px}
+.ayudar-ctrl{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px}
+.geo-mini-btn{width:auto;padding:11px 14px;font-size:13px;border-radius:11px}
+.seg{display:inline-flex;background:var(--line3);border-radius:10px;padding:3px}
+.seg button{cursor:pointer;border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:800;background:none;color:#8A837B;font-family:inherit}
+.seg button.on{background:#fff;color:var(--txt);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.donar-banner{margin-top:20px;padding:14px 16px;background:#fff;border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.donar-banner p{font-size:13px;color:var(--txt2);line-height:1.4}
+.donar-link{background:none;border:none;color:var(--grn);font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.card{background:#fff;border:1px solid #ECE7E1;border-left:4px solid #B7AFA6;border-radius:14px;padding:14px 15px;margin-bottom:12px}
+.card.r{border-left-color:var(--red)}.card.o{border-left-color:var(--ora)}.card.g{border-left-color:var(--grn)}.card.done{opacity:.55}.card.acopio{border-left-color:var(--grn)}
+.c-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:5px}.c-loc{font-size:14px;font-weight:800;line-height:1.25}.c-addr{font-size:12px;color:var(--txt2);margin-top:2px;line-height:1.4}
+.badge{font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;white-space:nowrap;flex-shrink:0}.badge.r{background:var(--redl);color:var(--redd)}.badge.o{background:var(--oral);color:var(--ora)}.badge.g{background:var(--grnl);color:var(--grn)}.badge.done{background:var(--line3);color:var(--txt3)}
+.c-tipo{font-size:13px;color:#4A4540;margin:8px 0 4px}.c-desc{font-size:13px;line-height:1.5;color:#3A3530;margin-top:8px}
 .c-qty{display:inline-block;font-size:11px;background:var(--blul);color:var(--blu);padding:2px 7px;border-radius:4px;margin-bottom:5px}
-.c-nota{font-size:11px;background:var(--yell);color:#7D6608;border-left:3px solid var(--yel);padding:4px 7px;border-radius:0 4px 4px 0;margin-bottom:5px}
+.c-nota{font-size:12px;background:var(--yell);color:var(--yelt);border-left:3px solid var(--yel);padding:6px 9px;border-radius:0 6px 6px 0;margin-top:9px;font-weight:600}
 .c-dist{display:inline-block;font-size:11px;color:#fff;background:var(--grn);font-weight:700;padding:2px 8px;border-radius:20px;margin-bottom:5px}
-.c-conf{font-size:10px;color:var(--g4);margin-left:6px}
+.c-conf{font-size:10px;color:var(--txt3);margin-left:6px}
 .c-src{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:5px}.c-src.ig{background:#FCE4EC;color:#AD1457}.c-src.tt{background:#E0F7FA;color:#006064}.c-src.tw{background:#E3F2FD;color:#1565C0}.c-src.tg{background:#E8F5E9;color:#2E7D32}
-.unval{display:inline-block;font-size:9px;background:var(--yell);color:#7D6608;border:1px solid #F9E79F;border-radius:3px;padding:1px 5px;margin-left:5px}
-.actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
-.actions a,.actions button{color:#fff;border:none;border-radius:var(--r);padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:3px}
-.btn-call{background:var(--grn)}.btn-wa{background:#25D366}.btn-map{background:var(--blu)}.btn-edif{background:var(--red)}.btn-sh{background:none!important;border:1px solid var(--g2)!important;color:var(--g4)!important}
+.unval{display:inline-block;font-size:9px;background:var(--yell);color:var(--yelt);border:1px solid var(--yel);border-radius:3px;padding:1px 5px;margin-left:5px}
+.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+.actions a,.actions button{color:#fff;border:none;border-radius:9px;padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:3px;font-family:inherit}
+.btn-call{background:var(--grn)}.btn-wa{background:#25D366}.btn-map{background:var(--blu)}.btn-edif{background:var(--red)}.btn-sh{background:none!important;border:1px solid var(--line2)!important;color:var(--txt2)!important}
+.acopio-need{margin-top:11px;background:var(--redl);border-radius:10px;padding:9px 11px}
+.acopio-need-lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--redd)}
+.acopio-need-txt{font-size:13px;font-weight:700;color:#3A3530;margin-top:4px;line-height:1.45}
+.acopio-cubierto{font-size:12px;color:var(--txt3);margin-top:7px}
 .leaflet-popup-content .btn-edif{display:block;width:100%;margin-top:8px;background:var(--red)!important;color:#fff!important;border:none!important;border-radius:var(--r);padding:10px 12px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;text-align:center;box-sizing:border-box}
-.leaflet-popup-content .btn-edif:active{background:var(--redd)!important}
-.spin-wrap{text-align:center;padding:32px 20px;color:var(--g4);font-size:13px}.spinner{width:26px;height:26px;border:3px solid var(--g2);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
+.spin-wrap{text-align:center;padding:32px 20px;color:var(--txt2);font-size:13px;grid-column:1/-1}.spinner{width:26px;height:26px;border:3px solid var(--line3);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.empty{text-align:center;padding:32px 20px;color:var(--g4);line-height:1.6}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:flex-end;justify-content:center}.modal.on{display:flex}
-.modal-card{background:#fff;width:100%;max-width:var(--app-max);border-radius:16px 16px 0 0;padding:16px 16px calc(22px + env(safe-area-inset-bottom,0px));max-height:80vh;overflow-y:auto}
-.modal-card h3{font-size:15px;margin-bottom:3px}.modal-card .sub{font-size:12px;color:var(--g4);margin-bottom:12px;line-height:1.5}
-.dupe{border:1px solid var(--g2);border-radius:var(--r);padding:10px;margin-bottom:8px}.dupe b{font-size:13px}.dupe .meta{font-size:11px;color:var(--g4);margin-top:2px}
-.dupe button{margin-top:7px;width:100%;background:var(--grn);color:#fff;border:none;border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;cursor:pointer}
-.modal-new{width:100%;background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:13px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px}
-.modal-cancel{width:100%;background:none;border:none;color:var(--g4);padding:10px;font-size:13px;cursor:pointer}
-.mod-card{border-left-color:var(--blu)}.mod-orig{font-size:11px;color:var(--blu);font-weight:700;margin:6px 0;display:inline-block}
+.empty{text-align:center;padding:32px 20px;color:var(--txt2);line-height:1.6;grid-column:1/-1}
+.modal{display:none;position:fixed;inset:0;background:rgba(28,26,25,.5);z-index:9999;align-items:flex-end;justify-content:center}.modal.on{display:flex}
+.modal-card{background:#fff;width:100%;max-width:560px;border-radius:20px 20px 0 0;padding:22px 20px calc(26px + env(safe-area-inset-bottom,0px));max-height:86vh;overflow-y:auto}
+.modal-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.modal-card h3{font-size:20px;font-weight:800;display:flex;align-items:center;gap:8px}
+.modal-x{background:var(--bg);border:none;border-radius:50%;width:32px;height:32px;font-size:17px;cursor:pointer;color:var(--txt2);flex-shrink:0}
+.modal-body{font-size:14px;line-height:1.6;color:#3A3530;margin-top:12px}
+.modal-sec{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--txt3);margin:18px 0 8px}
+.modal-how{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px}
+.priv-box{margin-top:18px;background:var(--priv);border:1px solid var(--privb);border-radius:14px;padding:13px 15px;display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.55;color:var(--privt)}
+.btn-dark{width:100%;margin-top:18px;background:var(--txt);color:#fff;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
+.dupe{border:1px solid var(--line2);border-radius:var(--r);padding:10px;margin-bottom:8px}.dupe b{font-size:13px}.dupe .meta{font-size:11px;color:var(--txt2);margin-top:2px}
+.dupe button{margin-top:7px;width:100%;background:var(--grn);color:#fff;border:none;border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.modal-new{width:100%;background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:13px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px;font-family:inherit}
+.modal-cancel{width:100%;background:none;border:none;color:var(--txt2);padding:10px;font-size:13px;cursor:pointer;font-family:inherit}
 .edif-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
-.edif-opt{width:100%;text-align:left;background:var(--g1);border:2px solid var(--g2);border-radius:var(--r);padding:11px 12px;font-size:13px;font-weight:600;cursor:pointer;color:var(--g5);font-family:inherit}
+.edif-opt{width:100%;text-align:left;background:var(--surf);border:2px solid var(--line2);border-radius:var(--r);padding:11px 12px;font-size:13px;font-weight:600;cursor:pointer;color:var(--txt);font-family:inherit}
 .edif-opt.on{background:var(--redl);border-color:var(--red);color:var(--redd)}
-.edif-opt small{display:block;font-size:11px;font-weight:400;color:var(--g4);margin-top:2px}
-.edif-hint{font-size:12px;color:var(--g4);margin-bottom:8px;line-height:1.4}
-.tab:focus-visible,.mt:focus-visible,.chip:focus-visible,.gbtn:focus-visible,.ubtn:focus-visible,.geo-btn:focus-visible,.btn-primary:focus-visible,.fab:focus-visible,.edif-opt:focus-visible{outline:2px solid var(--red);outline-offset:2px}
-@media (hover:hover){
-.tab:hover:not(.on){color:var(--g5)}
-.mt:hover:not(.on),.chip:hover:not(.on),.gbtn:hover:not(.on),.ubtn:hover:not(.on){border-color:var(--g3);color:var(--g5)}
-.geo-btn:hover:not(:disabled){filter:brightness(.97)}
-.btn-primary:hover:not(:disabled){background:var(--redd)}
-.fab:hover{background:var(--redd)}
-.card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
-}
-@media (min-width:640px){
-:root{--app-max:720px}
-.app{box-shadow:0 0 0 1px var(--g2),0 8px 32px rgba(0,0,0,.06)}
-.hdr{padding:12px 18px 10px}.hdr h1{font-size:16px}.hdr p{font-size:12px}
-.tab{padding:10px 14px;font-size:12px}
-.fsec,.pad{padding-left:20px;padding-right:20px}
-.grid{grid-template-columns:repeat(4,1fr)}
-.map-stage{min-height:68vh}
-.map-hint{font-size:12px;padding:8px 12px}
-#lista-ayudar,#lista-acopio{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+.edif-opt small{display:block;font-size:11px;font-weight:400;color:var(--txt2);margin-top:2px}
+.edif-hint{font-size:12px;color:var(--txt2);margin-bottom:8px;line-height:1.4}
+#lista-ayudar,#lista-acopio{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-top:14px;align-items:start}
 #lista-ayudar>.card,#lista-acopio>.card{margin-bottom:0}
-#lista-ayudar>.spin-wrap,#lista-ayudar>.empty,#lista-acopio>.spin-wrap,#lista-acopio>.empty{grid-column:1/-1}
-}
-@media (min-width:960px){
-:root{--app-max:1040px}
-.grid{grid-template-columns:repeat(5,1fr)}
-#view-mapa .map-stage{min-height:calc(100vh - 118px)}
-.map-hint{left:16px;right:auto;max-width:360px;text-align:left}
-#view-reportar .fsec,#view-ofrecer .fsec{max-width:600px;margin:0 auto;padding:24px 28px}
-#view-ayudar .pad,#view-acopio .pad{padding:20px 24px}
-.modal{align-items:center;padding:20px}
-.modal-card{border-radius:var(--rm);max-height:min(85vh,640px);box-shadow:0 12px 40px rgba(0,0,0,.2)}
-}
-@media (max-width:380px){
-.tab{padding:8px 8px;font-size:10px}.tab-ico{font-size:16px}
-.leg{display:none}
-}
+.info-btn:focus-visible,.hero-card:focus-visible,.more-btn:focus-visible,.back-btn:focus-visible,.chip:focus-visible,.gbtn:focus-visible,.ubtn:focus-visible,.geo-btn:focus-visible,.btn-primary:focus-visible,.fab:focus-visible,.edif-opt:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+@media (min-width:640px){.app{box-shadow:0 0 0 1px var(--line),0 8px 32px rgba(0,0,0,.06)}.hdr h1{font-size:16px}.hdr p{font-size:12px}}
+@media (min-width:960px){.modal{align-items:center;padding:20px}.modal-card{border-radius:20px;max-height:min(85vh,640px);box-shadow:0 12px 40px rgba(0,0,0,.2)}#view-reportar .fsec{max-width:580px;padding-bottom:40px}}
 </style>
 </head>
 <body>
 <div class="app">
-<div class="hdr"><div class="hdr-row"><span style="font-size:21px">🇻🇪</span>
-  <div><h1>Ayuda Venezuela — SOS</h1><p><span class="dot"></span>En vivo · Terremoto 24 jun 2026</p></div></div></div>
-<div class="tabs">
-  <button class="tab on" onclick="goTab('mapa')"><span class="tab-ico">🗺</span>Mapa</button>
-  <button class="tab" onclick="goTab('reportar')"><span class="tab-ico">🆘</span>Pedir ayuda</button>
-  <button class="tab" onclick="goTab('ayudar')"><span class="tab-ico">🤝</span>Ayudar</button>
-  <button class="tab" onclick="goTab('acopio')"><span class="tab-ico">📦</span>Centros</button>
-  <button class="tab" onclick="goTab('ofrecer')"><span class="tab-ico">🎁</span>Ofrecer</button>
-</div>
-
-<!-- MAPA HOME -->
-<div class="view on" id="view-mapa">
-  <div class="map-strip">
-    <button class="mt on" id="mt-pts" onclick="setMapMode('pts')">Puntos</button>
-    <button class="mt" id="mt-heat" onclick="setMapMode('heat')">Calor</button>
-    <div class="leg"><span><i style="background:#C0392B"></i>Crítica / Colapso</span><span><i style="background:#E67E22"></i>Urgente</span><span><i style="background:#1E8449"></i>Acopio</span></div>
+<div class="hdr"><div class="hdr-row">
+  <span style="font-size:22px;cursor:pointer" onclick="goScreen('home')">🇻🇪</span>
+  <div style="flex:1;min-width:0;cursor:pointer" onclick="goScreen('home')">
+    <h1>Ayuda Venezuela</h1><p><span class="dot"></span>En vivo · Terremoto 24 jun 2026</p>
   </div>
-  <div class="map-stage"><div class="map-hint">Pulsa un punto para ver detalle y contactar · o <b>🆘 Pedir ayuda</b></div><div id="main-map"></div></div>
+  <button class="info-btn" onclick="openInfo()" aria-label="¿Qué es ForVzla?">?</button>
+</div></div>
+
+<!-- HOME -->
+<div class="view on" id="view-home">
+  <div class="pad">
+    <div class="home-intro">
+      <div class="kicker">Red de ayuda vecino a vecino</div>
+      <h1 class="home-h1">¿Necesitas ayuda o quieres ayudar?</h1>
+      <p class="home-p">Lo más valioso ahora es <b>pedir lo que necesitas</b> y <b>dar lo que puedes</b>. Elige tu camino.</p>
+      <button class="link-info" onclick="openInfo()">ⓘ ¿Qué es ForVzla?</button>
+    </div>
+    <div class="hero-row">
+      <button class="hero-card hero-red" onclick="goScreen('reportar')">
+        <span class="hero-ico">🆘</span>
+        <span class="hero-t">Necesito ayuda</span>
+        <span class="hero-s">Publica tu SOS en un minuto. Quien esté cerca lo verá al instante.</span>
+        <span class="hero-cta">Pedir ahora <span style="font-size:17px">→</span></span>
+      </button>
+      <button class="hero-card hero-grn" onclick="goScreen('ayudar')">
+        <span class="hero-ico">🤝</span>
+        <span class="hero-t">Quiero ayudar</span>
+        <span class="hero-s">Dime qué puedes dar y verás quién lo necesita cerca de ti.</span>
+        <span class="hero-cta">Ver quién lo necesita <span style="font-size:17px">→</span></span>
+      </button>
+    </div>
+    <div class="stats-row">
+      <span><span class="stat-dot" style="background:var(--red)"></span> <b id="stat-needs">—</b> pedidos activos cerca</span>
+      <span class="stat-sep"></span>
+      <span><span class="stat-dot" style="background:var(--grn)"></span> <b id="stat-centros">—</b> centros de acopio</span>
+    </div>
+    <div class="more-lbl">Más opciones</div>
+    <div class="more-row">
+      <button class="more-btn" onclick="goScreen('acopio')">📦 Centros de acopio</button>
+      <button class="more-btn" onclick="goScreen('ofrecer')">🎁 Donar a un centro</button>
+    </div>
+  </div>
 </div>
 
 <!-- PEDIR AYUDA -->
 <div class="view" id="view-reportar">
   <div id="toast-r" class="toast"></div>
   <div class="fsec">
-    <div class="ftitle">🆘 Pedir ayuda</div>
-    <div class="fsub">Tres toques y un teléfono. Quien ayude cerca de ti lo verá al instante.</div>
+    <button class="back-btn" onclick="goScreen('home')">← Volver</button>
+    <div class="ftitle">🆘 Necesito ayuda</div>
+    <div class="fsub">Tres pasos y un teléfono. Quien ayude cerca de ti lo verá enseguida.</div>
     <div class="fstep"><span class="n">1</span> ¿Dónde estás?</div>
     <button class="geo-btn" id="geo-btn-r" onclick="captureGeo()">📍 Usar mi ubicación</button>
+    <div class="privacy-line"><span>🔒</span><span>Solo se usa para mostrar tu pin en el mapa. Sin registro de usuario ni rastreo de ningún tipo.</span></div>
     <div class="geo-auto" id="geo-auto"></div>
     <div class="geo-mini" id="geo-mini-r"><div id="geo-map-r" style="height:100%;width:100%"></div></div>
     <input type="hidden" id="r-lat"><input type="hidden" id="r-lng"><input type="hidden" id="r-zona"><input type="hidden" id="r-dir"><input type="hidden" id="r-edif">
     <div id="edif-step" style="display:none">
-      <div class="fstep"><span class="n">2</span> ¿Por derrumbe de un edificio? <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--g4)">— opcional</span></div>
-      <p class="edif-hint">Si la ayuda es por un colapso cerca de ti, elige uno de la lista o escribe el nombre.</p>
+      <p class="edif-hint" style="margin-top:12px">Si la ayuda es por un colapso cerca de ti, elige uno de la lista o escribe el nombre.</p>
       <div class="edif-list" id="edif-list"></div>
-      <div class="fld"><label>Nombre del edificio <span style="font-weight:400;color:var(--g4)">(si no está en la lista)</span></label>
+      <div class="fld"><label>Nombre del edificio <span style="font-weight:400;color:var(--txt3)">(si no está en la lista)</span></label>
         <input type="text" id="r-edif-nombre" placeholder="Ej: Residencias El Faro" oninput="onEdifNombreInput()"></div>
     </div>
-    <div class="fstep"><span class="n">3</span> ¿Qué necesitas? <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--g4)">— puedes marcar varias</span></div>
+    <div class="fstep"><span class="n">2</span> ¿Qué necesitas? <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--txt3)">— marca las que quieras</span></div>
     <div class="grid" id="tipo-grid"></div>
-    <div class="subchips" id="sub-chips"></div>
-    <div class="fstep"><span class="n">4</span> ¿Qué tan urgente?</div>
+    <div class="subbox" id="sub-box">
+      <div class="subbox-lbl">🔧 ¿Qué herramientas o equipos? <span style="font-weight:400;color:var(--txt3)">— varias</span></div>
+      <div class="subchips" id="sub-chips"></div>
+    </div>
+    <input type="text" class="inp-otro" id="r-otro" placeholder="➕ Otro — algo que no esté en la lista">
+    <div class="fstep"><span class="n">3</span> Urgencia y contacto</div>
     <div class="urg">
       <button class="ubtn crit" data-u="critica" onclick="setUrg(this)">🔴 Crítica</button>
       <button class="ubtn urg on" data-u="urgente" onclick="setUrg(this)">🟠 Urgente</button>
       <button class="ubtn nor" data-u="normal" onclick="setUrg(this)">🟢 Normal</button>
     </div>
-    <div class="fstep"><span class="n">5</span> Contacto y detalle</div>
-    <div class="fld"><label>📞 Teléfono <span class="req">*</span> <span style="font-weight:400;color:var(--g4)">(para que te contacten)</span></label>
+    <div class="fld"><label>📞 Teléfono <span class="req">*</span> <span style="font-weight:400;color:var(--txt3)">— para que te contacten</span></label>
       <input type="tel" id="r-tel" placeholder="+58 412 555 1234" inputmode="tel"></div>
-
-    <div class="fld"><label>Detalle <span style="font-weight:400;color:var(--g4)">— dícitalo con el 🎤 del teclado</span></label>
+    <div class="fld"><label>WhatsApp <span style="font-weight:400;color:var(--txt3)">(si difiere del teléfono)</span></label>
+      <input type="tel" id="r-wa" inputmode="tel" placeholder="+58..."></div>
+    <div class="fld"><label>Detalle <span style="font-weight:400;color:var(--txt3)">— dictalo con el 🎤 del teclado</span></label>
       <textarea id="r-desc" placeholder="Ej: 10 vecinos atrapados, hace falta sacar escombros"></textarea></div>
-    <div class="fld" style="display:flex;gap:8px"><div style="flex:1"><label>Personas afectadas</label><input type="number" id="r-pers" inputmode="numeric" placeholder="10"></div>
-      <div style="flex:1"><label>Tu nombre</label><input type="text" id="r-nombre" placeholder="Opcional"></div></div>
-    <div class="fld"><label>WhatsApp <span style="font-weight:400;color:var(--g4)">(si difiere del teléfono)</span></label><input type="tel" id="r-wa" inputmode="tel" placeholder="+58..."></div>
+    <div class="fld-row">
+      <div class="fld"><label>Personas afectadas</label><input type="number" id="r-pers" inputmode="numeric" placeholder="10"></div>
+      <div class="fld"><label>Tu nombre</label><input type="text" id="r-nombre" placeholder="Opcional"></div>
+    </div>
     <button class="btn-primary" id="btn-r" onclick="checkAndSubmit()">Publicar SOS</button>
   </div>
 </div>
 
-<!-- AYUDAR -->
+<!-- QUIERO AYUDAR -->
 <div class="view" id="view-ayudar">
   <div class="pad">
-    <button class="geo-btn" id="geo-ayudar-btn" onclick="locateForHelp()" style="margin-bottom:10px">📍 Ver lo más cercano a mí</button>
-    <div class="chips" id="help-chips">
+    <button class="back-btn" onclick="goScreen('home')">← Volver</button>
+    <div class="sec-title">🤝 Quiero ayudar</div>
+    <p class="sec-sub">Elige <b>qué puedes dar</b> y verás quién lo necesita cerca de ti. Contacta directo.</p>
+    <div class="chips-lbl">¿Qué puedes dar?</div>
+    <div class="chips chips-help" id="help-chips">
       <button class="chip on" data-t="" onclick="setChip(this)">Todo</button>
       <button class="chip" data-t="Rescate" onclick="setChip(this)">🚒 Rescate</button>
       <button class="chip" data-t="Agua" onclick="setChip(this)">💧 Agua</button>
@@ -207,40 +252,78 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
       <button class="chip" data-t="Sangre" onclick="setChip(this)">🩸 Sangre</button>
       <button class="chip" data-t="Herramientas" onclick="setChip(this)">🔧 Equipos</button>
     </div>
-    <div id="lista-ayudar"><div class="spin-wrap"><div class="spinner"></div>Cargando...</div></div>
+    <div class="ayudar-ctrl">
+      <button class="geo-btn geo-mini-btn" id="geo-ayudar-btn" onclick="locateForHelp()">📍 Ver lo más cercano</button>
+      <div class="seg">
+        <button id="tgl-lista" class="on" onclick="setAyudarView('lista')">Lista</button>
+        <button id="tgl-mapa" onclick="setAyudarView('mapa')">Mapa</button>
+      </div>
+    </div>
+    <div id="ayudar-lista-wrap">
+      <div id="lista-ayudar"><div class="spin-wrap"><div class="spinner"></div>Cargando...</div></div>
+    </div>
+    <div id="ayudar-mapa-wrap" style="display:none">
+      <div class="map-stage" style="margin-top:14px"><div class="map-hint">Pulsa un punto para ver el detalle y contactar.</div><div id="main-map"></div></div>
+      <div class="map-leg">
+        <span><i style="background:#C0392B"></i>Crítica / colapso</span>
+        <span><i style="background:#E67E22"></i>Urgente</span>
+        <span><i style="background:#1E8449"></i>Centro de acopio</span>
+      </div>
+    </div>
+    <div class="donar-banner">
+      <p>¿Tienes mucho que donar (camión, lote grande)?</p>
+      <button class="donar-link" onclick="goScreen('ofrecer')">Llévalo a un centro →</button>
+    </div>
   </div>
 </div>
 
 <!-- CENTROS -->
 <div class="view" id="view-acopio">
   <div class="pad">
-    <button class="geo-btn" id="geo-acopio-btn" onclick="locateForAcopio()" style="margin-bottom:10px">📍 Ordenar por cercanía</button>
+    <button class="back-btn" onclick="goScreen('home')">← Volver</button>
+    <div class="sec-title">📦 Centros de acopio</div>
+    <p class="sec-sub">Mira qué necesita cada centro <b>ahora mismo</b> antes de llevar algo.</p>
+    <button class="geo-btn geo-mini-btn" id="geo-acopio-btn" onclick="locateForAcopio()" style="margin-top:14px">📍 Ordenar por cercanía</button>
     <div id="lista-acopio"><div class="spin-wrap"><div class="spinner"></div>Cargando...</div></div>
   </div>
 </div>
 
-<!-- OFRECER -->
+<!-- DONAR A CENTRO -->
 <div class="view" id="view-ofrecer">
   <div id="toast-o" class="toast"></div>
   <div class="fsec">
-    <div class="ftitle">🎁 Ofrecer recursos</div>
-    <div class="fsub">Elige qué tienes y a qué centro lo llevas.</div>
+    <button class="back-btn" onclick="goScreen('home')">← Volver</button>
+    <div class="ftitle">🎁 Donar a un centro</div>
+    <div class="fsub">Para donaciones grandes a un centro de acopio. ¿Quieres ayudar a una persona concreta? Usa <button class="donar-link" style="padding:0;font-size:14px" onclick="goScreen('ayudar')">Quiero ayudar</button>.</div>
     <div class="fstep"><span class="n">1</span> ¿Qué ofreces?</div>
     <div class="grid" id="tipo-grid-o"></div>
-    <div class="fld" style="margin-top:14px"><label>Cantidad <span class="req">*</span></label><input type="text" id="o-qty" placeholder="Ej: 500 botellas 1L, camión 5 ton"></div>
+    <div class="fld" style="margin-top:14px"><label>Cantidad <span class="req">*</span></label><input type="text" id="o-qty" placeholder="Ej: 500 botellas 1L · camión 5 ton"></div>
     <div class="fld"><label>Centro de acopio para entregar</label><select id="o-acopio"><option value="">Selecciona...</option></select></div>
     <div class="fld"><label>📞 Teléfono <span class="req">*</span></label><input type="tel" id="o-tel" inputmode="tel" placeholder="+58 412 555 1234"></div>
     <div class="fld"><label>Nombre</label><input type="text" id="o-nombre" placeholder="Opcional"></div>
-    <button class="btn-primary" id="btn-o" onclick="submitRecurso()">Publicar recurso</button>
+    <button class="btn-primary grn" id="btn-o" onclick="submitRecurso()">Publicar recurso</button>
   </div>
 </div>
 
-<div class="fab-bar"><button class="fab show" id="fab" onclick="startSOS()">🆘 Pedir ayuda</button></div>
+<div class="fab-bar"><button class="fab" id="fab" onclick="startSOS()">🆘 Pedir ayuda</button></div>
 </div>
 
-<div class="modal" id="dupe-modal"><div class="modal-card">
+<div class="modal" id="info-modal" onclick="closeInfo()"><div class="modal-card" onclick="event.stopPropagation()">
+  <div class="modal-top">
+    <h3>🇻🇪 ¿Qué es ForVzla?</h3>
+    <button class="modal-x" onclick="closeInfo()">✕</button>
+  </div>
+  <p class="modal-body">ForVzla es un <b>mapa colaborativo de emergencia</b> creado para unir los sitios de emergencia con voluntarios o personas que puedan prestar ayuda tras el terremoto en Venezuela. Cualquier persona puede reportar que necesita ayuda y su ubicación. Los rescatistas, familiares y voluntarios pueden ver los puntos en el mapa, abrir rutas de navegación y marcar casos atendidos en tiempo real.</p>
+  <div class="modal-sec">Cómo funciona</div>
+  <div class="modal-how"><span style="font-size:20px">🆘</span><p class="modal-body"><b>Pedir ayuda</b> — reporta un lugar y qué necesitas.</p></div>
+  <div class="modal-how"><span style="font-size:20px">🤝</span><p class="modal-body"><b>Quiero ayudar</b> — elige qué puedes dar y contacta directo a quien lo necesita cerca de ti.</p></div>
+  <div class="priv-box"><span style="font-size:18px">🔒</span><p>Solo pedimos la información estrictamente necesaria. La ubicación se usa únicamente para mostrar el pin en el mapa. <b>No hay registro de usuario ni rastreo de ningún tipo.</b></p></div>
+  <button class="btn-dark" onclick="closeInfo()">Entendido</button>
+</div></div>
+
+<div class="modal" id="dupe-modal"><div class="modal-card" onclick="event.stopPropagation()">
   <h3>⚠️ Esta zona ya está reportada</h3>
-  <div class="sub">Hay reportes parecidos muy cerca. Si es lo mismo, <b>confírmalo</b> (no duplica, suma fuerza). Si es distinto, publica nuevo.</div>
+  <p class="modal-body" style="font-size:12px;color:var(--txt2);margin-bottom:12px">Hay reportes parecidos muy cerca. Si es lo mismo, <b>confírmalo</b> (no duplica, suma fuerza). Si es distinto, publica nuevo.</p>
   <div id="dupe-list"></div>
   <button class="modal-new" onclick="forceNew()">Es algo distinto, publicar nuevo</button>
   <button class="modal-cancel" onclick="closeDupe()">Cancelar</button>
@@ -252,7 +335,7 @@ const SB_KEY='sb_publishable_vg8SSOkKpgvwOSyi2k-aVg_lslrQsBA';
 const db=supabase.createClient(SB_URL,SB_KEY);
 const TIPOS=[{t:'Rescate',e:'🚒'},{t:'Agua potable',e:'💧'},{t:'Alimentos',e:'🍎'},{t:'Medicamentos',e:'💊'},{t:'Médicos / paramédicos',e:'🏥'},{t:'Refugio / carpas',e:'⛺'},{t:'Sangre / donantes',e:'🩸'},{t:'Transporte',e:'🚛'},{t:'Herramientas / Equipos',e:'🔧'}];
 const TIPOS_O=[{t:'Agua embotellada',e:'💧'},{t:'Alimentos no perecederos',e:'🍎'},{t:'Medicamentos',e:'💊'},{t:'Transporte (vehículo)',e:'🚛'},{t:'Personal médico',e:'🏥'},{t:'Equipos de rescate',e:'🚒'},{t:'Herramientas / Equipos',e:'🔧'},{t:'Refugio / espacio físico',e:'⛺'},{t:'Donación económica',e:'💵'}];
-const HERRAM=['Guantes','Tapabocas','Sequetas','Tobos','Disco de corte','Palas','Motosierra','Esmeriles','Cascos','Linternas'];
+const HERRAM=['Guantes','Tapabocas','Palas','Sequetas','Disco de corte','Motosierra','Cascos','Linternas','Tobos','Esmeriles'];
 const SHORT={'Rescate':'Rescate','Agua potable':'Agua','Alimentos':'Comida','Medicamentos':'Medicinas','Médicos / paramédicos':'Médicos','Refugio / carpas':'Refugio','Sangre / donantes':'Sangre','Transporte':'Transporte','Herramientas / Equipos':'Equipos','Agua embotellada':'Agua','Alimentos no perecederos':'Comida','Transporte (vehículo)':'Vehículo','Personal médico':'Médicos','Equipos de rescate':'Rescate','Refugio / espacio físico':'Refugio','Donación económica':'Dinero'};
 const UL={critica:'🔴 Crítica',urgente:'🟠 Urgente',normal:'🟢 Normal'};const UE={critica:'r',urgente:'o',normal:'g'};
 function ei(t){const f=TIPOS.concat(TIPOS_O).find(x=>x.t===t);return f?f.e:'📌'}
@@ -266,18 +349,25 @@ function srcTag(f){if(f==='instagram')return'<span class="c-src ig">IG</span>';i
 function needTipos(n){return(n.tipos&&n.tipos.length)?n.tipos:[n.tipo].filter(Boolean)}
 function tipoText(n){return needTipos(n).map(t=>SHORT[t]||t).join(', ')}
 function tipoIcons(n){return needTipos(n).map(t=>ei(t)).join(' ')}
+function subtiposText(n){if(n.subtipos&&n.subtipos.length)return n.subtipos.join(', ');return n.subtipo||''}
 
-function buildGrid(elId,list,fn){document.getElementById(elId).innerHTML=list.map(x=>`<button class="gbtn" data-t="${x.t}" onclick="${fn}(this)"><span class="e">${x.e}</span>${SHORT[x.t]||x.t}</button>`).join('');}
-let selTipos=[],selUrg='urgente',selSub='',selTipoO='';
+function buildGrid(elId,list,fn,cls=''){document.getElementById(elId).innerHTML=list.map(x=>`<button class="gbtn${cls?' '+cls:''}" data-t="${x.t}" onclick="${fn}(this)"><span class="e">${x.e}</span>${SHORT[x.t]||x.t}</button>`).join('');}
+let selTipos=[],selSubs=[],selUrg='urgente',selTipoO='',ayudarView='lista';
 function pickTipo(btn){const t=btn.dataset.t,i=selTipos.indexOf(t);
   if(i>=0){selTipos.splice(i,1);btn.classList.remove('on');}else{selTipos.push(t);btn.classList.add('on');}
   syncSubChips();}
-function syncSubChips(){const sc=document.getElementById('sub-chips');
-  if(selTipos.includes('Herramientas / Equipos')){sc.classList.add('show');if(!sc.innerHTML)sc.innerHTML=HERRAM.map(h=>`<button class="subchip" data-h="${h}" onclick="pickSub(this)">${h}</button>`).join('');}
-  else{sc.classList.remove('show');sc.innerHTML='';selSub='';}}
-function pickSub(btn){document.querySelectorAll('.subchip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selSub=btn.dataset.h;}
+function syncSubChips(){const box=document.getElementById('sub-box'),sc=document.getElementById('sub-chips');
+  if(selTipos.includes('Herramientas / Equipos')){box.classList.add('show');
+    sc.innerHTML=HERRAM.map(h=>`<button type="button" class="subchip${selSubs.includes(h)?' on':''}" data-h="${h}" onclick="pickSub(this)">${selSubs.includes(h)?'✓ ':''}${h}</button>`).join('');}
+  else{box.classList.remove('show');sc.innerHTML='';selSubs=[];}}
+function pickSub(btn){const h=btn.dataset.h,i=selSubs.indexOf(h);
+  if(i>=0){selSubs.splice(i,1);btn.classList.remove('on');btn.textContent=h;}
+  else{selSubs.push(h);btn.classList.add('on');btn.textContent='✓ '+h;}}
 function setUrg(btn){document.querySelectorAll('.ubtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selUrg=btn.dataset.u;}
 function pickTipoO(btn){document.querySelectorAll('#tipo-grid-o .gbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selTipoO=btn.dataset.t;}
+
+function openInfo(){document.getElementById('info-modal').classList.add('on')}
+function closeInfo(){document.getElementById('info-modal').classList.remove('on')}
 
 const EDIF_RADIO_M=500;
 async function ensureEdificios(){
@@ -307,35 +397,29 @@ function onEdifNombreInput(){
     document.getElementById('r-edif').value='';
     document.querySelectorAll('.edif-opt').forEach(b=>b.classList.remove('on'));}}
 
-let mainMap,markersLayer,heatLayer,mapMode='pts',mapData=null;
+let mainMap,markersLayer,mapData=null;
 function initMainMap(){if(mainMap)return;mainMap=L.map('main-map',{zoomControl:true,attributionControl:false}).setView([10.55,-66.9],8);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(mainMap);markersLayer=L.layerGroup().addTo(mainMap);}
 function dot(c,s=12){return L.divIcon({html:`<div style="background:${c};width:${s}px;height:${s}px;border-radius:50%;border:2px solid rgba(255,255,255,.85);box-shadow:0 1px 3px rgba(0,0,0,.4)"></div>`,className:'',iconSize:[s,s],iconAnchor:[s/2,s/2]});}
-function setMapMode(m){mapMode=m;document.getElementById('mt-pts').classList.toggle('on',m==='pts');document.getElementById('mt-heat').classList.toggle('on',m==='heat');renderMap();}
 async function populateMap(){initMainMap();
   const [{data:needs},{data:acopios},{data:edifs}]=await Promise.all([
     db.from('necesidades').select('*').neq('estado','cubierta').is('merged_into',null),
     db.from('centros_acopio').select('*').eq('activo',true),
     db.from('edificios_colapsados').select('*')]);
   mapData={needs:needs||[],acopios:acopios||[],edifs:edifs||[]};renderMap();}
-function renderMap(){if(!mapData)return;markersLayer.clearLayers();if(heatLayer){mainMap.removeLayer(heatLayer);heatLayer=null;}
+function renderMap(){if(!mapData||!markersLayer)return;markersLayer.clearLayers();
   const b=[],{needs,acopios,edifs}=mapData;
-  if(mapMode==='heat'){const h=[];
-    edifs.forEach(e=>{if(e.lat&&e.lng){h.push([e.lat,e.lng,1]);b.push([e.lat,e.lng]);}});
-    needs.forEach(n=>{if(n.lat&&n.lng){h.push([n.lat,n.lng,n.urgencia==='critica'?1:n.urgencia==='urgente'?.6:.3]);b.push([n.lat,n.lng]);}});
-    heatLayer=L.heatLayer(h,{radius:28,blur:20,maxZoom:14,gradient:{.2:'#2471A3',.4:'#F39C12',.7:'#E67E22',1:'#C0392B'}}).addTo(mainMap);
-  }else{
-    edifs.forEach(e=>{if(!e.lat||!e.lng)return;const m=L.marker([e.lat,e.lng],{icon:dot('#C0392B',12)}).addTo(markersLayer);
-      const safe=(e.nombre+', '+(e.sector||e.zona)).replace(/'/g,'');
-      const trap=e.personas_atrapadas?'<br><b style="color:#C0392B">⚠️ Posibles personas atrapadas</b>':'';
-      m.bindPopup(`<b>🏚 ${e.nombre}</b><br>${e.sector||e.zona}<br><small>🔴 Crítica · ${e.estado_edificio.replace(/_/g,' ')}</small>${trap}<br><button type="button" class="btn-edif" onclick="sosHere(${e.lat},${e.lng},'${safe}','${e.zona}','${e.id}')">🆘 Pedir ayuda aquí</button>`);b.push([e.lat,e.lng]);});
-    needs.forEach(n=>{if(!n.lat||!n.lng)return;const c={critica:'#C0392B',urgente:'#E67E22',normal:'#27AE60'}[n.urgencia]||'#888';
-      const m=L.marker([n.lat,n.lng],{icon:dot(c)}).addTo(markersLayer);const wa=n.whatsapp||n.telefono;
-      m.bindPopup(`<b>${tipoIcons(n)} ${tipoText(n)}</b><br>${n.direccion_exacta}<br>📞 <a href="tel:${n.telefono}">${n.telefono}</a>${wa?`<br><a href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}`);b.push([n.lat,n.lng]);});
-    acopios.forEach(a=>{if(!a.lat||!a.lng)return;const m=L.marker([a.lat,a.lng],{icon:dot('#1E8449',13)}).addTo(markersLayer);
-      m.bindPopup(`<b>📦 ${a.nombre}</b><br>${a.estado_vzla}<br>${a.direccion}`);b.push([a.lat,a.lng]);});}
+  edifs.forEach(e=>{if(!e.lat||!e.lng)return;const m=L.marker([e.lat,e.lng],{icon:dot('#C0392B',12)}).addTo(markersLayer);
+    const safe=(e.nombre+', '+(e.sector||e.zona)).replace(/'/g,'');
+    const trap=e.personas_atrapadas?'<br><b style="color:#C0392B">⚠️ Posibles personas atrapadas</b>':'';
+    m.bindPopup(`<b>🏚 ${e.nombre}</b><br>${e.sector||e.zona}<br><small>🔴 Crítica · ${e.estado_edificio.replace(/_/g,' ')}</small>${trap}<br><button type="button" class="btn-edif" onclick="sosHere(${e.lat},${e.lng},'${safe}','${e.zona}','${e.id}')">🆘 Pedir ayuda aquí</button>`);b.push([e.lat,e.lng]);});
+  needs.forEach(n=>{if(!n.lat||!n.lng)return;const c={critica:'#C0392B',urgente:'#E67E22',normal:'#27AE60'}[n.urgencia]||'#888';
+    const m=L.marker([n.lat,n.lng],{icon:dot(c)}).addTo(markersLayer);const wa=n.whatsapp||n.telefono;
+    m.bindPopup(`<b>${tipoIcons(n)} ${tipoText(n)}</b><br>${n.direccion_exacta}<br>📞 <a href="tel:${n.telefono}">${n.telefono}</a>${wa?`<br><a href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}`);b.push([n.lat,n.lng]);});
+  acopios.forEach(a=>{if(!a.lat||!a.lng)return;const m=L.marker([a.lat,a.lng],{icon:dot('#1E8449',13)}).addTo(markersLayer);
+    m.bindPopup(`<b>📦 ${a.nombre}</b><br>${a.estado_vzla}<br>${a.direccion}`);b.push([a.lat,a.lng]);});
   if(b.length)mainMap.fitBounds(b,{padding:[25,25],maxZoom:12});}
-function sosHere(lat,lng,nombre,zona,edifId){goTab('reportar');
+function sosHere(lat,lng,nombre,zona,edifId){goScreen('reportar');
   document.getElementById('r-lat').value=lat;document.getElementById('r-lng').value=lng;
   document.getElementById('r-dir').value=nombre;document.getElementById('r-zona').value=zona||'';document.getElementById('r-edif').value=edifId||'';
   const btn=document.getElementById('geo-btn-r');btn.className='geo-btn ok';btn.textContent='✅ '+nombre;
@@ -358,14 +442,14 @@ function captureGeo(){const btn=document.getElementById('geo-btn-r');btn.textCon
       auto.innerHTML=`📍 Zona: <b>${zona||'—'}</b>${dir?' · '+dir:''}`;
     }catch{document.getElementById('r-zona').value='';document.getElementById('r-dir').value='Ubicación GPS';auto.innerHTML='📍 Ubicación guardada (sin nombre de zona, no importa).';}
     showNearbyEdificios(la,lo);
-  },()=>{btn.textContent='❌ Sin GPS. Pulsa un edificio en el mapa.';btn.disabled=false;},{enableHighAccuracy:true,timeout:12000});}
+  },()=>{btn.textContent='❌ Sin GPS. Abre el mapa en Quiero ayudar.';btn.disabled=false;},{enableHighAccuracy:true,timeout:12000});}
 function mapEstado(s){s=(s||'').toLowerCase();
   if(s.includes('guaira')||s.includes('vargas'))return'La Guaira';if(s.includes('capital')||s.includes('caracas'))return'Caracas';
   if(s.includes('yaracuy'))return'Yaracuy';if(s.includes('aragua'))return'Aragua';if(s.includes('carabobo'))return'Carabobo';
   if(s.includes('falc'))return'Falcón';if(s.includes('miranda'))return'Miranda';if(s.includes('lara'))return'Lara';return'Otra';}
 
 function edifCard(e){const dist=e.distancia_m!=null?`<span class="c-dist">📍 a ${fmDist(e.distancia_m)} de ti</span><br>`:'';
-  const trap=e.personas_atrapadas?'<span class="c-qty">⚠️ Posibles personas atrapadas</span>':'';
+  const trap=e.personas_atrapadas?'<div class="c-nota">⚠️ Posibles personas atrapadas</div>':'';
   const estado=(e.estado_edificio||'colapsado').replace(/_/g,' ');
   const notas=e.notas?`<div class="c-desc">${escHtml(e.notas)}</div>`:'';
   const loc=escHtml(e.sector?e.sector+' · '+e.zona:e.zona);
@@ -373,32 +457,43 @@ function edifCard(e){const dist=e.distancia_m!=null?`<span class="c-dist">📍 a
     <div class="c-top"><div><div class="c-loc">🏚 ${loc}</div><div class="c-addr">${escHtml(e.nombre)}</div></div><span class="badge r">🔴 Crítica</span></div>
     <div class="c-tipo">Edificio colapsado · ${estado}${e.created_at?' · ⏱ '+ago(e.created_at):''}</div>
     ${trap}${notas}
-    <div class="actions"><a class="btn-edif" href="${mapLink(e.lat,e.lng,e.nombre)}" target="_blank">🗺 Ir a ayudar</a><button class="btn-edif" onclick="focusEdifOnMap('${e.id}')">📍 Ver en mapa</button></div>
+    <div class="actions"><a class="btn-map" href="${mapLink(e.lat,e.lng,e.nombre)}" target="_blank">🗺 Ruta</a><button class="btn-sh" onclick="focusEdifOnMap('${e.id}')">📍 Ver en mapa</button></div>
   </div>`;}
-function focusEdifOnMap(id){goTab('mapa');setTimeout(()=>{const e=(mapData?.edifs||[]).find(x=>x.id===id);if(e?.lat&&e?.lng)mainMap.setView([e.lat,e.lng],16);},200);}
+function focusEdifOnMap(id){goScreen('ayudar');setAyudarView('mapa');setTimeout(()=>{const e=(mapData?.edifs||[]).find(x=>x.id===id);if(e?.lat&&e?.lng)mainMap.setView([e.lat,e.lng],16);},350);}
 function helpSortKey(item){if(item.kind==='edif')return item.data.personas_atrapadas?-1:0;return{critica:0,urgente:1,normal:2}[item.data.urgencia]??3;}
 function needCard(n){const done=n.estado==='cubierta',cls=done?'done':UE[n.urgencia]||'';
   const badge=done?'<span class="badge done">✓ Cubierta</span>':`<span class="badge ${UE[n.urgencia]||''}">${UL[n.urgencia]||''}</span>`;
   const unval=!n.validada?'<span class="unval">Sin validar</span>':'';const wa=n.whatsapp||n.telefono;
   const waMsg=`Hola ${n.nombre_contacto||''}, vi tu solicitud de ${tipoText(n)} en Ayuda Venezuela. ¿Cómo ayudo?`;
-  const dist=n.distancia_m!=null?`<span class="c-dist">📍 a ${fmDist(n.distancia_m)} de ti</span><br>`:'';
+  const dist=n.distancia_m!=null?`<span class="c-dist">📍 a ${fmDist(n.distancia_m)} de ti</span>`:'';
   const conf=n.confirmaciones>1?`<span class="c-conf">· ${n.confirmaciones} confirmaciones</span>`:'';
-  return `<div class="card ${cls}">${dist}
-    <div class="c-top"><div><div class="c-loc">${n.zona}${srcTag(n.fuente)}${unval}</div><div class="c-addr">📍 ${n.direccion_exacta}</div></div>${badge}</div>
-    <div class="c-tipo">${tipoIcons(n)} ${tipoText(n)} · ⏱ ${ago(n.created_at)}${conf}</div>
-    ${n.subtipo?`<span class="c-qty">🔧 ${n.subtipo}</span>`:''}
-    <div class="c-desc">${n.descripcion}</div>
-    ${n.cantidad?`<span class="c-qty">Cantidad: ${n.cantidad}</span>`:''}
-    ${n.notas_coordinador?`<div class="c-nota">📋 ${n.notas_coordinador}</div>`:''}
-    ${n.nombre_contacto?`<div style="font-size:12px;font-weight:600;margin-top:5px">👤 ${n.nombre_contacto}</div>`:''}
-    ${!done?`<div class="actions"><a class="btn-call" href="tel:${n.telefono}">📞 Llamar</a>${wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank">💬 WA</a>`:''}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a><button class="btn-sh" onclick='shareNeed(${JSON.stringify(n).replace(/'/g,"&#39;")})'>📤</button></div>`:''}
+  const subs=subtiposText(n);
+  return `<div class="card ${cls}">${dist?dist+'<br>':''}
+    <div class="c-top"><div><div class="c-loc">${escHtml(n.zona)}${srcTag(n.fuente)}${unval}</div><div class="c-addr">📍 ${escHtml(n.direccion_exacta)}</div></div>${badge}</div>
+    <div class="c-tipo"><b>${tipoText(n)}</b>${dist?' · '+fmDist(n.distancia_m):''} · ⏱ ${ago(n.created_at)}${conf}</div>
+    ${subs?`<span class="c-qty">🔧 ${escHtml(subs)}</span>`:''}
+    ${n.otro?`<span class="c-qty">➕ ${escHtml(n.otro)}</span>`:''}
+    <div class="c-desc">${escHtml(n.descripcion)}</div>
+    ${n.cantidad?`<span class="c-qty">Cantidad: ${escHtml(n.cantidad)}</span>`:''}
+    ${n.notas_coordinador?`<div class="c-nota">📋 ${escHtml(n.notas_coordinador)}</div>`:''}
+    ${n.nombre_contacto?`<div style="font-size:12px;font-weight:600;margin-top:5px">👤 ${escHtml(n.nombre_contacto)}</div>`:''}
+    ${!done?`<div class="actions"><a class="btn-call" href="tel:${n.telefono}">📞 Llamar</a>${wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank">💬 WhatsApp</a>`:''}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a><button class="btn-sh" onclick='shareNeed(${JSON.stringify(n).replace(/'/g,"&#39;")})'>📤</button></div>`:''}
   </div>`;}
 
 let helpTipo='',helpPos=null;
-function setChip(btn){document.querySelectorAll('.chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');helpTipo=btn.dataset.t;loadHelp();}
+function setChip(btn){document.querySelectorAll('#help-chips .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');helpTipo=btn.dataset.t;
+  if(ayudarView==='lista')loadHelp();else populateMap();}
+function setAyudarView(v){ayudarView=v;
+  document.getElementById('tgl-lista').classList.toggle('on',v==='lista');
+  document.getElementById('tgl-mapa').classList.toggle('on',v==='mapa');
+  document.getElementById('ayudar-lista-wrap').style.display=v==='lista'?'block':'none';
+  document.getElementById('ayudar-mapa-wrap').style.display=v==='mapa'?'block':'none';
+  if(v==='mapa'){initMainMap();populateMap().then(()=>setTimeout(()=>mainMap.invalidateSize(),150));}
+  else loadHelp();}
 function locateForHelp(){const btn=document.getElementById('geo-ayudar-btn');btn.textContent='⏳ Ubicando...';btn.disabled=true;
-  navigator.geolocation.getCurrentPosition(p=>{helpPos={lat:p.coords.latitude,lng:p.coords.longitude};btn.className='geo-btn ok';btn.textContent='✅ Ordenado por cercanía a ti';btn.disabled=false;loadHelp();},
-  ()=>{btn.textContent='❌ Sin GPS. Mostrando todas.';btn.disabled=false;loadHelp();},{enableHighAccuracy:true,timeout:10000});}
+  navigator.geolocation.getCurrentPosition(p=>{helpPos={lat:p.coords.latitude,lng:p.coords.longitude};btn.className='geo-btn ok geo-mini-btn';btn.textContent='✅ Ordenado por cercanía';btn.disabled=false;
+    if(ayudarView==='lista')loadHelp();else populateMap();},
+  ()=>{btn.textContent='❌ Sin GPS. Mostrando todas.';btn.disabled=false;if(ayudarView==='lista')loadHelp();},{enableHighAccuracy:true,timeout:10000});}
 async function loadHelp(){const el=document.getElementById('lista-ayudar');el.innerHTML='<div class="spin-wrap"><div class="spinner"></div>Buscando...</div>';
   const[{data:needsRaw},{data:edifsRaw}]=await Promise.all([
     helpPos?db.rpc('necesidades_cercanas',{p_lat:helpPos.lat,p_lng:helpPos.lng,p_radio_m:300000,p_tipo:null}):db.from('necesidades').select('*').neq('estado','cubierta').is('merged_into',null).order('urgencia'),
@@ -417,26 +512,38 @@ async function loadAcopio(uLat,uLng){const el=document.getElementById('lista-aco
   if(!acopioCache.length){const{data}=await db.from('centros_acopio').select('*').eq('activo',true).order('estado_vzla');acopioCache=data||[];
     const sel=document.getElementById('o-acopio');sel.innerHTML='<option value="">Selecciona...</option>';acopioCache.forEach(a=>{sel.innerHTML+=`<option value="${a.id}">${a.nombre} — ${a.estado_vzla}</option>`;});}
   let list=[...acopioCache];if(uLat&&uLng)list=list.map(a=>({...a,km:dist0(uLat,uLng,a.lat,a.lng)})).sort((a,b)=>a.km-b.km);
-  el.innerHTML=list.map(a=>`<div class="card acopio"><div class="c-top"><div><div class="c-loc">📦 ${a.nombre}</div><div class="c-addr">📍 ${a.estado_vzla} — ${a.direccion}</div></div></div>
+  el.innerHTML=list.map(a=>{
+    const nec=(a.necesita_ahora&&a.necesita_ahora.length)?`<div class="acopio-need"><div class="acopio-need-lbl">Necesitan ahora</div><div class="acopio-need-txt">${escHtml(a.necesita_ahora.join(' · '))}</div></div>`:'';
+    const cub=(a.ya_cubierto&&a.ya_cubierto.length)?`<div class="acopio-cubierto">✓ Ya cubierto: ${escHtml(a.ya_cubierto.join(', '))}</div>`:'';
+    return `<div class="card acopio"><div class="c-top"><div><div class="c-loc">📦 ${escHtml(a.nombre)}</div><div class="c-addr">📍 ${escHtml(a.estado_vzla)} — ${escHtml(a.direccion)}${a.organizacion?' · '+escHtml(a.organizacion):''}</div></div></div>
     ${a.km!==undefined?`<span class="c-dist">📍 a ${a.km<1?(a.km*1000).toFixed(0)+' m':a.km.toFixed(1)+' km'} de ti</span>`:''}
-    ${a.organizacion?`<div class="c-tipo">Organización: ${a.organizacion}</div>`:''}
-    <div class="actions"><a class="btn-map" href="${gmapsRoute(a.lat,a.lng)}" target="_blank">🗺 Cómo llegar</a>${a.telefono?`<a class="btn-call" href="tel:${a.telefono}">📞 Llamar</a>`:''}</div></div>`).join('');}
+    ${nec}${cub}
+    <div class="actions"><a class="btn-map" href="${gmapsRoute(a.lat,a.lng)}" target="_blank">🗺 Cómo llegar</a>${a.telefono?`<a class="btn-call" href="tel:${a.telefono}">📞 Llamar</a>`:''}</div></div>`;}).join('')||'<div class="empty">No hay centros activos.</div>';}
 function dist0(la1,lo1,la2,lo2){const R=6371,dL=(la2-la1)*Math.PI/180,dG=(lo2-lo1)*Math.PI/180;const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dG/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function locateForAcopio(){const btn=document.getElementById('geo-acopio-btn');btn.textContent='⏳ Ubicando...';btn.disabled=true;
-  navigator.geolocation.getCurrentPosition(p=>{btn.className='geo-btn ok';btn.textContent='✅ Ordenados por cercanía';btn.disabled=false;loadAcopio(p.coords.latitude,p.coords.longitude);},
+  navigator.geolocation.getCurrentPosition(p=>{btn.className='geo-btn ok geo-mini-btn';btn.textContent='✅ Ordenados por cercanía';btn.disabled=false;loadAcopio(p.coords.latitude,p.coords.longitude);},
   ()=>{btn.textContent='❌ Sin GPS';btn.disabled=false;},{enableHighAccuracy:true,timeout:10000});}
 
-function startSOS(){goTab('reportar');if(!document.getElementById('r-lat').value)captureGeo();}
-function gatherNeed(){const tipos=[...selTipos],labels=tipos.map(t=>SHORT[t]||t);
+async function loadHomeStats(){
+  const[{count:nc},{count:cc}]=await Promise.all([
+    db.from('necesidades').select('*',{count:'exact',head:true}).neq('estado','cubierta').is('merged_into',null),
+    db.from('centros_acopio').select('*',{count:'exact',head:true}).eq('activo',true)]);
+  document.getElementById('stat-needs').textContent=nc??0;
+  document.getElementById('stat-centros').textContent=cc??0;}
+
+function startSOS(){goScreen('reportar');if(!document.getElementById('r-lat').value)captureGeo();}
+function gatherNeed(){const tipos=[...selTipos],labels=tipos.map(t=>SHORT[t]||t),otro=document.getElementById('r-otro').value.trim();
   const edifNom=document.getElementById('r-edif-nombre').value.trim();
   let desc=document.getElementById('r-desc').value.trim();
   if(edifNom&&!document.getElementById('r-edif').value)
     desc=desc?`Edificio: ${edifNom} — ${desc}`:`Edificio: ${edifNom}`;
-  if(!desc)desc=`Necesita ${labels.join(', ')}`;
+  if(otro&&!desc)desc=`Otro: ${otro}`;
+  else if(otro)desc=`Otro: ${otro} — ${desc}`;
+  if(!desc)desc=labels.length?`Necesita ${labels.join(', ')}`:(otro?`Necesita: ${otro}`:'Solicitud de ayuda');
   return {zona:document.getElementById('r-zona').value||'Otra',direccion_exacta:document.getElementById('r-dir').value||'Ubicación GPS',
   lat:parseFloat(document.getElementById('r-lat').value)||null,lng:parseFloat(document.getElementById('r-lng').value)||null,
-  tipo:tipos[0],tipos,subtipo:selSub||null,urgencia:selUrg,descripcion:desc,
-  cantidad:null,personas_afectadas:parseInt(document.getElementById('r-pers').value)||null,
+  tipo:tipos[0]||'Otro',tipos:tipos.length?tipos:null,subtipo:selSubs[0]||null,subtipos:selSubs.length?selSubs:null,otro:otro||null,
+  urgencia:selUrg,descripcion:desc,cantidad:null,personas_afectadas:parseInt(document.getElementById('r-pers').value)||null,
   nombre_contacto:document.getElementById('r-nombre').value.trim()||'Vecino/a',telefono:document.getElementById('r-tel').value.trim(),
   whatsapp:document.getElementById('r-wa').value.trim()||null,edificio_id:document.getElementById('r-edif').value||null,
   fuente:'ciudadano',validada:false,estado:'pendiente'};}
@@ -444,27 +551,28 @@ function tiposOverlap(a,b){return a.some(t=>b.some(x=>x===t||(t&&x&&t.toLowerCas
 async function findDupes(n){const{data}=await db.rpc('necesidades_cercanas',{p_lat:n.lat,p_lng:n.lng,p_radio_m:200,p_tipo:null});
   if(!data?.length)return[];const mine=needTipos(n);return data.filter(d=>tiposOverlap(mine,needTipos(d)));}
 async function checkAndSubmit(){
+  const otro=document.getElementById('r-otro').value.trim();
   if(!document.getElementById('r-lat').value){showToast('r','Primero marca tu ubicación (paso 1).',true);return;}
-  if(!selTipos.length){showToast('r','Toca qué necesitas (paso 2). Puedes marcar varias.',true);return;}
+  if(!selTipos.length&&!otro){showToast('r','Toca qué necesitas o escribe en Otro (paso 2).',true);return;}
   if(!document.getElementById('r-tel').value.trim()){showToast('r','Falta tu teléfono para que te contacten.',true);return;}
   const n=gatherNeed();const btn=document.getElementById('btn-r');btn.disabled=true;btn.textContent='Revisando...';
   const data=await findDupes(n);
   btn.disabled=false;btn.textContent='Publicar SOS';
   if(data.length){showDupe(data,n);return;}await doInsertNeed(n);}
 let pendingNeed=null;
-function showDupe(list,n){pendingNeed=n;document.getElementById('dupe-list').innerHTML=list.slice(0,4).map(d=>`<div class="dupe"><b>${tipoIcons(d)} ${tipoText(d)} — ${d.zona}</b><div class="meta">📍 ${d.direccion_exacta} · a ${fmDist(d.distancia_m)} · ${d.confirmaciones} confirmaciones</div><div class="meta">${d.descripcion}</div><button onclick="confirmExisting('${d.id}')">✅ Es lo mismo, confirmar</button></div>`).join('');document.getElementById('dupe-modal').classList.add('on');}
+function showDupe(list,n){pendingNeed=n;document.getElementById('dupe-list').innerHTML=list.slice(0,4).map(d=>`<div class="dupe"><b>${tipoIcons(d)} ${tipoText(d)} — ${escHtml(d.zona)}</b><div class="meta">📍 ${escHtml(d.direccion_exacta)} · a ${fmDist(d.distancia_m)} · ${d.confirmaciones} confirmaciones</div><div class="meta">${escHtml(d.descripcion)}</div><button onclick="confirmExisting('${d.id}')">✅ Es lo mismo, confirmar</button></div>`).join('');document.getElementById('dupe-modal').classList.add('on');}
 function closeDupe(){document.getElementById('dupe-modal').classList.remove('on');}
 async function confirmExisting(id){await db.rpc('confirmar_necesidad',{p_id:id});closeDupe();showToast('r','✅ Confirmaste un reporte existente. ¡Gracias!');resetNeed();}
 async function forceNew(){closeDupe();if(pendingNeed)await doInsertNeed(pendingNeed);}
 async function doInsertNeed(n){const btn=document.getElementById('btn-r');btn.disabled=true;btn.textContent='Publicando...';
   const{error}=await db.from('necesidades').insert(n);btn.disabled=false;btn.textContent='Publicar SOS';
   if(error){showToast('r','Error al enviar. Revisa tu conexión.',true);return;}showToast('r','✅ SOS publicado. Quien ayude cerca lo verá enseguida.');resetNeed();}
-function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-edif','r-edif-nombre','r-tel','r-wa','r-desc','r-pers','r-nombre'].forEach(i=>document.getElementById(i).value='');
-  selTipos=[];selSub='';selUrg='urgente';document.querySelectorAll('#tipo-grid .gbtn').forEach(b=>b.classList.remove('on'));
+function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-edif','r-edif-nombre','r-tel','r-wa','r-desc','r-pers','r-nombre','r-otro'].forEach(i=>document.getElementById(i).value='');
+  selTipos=[];selSubs=[];selUrg='urgente';document.querySelectorAll('#tipo-grid .gbtn').forEach(b=>b.classList.remove('on'));
   document.querySelectorAll('.ubtn').forEach(b=>b.classList.remove('on'));document.querySelector('.ubtn.urg').classList.add('on');
   document.querySelectorAll('.edif-opt').forEach(b=>b.classList.remove('on'));
   document.getElementById('edif-list').innerHTML='';document.getElementById('edif-step').style.display='none';
-  document.getElementById('sub-chips').classList.remove('show');
+  document.getElementById('sub-box').classList.remove('show');document.getElementById('sub-chips').innerHTML='';
   document.getElementById('geo-btn-r').className='geo-btn';document.getElementById('geo-btn-r').textContent='📍 Usar mi ubicación';
   document.getElementById('geo-mini-r').style.display='none';document.getElementById('geo-auto').style.display='none';}
 
@@ -476,7 +584,7 @@ async function submitRecurso(){if(!selTipoO){showToast('o','Toca qué ofreces.',
   const{error}=await db.from('recursos').insert({tipo:selTipoO,cantidad:qty,centro_acopio_id:acId||null,zona_origen:ac?ac.estado_vzla:null,
     direccion_origen:ac?ac.nombre+' — '+ac.direccion:null,nombre_contacto:document.getElementById('o-nombre').value.trim()||'Donante',telefono:tel,estado:'disponible'});
   btn.disabled=false;btn.textContent='Publicar recurso';if(error){showToast('o','Error al enviar.',true);return;}
-  showToast('o','✅ Recurso publicado.');selTipoO='';document.querySelectorAll('#tipo-grid-o .gbtn').forEach(b=>b.classList.remove('on'));
+  showToast('o','✅ Recurso publicado. ¡Gracias!');selTipoO='';document.querySelectorAll('#tipo-grid-o .gbtn').forEach(b=>b.classList.remove('on'));
   ['o-qty','o-acopio','o-tel','o-nombre'].forEach(i=>document.getElementById(i).value='');}
 
 function shareNeed(n){const txt=`${UL[n.urgencia]||''} #AyudaVenezuela\n📍 ${n.zona} — ${n.direccion_exacta}\n${tipoIcons(n)} ${tipoText(n)}\n📝 ${n.descripcion}\n📞 ${n.telefono||''}${n.lat&&n.lng?'\n🗺 '+gmapsRoute(n.lat,n.lng):''}`;
@@ -484,23 +592,27 @@ function shareNeed(n){const txt=`${UL[n.urgencia]||''} #AyudaVenezuela\n📍 ${n
   else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>alert('Copiado. Pégalo en WhatsApp.'));else prompt('Copia:',txt);}
 function showToast(v,m,err=false){const t=document.getElementById('toast-'+v);t.textContent=m;t.className='toast '+(err?'err':'ok')+' show';t.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>t.classList.remove('show'),5500);}
 
-const TABS=['mapa','reportar','ayudar','acopio','ofrecer'];
-function goTab(name){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
-  document.getElementById('view-'+name).classList.add('on');document.querySelectorAll('.tab')[TABS.indexOf(name)].classList.add('on');
-  document.getElementById('fab').classList.toggle('show',name==='mapa'||name==='ayudar');
-  if(name==='mapa')populateMap();if(name==='ayudar')loadHelp();if(name==='acopio')loadAcopio();if(name==='ofrecer'&&!acopioCache.length)loadAcopio();
-  setTimeout(()=>{if(mainMap)mainMap.invalidateSize();},150);}
+function goScreen(name){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+  document.getElementById('view-'+name).classList.add('on');
+  document.getElementById('fab').classList.toggle('show',name==='ayudar'||name==='centros');
+  if(name==='home')loadHomeStats();
+  if(name==='ayudar'){if(ayudarView==='lista')loadHelp();else{initMainMap();populateMap();}}
+  if(name==='acopio')loadAcopio();
+  if(name==='ofrecer'&&!acopioCache.length)loadAcopio();
+  window.scrollTo(0,0);
+  setTimeout(()=>{if(mainMap)mainMap.invalidateSize();if(geoMiniMap)geoMiniMap.invalidateSize();},150);}
 
-function onLiveData(){if(document.getElementById('view-mapa').classList.contains('on'))populateMap();
-  if(document.getElementById('view-ayudar').classList.contains('on'))loadHelp();}
+function onLiveData(){
+  if(document.getElementById('view-home').classList.contains('on'))loadHomeStats();
+  if(document.getElementById('view-ayudar').classList.contains('on')){
+    if(ayudarView==='lista')loadHelp();else populateMap();}}
 db.channel('live').on('postgres_changes',{event:'*',schema:'public',table:'necesidades'},onLiveData)
   .on('postgres_changes',{event:'*',schema:'public',table:'edificios_colapsados'},onLiveData).subscribe();
-window.addEventListener('resize',()=>{if(mainMap)mainMap.invalidateSize();});
+window.addEventListener('resize',()=>{if(mainMap)mainMap.invalidateSize();if(geoMiniMap)geoMiniMap.invalidateSize();});
 
 buildGrid('tipo-grid',TIPOS,'pickTipo');
-buildGrid('tipo-grid-o',TIPOS_O,'pickTipoO');
-populateMap();
-loadAcopio();
+buildGrid('tipo-grid-o',TIPOS_O,'pickTipoO','gbtn-g');
+loadHomeStats();
 </script>
 </body>
 </html>

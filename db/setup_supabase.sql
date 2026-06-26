@@ -45,6 +45,8 @@ create table necesidades (
   tipo text not null,
   tipos text[],
   subtipo text,
+  subtipos text[] default '{}',
+  otro text,
   urgencia text not null default 'urgente' check (urgencia in ('critica','urgente','normal')),
   descripcion text not null,
   cantidad text,
@@ -101,6 +103,8 @@ create table centros_acopio (
   lng double precision not null,
   telefono text,
   horario text,
+  necesita_ahora text[] default '{}',
+  ya_cubierto text[] default '{}',
   activo boolean default true,
   notas text,
   created_at timestamptz default now()
