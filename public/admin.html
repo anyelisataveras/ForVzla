@@ -45,12 +45,16 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   </div>
 
   <div id="login-screen">
-    <h2 style="font-size:18px;margin-bottom:8px">Entrar con magic link</h2>
+    <h2 style="font-size:18px;margin-bottom:8px">Entrar al panel</h2>
     <p style="font-size:13px;color:var(--g4);margin-bottom:16px;line-height:1.5">
-      Te enviamos un enlace al correo. Solo coordinadores registrados en <code>admin_users</code>.
+      Te enviamos un código de 6 dígitos al correo. Solo coordinadores en <code>admin_users</code>.
     </p>
     <div class="fld"><label>Correo</label><input type="email" id="login-email" value="anyelisa.taveras@gmail.com" autocomplete="email"></div>
-    <button class="btn btn-p" id="btn-magic" onclick="sendMagicLink()">Enviar enlace</button>
+    <button class="btn btn-p" id="btn-send-code" onclick="sendLoginCode()">Enviar código</button>
+    <div id="otp-step" style="display:none;margin-top:16px">
+      <div class="fld"><label>Código (6 dígitos)</label><input type="text" id="login-otp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123456" autocomplete="one-time-code"></div>
+      <button class="btn btn-g" id="btn-verify" onclick="verifyLoginCode()">Entrar</button>
+    </div>
     <p id="login-msg" style="font-size:13px;margin-top:12px;color:var(--grn);display:none"></p>
   </div>
 
@@ -152,21 +156,42 @@ function srcTag(p) {
   return `<span class="src ${m[p]||''}">${l[p]||p}</span>`;
 }
 
-async function sendMagicLink() {
+async function sendLoginCode() {
   const email = document.getElementById('login-email').value.trim();
   if (!email) { toast('Escribe tu correo'); return; }
-  const btn = document.getElementById('btn-magic');
+  const btn = document.getElementById('btn-send-code');
   btn.disabled = true;
+  // Sin emailRedirectTo → código OTP, no magic link (no requiere redirect URLs)
   const { error } = await db.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: location.origin + location.pathname }
+    options: { shouldCreateUser: true }
   });
   btn.disabled = false;
   const msg = document.getElementById('login-msg');
   if (error) { msg.style.color = 'var(--red)'; msg.textContent = error.message; msg.style.display = 'block'; return; }
   msg.style.color = 'var(--grn)';
-  msg.textContent = '✉️ Revisa tu correo y abre el enlace.';
+  msg.textContent = '✉️ Revisa tu correo (y spam). Escribe el código de 6 dígitos.';
   msg.style.display = 'block';
+  document.getElementById('otp-step').style.display = 'block';
+  document.getElementById('login-otp').focus();
+}
+
+async function verifyLoginCode() {
+  const email = document.getElementById('login-email').value.trim();
+  const token = document.getElementById('login-otp').value.trim();
+  if (!token) { toast('Escribe el código'); return; }
+  const btn = document.getElementById('btn-verify');
+  btn.disabled = true;
+  const { error } = await db.auth.verifyOtp({ email, token, type: 'email' });
+  btn.disabled = false;
+  const msg = document.getElementById('login-msg');
+  if (error) {
+    msg.style.color = 'var(--red)';
+    msg.textContent = error.message;
+    msg.style.display = 'block';
+    return;
+  }
+  msg.style.display = 'none';
 }
 
 async function checkAdmin(user) {
@@ -368,10 +393,10 @@ async function invitarAdmin() {
 
   const { error: otpErr } = await db.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: location.origin + location.pathname },
+    options: { shouldCreateUser: true },
   });
   if (otpErr) {
-    toast('Admin agregado, pero no se pudo enviar el enlace: ' + otpErr.message);
+    toast('Admin agregado, pero no se pudo enviar el código: ' + otpErr.message);
   } else {
     toast('✉️ Invitación enviada a ' + email);
   }
