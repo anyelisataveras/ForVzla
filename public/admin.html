@@ -57,6 +57,11 @@ details.sum summary::-webkit-details-marker{display:none}
 .filter-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
 .filter-chips button{font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px;border:1px solid var(--g2);background:var(--g0);cursor:pointer;font-family:inherit}
 .filter-chips button.on{background:var(--blul);border-color:var(--blu);color:var(--blu)}
+.match-grid{display:grid;gap:10px;margin-top:8px}
+.match-side{background:var(--g1);border-radius:var(--r);padding:10px 12px;font-size:13px;line-height:1.45}
+.match-side b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--g4);margin-bottom:4px}
+.match-arrow{text-align:center;font-size:18px;color:var(--g4);padding:2px 0}
+@media (min-width:520px){.match-grid{grid-template-columns:1fr auto 1fr;align-items:center}.match-arrow{padding:0 4px}}
 </style>
 </head>
 <body>
@@ -69,7 +74,7 @@ details.sum summary::-webkit-details-marker{display:none}
   <div id="login-screen">
     <h2 style="font-size:18px;margin-bottom:8px">Entrar al panel</h2>
     <p style="font-size:13px;color:var(--g4);margin-bottom:16px;line-height:1.5">
-      Solo coordinadores autorizados. Elige tu correo y la contraseña del equipo.
+      Solo coordinadores autorizados. Elige tu correo y la contraseña del equipo (<code>vzla26</code> si ya corrieron el script de alta).
     </p>
     <div class="fld"><label>Correo</label>
       <select id="login-email">
@@ -86,6 +91,7 @@ details.sum summary::-webkit-details-marker{display:none}
     <div class="tabs">
       <button class="tab on" data-tab="posts" onclick="showTab('posts')">📥 Posts</button>
       <button class="tab" data-tab="solicitudes" onclick="showTab('solicitudes')">🆘 Solicitudes</button>
+      <button class="tab" data-tab="enlaces" onclick="showTab('enlaces')">🤝 Enlaces</button>
       <button class="tab" data-tab="edificios" onclick="showTab('edificios')">🏚 Edificios</button>
       <button class="tab" data-tab="centros" onclick="showTab('centros')">📦 Centros</button>
       <button class="tab" data-tab="scraper" onclick="showTab('scraper')">⚙️ Scraper</button>
@@ -110,6 +116,20 @@ details.sum summary::-webkit-details-marker{display:none}
         <button data-f="cubierta" onclick="setSolFilter(this)">Atendidas</button>
       </div>
       <div id="lista-solicitudes"></div>
+    </div>
+
+    <div class="panel" id="panel-enlaces">
+      <p style="font-size:13px;color:var(--g4);margin-bottom:10px;line-height:1.5">
+        Quién pidió ayuda, quién va en camino y quién ofreció donar a un centro de acopio.
+      </p>
+      <div class="filter-chips" id="enlace-filters">
+        <button class="on" data-f="en_camino" onclick="setEnlaceFilter(this)">🙋 En camino</button>
+        <button data-f="esperando" onclick="setEnlaceFilter(this)">⏳ Esperan voluntario</button>
+        <button data-f="centros" onclick="setEnlaceFilter(this)">🎁 Donaciones a centros</button>
+        <button data-f="atendidas" onclick="setEnlaceFilter(this)">✓ Atendidas</button>
+      </div>
+      <div id="enlace-stats" class="meta" style="margin-bottom:12px"></div>
+      <div id="lista-enlaces"></div>
     </div>
 
     <div class="panel" id="panel-edificios">
@@ -372,6 +392,58 @@ function prefillCentro(id) {
   toast('Formulario de centro prellenado — revisa y guarda');
 }
 
+function showLoginScreen() {
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('app').style.display = 'none';
+}
+
+function authErrMsg(err) {
+  const m = (err?.message || '').toLowerCase();
+  if (m.includes('invalid login')) {
+    return 'Contraseña incorrecta o tu usuario no existe en Auth. Corre en terminal: ./scripts/create-admin-user.sh all vzla26';
+  }
+  if (m.includes('email not confirmed')) return 'Correo sin confirmar. Corre create-admin-user.sh o confirma en Supabase Auth.';
+  return err?.message || 'No se pudo entrar';
+}
+
+async function checkAdmin(user) {
+  const email = (user?.email || '').trim();
+  if (!email) return { ok: false, detail: 'Sesión sin correo' };
+  const { data, error } = await db.from('admin_users')
+    .select('email')
+    .ilike('email', email)
+    .maybeSingle();
+  if (!error && data) return { ok: true };
+  const { data: rpcOk, error: rpcErr } = await db.rpc('is_admin');
+  if (!rpcErr && rpcOk === true) return { ok: true };
+  const detail = error?.message || rpcErr?.message || 'No estás en admin_users (¿migración 170100 aplicada?)';
+  return { ok: false, detail };
+}
+
+let authCheckSeq = 0;
+
+async function onSession(s) {
+  const seq = ++authCheckSeq;
+  session = s;
+  const msg = document.getElementById('login-msg');
+  if (!s?.user) {
+    showLoginScreen();
+    return;
+  }
+  const { ok, detail } = await checkAdmin(s.user);
+  if (seq !== authCheckSeq) return;
+  if (!ok) {
+    await db.auth.signOut();
+    msg.textContent = 'Acceso denegado: ' + detail;
+    msg.style.display = 'block';
+    showLoginScreen();
+    toast('No autorizado como admin');
+    return;
+  }
+  msg.style.display = 'none';
+  openApp(s.user.email);
+}
+
 async function loginWithPassword() {
   const email = document.getElementById('login-email').value.trim();
   const password = document.getElementById('login-password').value;
@@ -379,14 +451,17 @@ async function loginWithPassword() {
   const btn = document.getElementById('btn-login');
   const msg = document.getElementById('login-msg');
   btn.disabled = true;
-  const { error } = await db.auth.signInWithPassword({ email, password });
+  btn.textContent = 'Entrando…';
+  msg.style.display = 'none';
+  const { data, error } = await db.auth.signInWithPassword({ email, password });
   btn.disabled = false;
+  btn.textContent = 'Entrar';
   if (error) {
-    msg.textContent = error.message;
+    msg.textContent = authErrMsg(error);
     msg.style.display = 'block';
     return;
   }
-  msg.style.display = 'none';
+  await onSession(data.session);
 }
 
 function openApp(label) {
@@ -399,38 +474,19 @@ function openApp(label) {
   loadAdmins();
 }
 
-async function checkAdmin(user) {
-  const { data, error } = await db.from('admin_users')
-    .select('email,nombre')
-    .ilike('email', user.email)
-    .maybeSingle();
-  return !error && !!data;
-}
-
-async function onSession(s) {
-  session = s;
-  if (!s?.user) {
-    document.getElementById('login-screen').style.display = 'block';
-    document.getElementById('app').style.display = 'none';
-    return;
-  }
-  const ok = await checkAdmin(s.user);
-  if (!ok) {
-    await db.auth.signOut();
-    toast('Correo no autorizado como admin');
-    return;
-  }
-  openApp(s.user.email);
-}
-
-db.auth.onAuthStateChange((_e, s) => onSession(s));
+db.auth.onAuthStateChange((_e, s) => { void onSession(s); });
 db.auth.getSession().then(({ data }) => onSession(data.session));
+
+document.getElementById('login-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loginWithPassword();
+});
 
 function showTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === name));
   document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'panel-' + name));
   if (name === 'posts') loadPosts();
   if (name === 'solicitudes') loadSolicitudes();
+  if (name === 'enlaces') loadEnlaces();
   if (name === 'scraper') pollScraperStatus();
   if (name === 'equipo') loadAdmins();
 }
@@ -485,6 +541,7 @@ async function cubrirSol(id) {
   if (error) { toast(error.message); return; }
   toast('Marcada como atendida');
   loadSolicitudes();
+  if (document.getElementById('panel-enlaces')?.classList.contains('on')) loadEnlaces();
 }
 
 async function liberarSol(id) {
@@ -493,12 +550,144 @@ async function liberarSol(id) {
   if (error) { toast(error.message); return; }
   toast('Liberada');
   loadSolicitudes();
+  if (document.getElementById('panel-enlaces')?.classList.contains('on')) loadEnlaces();
 }
 
 async function saveNotasSol(id, text) {
   const { error } = await db.from('necesidades').update({ notas_coordinador: text.trim() || null }).eq('id', id);
   if (error) toast(error.message);
   else toast('Notas guardadas');
+}
+
+const REC_EST = { disponible: 'Disponible', asignado: 'Asignado', entregado: 'Entregado' };
+let enlaceFilter = 'en_camino';
+let centrosCache = {};
+
+function setEnlaceFilter(btn) {
+  document.querySelectorAll('#enlace-filters button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  enlaceFilter = btn.dataset.f;
+  loadEnlaces();
+}
+
+function fmtWhen(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleString('es-VE', { dateStyle: 'short', timeStyle: 'short' });
+}
+
+function telLink(t) {
+  if (!t) return '—';
+  return `<a href="tel:${esc(t)}">${esc(t)}</a>`;
+}
+
+function renderEnlacePar(n) {
+  const cls = n.estado === 'cubierta' ? 'card-done' : 'card-proc';
+  const victimSide = `<div class="match-side">
+    <b>🆘 Pide ayuda</b>
+    <div><strong>${esc(n.nombre_contacto || 'Vecino/a')}</strong> · ${telLink(n.telefono)}</div>
+    <div style="margin-top:4px">${esc(solTipoText(n))} · ${esc(n.zona)}</div>
+    <div style="margin-top:4px;color:var(--g4)">📍 ${esc(n.direccion_exacta || '—')}</div>
+    ${n.descripcion ? `<div style="margin-top:6px">${esc(n.descripcion)}</div>` : ''}
+  </div>`;
+  const volSide = n.en_atencion_por
+    ? `<div class="match-side" style="background:var(--grnl)">
+    <b>🙋 Va en camino</b>
+    <div>${telLink(n.en_atencion_por)}</div>
+    <div style="margin-top:4px;color:var(--g4)">Desde ${fmtWhen(n.en_atencion_at)}</div>
+  </div>`
+    : `<div class="match-side" style="background:#FEF9E7">
+    <b>⏳ Sin voluntario</b>
+    <div style="color:var(--g4)">Nadie ha marcado «voy en camino».</div>
+  </div>`;
+  const actions = n.estado !== 'cubierta' ? `<div class="row">
+    ${n.estado === 'en_proceso' ? `<button class="btn btn-s" onclick="liberarSol('${n.id}')">↩ Liberar</button>` : ''}
+    <button class="btn btn-g" onclick="cubrirSol('${n.id}')">✓ Atendida</button>
+  </div>` : `<div class="meta">✓ Atendida</div>`;
+  return `<div class="card ${cls}">
+    <div class="match-grid">${victimSide}<div class="match-arrow">↔</div>${volSide}</div>
+    <div class="meta" style="margin-top:8px"><span class="badge">${EST_LABEL[n.estado] || n.estado}</span> · ${URG_LABEL[n.urgencia] || ''} · Publicado ${fmtWhen(n.created_at)}</div>
+    ${actions}
+  </div>`;
+}
+
+function renderRecursoCentro(r, centro) {
+  const dest = centro
+    ? `<b>${esc(centro.nombre)}</b> · ${esc(centro.estado_vzla || '')}<br>${esc(centro.direccion || '')}${centro.telefono ? ' · 📞 ' + esc(centro.telefono) : ''}`
+    : (r.direccion_origen ? esc(r.direccion_origen) : 'Centro no indicado');
+  const cls = r.estado === 'entregado' ? 'card-done' : r.estado === 'asignado' ? 'card-proc' : '';
+  const actions = r.estado !== 'entregado' ? `<div class="row">
+    ${r.estado === 'disponible' ? `<button class="btn btn-o" onclick="setRecursoEstado('${r.id}','asignado')">📋 Asignado</button>` : ''}
+    <button class="btn btn-g" onclick="setRecursoEstado('${r.id}','entregado')">✓ Entregado</button>
+  </div>` : '';
+  return `<div class="card ${cls}">
+    <div class="match-grid">
+      <div class="match-side">
+        <b>🎁 Ofrece donación</b>
+        <div><strong>${esc(r.nombre_contacto || 'Donante')}</strong> · ${telLink(r.telefono)}</div>
+        <div style="margin-top:4px"><b>${esc(r.tipo)}</b>${r.cantidad ? ' · ' + esc(r.cantidad) : ''}</div>
+        ${r.notas ? `<div style="margin-top:6px">${esc(r.notas)}</div>` : ''}
+      </div>
+      <div class="match-arrow">→</div>
+      <div class="match-side" style="background:var(--grnl)">
+        <b>📦 Centro de acopio</b>
+        <div>${dest}</div>
+      </div>
+    </div>
+    <div class="meta" style="margin-top:8px"><span class="badge">${REC_EST[r.estado] || r.estado}</span> · ${fmtWhen(r.created_at)}</div>
+    ${actions}
+  </div>`;
+}
+
+async function loadEnlaces() {
+  const el = document.getElementById('lista-enlaces');
+  const stats = document.getElementById('enlace-stats');
+  el.innerHTML = '<div class="empty">Cargando...</div>';
+  stats.textContent = '';
+
+  if (enlaceFilter === 'centros') {
+    const [{ data: recursos, error }, { data: centros }] = await Promise.all([
+      db.from('recursos').select('*').order('created_at', { ascending: false }).limit(80),
+      db.from('centros_acopio').select('id,nombre,estado_vzla,direccion,telefono'),
+    ]);
+    if (error) { el.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+    centrosCache = Object.fromEntries((centros || []).map(c => [c.id, c]));
+    const abiertas = (recursos || []).filter(r => r.estado !== 'entregado').length;
+    stats.textContent = `${(recursos || []).length} ofertas · ${abiertas} pendientes de entregar`;
+    if (!recursos?.length) { el.innerHTML = '<div class="empty">Nadie ha publicado donaciones a centros aún.</div>'; return; }
+    el.innerHTML = recursos.map(r => renderRecursoCentro(r, centrosCache[r.centro_acopio_id])).join('');
+    return;
+  }
+
+  let q = db.from('necesidades').select('*').is('merged_into', null).order('created_at', { ascending: false }).limit(80);
+  if (enlaceFilter === 'en_camino') q = q.eq('estado', 'en_proceso');
+  else if (enlaceFilter === 'esperando') q = q.eq('estado', 'pendiente');
+  else if (enlaceFilter === 'atendidas') q = q.eq('estado', 'cubierta');
+
+  const [{ data, error }, { count: enCamino }, { count: esperando }, { count: donaciones }] = await Promise.all([
+    q,
+    db.from('necesidades').select('*', { count: 'exact', head: true }).eq('estado', 'en_proceso').is('merged_into', null),
+    db.from('necesidades').select('*', { count: 'exact', head: true }).eq('estado', 'pendiente').is('merged_into', null),
+    db.from('recursos').select('*', { count: 'exact', head: true }).neq('estado', 'entregado'),
+  ]);
+  if (error) { el.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  stats.textContent = `${enCamino ?? 0} en camino · ${esperando ?? 0} esperan voluntario · ${donaciones ?? 0} donaciones abiertas a centros`;
+  if (!data?.length) {
+    const empty = {
+      en_camino: 'Nadie va en camino a un caso ahora.',
+      esperando: 'No hay solicitudes esperando voluntario.',
+      atendidas: 'Ninguna solicitud marcada como atendida aún.',
+    };
+    el.innerHTML = `<div class="empty">${empty[enlaceFilter] || 'Nada aquí.'}</div>`;
+    return;
+  }
+  el.innerHTML = data.map(renderEnlacePar).join('');
+}
+
+async function setRecursoEstado(id, estado) {
+  const { error } = await db.from('recursos').update({ estado }).eq('id', id);
+  if (error) { toast(error.message); return; }
+  toast(estado === 'entregado' ? 'Donación marcada entregada' : 'Donación asignada');
+  loadEnlaces();
 }
 
 async function loadPosts() {
@@ -676,6 +865,9 @@ async function logout() {
 
 db.channel('admin-sol').on('postgres_changes', { event: '*', schema: 'public', table: 'necesidades' }, () => {
   if (document.getElementById('panel-solicitudes')?.classList.contains('on')) loadSolicitudes();
+  if (document.getElementById('panel-enlaces')?.classList.contains('on')) loadEnlaces();
+}).on('postgres_changes', { event: '*', schema: 'public', table: 'recursos' }, () => {
+  if (document.getElementById('panel-enlaces')?.classList.contains('on')) loadEnlaces();
 }).subscribe();
 </script>
 </body>
