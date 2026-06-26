@@ -13,9 +13,9 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--red:#C0392B;--redd:#922B21;--redl:#FDEDEC;--ora:#E67E22;--oral:#FEF5E7;--grn:#1E8449;--grnl:#EAFAF1;--blu:#2471A3;--blul:#EBF5FB;--yel:#F39C12;--yell:#FEF9E7;--g0:#fff;--g1:#F8F9FA;--g2:#E9ECEF;--g3:#ADB5BD;--g4:#6C757D;--g5:#343A40;--r:8px;--rm:12px}
+:root{--red:#C0392B;--redd:#922B21;--redl:#FDEDEC;--ora:#E67E22;--oral:#FEF5E7;--grn:#1E8449;--grnl:#EAFAF1;--blu:#2471A3;--blul:#EBF5FB;--yel:#F39C12;--yell:#FEF9E7;--g0:#fff;--g1:#F8F9FA;--g2:#E9ECEF;--g3:#ADB5BD;--g4:#6C757D;--g5:#343A40;--r:8px;--rm:12px;--app-max:480px}
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--g1);color:var(--g5);font-size:16px;overscroll-behavior:none}
-.app{max-width:480px;margin:0 auto;min-height:100vh;background:var(--g0);display:flex;flex-direction:column;position:relative}
+.app{max-width:var(--app-max);margin:0 auto;min-height:100vh;background:var(--g0);display:flex;flex-direction:column;position:relative}
 .hdr{background:var(--red);color:#fff;padding:10px 14px 8px;flex-shrink:0}
 .hdr-row{display:flex;align-items:center;gap:8px}.hdr h1{font-size:15px;font-weight:700;line-height:1.2}.hdr p{font-size:11px;opacity:.9;margin-top:1px}
 .dot{display:inline-block;width:6px;height:6px;background:#7DCEA0;border-radius:50%;margin-right:4px;animation:blink 2s ease-in-out infinite}
@@ -36,7 +36,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .leg{display:flex;gap:9px;font-size:10px;color:var(--g4);margin-left:auto;white-space:nowrap}
 .leg span{display:inline-flex;align-items:center;gap:3px}.leg i{width:9px;height:9px;border-radius:50%;display:inline-block}
 .map-hint{position:absolute;top:8px;left:8px;right:8px;z-index:500;background:rgba(255,255,255,.94);border-radius:var(--r);padding:7px 10px;font-size:11px;color:var(--g5);box-shadow:0 1px 6px rgba(0,0,0,.15);text-align:center}
-.fab{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:900;background:var(--red);color:#fff;border:none;border-radius:30px;padding:15px 26px;font-size:16px;font-weight:800;box-shadow:0 4px 16px rgba(192,57,43,.5);cursor:pointer;display:none;align-items:center;gap:8px}
+.fab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(var(--app-max),100vw);z-index:900;display:flex;justify-content:center;padding:0 14px calc(18px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.fab{background:var(--red);color:#fff;border:none;border-radius:30px;padding:15px 26px;font-size:16px;font-weight:800;box-shadow:0 4px 16px rgba(192,57,43,.5);cursor:pointer;display:none;align-items:center;gap:8px;pointer-events:auto;min-height:48px}
 .fab.show{display:inline-flex}.fab:active{background:var(--redd)}
 .fsec{padding:14px}.ftitle{font-size:17px;font-weight:800;margin-bottom:2px}.fsub{font-size:12px;color:var(--g4);margin-bottom:12px;line-height:1.4}
 .fstep{font-size:11px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.05em;margin:16px 0 8px;display:flex;align-items:center;gap:6px}
@@ -73,12 +74,14 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .unval{display:inline-block;font-size:9px;background:var(--yell);color:#7D6608;border:1px solid #F9E79F;border-radius:3px;padding:1px 5px;margin-left:5px}
 .actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
 .actions a,.actions button{color:#fff;border:none;border-radius:var(--r);padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:3px}
-.btn-call{background:var(--grn)}.btn-wa{background:#25D366}.btn-map{background:var(--blu)}.btn-sh{background:none!important;border:1px solid var(--g2)!important;color:var(--g4)!important}
+.btn-call{background:var(--grn)}.btn-wa{background:#25D366}.btn-map{background:var(--blu)}.btn-edif{background:var(--red)}.btn-sh{background:none!important;border:1px solid var(--g2)!important;color:var(--g4)!important}
+.leaflet-popup-content .btn-edif{display:block;width:100%;margin-top:8px;background:var(--red)!important;color:#fff!important;border:none!important;border-radius:var(--r);padding:10px 12px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;text-align:center;box-sizing:border-box}
+.leaflet-popup-content .btn-edif:active{background:var(--redd)!important}
 .spin-wrap{text-align:center;padding:32px 20px;color:var(--g4);font-size:13px}.spinner{width:26px;height:26px;border:3px solid var(--g2);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty{text-align:center;padding:32px 20px;color:var(--g4);line-height:1.6}
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:flex-end;justify-content:center}.modal.on{display:flex}
-.modal-card{background:#fff;width:100%;max-width:480px;border-radius:16px 16px 0 0;padding:16px 16px 22px;max-height:80vh;overflow-y:auto}
+.modal-card{background:#fff;width:100%;max-width:var(--app-max);border-radius:16px 16px 0 0;padding:16px 16px calc(22px + env(safe-area-inset-bottom,0px));max-height:80vh;overflow-y:auto}
 .modal-card h3{font-size:15px;margin-bottom:3px}.modal-card .sub{font-size:12px;color:var(--g4);margin-bottom:12px;line-height:1.5}
 .dupe{border:1px solid var(--g2);border-radius:var(--r);padding:10px;margin-bottom:8px}.dupe b{font-size:13px}.dupe .meta{font-size:11px;color:var(--g4);margin-top:2px}
 .dupe button{margin-top:7px;width:100%;background:var(--grn);color:#fff;border:none;border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;cursor:pointer}
@@ -90,6 +93,42 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .edif-opt.on{background:var(--redl);border-color:var(--red);color:var(--redd)}
 .edif-opt small{display:block;font-size:11px;font-weight:400;color:var(--g4);margin-top:2px}
 .edif-hint{font-size:12px;color:var(--g4);margin-bottom:8px;line-height:1.4}
+.tab:focus-visible,.mt:focus-visible,.chip:focus-visible,.gbtn:focus-visible,.ubtn:focus-visible,.geo-btn:focus-visible,.btn-primary:focus-visible,.fab:focus-visible,.edif-opt:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+@media (hover:hover){
+.tab:hover:not(.on){color:var(--g5)}
+.mt:hover:not(.on),.chip:hover:not(.on),.gbtn:hover:not(.on),.ubtn:hover:not(.on){border-color:var(--g3);color:var(--g5)}
+.geo-btn:hover:not(:disabled){filter:brightness(.97)}
+.btn-primary:hover:not(:disabled){background:var(--redd)}
+.fab:hover{background:var(--redd)}
+.card:hover{box-shadow:0 2px 8px rgba(0,0,0,.06)}
+}
+@media (min-width:640px){
+:root{--app-max:720px}
+.app{box-shadow:0 0 0 1px var(--g2),0 8px 32px rgba(0,0,0,.06)}
+.hdr{padding:12px 18px 10px}.hdr h1{font-size:16px}.hdr p{font-size:12px}
+.tab{padding:10px 14px;font-size:12px}
+.fsec,.pad{padding-left:20px;padding-right:20px}
+.grid{grid-template-columns:repeat(4,1fr)}
+.map-stage{min-height:68vh}
+.map-hint{font-size:12px;padding:8px 12px}
+#lista-ayudar,#lista-acopio{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+#lista-ayudar>.card,#lista-acopio>.card{margin-bottom:0}
+#lista-ayudar>.spin-wrap,#lista-ayudar>.empty,#lista-acopio>.spin-wrap,#lista-acopio>.empty{grid-column:1/-1}
+}
+@media (min-width:960px){
+:root{--app-max:1040px}
+.grid{grid-template-columns:repeat(5,1fr)}
+#view-mapa .map-stage{min-height:calc(100vh - 118px)}
+.map-hint{left:16px;right:auto;max-width:360px;text-align:left}
+#view-reportar .fsec,#view-ofrecer .fsec{max-width:600px;margin:0 auto;padding:24px 28px}
+#view-ayudar .pad,#view-acopio .pad{padding:20px 24px}
+.modal{align-items:center;padding:20px}
+.modal-card{border-radius:var(--rm);max-height:min(85vh,640px);box-shadow:0 12px 40px rgba(0,0,0,.2)}
+}
+@media (max-width:380px){
+.tab{padding:8px 8px;font-size:10px}.tab-ico{font-size:16px}
+.leg{display:none}
+}
 </style>
 </head>
 <body>
@@ -111,7 +150,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     <button class="mt" id="mt-heat" onclick="setMapMode('heat')">Calor</button>
     <div class="leg"><span><i style="background:#C0392B"></i>Crítica / Colapso</span><span><i style="background:#E67E22"></i>Urgente</span><span><i style="background:#1E8449"></i>Acopio</span></div>
   </div>
-  <div class="map-stage"><div class="map-hint">Toca un punto para ver detalle y contactar · o pulsa <b>🆘 Pedir ayuda</b></div><div id="main-map"></div></div>
+  <div class="map-stage"><div class="map-hint">Pulsa un punto para ver detalle y contactar · o <b>🆘 Pedir ayuda</b></div><div id="main-map"></div></div>
 </div>
 
 <!-- PEDIR AYUDA -->
@@ -196,7 +235,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
   </div>
 </div>
 
-<button class="fab show" id="fab" onclick="startSOS()">🆘 Pedir ayuda</button>
+<div class="fab-bar"><button class="fab show" id="fab" onclick="startSOS()">🆘 Pedir ayuda</button></div>
 </div>
 
 <div class="modal" id="dupe-modal"><div class="modal-card">
@@ -289,7 +328,7 @@ function renderMap(){if(!mapData)return;markersLayer.clearLayers();if(heatLayer)
     edifs.forEach(e=>{if(!e.lat||!e.lng)return;const m=L.marker([e.lat,e.lng],{icon:dot('#C0392B',12)}).addTo(markersLayer);
       const safe=(e.nombre+', '+(e.sector||e.zona)).replace(/'/g,'');
       const trap=e.personas_atrapadas?'<br><b style="color:#C0392B">⚠️ Posibles personas atrapadas</b>':'';
-      m.bindPopup(`<b>🏚 ${e.nombre}</b><br>${e.sector||e.zona}<br><small>🔴 Crítica · ${e.estado_edificio.replace(/_/g,' ')}</small>${trap}<br><button onclick="sosHere(${e.lat},${e.lng},'${safe}','${e.zona}','${e.id}')" style="margin-top:6px;background:#C0392B;color:#fff;border:none;border-radius:6px;padding:7px 10px;font-weight:700;font-size:12px">🆘 Pedir ayuda aquí</button>`);b.push([e.lat,e.lng]);});
+      m.bindPopup(`<b>🏚 ${e.nombre}</b><br>${e.sector||e.zona}<br><small>🔴 Crítica · ${e.estado_edificio.replace(/_/g,' ')}</small>${trap}<br><button type="button" class="btn-edif" onclick="sosHere(${e.lat},${e.lng},'${safe}','${e.zona}','${e.id}')">🆘 Pedir ayuda aquí</button>`);b.push([e.lat,e.lng]);});
     needs.forEach(n=>{if(!n.lat||!n.lng)return;const c={critica:'#C0392B',urgente:'#E67E22',normal:'#27AE60'}[n.urgencia]||'#888';
       const m=L.marker([n.lat,n.lng],{icon:dot(c)}).addTo(markersLayer);const wa=n.whatsapp||n.telefono;
       m.bindPopup(`<b>${tipoIcons(n)} ${tipoText(n)}</b><br>${n.direccion_exacta}<br>📞 <a href="tel:${n.telefono}">${n.telefono}</a>${wa?`<br><a href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}`);b.push([n.lat,n.lng]);});
@@ -334,7 +373,7 @@ function edifCard(e){const dist=e.distancia_m!=null?`<span class="c-dist">📍 a
     <div class="c-top"><div><div class="c-loc">🏚 ${loc}</div><div class="c-addr">${escHtml(e.nombre)}</div></div><span class="badge r">🔴 Crítica</span></div>
     <div class="c-tipo">Edificio colapsado · ${estado}${e.created_at?' · ⏱ '+ago(e.created_at):''}</div>
     ${trap}${notas}
-    <div class="actions"><a class="btn-map" href="${mapLink(e.lat,e.lng,e.nombre)}" target="_blank">🗺 Ir a ayudar</a><button class="btn-sh" onclick="focusEdifOnMap('${e.id}')">📍 Ver en mapa</button></div>
+    <div class="actions"><a class="btn-edif" href="${mapLink(e.lat,e.lng,e.nombre)}" target="_blank">🗺 Ir a ayudar</a><button class="btn-edif" onclick="focusEdifOnMap('${e.id}')">📍 Ver en mapa</button></div>
   </div>`;}
 function focusEdifOnMap(id){goTab('mapa');setTimeout(()=>{const e=(mapData?.edifs||[]).find(x=>x.id===id);if(e?.lat&&e?.lng)mainMap.setView([e.lat,e.lng],16);},200);}
 function helpSortKey(item){if(item.kind==='edif')return item.data.personas_atrapadas?-1:0;return{critica:0,urgente:1,normal:2}[item.data.urgencia]??3;}
@@ -456,6 +495,7 @@ function onLiveData(){if(document.getElementById('view-mapa').classList.contains
   if(document.getElementById('view-ayudar').classList.contains('on'))loadHelp();}
 db.channel('live').on('postgres_changes',{event:'*',schema:'public',table:'necesidades'},onLiveData)
   .on('postgres_changes',{event:'*',schema:'public',table:'edificios_colapsados'},onLiveData).subscribe();
+window.addEventListener('resize',()=>{if(mainMap)mainMap.invalidateSize();});
 
 buildGrid('tipo-grid',TIPOS,'pickTipo');
 buildGrid('tipo-grid-o',TIPOS_O,'pickTipoO');
