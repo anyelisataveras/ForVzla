@@ -109,7 +109,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
   <div class="map-strip">
     <button class="mt on" id="mt-pts" onclick="setMapMode('pts')">Puntos</button>
     <button class="mt" id="mt-heat" onclick="setMapMode('heat')">Calor</button>
-    <div class="leg"><span><i style="background:#8B0000"></i>Colapso</span><span><i style="background:#C0392B"></i>Crítica</span><span><i style="background:#E67E22"></i>Urgente</span><span><i style="background:#1E8449"></i>Acopio</span></div>
+    <div class="leg"><span><i style="background:#C0392B"></i>Crítica / Colapso</span><span><i style="background:#E67E22"></i>Urgente</span><span><i style="background:#1E8449"></i>Acopio</span></div>
   </div>
   <div class="map-stage"><div class="map-hint">Toca un punto para ver detalle y contactar · o pulsa <b>🆘 Pedir ayuda</b></div><div id="main-map"></div></div>
 </div>
@@ -220,9 +220,9 @@ function ei(t){const f=TIPOS.concat(TIPOS_O).find(x=>x.t===t);return f?f.e:'📌
 function ago(ts){const d=Math.floor((Date.now()-new Date(ts))/60000);if(d<1)return'Ahora';if(d<60)return d+'m';if(d<1440)return Math.floor(d/60)+'h';return Math.floor(d/1440)+'d'}
 function fmDist(m){if(m==null)return'';return m<1000?Math.round(m)+' m':(m/1000).toFixed(1)+' km'}
 function waLink(n,msg){return`https://wa.me/${(n||'').replace(/[\s+]/g,'')}${msg?'?text='+encodeURIComponent(msg):''}`}
-function osmRoute(lat,lng){return`https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=;${lat},${lng}`}
-function osmSearch(a){return`https://www.openstreetmap.org/search?query=${encodeURIComponent(a)}`}
-function mapLink(lat,lng,a){return lat&&lng?osmRoute(lat,lng):osmSearch(a)}
+function gmapsRoute(lat,lng){return`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`}
+function gmapsSearch(a){return`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a)}`}
+function mapLink(lat,lng,a){return lat&&lng?gmapsRoute(lat,lng):gmapsSearch(a)}
 function srcTag(f){if(f==='instagram')return'<span class="c-src ig">IG</span>';if(f==='tiktok')return'<span class="c-src tt">TikTok</span>';if(f==='twitter')return'<span class="c-src tw">X</span>';if(f==='telegram')return'<span class="c-src tg">TG</span>';return''}
 function needTipos(n){return(n.tipos&&n.tipos.length)?n.tipos:[n.tipo].filter(Boolean)}
 function tipoText(n){return needTipos(n).map(t=>SHORT[t]||t).join(', ')}
@@ -282,13 +282,14 @@ async function populateMap(){initMainMap();
 function renderMap(){if(!mapData)return;markersLayer.clearLayers();if(heatLayer){mainMap.removeLayer(heatLayer);heatLayer=null;}
   const b=[],{needs,acopios,edifs}=mapData;
   if(mapMode==='heat'){const h=[];
-    edifs.forEach(e=>{if(e.lat&&e.lng){h.push([e.lat,e.lng,0.8]);b.push([e.lat,e.lng]);}});
+    edifs.forEach(e=>{if(e.lat&&e.lng){h.push([e.lat,e.lng,1]);b.push([e.lat,e.lng]);}});
     needs.forEach(n=>{if(n.lat&&n.lng){h.push([n.lat,n.lng,n.urgencia==='critica'?1:n.urgencia==='urgente'?.6:.3]);b.push([n.lat,n.lng]);}});
     heatLayer=L.heatLayer(h,{radius:28,blur:20,maxZoom:14,gradient:{.2:'#2471A3',.4:'#F39C12',.7:'#E67E22',1:'#C0392B'}}).addTo(mainMap);
   }else{
-    edifs.forEach(e=>{if(!e.lat||!e.lng)return;const m=L.marker([e.lat,e.lng],{icon:dot('#8B0000',10)}).addTo(markersLayer);
+    edifs.forEach(e=>{if(!e.lat||!e.lng)return;const m=L.marker([e.lat,e.lng],{icon:dot('#C0392B',12)}).addTo(markersLayer);
       const safe=(e.nombre+', '+(e.sector||e.zona)).replace(/'/g,'');
-      m.bindPopup(`<b>🏚 ${e.nombre}</b><br>${e.sector||e.zona}<br><small>${e.estado_edificio.replace('_',' ')}</small><br><button onclick="sosHere(${e.lat},${e.lng},'${safe}','${e.zona}','${e.id}')" style="margin-top:6px;background:#C0392B;color:#fff;border:none;border-radius:6px;padding:7px 10px;font-weight:700;font-size:12px">🆘 Pedir ayuda aquí</button>`);b.push([e.lat,e.lng]);});
+      const trap=e.personas_atrapadas?'<br><b style="color:#C0392B">⚠️ Posibles personas atrapadas</b>':'';
+      m.bindPopup(`<b>🏚 ${e.nombre}</b><br>${e.sector||e.zona}<br><small>🔴 Crítica · ${e.estado_edificio.replace(/_/g,' ')}</small>${trap}<br><button onclick="sosHere(${e.lat},${e.lng},'${safe}','${e.zona}','${e.id}')" style="margin-top:6px;background:#C0392B;color:#fff;border:none;border-radius:6px;padding:7px 10px;font-weight:700;font-size:12px">🆘 Pedir ayuda aquí</button>`);b.push([e.lat,e.lng]);});
     needs.forEach(n=>{if(!n.lat||!n.lng)return;const c={critica:'#C0392B',urgente:'#E67E22',normal:'#27AE60'}[n.urgencia]||'#888';
       const m=L.marker([n.lat,n.lng],{icon:dot(c)}).addTo(markersLayer);const wa=n.whatsapp||n.telefono;
       m.bindPopup(`<b>${tipoIcons(n)} ${tipoText(n)}</b><br>${n.direccion_exacta}<br>📞 <a href="tel:${n.telefono}">${n.telefono}</a>${wa?`<br><a href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}`);b.push([n.lat,n.lng]);});
@@ -324,6 +325,19 @@ function mapEstado(s){s=(s||'').toLowerCase();
   if(s.includes('yaracuy'))return'Yaracuy';if(s.includes('aragua'))return'Aragua';if(s.includes('carabobo'))return'Carabobo';
   if(s.includes('falc'))return'Falcón';if(s.includes('miranda'))return'Miranda';if(s.includes('lara'))return'Lara';return'Otra';}
 
+function edifCard(e){const dist=e.distancia_m!=null?`<span class="c-dist">📍 a ${fmDist(e.distancia_m)} de ti</span><br>`:'';
+  const trap=e.personas_atrapadas?'<span class="c-qty">⚠️ Posibles personas atrapadas</span>':'';
+  const estado=(e.estado_edificio||'colapsado').replace(/_/g,' ');
+  const notas=e.notas?`<div class="c-desc">${escHtml(e.notas)}</div>`:'';
+  const loc=escHtml(e.sector?e.sector+' · '+e.zona:e.zona);
+  return `<div class="card r">${dist}
+    <div class="c-top"><div><div class="c-loc">🏚 ${loc}</div><div class="c-addr">${escHtml(e.nombre)}</div></div><span class="badge r">🔴 Crítica</span></div>
+    <div class="c-tipo">Edificio colapsado · ${estado}${e.created_at?' · ⏱ '+ago(e.created_at):''}</div>
+    ${trap}${notas}
+    <div class="actions"><a class="btn-map" href="${mapLink(e.lat,e.lng,e.nombre)}" target="_blank">🗺 Ir a ayudar</a><button class="btn-sh" onclick="focusEdifOnMap('${e.id}')">📍 Ver en mapa</button></div>
+  </div>`;}
+function focusEdifOnMap(id){goTab('mapa');setTimeout(()=>{const e=(mapData?.edifs||[]).find(x=>x.id===id);if(e?.lat&&e?.lng)mainMap.setView([e.lat,e.lng],16);},200);}
+function helpSortKey(item){if(item.kind==='edif')return item.data.personas_atrapadas?-1:0;return{critica:0,urgente:1,normal:2}[item.data.urgencia]??3;}
 function needCard(n){const done=n.estado==='cubierta',cls=done?'done':UE[n.urgencia]||'';
   const badge=done?'<span class="badge done">✓ Cubierta</span>':`<span class="badge ${UE[n.urgencia]||''}">${UL[n.urgencia]||''}</span>`;
   const unval=!n.validada?'<span class="unval">Sin validar</span>':'';const wa=n.whatsapp||n.telefono;
@@ -347,11 +361,17 @@ function locateForHelp(){const btn=document.getElementById('geo-ayudar-btn');btn
   navigator.geolocation.getCurrentPosition(p=>{helpPos={lat:p.coords.latitude,lng:p.coords.longitude};btn.className='geo-btn ok';btn.textContent='✅ Ordenado por cercanía a ti';btn.disabled=false;loadHelp();},
   ()=>{btn.textContent='❌ Sin GPS. Mostrando todas.';btn.disabled=false;loadHelp();},{enableHighAccuracy:true,timeout:10000});}
 async function loadHelp(){const el=document.getElementById('lista-ayudar');el.innerHTML='<div class="spin-wrap"><div class="spinner"></div>Buscando...</div>';
-  let data=[];
-  if(helpPos){const{data:r}=await db.rpc('necesidades_cercanas',{p_lat:helpPos.lat,p_lng:helpPos.lng,p_radio_m:300000,p_tipo:null});data=r||[];}
-  else{const{data:r}=await db.from('necesidades').select('*').neq('estado','cubierta').is('merged_into',null).order('urgencia');data=r||[];}
-  if(helpTipo)data=data.filter(n=>needTipos(n).some(t=>(t||'').toLowerCase().includes(helpTipo.toLowerCase())));
-  el.innerHTML=data.map(n=>needCard(n)).join('')||'<div class="empty">🎉 Sin necesidades de ese tipo cerca.</div>';}
+  const[{data:needsRaw},{data:edifsRaw}]=await Promise.all([
+    helpPos?db.rpc('necesidades_cercanas',{p_lat:helpPos.lat,p_lng:helpPos.lng,p_radio_m:300000,p_tipo:null}):db.from('necesidades').select('*').neq('estado','cubierta').is('merged_into',null).order('urgencia'),
+    db.from('edificios_colapsados').select('*')]);
+  let needs=needsRaw||[],edifs=(edifsRaw||[]).filter(e=>e.lat&&e.lng);
+  if(helpPos)edifs=edifs.map(e=>({...e,distancia_m:Math.round(dist0(helpPos.lat,helpPos.lng,e.lat,e.lng)*1000)}));
+  if(helpTipo){needs=needs.filter(n=>needTipos(n).some(t=>(t||'').toLowerCase().includes(helpTipo.toLowerCase())));
+    if(!helpTipo.toLowerCase().includes('rescate'))edifs=[];}
+  const items=[...edifs.map(e=>({kind:'edif',data:e})),...needs.map(n=>({kind:'need',data:n}))];
+  items.sort((a,b)=>{const ka=helpSortKey(a),kb=helpSortKey(b);if(ka!==kb)return ka-kb;
+    return(a.data.distancia_m??999999999)-(b.data.distancia_m??999999999);});
+  el.innerHTML=items.map(it=>it.kind==='edif'?edifCard(it.data):needCard(it.data)).join('')||'<div class="empty">🎉 Sin necesidades de ese tipo cerca.</div>';}
 
 let acopioCache=[];
 async function loadAcopio(uLat,uLng){const el=document.getElementById('lista-acopio');
@@ -361,7 +381,7 @@ async function loadAcopio(uLat,uLng){const el=document.getElementById('lista-aco
   el.innerHTML=list.map(a=>`<div class="card acopio"><div class="c-top"><div><div class="c-loc">📦 ${a.nombre}</div><div class="c-addr">📍 ${a.estado_vzla} — ${a.direccion}</div></div></div>
     ${a.km!==undefined?`<span class="c-dist">📍 a ${a.km<1?(a.km*1000).toFixed(0)+' m':a.km.toFixed(1)+' km'} de ti</span>`:''}
     ${a.organizacion?`<div class="c-tipo">Organización: ${a.organizacion}</div>`:''}
-    <div class="actions"><a class="btn-map" href="${osmRoute(a.lat,a.lng)}" target="_blank">🗺 Cómo llegar</a>${a.telefono?`<a class="btn-call" href="tel:${a.telefono}">📞 Llamar</a>`:''}</div></div>`).join('');}
+    <div class="actions"><a class="btn-map" href="${gmapsRoute(a.lat,a.lng)}" target="_blank">🗺 Cómo llegar</a>${a.telefono?`<a class="btn-call" href="tel:${a.telefono}">📞 Llamar</a>`:''}</div></div>`).join('');}
 function dist0(la1,lo1,la2,lo2){const R=6371,dL=(la2-la1)*Math.PI/180,dG=(lo2-lo1)*Math.PI/180;const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dG/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function locateForAcopio(){const btn=document.getElementById('geo-acopio-btn');btn.textContent='⏳ Ubicando...';btn.disabled=true;
   navigator.geolocation.getCurrentPosition(p=>{btn.className='geo-btn ok';btn.textContent='✅ Ordenados por cercanía';btn.disabled=false;loadAcopio(p.coords.latitude,p.coords.longitude);},
@@ -420,7 +440,7 @@ async function submitRecurso(){if(!selTipoO){showToast('o','Toca qué ofreces.',
   showToast('o','✅ Recurso publicado.');selTipoO='';document.querySelectorAll('#tipo-grid-o .gbtn').forEach(b=>b.classList.remove('on'));
   ['o-qty','o-acopio','o-tel','o-nombre'].forEach(i=>document.getElementById(i).value='');}
 
-function shareNeed(n){const txt=`${UL[n.urgencia]||''} #AyudaVenezuela\n📍 ${n.zona} — ${n.direccion_exacta}\n${tipoIcons(n)} ${tipoText(n)}\n📝 ${n.descripcion}\n📞 ${n.telefono||''}${n.lat&&n.lng?'\n🗺 '+osmRoute(n.lat,n.lng):''}`;
+function shareNeed(n){const txt=`${UL[n.urgencia]||''} #AyudaVenezuela\n📍 ${n.zona} — ${n.direccion_exacta}\n${tipoIcons(n)} ${tipoText(n)}\n📝 ${n.descripcion}\n📞 ${n.telefono||''}${n.lat&&n.lng?'\n🗺 '+gmapsRoute(n.lat,n.lng):''}`;
   if(navigator.share)navigator.share({title:'Necesidad Venezuela',text:txt}).catch(()=>{});
   else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>alert('Copiado. Pégalo en WhatsApp.'));else prompt('Copia:',txt);}
 function showToast(v,m,err=false){const t=document.getElementById('toast-'+v);t.textContent=m;t.className='toast '+(err?'err':'ok')+' show';t.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>t.classList.remove('show'),5500);}
@@ -432,9 +452,10 @@ function goTab(name){document.querySelectorAll('.view').forEach(v=>v.classList.r
   if(name==='mapa')populateMap();if(name==='ayudar')loadHelp();if(name==='acopio')loadAcopio();if(name==='ofrecer'&&!acopioCache.length)loadAcopio();
   setTimeout(()=>{if(mainMap)mainMap.invalidateSize();},150);}
 
-db.channel('live').on('postgres_changes',{event:'*',schema:'public',table:'necesidades'},()=>{
-  if(document.getElementById('view-mapa').classList.contains('on'))populateMap();
-  if(document.getElementById('view-ayudar').classList.contains('on'))loadHelp();}).subscribe();
+function onLiveData(){if(document.getElementById('view-mapa').classList.contains('on'))populateMap();
+  if(document.getElementById('view-ayudar').classList.contains('on'))loadHelp();}
+db.channel('live').on('postgres_changes',{event:'*',schema:'public',table:'necesidades'},onLiveData)
+  .on('postgres_changes',{event:'*',schema:'public',table:'edificios_colapsados'},onLiveData).subscribe();
 
 buildGrid('tipo-grid',TIPOS,'pickTipo');
 buildGrid('tipo-grid-o',TIPOS_O,'pickTipoO');

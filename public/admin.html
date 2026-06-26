@@ -36,6 +36,22 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .src{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-right:4px}
 .src.ig{background:#FCE4EC;color:#AD1457}.src.tt{background:#E0F7FA;color:#006064}
 .src.tw{background:#E3F2FD;color:#1565C0}.src.tg{background:#E8F5E9;color:#2E7D32}
+.sug{background:var(--grnl);border:1px solid #b8dfc4;border-radius:var(--r);padding:10px 12px;margin:10px 0}
+.sug.warn{background:#FEF9E7;border-color:#f4d03f}
+.sug.bad{background:#FDEDEC;border-color:#e6b0aa}
+.sug-tit{font-size:14px;font-weight:800;color:var(--navy);margin-bottom:6px;line-height:1.35}
+.sug-why{font-size:12px;color:var(--g4);line-height:1.45;margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.chip{font-size:11px;font-weight:600;padding:3px 8px;border-radius:12px;background:var(--g1);color:var(--g5);border:1px solid var(--g2)}
+.chip.ok{background:var(--grnl);border-color:#b8dfc4;color:var(--grn)}
+.chip.miss{background:#FDEDEC;border-color:#e6b0aa;color:var(--red)}
+.btn-rec{box-shadow:0 0 0 2px var(--navy)}
+details.sum{margin-top:8px}
+details.sum summary{font-size:12px;font-weight:600;color:var(--blu);cursor:pointer;list-style:none}
+details.sum summary::-webkit-details-marker{display:none}
+.card.card-ready{border-left-color:var(--grn)}
+.card.card-warn{border-left-color:var(--ora)}
+.card.card-skip{border-left-color:var(--g4)}
 </style>
 </head>
 <body>
@@ -71,7 +87,9 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     </div>
 
     <div class="panel on" id="panel-posts">
-      <p style="font-size:13px;color:var(--g4);margin-bottom:12px">Posts del scraper pendientes de validación.</p>
+      <p style="font-size:13px;color:var(--g4);margin-bottom:12px;line-height:1.5">
+        La IA resume cada post y sugiere qué crear. Pulsa la acción recomendada o elige otra.
+      </p>
       <div id="lista-posts"></div>
     </div>
 
@@ -147,6 +165,7 @@ const db = supabase.createClient(SB_URL, SB_KEY, {
 
 let session = null;
 let pollTimer = null;
+let postsCache = {};
 
 function toast(msg) {
   const t = document.getElementById('toast');
@@ -160,6 +179,175 @@ function srcTag(p) {
   const m = { instagram:'ig', tiktok:'tt', twitter:'tw', telegram:'tg' };
   const l = { instagram:'IG', tiktok:'TT', twitter:'X', telegram:'TG' };
   return `<span class="src ${m[p]||''}">${l[p]||p}</span>`;
+}
+
+const URG_LABEL = { critica:'🔴 Crítica', urgente:'🟠 Urgente', normal:'🟢 Normal' };
+const DEST_LABEL = {
+  necesidad: 'Publicar necesidad',
+  edificio: 'Registrar edificio colapsado',
+  ambos: 'Edificio + necesidad',
+  rechazar: 'Rechazar (datos insuficientes)',
+  centro: 'Centro de acopio (tab Centros)',
+};
+
+function textoCompleto(p) {
+  return [p.texto, p.descripcion, p.direccion, p.zona].filter(Boolean).join(' ');
+}
+
+function analizarPost(p) {
+  const blob = textoCompleto(p).toLowerCase();
+  const hasGeo = p.lat != null && p.lng != null;
+  const hasZona = !!(p.zona && p.zona.trim() && p.zona !== 'Otra');
+  const hasDir = !!(p.direccion && p.direccion.trim());
+  const hasTel = !!(p.telefono && p.telefono.trim() && p.telefono !== 's/d');
+  const conf = +(p.confianza || 0);
+  const cat = p.categoria || '';
+  const tipo = p.tipo || '';
+  const urg = p.urgencia || 'urgente';
+
+  const esRescate = cat === 'rescate' || tipo === 'Rescate';
+  const esCentro = cat === 'centro_acopio' || /centro de acopio|punto de acopio|donaciones en|recibimos don/i.test(blob);
+  const esEdificio = esRescate || /colaps|derrumb|atrap|edificio|torre|residen|estructura dañ/i.test(blob);
+  const generico = /genérico|sin especificar|no especifica|post genérico|poco detalle/i.test(p.descripcion || '');
+
+  const alertas = [];
+  if (!hasGeo) alertas.push('Sin coordenadas — no se puede registrar edificio en mapa');
+  if (!hasZona) alertas.push('Zona imprecisa');
+  if (!hasTel) alertas.push('Sin teléfono de contacto');
+  if (generico) alertas.push('Descripción muy vaga');
+
+  let destino = 'necesidad';
+  let why = '';
+
+  if (esCentro && hasGeo && hasZona) {
+    destino = 'centro';
+    why = 'Parece un centro de acopio con ubicación — créalo en tab Centros.';
+  } else if (conf < 0.6 && (generico || alertas.length >= 2)) {
+    destino = 'rechazar';
+    why = 'Confianza baja y faltan datos clave para publicar con seguridad.';
+  } else if (esRescate && hasGeo) {
+    destino = 'ambos';
+    why = 'Rescate con ubicación — conviene edificio colapsado y necesidad urgente.';
+  } else if (esEdificio && hasGeo) {
+    destino = 'ambos';
+    why = 'Menciona colapso/atrapados y hay punto en mapa.';
+  } else if (esEdificio && !hasGeo) {
+    destino = 'necesidad';
+    why = 'Hay indicios de edificio pero faltan coordenadas; publicar solo necesidad.';
+  } else if (hasZona && tipo) {
+    destino = 'necesidad';
+    why = `Pedido de ${tipo} en ${p.zona}.`;
+  } else if (hasZona) {
+    destino = 'necesidad';
+    why = `Necesidad en ${p.zona}.`;
+  } else {
+    destino = conf >= 0.7 ? 'necesidad' : 'rechazar';
+    why = conf >= 0.7 ? 'Publicar como necesidad (revisar zona).' : 'Datos muy incompletos.';
+  }
+
+  const titulo = [
+    esRescate ? '🆘 Rescate' : (esEdificio ? '🏚 Colapso' : '📋 Necesidad'),
+    tipo && tipo !== 'Otra' ? tipo : null,
+    hasZona ? p.zona : null,
+    URG_LABEL[urg] || urg,
+  ].filter(Boolean).join(' · ');
+
+  const chips = [
+    hasZona ? { t: '📍 ' + p.zona, ok: true } : { t: '📍 Sin zona', ok: false },
+    hasDir ? { t: '🏠 ' + p.direccion, ok: true } : null,
+    hasGeo ? { t: '🗺 Mapa OK', ok: true } : { t: '🗺 Sin mapa', ok: false },
+    tipo ? { t: tipo, ok: true } : null,
+    hasTel ? { t: '📞 ' + p.telefono, ok: true } : { t: '📞 Sin teléfono', ok: false },
+    p.cantidad ? { t: 'Cant: ' + p.cantidad, ok: true } : null,
+    { t: 'Conf ' + Math.round(conf * 100) + '%', ok: conf >= 0.65 },
+  ].filter(Boolean);
+
+  const cardClass = destino === 'rechazar' ? 'card-skip' : (destino === 'ambos' || (destino === 'necesidad' && conf >= 0.75 && hasZona) ? 'card-ready' : 'card-warn');
+  const sugClass = destino === 'rechazar' ? 'bad' : (alertas.length ? 'warn' : '');
+
+  const score = destino === 'rechazar' ? conf * 10
+    : conf * 100 + (hasGeo ? 15 : 0) + (hasZona ? 10 : 0) + (esRescate ? 20 : 0);
+
+  return { destino, why, titulo, chips, alertas, hasGeo, sugClass, cardClass, score,
+    resumen: p.descripcion || left(p.texto, 160) };
+}
+
+function left(s, n) { return (s || '').length > n ? (s || '').slice(0, n) + '…' : (s || ''); }
+
+function chipHtml(c) {
+  return `<span class="chip ${c.ok ? 'ok' : 'miss'}">${esc(c.t)}</span>`;
+}
+
+function btnClass(dest, rec) {
+  const m = { necesidad:'btn-g', edificio:'btn-o', ambos:'btn-p', rechazar:'btn-s' };
+  return 'btn ' + (m[dest] || 'btn-s') + (dest === rec ? ' btn-rec' : '');
+}
+
+function renderPostCard(p) {
+  const a = analizarPost(p);
+  const rec = a.destino;
+  const mapLink = a.hasGeo
+    ? `<a href="https://www.google.com/maps?q=${p.lat},${p.lng}" target="_blank" rel="noopener" style="font-size:12px">Ver en mapa ↗</a>`
+    : '';
+
+  let acciones;
+  if (rec === 'centro') {
+    acciones = `<button class="btn btn-p btn-rec" onclick="prefillCentro('${p.id}')">📦 ${DEST_LABEL.centro}</button>`;
+  } else if (rec === 'rechazar') {
+    acciones = `<button class="${btnClass('rechazar', rec)}" onclick="rechazar('${p.id}')">❌ ${DEST_LABEL.rechazar}</button>`;
+  } else {
+    acciones = `<button class="${btnClass(rec, rec)}" onclick="aprobar('${p.id}','${rec}')">✓ ${DEST_LABEL[rec]}</button>`;
+  }
+
+  const alt = rec === 'centro'
+    ? `<div class="row">
+        <button class="btn btn-g" onclick="aprobar('${p.id}','necesidad')">Publicar como necesidad</button>
+        <button class="btn btn-s" onclick="rechazar('${p.id}')">❌ Rechazar</button>
+      </div>`
+    : rec === 'rechazar'
+    ? `<div class="row">
+        <button class="btn btn-g" onclick="aprobar('${p.id}','necesidad')">Publicar igual</button>
+        <button class="btn btn-s" onclick="rechazar('${p.id}')">❌ Rechazar</button>
+      </div>`
+    : `<div class="row">
+        ${rec !== 'necesidad' ? `<button class="btn btn-g" onclick="aprobar('${p.id}','necesidad')">Solo necesidad</button>` : ''}
+        ${rec !== 'ambos' && a.hasGeo ? `<button class="btn btn-p" onclick="aprobar('${p.id}','ambos')">Ambos</button>` : ''}
+        ${rec !== 'edificio' && a.hasGeo ? `<button class="btn btn-o" onclick="aprobar('${p.id}','edificio')">Solo edificio</button>` : ''}
+        <button class="btn btn-s" onclick="rechazar('${p.id}')">❌</button>
+      </div>`;
+
+  return `
+    <div class="card ${a.cardClass}" id="post-${p.id}">
+      <h3>${srcTag(p.plataforma)} ${esc(a.titulo)}</h3>
+      <div class="sug ${a.sugClass}">
+        <div class="sug-tit">💡 ${esc(DEST_LABEL[a.destino] || DEST_LABEL[rec])}</div>
+        <div class="sug-why">${esc(a.why)}</div>
+        <div class="chips">${a.chips.map(chipHtml).join('')}</div>
+        ${a.alertas.length ? `<div class="sug-why">⚠ ${esc(a.alertas.join(' · '))}</div>` : ''}
+      </div>
+      <div class="meta" style="font-size:13px;color:var(--g5);margin:6px 0">${esc(a.resumen)}</div>
+      ${mapLink ? `<div style="margin-bottom:6px">${mapLink}</div>` : ''}
+      ${acciones}
+      ${alt}
+      <details class="sum">
+        <summary>Ver post original ↗</summary>
+        <div class="txt" style="margin-top:8px">${esc(p.texto)}</div>
+        ${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener" style="font-size:12px">Abrir en ${esc(p.plataforma)}</a>` : ''}
+      </details>
+    </div>`;
+}
+
+function prefillCentro(id) {
+  const p = postsCache[id];
+  if (!p) { toast('Post no encontrado'); return; }
+  showTab('centros');
+  document.getElementById('c-nombre').value = left(p.descripcion || p.texto, 80) || 'Centro de acopio';
+  document.getElementById('c-estado').value = p.zona || '';
+  document.getElementById('c-dir').value = p.direccion || p.ubicacion_post || '';
+  if (p.lat) document.getElementById('c-lat').value = p.lat;
+  if (p.lng) document.getElementById('c-lng').value = p.lng;
+  document.getElementById('c-tel').value = p.telefono && p.telefono !== 's/d' ? p.telefono : '';
+  toast('Formulario de centro prellenado — revisa y guarda');
 }
 
 async function loginWithPassword() {
@@ -231,20 +419,9 @@ async function loadPosts() {
     .select('*').eq('estado', 'pendiente').order('created_at', { ascending: false }).limit(50);
   if (error) { el.innerHTML = `<div class="empty">Error: ${esc(error.message)}</div>`; return; }
   if (!data?.length) { el.innerHTML = '<div class="empty">No hay posts pendientes.</div>'; return; }
-  el.innerHTML = data.map(p => `
-    <div class="card" id="post-${p.id}">
-      <h3>${srcTag(p.plataforma)} @${esc(p.usuario||'?')} <span class="badge">${esc(p.categoria)}</span></h3>
-      <div class="meta">${esc(p.zona||'')} · conf ${Math.round((p.confianza||0)*100)}%</div>
-      <div class="txt">${esc(p.texto)}</div>
-      ${p.descripcion ? `<div class="meta"><b>AI:</b> ${esc(p.descripcion)}</div>` : ''}
-      ${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener" style="font-size:12px">Ver original ↗</a>` : ''}
-      <div class="row">
-        <button class="btn btn-g" onclick="aprobar('${p.id}','necesidad')">✅ Necesidad</button>
-        <button class="btn btn-o" onclick="aprobar('${p.id}','edificio')">🏚 Edificio</button>
-        <button class="btn btn-p" onclick="aprobar('${p.id}','ambos')">Ambos</button>
-        <button class="btn btn-s" onclick="rechazar('${p.id}')">❌</button>
-      </div>
-    </div>`).join('');
+  const sorted = [...data].sort((a, b) => analizarPost(b).score - analizarPost(a).score);
+  postsCache = Object.fromEntries(sorted.map(p => [p.id, p]));
+  el.innerHTML = sorted.map(renderPostCard).join('');
 }
 
 async function aprobar(id, destino) {

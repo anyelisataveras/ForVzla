@@ -9,7 +9,9 @@ export async function scrapeTwitter({ apifyToken, keywords, maxTwitter }) {
     lang: 'es',
     twitterContent: 'Latest',
   });
-  return items.map(it => {
+  return items
+    .filter(it => !it.noResults && !it.error)
+    .map(it => {
     const author = it.author || {};
     const metrics = it.public_metrics || {};
     return {

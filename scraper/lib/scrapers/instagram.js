@@ -9,7 +9,9 @@ export async function scrapeInstagram({ apifyToken, hashtags, keywords, maxInsta
     searchType: 'hashtag',
     resultsLimit: maxInstagram,
   });
-  return items.map(it => ({
+  return items
+    .filter(it => !it.error && !it.errorDescription)
+    .map(it => ({
     plataforma: 'instagram',
     post_id: it.id || it.shortCode || it.url,
     url: it.url || (it.shortCode ? `https://instagram.com/p/${it.shortCode}` : null),
