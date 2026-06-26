@@ -115,7 +115,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <div class="panel" id="panel-equipo">
       <h2 style="font-size:16px;margin-bottom:8px">Invitar administrador</h2>
       <p style="font-size:13px;color:var(--g4);margin-bottom:14px;line-height:1.5">
-        Agrega un correo al equipo y le enviamos un magic link para entrar al panel.
+        Agrega un correo al equipo y le enviamos un código de 6 dígitos para entrar al panel.
       </p>
       <div class="fld"><label>Correo *</label><input type="email" id="inv-email" placeholder="colega@correo.com" autocomplete="off"></div>
       <div class="fld"><label>Nombre</label><input type="text" id="inv-nombre" placeholder="Opcional"></div>
@@ -182,7 +182,11 @@ async function verifyLoginCode() {
   if (!token) { toast('Escribe el código'); return; }
   const btn = document.getElementById('btn-verify');
   btn.disabled = true;
-  const { error } = await db.auth.verifyOtp({ email, token, type: 'email' });
+  let { error } = await db.auth.verifyOtp({ email, token, type: 'email' });
+  // Primera vez en auth.users puede requerir type signup
+  if (error) {
+    ({ error } = await db.auth.verifyOtp({ email, token, type: 'signup' }));
+  }
   btn.disabled = false;
   const msg = document.getElementById('login-msg');
   if (error) {
