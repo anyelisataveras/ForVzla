@@ -47,15 +47,17 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <div id="login-screen">
     <h2 style="font-size:18px;margin-bottom:8px">Entrar al panel</h2>
     <p style="font-size:13px;color:var(--g4);margin-bottom:16px;line-height:1.5">
-      Te enviamos un código de 6 dígitos al correo. Solo coordinadores en <code>admin_users</code>.
+      Solo coordinadores autorizados. Elige tu correo y la contraseña del equipo.
     </p>
-    <div class="fld"><label>Correo</label><input type="email" id="login-email" value="anyelisa.taveras@gmail.com" autocomplete="email"></div>
-    <button class="btn btn-p" id="btn-send-code" onclick="sendLoginCode()">Enviar código</button>
-    <div id="otp-step" style="display:none;margin-top:16px">
-      <div class="fld"><label>Código (6 dígitos)</label><input type="text" id="login-otp" inputmode="numeric" pattern="[0-9]*" maxlength="6" placeholder="123456" autocomplete="one-time-code"></div>
-      <button class="btn btn-g" id="btn-verify" onclick="verifyLoginCode()">Entrar</button>
+    <div class="fld"><label>Correo</label>
+      <select id="login-email">
+        <option value="anyelisa.taveras@gmail.com">Anyelisa Taveras</option>
+        <option value="campinsmc@gmail.com">María Cristina Campins (Cris)</option>
+      </select>
     </div>
-    <p id="login-msg" style="font-size:13px;margin-top:12px;color:var(--grn);display:none"></p>
+    <div class="fld"><label>Contraseña</label><input type="password" id="login-password" autocomplete="current-password"></div>
+    <button class="btn btn-p" id="btn-login" onclick="loginWithPassword()">Entrar</button>
+    <p id="login-msg" style="font-size:13px;margin-top:12px;color:var(--red);display:none"></p>
   </div>
 
   <div id="app" style="display:none">
@@ -115,11 +117,11 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <div class="panel" id="panel-equipo">
       <h2 style="font-size:16px;margin-bottom:8px">Invitar administrador</h2>
       <p style="font-size:13px;color:var(--g4);margin-bottom:14px;line-height:1.5">
-        Agrega un correo al equipo y le enviamos un código de 6 dígitos para entrar al panel.
+        Agrega un correo al equipo. Luego corre <code>scripts/create-admin-user.sh</code> para asignarle la misma contraseña.
       </p>
       <div class="fld"><label>Correo *</label><input type="email" id="inv-email" placeholder="colega@correo.com" autocomplete="off"></div>
       <div class="fld"><label>Nombre</label><input type="text" id="inv-nombre" placeholder="Opcional"></div>
-      <button class="btn btn-p" onclick="invitarAdmin()">✉️ Invitar y enviar enlace</button>
+      <button class="btn btn-p" onclick="invitarAdmin()">✉️ Agregar al equipo</button>
       <h3 style="font-size:14px;margin:22px 0 8px">Administradores</h3>
       <div id="lista-admins"></div>
     </div>
@@ -136,7 +138,7 @@ const SB_KEY = 'sb_publishable_vg8SSOkKpgvwOSyi2k-aVg_lslrQsBA';
 const SCRAPER_URL = window.SCRAPER_URL || 'http://localhost:3456';
 
 const db = supabase.createClient(SB_URL, SB_KEY, {
-  auth: { persistSession: true, detectSessionInUrl: true, flowType: 'pkce' }
+  auth: { persistSession: true, detectSessionInUrl: false }
 });
 
 let session = null;
@@ -156,46 +158,31 @@ function srcTag(p) {
   return `<span class="src ${m[p]||''}">${l[p]||p}</span>`;
 }
 
-async function sendLoginCode() {
+async function loginWithPassword() {
   const email = document.getElementById('login-email').value.trim();
-  if (!email) { toast('Escribe tu correo'); return; }
-  const btn = document.getElementById('btn-send-code');
-  btn.disabled = true;
-  // Sin emailRedirectTo → código OTP, no magic link (no requiere redirect URLs)
-  const { error } = await db.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: true }
-  });
-  btn.disabled = false;
+  const password = document.getElementById('login-password').value;
+  if (!email || !password) { toast('Correo y contraseña'); return; }
+  const btn = document.getElementById('btn-login');
   const msg = document.getElementById('login-msg');
-  if (error) { msg.style.color = 'var(--red)'; msg.textContent = error.message; msg.style.display = 'block'; return; }
-  msg.style.color = 'var(--grn)';
-  msg.textContent = '✉️ Revisa tu correo (y spam). Escribe el código de 6 dígitos.';
-  msg.style.display = 'block';
-  document.getElementById('otp-step').style.display = 'block';
-  document.getElementById('login-otp').focus();
-}
-
-async function verifyLoginCode() {
-  const email = document.getElementById('login-email').value.trim();
-  const token = document.getElementById('login-otp').value.trim();
-  if (!token) { toast('Escribe el código'); return; }
-  const btn = document.getElementById('btn-verify');
   btn.disabled = true;
-  let { error } = await db.auth.verifyOtp({ email, token, type: 'email' });
-  // Primera vez en auth.users puede requerir type signup
-  if (error) {
-    ({ error } = await db.auth.verifyOtp({ email, token, type: 'signup' }));
-  }
+  const { error } = await db.auth.signInWithPassword({ email, password });
   btn.disabled = false;
-  const msg = document.getElementById('login-msg');
   if (error) {
-    msg.style.color = 'var(--red)';
     msg.textContent = error.message;
     msg.style.display = 'block';
     return;
   }
   msg.style.display = 'none';
+}
+
+function openApp(label) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('hdr-user').textContent = label;
+  loadPosts();
+  loadEdificios();
+  loadCentros();
+  loadAdmins();
 }
 
 async function checkAdmin(user) {
@@ -219,13 +206,7 @@ async function onSession(s) {
     toast('Correo no autorizado como admin');
     return;
   }
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('hdr-user').textContent = s.user.email;
-  loadPosts();
-  loadEdificios();
-  loadCentros();
-  loadAdmins();
+  openApp(s.user.email);
 }
 
 db.auth.onAuthStateChange((_e, s) => onSession(s));
@@ -395,15 +376,7 @@ async function invitarAdmin() {
     return;
   }
 
-  const { error: otpErr } = await db.auth.signInWithOtp({
-    email,
-    options: { shouldCreateUser: true },
-  });
-  if (otpErr) {
-    toast('Admin agregado, pero no se pudo enviar el código: ' + otpErr.message);
-  } else {
-    toast('✉️ Invitación enviada a ' + email);
-  }
+  toast('Admin agregado: ' + email + ' (asigna contraseña con scripts/create-admin-user.sh)');
   document.getElementById('inv-email').value = '';
   document.getElementById('inv-nombre').value = '';
   loadAdmins();
@@ -412,6 +385,9 @@ async function invitarAdmin() {
 async function logout() {
   await db.auth.signOut();
   session = null;
+  document.getElementById('login-screen').style.display = 'block';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-password').value = '';
   toast('Sesión cerrada');
 }
 </script>
