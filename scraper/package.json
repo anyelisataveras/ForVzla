@@ -1,0 +1,16 @@
+{
+  "name": "scraper",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dry": "DRY_RUN=1 node ingesta_redes.js",
+    "ingesta": "node ingesta_redes.js"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.8"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

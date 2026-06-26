@@ -1,0 +1,22 @@
+{
+  "name": "ayuda-venezuela",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PWA SOS — une a quien necesita ayuda con quien puede ayudar (terremoto Venezuela 2026)",
+  "scripts": {
+    "dev": "serve public -l 3000",
+    "start": "npm run dev",
+    "build": "echo 'Static PWA — no build step'",
+    "scraper:dry": "npm run dry --workspace=scraper",
+    "scraper:ingesta": "npm run ingesta --workspace=scraper"
+  },
+  "workspaces": [
+    "scraper"
+  ],
+  "devDependencies": {
+    "serve": "^14.2.4"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

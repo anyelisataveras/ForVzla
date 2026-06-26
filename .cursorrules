@@ -1,0 +1,31 @@
+# Ayuda Venezuela — reglas del proyecto para el agente
+
+## Contexto
+App SOS de misión crítica para el terremoto de Venezuela (24-jun-2026). Une a quien
+necesita ayuda con quien puede ayudar, por proximidad. Prioridad: rápido, simple, fiable.
+
+## Arquitectura (no romper)
+- `index.html` es la app COMPLETA: HTML + CSS + JS inline en un solo archivo. Sin build, sin framework.
+- No migrar a React/Vite/bundler salvo petición explícita. El "sin build" es decisión de diseño.
+- Backend = Supabase. Mapas = Leaflet + OSM (sin API key). Heatmap = leaflet.heat (CDN aparte).
+
+## Reglas duras
+- NUNCA uses localStorage/sessionStorage. Estado en memoria + Supabase.
+- La anon/publishable key puede ir en el HTML (es pública por diseño; la seguridad la da RLS).
+- NUNCA comitees la service_role key. Solo el scraper la usa, vía variable de entorno (.env, gitignored).
+- Las funciones RPC son contrato: `necesidades_cercanas`, `confirmar_necesidad`. Si cambias su
+  nombre/firma en db/setup_supabase.sql, actualiza también las llamadas en index.html.
+- Sanitiza el HTML que inyectes en popups de Leaflet (quita comillas simples como ya se hace).
+
+## Estilo / UX
+- Mínimo tipeo: preferir GPS, iconos y botones sobre campos de texto. Único campo escrito obligatorio: teléfono.
+- Mobile-first, un pulgar, alto contraste, foco visible, respetar prefers-reduced-motion.
+- Español venezolano, tono claro y directo. Nada de jerga técnica en la UI.
+
+## Antiduplicados (mantener intacto)
+- Al reportar con GPS: chequear necesidades del mismo tipo a <200 m y ofrecer confirmar el existente.
+- Scraper: dedup por source_hash único + dedup geográfico (<200 m, mismo tipo) → confirma en vez de duplicar.
+
+## Antes de tocar la BD
+- Los cambios de esquema van en supabase/migrations/ (nueva migración por cambio).
+  db/setup_supabase.sql es respaldo monolítico para SQL Editor manual.

@@ -1,0 +1,76 @@
+-- Datos semilla — TEMPORALES para arrancar la app.
+-- Marcados con __seed_v1__ para borrarlos con db/purge_seed_data.sql
+-- cuando el scraper y reportes ciudadanos alimenten la BD.
+
+insert into centros_acopio (nombre, organizacion, estado_vzla, direccion, lat, lng, horario, notas) values
+('Iglesia La Paz Montalbán','','Distrito Capital','Montalbán 1, Municipio Libertador, Caracas',10.4812,-67.0021,'Por confirmar','__seed_v1__'),
+('Iglesia San Bernardino de Siena','','Distrito Capital','Parroquia San Bernardino, Caracas',10.5052,-66.9183,'Por confirmar','__seed_v1__'),
+('Club Hípico de Caracas (Rotaract)','Rotaract Caracas','Distrito Capital','Terrazas del Club Hípico, La Trinidad, Caracas',10.4302,-66.8851,'Por confirmar','__seed_v1__'),
+('Quinta El Bejucal – 4ta Av Altamira','Comando Con Venezuela','Miranda','4ta Avenida de Altamira entre 9na y 10ma transversal, Chacao',10.4950,-66.8482,'Por confirmar','__seed_v1__'),
+('Torre Tamanaco Local 3 PB','','Miranda','Torre Tamanaco, Las Mercedes, Caracas',10.4802,-66.8582,'Por confirmar','__seed_v1__'),
+('CC La Capilla Piso 1 Local 21','Comando Con Venezuela','Aragua','Av 19 de Abril, Centro Comercial La Capilla, Maracay',10.2390,-67.5950,'Por confirmar','__seed_v1__'),
+('Paseo de la Libertad – frente Centro Médico Maracay','Voluntad Popular','Aragua','Av Las Delicias, frente al Centro Médico de Maracay',10.2441,-67.5965,'Por confirmar','__seed_v1__'),
+('Esquina Banesco Av República','Voluntad Popular','Bolívar','Av República, Municipio Angostura del Orinoco, Ciudad Bolívar',8.1220,-63.5490,'Por confirmar','__seed_v1__'),
+('Edif. Talislandia Mezzanina','Con Venezuela / Op. Todos con Venezuela','Carabobo','Av Monseñor Adams, El Viñedo, Valencia',10.1627,-67.9935,'Por confirmar','__seed_v1__'),
+('Tatas Food Barquisimeto','','Lara','Carrera 15 entre calles 13A y 13B, Barquisimeto',10.0631,-69.3340,'Por confirmar','__seed_v1__'),
+('Quinta Bejucal Altamira','Comando Con Venezuela','Miranda','4ta Av de Altamira entre 9na y 10ma transversal, Chacao',10.4951,-66.8483,'Por confirmar','__seed_v1__'),
+('Calle 6 antigua Bermúdez','Voluntad Popular Monagas','Monagas','Calle 6, antigua Bermúdez, casa N11, Maturín',9.7450,-63.1900,'Por confirmar','__seed_v1__'),
+('Núcleo Táchira ULA','Universidad de Los Andes','Táchira','ULA Núcleo Táchira, San Cristóbal',7.7700,-72.2250,'Por confirmar','__seed_v1__'),
+('Sede Un Nuevo Tiempo Zulia','Un Nuevo Tiempo (UNT)','Zulia','Sede regional UNT, Maracaibo',10.6320,-71.6400,'Por confirmar','__seed_v1__'),
+('Sede Vente Zulia','Vente Venezuela','Zulia','Calle 70 con Av 15A y 15B N15A-39, Maracaibo',10.6501,-71.6142,'Por confirmar','__seed_v1__');
+
+insert into edificios_colapsados (nombre, zona, sector, lat, lng, estado_edificio, personas_atrapadas, fuente, notas) values
+('Residencias Mariola y Maribel','La Guaira','Caraballeda',10.6120,-66.8390,'colapsado',true,'Reporte ciudadano','__seed_v1__'),
+('Residencias Gran Terraza','La Guaira','Caraballeda',10.6125,-66.8410,'colapsado',true,'Reporte ciudadano','__seed_v1__'),
+('Residencias Breogan','La Guaira','Caraballeda',10.6118,-66.8422,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Residencias Caribe (Los Cocos)','La Guaira','Los Cocos',10.6190,-66.8080,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Residencias La Trinidad','La Guaira','Caraballeda',10.6130,-66.8380,'colapsado',true,'Reporte ciudadano','__seed_v1__'),
+('Edificio Dist Rosanday','La Guaira','La Guaira centro',10.6015,-66.9310,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Edificio Costa Brava','La Guaira','Caraballeda',10.6140,-66.8350,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Residencias Llona','La Guaira','La Guaira centro',10.6020,-66.9280,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Miramar','La Guaira','La Guaira centro',10.6018,-66.9295,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Rocapark','La Guaira','La Guaira centro',10.6012,-66.9320,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Residencias La Mar Suite','La Guaira','Caraballeda',10.6135,-66.8400,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Edificio Oasis Beach','La Guaira','Caraballeda',10.6128,-66.8365,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Edificio Parque Caraballeda','La Guaira','Caraballeda',10.6122,-66.8395,'colapsado',true,'Reporte ciudadano','__seed_v1__'),
+('Residencias Coral Beach','La Guaira','Macuto',10.6175,-66.8780,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Edificio Albatros','La Guaira','Caraballeda',10.6133,-66.8370,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Hotel Eduard''s','La Guaira','La Guaira centro',10.6008,-66.9340,'colapsado',true,'Reporte ciudadano / prensa','__seed_v1__'),
+('Residencias Los Corales','La Guaira','Caraballeda',10.6117,-66.8430,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Rita Sol Palace','La Guaira','Playa Grande',10.6148,-66.8620,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Edificio Punta Brisas','La Guaira','Caraballeda',10.6110,-66.8445,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Residencias Ritasol Palace','La Guaira','Playa Grande',10.6145,-66.8615,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Edificio La Gabarra','La Guaira','La Guaira centro',10.6022,-66.9275,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Pez Vela','La Guaira','Caraballeda',10.6138,-66.8360,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Residencias Vistalmar','La Guaira','Caraballeda',10.6142,-66.8385,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Marina Grande','La Guaira','La Guaira centro',10.6005,-66.9350,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Mariana Mar','La Guaira','Caraballeda',10.6115,-66.8408,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('SUMA','La Guaira','Catia La Mar',10.5998,-66.9380,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Misión Vivienda Los Cocos','La Guaira','Los Cocos / Naiguatá',10.6195,-66.8050,'colapsado',true,'Reporte ciudadano','__seed_v1__'),
+('Mariola (Macuto)','La Guaira','Macuto',10.6180,-66.8760,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Bloque 3 La Páez','La Guaira','La Guaira centro',10.6025,-66.9265,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Tahití (Caraballeda)','La Guaira','Caraballeda',10.6127,-66.8420,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Los Delfines','La Guaira','Caraballeda',10.6119,-66.8435,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Bello Horizonte (Playa Grande)','La Guaira','Playa Grande',10.6150,-66.8600,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('La Llovizna (Playa Grande)','La Guaira','Playa Grande',10.6152,-66.8595,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Costa Brava','La Guaira','Caraballeda',10.6140,-66.8352,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Urb. Hugo Chávez','La Guaira','La Guaira centro',10.6030,-66.9310,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Coral Bella','La Guaira','Caraballeda',10.6123,-66.8412,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Res Club de Playa (Macuto)','La Guaira','Macuto',10.6170,-66.8770,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Las Palmas','La Guaira','Caraballeda',10.6136,-66.8395,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Vista Brava','La Guaira','Caraballeda',10.6144,-66.8342,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Bucanero','La Guaira','Caraballeda',10.6121,-66.8440,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('La Estrella','La Guaira','La Guaira centro',10.6010,-66.9330,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Albatros','La Guaira','Caraballeda',10.6131,-66.8375,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Canes (Catia La Mar)','La Guaira','Catia La Mar',10.5995,-66.9390,'colapsado',false,'Reporte ciudadano','__seed_v1__'),
+('Res Puerto Coral (Macuto)','La Guaira','Macuto',10.6182,-66.8750,'colapsado',false,'Reporte ciudadano','__seed_v1__');
+
+insert into necesidades (zona, direccion_exacta, lat, lng, tipo, urgencia, descripcion, cantidad, personas_afectadas, nombre_contacto, telefono, validada, fuente, notas_coordinador) values
+('La Guaira','Av. La Armada frente al Hotel Meliá, La Guaira',10.6012,-66.8731,'Rescate','critica','Edificio colapsado con aprox. 15 personas atrapadas. Necesitan maquinaria pesada y equipo SAR urgente.','Maquinaria + 10 rescatistas',15,'Carlos Medina','+58412111223',true,'coordinador','__seed_v1__'),
+('La Guaira','C/ Bolívar sector Maiquetía, a 200m del aeropuerto',10.6022,-66.9904,'Agua potable','critica','300 personas sin agua desde el sismo.','Mínimo 500 botellones',300,'Rosa Páez','+58414555001',true,'coordinador','__seed_v1__'),
+('Caracas','Hospital de Campaña, Parque El Valle, Av. Intercomunal',10.4393,-66.9262,'Medicamentos','urgente','Hospital de campaña desbordado. Faltan suero, vendas, analgésicos y antibióticos.','Ver descripción',null,'Dra. Ana Pérez','+58424999887',true,'coordinador','__seed_v1__'),
+('Yaracuy','Plaza Bolívar de San Felipe, calle 5, San Felipe',10.3389,-68.7441,'Refugio / carpas','urgente','~200 familias durmiendo a la intemperie.','200 carpas / 400 frazadas',800,'Alcaldía San Felipe','+582518000001',true,'coordinador','__seed_v1__'),
+('Aragua','Liceo Agustín Codazzi, Av. Bolívar, Maracay',10.2469,-67.5958,'Alimentos','urgente','80 familias (320 personas) sin comida desde ayer.','Comida para 320 personas',320,'ONG Manos Unidas','+58412777432',true,'coordinador','__seed_v1__'),
+('Carabobo','Hospital Central de Valencia, Av. Monseñor Adams',10.1627,-67.9965,'Sangre / donantes','critica','Quirófanos a plena capacidad. Urgente donantes tipo O+ y A−.','Donantes tipo O+ y A−',null,'Hospital Central VLC','+58241858444',true,'coordinador','__seed_v1__');
+
+update necesidades set tipos = array[tipo] where tipos is null;

@@ -1,0 +1,19 @@
+{
+  "name": "Ayuda Venezuela — SOS",
+  "short_name": "Ayuda VE",
+  "description": "Une a quien necesita ayuda con quien puede ayudar, por proximidad.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8F9FA",
+  "theme_color": "#C0392B",
+  "lang": "es",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
