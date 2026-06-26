@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#1E3A5F">
+<title>Admin — Ayuda Venezuela</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#C0392B;--blu:#2471A3;--blul:#EBF5FB;--grn:#1E8449;--grnl:#EAFAF1;--ora:#E67E22;--g0:#fff;--g1:#F8F9FA;--g2:#E9ECEF;--g4:#6C757D;--g5:#343A40;--navy:#1E3A5F;--r:8px}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--g1);color:var(--g5);font-size:15px}
+.wrap{max-width:720px;margin:0 auto;min-height:100vh;background:var(--g0)}
+.hdr{background:var(--navy);color:#fff;padding:14px 16px}
+.hdr h1{font-size:17px;font-weight:800}.hdr p{font-size:12px;opacity:.85;margin-top:2px}
+.tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--g2);background:var(--g0)}
+.tab{flex:0 0 auto;padding:10px 14px;font-size:12px;font-weight:700;color:var(--g4);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap}
+.tab.on{color:var(--navy);border-bottom-color:var(--navy)}
+.panel{display:none;padding:14px 16px 32px}.panel.on{display:block}
+.card{border:1px solid var(--g2);border-left:4px solid var(--blu);border-radius:var(--r);padding:12px;margin-bottom:10px;background:var(--g0)}
+.card h3{font-size:14px;margin-bottom:4px}.card .meta{font-size:12px;color:var(--g4);line-height:1.4}
+.card .txt{font-size:13px;margin:8px 0;line-height:1.5;white-space:pre-wrap}
+.fld{margin-bottom:12px}.fld label{display:block;font-size:12px;font-weight:600;color:var(--g4);margin-bottom:4px}
+.fld input,.fld textarea,.fld select{width:100%;padding:11px;border:1px solid var(--g2);border-radius:var(--r);font-size:15px;font-family:inherit}
+.btn{width:100%;padding:13px;border:none;border-radius:var(--r);font-size:15px;font-weight:800;cursor:pointer;margin-top:8px}
+.btn-p{background:var(--navy);color:#fff}.btn-g{background:var(--grn);color:#fff}.btn-o{background:var(--ora);color:#fff}
+.btn-s{background:var(--g1);color:var(--g5);border:1px solid var(--g2)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}.row .btn{flex:1;min-width:120px;width:auto}
+.badge{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:12px;background:var(--blul);color:var(--blu)}
+.log{background:#1a1a2e;color:#a8e6cf;font-family:monospace;font-size:11px;padding:10px;border-radius:var(--r);max-height:240px;overflow:auto;white-space:pre-wrap;margin-top:10px}
+.empty{text-align:center;padding:40px 16px;color:var(--g4);line-height:1.6}
+#login-screen{padding:24px 16px}
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--g5);color:#fff;padding:10px 16px;border-radius:20px;font-size:13px;display:none;z-index:99}
+.toast.show{display:block}
+.src{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-right:4px}
+.src.ig{background:#FCE4EC;color:#AD1457}.src.tt{background:#E0F7FA;color:#006064}
+.src.tw{background:#E3F2FD;color:#1565C0}.src.tg{background:#E8F5E9;color:#2E7D32}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <h1>🛡 Admin — Ayuda Venezuela</h1>
+    <p id="hdr-user">Coordinación</p>
+  </div>
+
+  <div id="login-screen">
+    <h2 style="font-size:18px;margin-bottom:8px">Entrar con magic link</h2>
+    <p style="font-size:13px;color:var(--g4);margin-bottom:16px;line-height:1.5">
+      Te enviamos un enlace al correo. Solo coordinadores registrados en <code>admin_users</code>.
+    </p>
+    <div class="fld"><label>Correo</label><input type="email" id="login-email" value="anyelisa.taveras@gmail.com" autocomplete="email"></div>
+    <button class="btn btn-p" id="btn-magic" onclick="sendMagicLink()">Enviar enlace</button>
+    <p id="login-msg" style="font-size:13px;margin-top:12px;color:var(--grn);display:none"></p>
+  </div>
+
+  <div id="app" style="display:none">
+    <div class="tabs">
+      <button class="tab on" data-tab="posts" onclick="showTab('posts')">📥 Posts</button>
+      <button class="tab" data-tab="edificios" onclick="showTab('edificios')">🏚 Edificios</button>
+      <button class="tab" data-tab="centros" onclick="showTab('centros')">📦 Centros</button>
+      <button class="tab" data-tab="scraper" onclick="showTab('scraper')">⚙️ Scraper</button>
+      <button class="tab" data-tab="equipo" onclick="showTab('equipo')">👥 Equipo</button>
+    </div>
+
+    <div class="panel on" id="panel-posts">
+      <p style="font-size:13px;color:var(--g4);margin-bottom:12px">Posts del scraper pendientes de validación.</p>
+      <div id="lista-posts"></div>
+    </div>
+
+    <div class="panel" id="panel-edificios">
+      <h2 style="font-size:16px;margin-bottom:12px">Agregar edificio colapsado</h2>
+      <div class="fld"><label>Nombre *</label><input id="e-nombre" placeholder="Residencias Mariola"></div>
+      <div class="fld"><label>Zona *</label><input id="e-zona" placeholder="La Guaira"></div>
+      <div class="fld"><label>Sector</label><input id="e-sector" placeholder="Caraballeda"></div>
+      <div class="fld"><label>Lat / Lng *</label>
+        <div style="display:flex;gap:8px"><input id="e-lat" placeholder="10.612" inputmode="decimal"><input id="e-lng" placeholder="-66.839" inputmode="decimal"></div>
+      </div>
+      <div class="fld"><label>Personas atrapadas</label><select id="e-atrap"><option value="false">No</option><option value="true">Sí</option></select></div>
+      <div class="fld"><label>Notas</label><textarea id="e-notas" rows="2"></textarea></div>
+      <button class="btn btn-g" onclick="saveEdificio()">Guardar edificio</button>
+      <h3 style="font-size:14px;margin:20px 0 8px">Registrados</h3>
+      <div id="lista-edificios"></div>
+    </div>
+
+    <div class="panel" id="panel-centros">
+      <h2 style="font-size:16px;margin-bottom:12px">Agregar centro de acopio</h2>
+      <div class="fld"><label>Nombre *</label><input id="c-nombre"></div>
+      <div class="fld"><label>Organización</label><input id="c-org"></div>
+      <div class="fld"><label>Estado *</label><input id="c-estado" placeholder="Miranda"></div>
+      <div class="fld"><label>Dirección *</label><input id="c-dir"></div>
+      <div class="fld"><label>Lat / Lng *</label>
+        <div style="display:flex;gap:8px"><input id="c-lat" inputmode="decimal"><input id="c-lng" inputmode="decimal"></div>
+      </div>
+      <div class="fld"><label>Teléfono</label><input id="c-tel" inputmode="tel"></div>
+      <div class="fld"><label>Horario</label><input id="c-horario" placeholder="8am - 8pm"></div>
+      <button class="btn btn-g" onclick="saveCentro()">Guardar centro</button>
+      <h3 style="font-size:14px;margin:20px 0 8px">Registrados</h3>
+      <div id="lista-centros"></div>
+    </div>
+
+    <div class="panel" id="panel-scraper">
+      <p style="font-size:13px;color:var(--g4);margin-bottom:12px;line-height:1.5">
+        Dispara una corrida del scraper. Requiere el servidor <code>scraper/server.js</code> corriendo.
+      </p>
+      <button class="btn btn-p" id="btn-run-scraper" onclick="runScraper()">▶ Correr scraper</button>
+      <button class="btn btn-s" onclick="pollScraperStatus()">↻ Ver estado</button>
+      <div class="log" id="scraper-log">Sin corridas aún.</div>
+    </div>
+
+    <div class="panel" id="panel-equipo">
+      <h2 style="font-size:16px;margin-bottom:8px">Invitar administrador</h2>
+      <p style="font-size:13px;color:var(--g4);margin-bottom:14px;line-height:1.5">
+        Agrega un correo al equipo y le enviamos un magic link para entrar al panel.
+      </p>
+      <div class="fld"><label>Correo *</label><input type="email" id="inv-email" placeholder="colega@correo.com" autocomplete="off"></div>
+      <div class="fld"><label>Nombre</label><input type="text" id="inv-nombre" placeholder="Opcional"></div>
+      <button class="btn btn-p" onclick="invitarAdmin()">✉️ Invitar y enviar enlace</button>
+      <h3 style="font-size:14px;margin:22px 0 8px">Administradores</h3>
+      <div id="lista-admins"></div>
+    </div>
+
+    <button class="btn btn-s" style="margin:16px" onclick="logout()">Cerrar sesión</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL = 'https://ebsgvamzaegjgpjkpick.supabase.co';
+const SB_KEY = 'sb_publishable_vg8SSOkKpgvwOSyi2k-aVg_lslrQsBA';
+// Cambia en producción si el scraper corre en otro host (Railway, etc.)
+const SCRAPER_URL = window.SCRAPER_URL || 'http://localhost:3456';
+
+const db = supabase.createClient(SB_URL, SB_KEY, {
+  auth: { persistSession: true, detectSessionInUrl: true, flowType: 'pkce' }
+});
+
+let session = null;
+let pollTimer = null;
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4000);
+}
+function esc(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/'/g,'&#39;');
+}
+function srcTag(p) {
+  const m = { instagram:'ig', tiktok:'tt', twitter:'tw', telegram:'tg' };
+  const l = { instagram:'IG', tiktok:'TT', twitter:'X', telegram:'TG' };
+  return `<span class="src ${m[p]||''}">${l[p]||p}</span>`;
+}
+
+async function sendMagicLink() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { toast('Escribe tu correo'); return; }
+  const btn = document.getElementById('btn-magic');
+  btn.disabled = true;
+  const { error } = await db.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: location.origin + location.pathname }
+  });
+  btn.disabled = false;
+  const msg = document.getElementById('login-msg');
+  if (error) { msg.style.color = 'var(--red)'; msg.textContent = error.message; msg.style.display = 'block'; return; }
+  msg.style.color = 'var(--grn)';
+  msg.textContent = '✉️ Revisa tu correo y abre el enlace.';
+  msg.style.display = 'block';
+}
+
+async function checkAdmin(user) {
+  const { data, error } = await db.from('admin_users')
+    .select('email,nombre')
+    .ilike('email', user.email)
+    .maybeSingle();
+  return !error && !!data;
+}
+
+async function onSession(s) {
+  session = s;
+  if (!s?.user) {
+    document.getElementById('login-screen').style.display = 'block';
+    document.getElementById('app').style.display = 'none';
+    return;
+  }
+  const ok = await checkAdmin(s.user);
+  if (!ok) {
+    await db.auth.signOut();
+    toast('Correo no autorizado como admin');
+    return;
+  }
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('hdr-user').textContent = s.user.email;
+  loadPosts();
+  loadEdificios();
+  loadCentros();
+  loadAdmins();
+}
+
+db.auth.onAuthStateChange((_e, s) => onSession(s));
+db.auth.getSession().then(({ data }) => onSession(data.session));
+
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'panel-' + name));
+  if (name === 'posts') loadPosts();
+  if (name === 'scraper') pollScraperStatus();
+  if (name === 'equipo') loadAdmins();
+}
+
+async function loadPosts() {
+  const el = document.getElementById('lista-posts');
+  el.innerHTML = '<div class="empty">Cargando...</div>';
+  const { data, error } = await db.from('posts_redes')
+    .select('*').eq('estado', 'pendiente').order('created_at', { ascending: false }).limit(50);
+  if (error) { el.innerHTML = `<div class="empty">Error: ${esc(error.message)}</div>`; return; }
+  if (!data?.length) { el.innerHTML = '<div class="empty">No hay posts pendientes.</div>'; return; }
+  el.innerHTML = data.map(p => `
+    <div class="card" id="post-${p.id}">
+      <h3>${srcTag(p.plataforma)} @${esc(p.usuario||'?')} <span class="badge">${esc(p.categoria)}</span></h3>
+      <div class="meta">${esc(p.zona||'')} · conf ${Math.round((p.confianza||0)*100)}%</div>
+      <div class="txt">${esc(p.texto)}</div>
+      ${p.descripcion ? `<div class="meta"><b>AI:</b> ${esc(p.descripcion)}</div>` : ''}
+      ${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener" style="font-size:12px">Ver original ↗</a>` : ''}
+      <div class="row">
+        <button class="btn btn-g" onclick="aprobar('${p.id}','necesidad')">✅ Necesidad</button>
+        <button class="btn btn-o" onclick="aprobar('${p.id}','edificio')">🏚 Edificio</button>
+        <button class="btn btn-p" onclick="aprobar('${p.id}','ambos')">Ambos</button>
+        <button class="btn btn-s" onclick="rechazar('${p.id}')">❌</button>
+      </div>
+    </div>`).join('');
+}
+
+async function aprobar(id, destino) {
+  const { data, error } = await db.rpc('aprobar_post_redes', { p_post_id: id, p_destino: destino });
+  if (error) { toast(error.message); return; }
+  if (!data?.ok) { toast(data?.msg || 'Error'); return; }
+  document.getElementById('post-' + id)?.remove();
+  toast(data.accion === 'confirmado_existente' ? 'Confirmó existente' : `Publicado (${destino})`);
+  if (!document.querySelector('#lista-posts .card')) loadPosts();
+}
+
+async function rechazar(id) {
+  const notas = prompt('Motivo (opcional):') || null;
+  const { data, error } = await db.rpc('rechazar_post_redes', { p_post_id: id, p_notas: notas });
+  if (error) { toast(error.message); return; }
+  document.getElementById('post-' + id)?.remove();
+  toast('Rechazado');
+}
+
+async function saveEdificio() {
+  const row = {
+    nombre: document.getElementById('e-nombre').value.trim(),
+    zona: document.getElementById('e-zona').value.trim(),
+    sector: document.getElementById('e-sector').value.trim() || null,
+    lat: +document.getElementById('e-lat').value,
+    lng: +document.getElementById('e-lng').value,
+    estado_edificio: 'colapsado',
+    personas_atrapadas: document.getElementById('e-atrap').value === 'true',
+    fuente: 'coordinador',
+    notas: document.getElementById('e-notas').value.trim() || null,
+  };
+  if (!row.nombre || !row.zona || !row.lat || !row.lng) { toast('Completa nombre, zona y coordenadas'); return; }
+  const { error } = await db.from('edificios_colapsados').insert(row);
+  if (error) { toast(error.message); return; }
+  toast('Edificio guardado');
+  ['e-nombre','e-sector','e-notas'].forEach(i => document.getElementById(i).value = '');
+  loadEdificios();
+}
+
+async function loadEdificios() {
+  const { data } = await db.from('edificios_colapsados').select('id,nombre,zona,sector,lat,lng,personas_atrapadas').order('created_at',{ascending:false}).limit(30);
+  document.getElementById('lista-edificios').innerHTML = (data||[]).map(e =>
+    `<div class="card" style="border-left-color:var(--red)"><b>${esc(e.nombre)}</b><div class="meta">${esc(e.zona)} ${e.sector?'· '+esc(e.sector):''} · ${e.lat?.toFixed(4)}, ${e.lng?.toFixed(4)}${e.personas_atrapadas?' · atrapadas':''}</div></div>`
+  ).join('') || '<div class="empty">Ninguno aún.</div>';
+}
+
+async function saveCentro() {
+  const row = {
+    nombre: document.getElementById('c-nombre').value.trim(),
+    organizacion: document.getElementById('c-org').value.trim() || null,
+    estado_vzla: document.getElementById('c-estado').value.trim(),
+    direccion: document.getElementById('c-dir').value.trim(),
+    lat: +document.getElementById('c-lat').value,
+    lng: +document.getElementById('c-lng').value,
+    telefono: document.getElementById('c-tel').value.trim() || null,
+    horario: document.getElementById('c-horario').value.trim() || null,
+    activo: true,
+  };
+  if (!row.nombre || !row.estado_vzla || !row.direccion || !row.lat || !row.lng) {
+    toast('Completa campos obligatorios'); return;
+  }
+  const { error } = await db.from('centros_acopio').insert(row);
+  if (error) { toast(error.message); return; }
+  toast('Centro guardado');
+  loadCentros();
+}
+
+async function loadCentros() {
+  const { data } = await db.from('centros_acopio').select('id,nombre,estado_vzla,direccion,activo').order('created_at',{ascending:false}).limit(30);
+  document.getElementById('lista-centros').innerHTML = (data||[]).map(c =>
+    `<div class="card" style="border-left-color:var(--grn)"><b>${esc(c.nombre)}</b><div class="meta">${esc(c.estado_vzla)} · ${esc(c.direccion)}</div></div>`
+  ).join('') || '<div class="empty">Ninguno aún.</div>';
+}
+
+async function runScraper() {
+  if (!session?.access_token) { toast('Sin sesión'); return; }
+  const btn = document.getElementById('btn-run-scraper');
+  btn.disabled = true;
+  try {
+    const res = await fetch(SCRAPER_URL + '/run', {
+      method: 'POST',
+      headers: { Authorization: 'Bearer ' + session.access_token }
+    });
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.msg || res.statusText);
+    toast(j.msg || 'Scraper iniciado');
+    pollScraperStatus();
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = setInterval(pollScraperStatus, 3000);
+  } catch (e) {
+    toast('Error: ' + e.message + ' — ¿server.js corriendo?');
+  }
+  btn.disabled = false;
+}
+
+async function pollScraperStatus() {
+  try {
+    const res = await fetch(SCRAPER_URL + '/status');
+    const j = await res.json();
+    const el = document.getElementById('scraper-log');
+    el.textContent = (j.running ? '⏳ Corriendo...\n' : '') + (j.log || 'Sin log');
+    if (!j.running && pollTimer) { clearInterval(pollTimer); pollTimer = null; loadPosts(); }
+  } catch {
+    document.getElementById('scraper-log').textContent = 'No se conecta a ' + SCRAPER_URL;
+  }
+}
+
+async function loadAdmins() {
+  const el = document.getElementById('lista-admins');
+  const { data, error } = await db.from('admin_users')
+    .select('email,nombre,created_at').order('created_at', { ascending: true });
+  if (error) { el.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  const me = session?.user?.email?.toLowerCase();
+  el.innerHTML = (data || []).map(a => `
+    <div class="card" style="border-left-color:var(--navy)">
+      <b>${esc(a.nombre || a.email)}</b>
+      ${a.nombre ? `<div class="meta">${esc(a.email)}</div>` : ''}
+      ${a.email.toLowerCase() === me ? '<span class="badge">Tú</span>' : ''}
+    </div>`).join('') || '<div class="empty">Sin admins.</div>';
+}
+
+async function invitarAdmin() {
+  const email = document.getElementById('inv-email').value.trim().toLowerCase();
+  const nombre = document.getElementById('inv-nombre').value.trim();
+  if (!email) { toast('Escribe el correo'); return; }
+
+  const { error: insErr } = await db.from('admin_users').insert({
+    email,
+    nombre: nombre || null,
+  });
+  if (insErr) {
+    toast(insErr.code === '23505' ? 'Ese correo ya es admin' : insErr.message);
+    return;
+  }
+
+  const { error: otpErr } = await db.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: location.origin + location.pathname },
+  });
+  if (otpErr) {
+    toast('Admin agregado, pero no se pudo enviar el enlace: ' + otpErr.message);
+  } else {
+    toast('✉️ Invitación enviada a ' + email);
+  }
+  document.getElementById('inv-email').value = '';
+  document.getElementById('inv-nombre').value = '';
+  loadAdmins();
+}
+
+async function logout() {
+  await db.auth.signOut();
+  session = null;
+  toast('Sesión cerrada');
+}
+</script>
+</body>
+</html>

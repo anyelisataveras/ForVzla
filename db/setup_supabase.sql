@@ -57,7 +57,7 @@ create table necesidades (
   notas_coordinador text,
   -- Antiduplicados / procedencia
   edificio_id uuid references edificios_colapsados(id),
-  fuente text not null default 'ciudadano' check (fuente in ('ciudadano','instagram','tiktok','coordinador')),
+  fuente text not null default 'ciudadano' check (fuente in ('ciudadano','instagram','tiktok','twitter','telegram','coordinador')),
   source_url text,
   source_hash text,                      -- huella del post original (scraper)
   confirmaciones int not null default 1, -- cuántas personas/reportes confirman lo mismo
@@ -262,5 +262,51 @@ insert into necesidades (zona, direccion_exacta, lat, lng, tipo, urgencia, descr
 
 update necesidades set tipos = array[tipo] where tipos is null;
 
+-- ── Posts redes: cola de moderación ──────────────────────────
+create table if not exists app_config (
+  key text primary key,
+  value text not null
+);
+alter table app_config enable row level security;
+insert into app_config (key, value) values ('admin_pin', 'vzla26') on conflict (key) do nothing;
+
+create table if not exists posts_redes (
+  id uuid primary key default gen_random_uuid(),
+  plataforma text not null check (plataforma in ('instagram','tiktok','twitter','telegram')),
+  post_id text not null,
+  url text,
+  texto text not null default '',
+  usuario text,
+  ubicacion_post text,
+  post_ts timestamptz,
+  source_hash text not null,
+  categoria text,
+  tipo text,
+  urgencia text,
+  zona text,
+  direccion text,
+  descripcion text,
+  cantidad text,
+  telefono text,
+  confianza numeric(4,3),
+  lat double precision,
+  lng double precision,
+  estado text not null default 'pendiente'
+    check (estado in ('pendiente','aprobado','rechazado','descartado','duplicado')),
+  necesidad_id uuid references necesidades(id),
+  notas_admin text,
+  revisado_at timestamptz,
+  created_at timestamptz not null default now()
+);
+create unique index if not exists posts_redes_source_hash_uniq on posts_redes (source_hash);
+create index if not exists posts_redes_estado_idx on posts_redes (estado);
+alter table posts_redes enable row level security;
+create policy "pub_read_posts_redes" on posts_redes for select using (true);
+create policy "pub_insert_posts_redes" on posts_redes for insert with check (true);
+create policy "pub_update_posts_redes" on posts_redes for update using (true);
+
+-- Ver migración 20250626160000_posts_redes_moderacion.sql para RPCs aprobar/rechazar
+
 -- Realtime para mapa/lista en vivo
 alter publication supabase_realtime add table necesidades;
+alter publication supabase_realtime add table posts_redes;

@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dry": "DRY_RUN=1 node ingesta_redes.js",
-    "ingesta": "node ingesta_redes.js"
+    "ingesta": "node ingesta_redes.js",
+    "purge": "node purge_seeds.js",
+    "server": "node server.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.49.8"

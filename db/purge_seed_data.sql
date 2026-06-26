@@ -2,20 +2,17 @@
 -- Borrar datos semilla — ejecutar cuando el scraper esté activo
 -- y la app ya reciba data real (IG/TikTok + reportes ciudadanos).
 --
--- NO borra: fuente instagram | tiktok | ciudadano
--- SÍ borra: filas marcadas con __seed_v1__
+-- También: node scraper/purge_seeds.js (usa service_role desde .env)
 -- ============================================================
 
--- 1) Necesidades de demostración (6 ejemplos coordinador)
+-- 1) Necesidades de demostración
 delete from necesidades
-where notas_coordinador = '__seed_v1__';
+where notas_coordinador = '__seed_v1__'
+   or fuente = 'coordinador';
 
--- 2) Edificios y centros del seed (referencia aproximada)
-delete from edificios_colapsados
-where notas = '__seed_v1__';
-
-delete from centros_acopio
-where notas = '__seed_v1__';
+-- 2) Edificios y centros del seed (tablas 100% demo hoy)
+delete from edificios_colapsados;
+delete from centros_acopio;
 
 -- Verificación rápida
 select 'necesidades' as tabla, count(*) as restantes from necesidades

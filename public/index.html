@@ -69,7 +69,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .c-nota{font-size:11px;background:var(--yell);color:#7D6608;border-left:3px solid var(--yel);padding:4px 7px;border-radius:0 4px 4px 0;margin-bottom:5px}
 .c-dist{display:inline-block;font-size:11px;color:#fff;background:var(--grn);font-weight:700;padding:2px 8px;border-radius:20px;margin-bottom:5px}
 .c-conf{font-size:10px;color:var(--g4);margin-left:6px}
-.c-src{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:5px}.c-src.ig{background:#FCE4EC;color:#AD1457}.c-src.tt{background:#E0F7FA;color:#006064}
+.c-src{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:5px}.c-src.ig{background:#FCE4EC;color:#AD1457}.c-src.tt{background:#E0F7FA;color:#006064}.c-src.tw{background:#E3F2FD;color:#1565C0}.c-src.tg{background:#E8F5E9;color:#2E7D32}
 .unval{display:inline-block;font-size:9px;background:var(--yell);color:#7D6608;border:1px solid #F9E79F;border-radius:3px;padding:1px 5px;margin-left:5px}
 .actions{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
 .actions a,.actions button{color:#fff;border:none;border-radius:var(--r);padding:8px 11px;font-size:12px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:3px}
@@ -84,6 +84,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .dupe button{margin-top:7px;width:100%;background:var(--grn);color:#fff;border:none;border-radius:var(--r);padding:10px;font-size:13px;font-weight:700;cursor:pointer}
 .modal-new{width:100%;background:var(--red);color:#fff;border:none;border-radius:var(--r);padding:13px;font-size:15px;font-weight:800;cursor:pointer;margin-top:6px}
 .modal-cancel{width:100%;background:none;border:none;color:var(--g4);padding:10px;font-size:13px;cursor:pointer}
+.mod-card{border-left-color:var(--blu)}.mod-orig{font-size:11px;color:var(--blu);font-weight:700;margin:6px 0;display:inline-block}
 </style>
 </head>
 <body>
@@ -211,7 +212,7 @@ function waLink(n,msg){return`https://wa.me/${(n||'').replace(/[\s+]/g,'')}${msg
 function osmRoute(lat,lng){return`https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=;${lat},${lng}`}
 function osmSearch(a){return`https://www.openstreetmap.org/search?query=${encodeURIComponent(a)}`}
 function mapLink(lat,lng,a){return lat&&lng?osmRoute(lat,lng):osmSearch(a)}
-function srcTag(f){if(f==='instagram')return'<span class="c-src ig">IG</span>';if(f==='tiktok')return'<span class="c-src tt">TikTok</span>';return''}
+function srcTag(f){if(f==='instagram')return'<span class="c-src ig">IG</span>';if(f==='tiktok')return'<span class="c-src tt">TikTok</span>';if(f==='twitter')return'<span class="c-src tw">X</span>';if(f==='telegram')return'<span class="c-src tg">TG</span>';return''}
 function needTipos(n){return(n.tipos&&n.tipos.length)?n.tipos:[n.tipo].filter(Boolean)}
 function tipoText(n){return needTipos(n).map(t=>SHORT[t]||t).join(', ')}
 function tipoIcons(n){return needTipos(n).map(t=>ei(t)).join(' ')}

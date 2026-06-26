@@ -1,13 +1,56 @@
 # Scraper — Ingesta de redes sociales
 
-Convierte posts públicos de Instagram y TikTok en filas de `necesidades` en Supabase.
+Convierte posts públicos de **Instagram, TikTok, Twitter/X y Telegram** en la cola **`posts_redes`** para moderación humana.
+
+## Flujo
+
+1. **Scraper** → clasifica con Claude → guarda en `posts_redes`
+   - `estado=pendiente` si es necesidad/rescate (confianza ≥ 0.55)
+   - `estado=descartado` si es ruido (informativo, centro acopio, etc.)
+2. **Coordinador** → tab **Moderar** en la app (PIN) → aprueba o rechaza
+3. **Al aprobar** → RPC `aprobar_post_redes` crea fila en `necesidades` con `validada=true`
+4. **Dedup geo** al aprobar (<200 m, mismo tipo) → confirma existente en vez de duplicar
+
+## Migraciones requeridas
+
+Aplicar en Supabase SQL Editor (en orden):
+
+1. `20250626150000_scraper_fuentes_twitter_telegram.sql`
+2. `20250626160000_posts_redes_moderacion.sql`
+
+## Admin (`public/admin.html`)
+
+Panel separado con **magic link** (Supabase Auth):
+
+- Moderar posts → necesidad / edificio / ambos
+- Agregar edificios colapsados y centros de acopio
+- Correr scraper (requiere `npm run server` en otra terminal)
+
+### Setup Supabase Auth
+
+1. Dashboard → Authentication → Providers → **Email** activado
+2. URL Configuration → Redirect URLs:
+   - `http://localhost:3000/admin.html`
+   - `https://TU-DOMINIO/admin.html`
+3. Aplicar migración `20250626170000_admin_auth.sql`
+4. Aplicar migraciones (incluye `20250626170200_seed_admin_anyelisa.sql`)
+
+### Correr scraper desde admin
+
+```bash
+# Terminal 1 — app
+npm run dev
+
+# Terminal 2 — servidor scraper
+npm run scraper:server
+```
+
+Abre `http://localhost:3000/admin.html`
 
 ## Requisitos
 
 - Node 18+
-- `APIFY_TOKEN` — actores: `apify/instagram-search-scraper`, `clockworks/tiktok-scraper`
-- `ANTHROPIC_API_KEY` — clasificación con Claude Haiku
-- `SUPABASE_KEY` — **service_role** (solo para ingesta; nunca comitear)
+- `APIFY_TOKEN`, `ANTHROPIC_API_KEY`, `SUPABASE_KEY` (service_role)
 
 ## Uso
 
@@ -15,23 +58,7 @@ Convierte posts públicos de Instagram y TikTok en filas de `necesidades` en Sup
 npm install
 cp ../.env.example .env
 
-# Dry run (no escribe en BD):
-npm run dry
-
-# Ingesta real:
-npm run ingesta
+npm run dry      # prueba sin escribir
+npm run purge    # borra seeds
+npm run ingesta  # llena posts_redes
 ```
-
-Los posts nuevos entran con `validada=false`. Modera en Supabase → Table Editor.
-
-## Transición: seeds → data real
-
-Los datos semilla están marcados con `__seed_v1__` (en `notas` o `notas_coordinador`).
-
-**Cuando el scraper esté corriendo y haya reportes reales:**
-
-1. Verifica que llegan filas con `fuente in ('instagram','tiktok','ciudadano')`
-2. Ejecuta en SQL Editor: `db/purge_seed_data.sql`
-3. Los seeds se borran; lo real se queda
-
-Si insertaste seeds **antes** del marcador, corre primero `db/tag_existing_seeds.sql`.

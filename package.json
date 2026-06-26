@@ -8,7 +8,8 @@
     "start": "npm run dev",
     "build": "echo 'Static PWA — no build step'",
     "scraper:dry": "npm run dry --workspace=scraper",
-    "scraper:ingesta": "npm run ingesta --workspace=scraper"
+    "scraper:ingesta": "npm run ingesta --workspace=scraper",
+    "scraper:server": "npm run server --workspace=scraper"
   },
   "workspaces": [
     "scraper"
