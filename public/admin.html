@@ -52,6 +52,11 @@ details.sum summary::-webkit-details-marker{display:none}
 .card.card-ready{border-left-color:var(--grn)}
 .card.card-warn{border-left-color:var(--ora)}
 .card.card-skip{border-left-color:var(--g4)}
+.card.card-proc{border-left-color:var(--ora)}
+.card.card-done{border-left-color:var(--g4);opacity:.85}
+.filter-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.filter-chips button{font-size:11px;font-weight:700;padding:6px 12px;border-radius:20px;border:1px solid var(--g2);background:var(--g0);cursor:pointer;font-family:inherit}
+.filter-chips button.on{background:var(--blul);border-color:var(--blu);color:var(--blu)}
 </style>
 </head>
 <body>
@@ -80,6 +85,7 @@ details.sum summary::-webkit-details-marker{display:none}
   <div id="app" style="display:none">
     <div class="tabs">
       <button class="tab on" data-tab="posts" onclick="showTab('posts')">📥 Posts</button>
+      <button class="tab" data-tab="solicitudes" onclick="showTab('solicitudes')">🆘 Solicitudes</button>
       <button class="tab" data-tab="edificios" onclick="showTab('edificios')">🏚 Edificios</button>
       <button class="tab" data-tab="centros" onclick="showTab('centros')">📦 Centros</button>
       <button class="tab" data-tab="scraper" onclick="showTab('scraper')">⚙️ Scraper</button>
@@ -91,6 +97,19 @@ details.sum summary::-webkit-details-marker{display:none}
         La IA resume cada post y sugiere qué crear. Pulsa la acción recomendada o elige otra.
       </p>
       <div id="lista-posts"></div>
+    </div>
+
+    <div class="panel" id="panel-solicitudes">
+      <p style="font-size:13px;color:var(--g4);margin-bottom:10px;line-height:1.5">
+        Seguimiento de pedidos de ayuda: quién va en camino y qué falta por atender.
+      </p>
+      <div class="filter-chips" id="sol-filters">
+        <button class="on" data-f="activas" onclick="setSolFilter(this)">Activas</button>
+        <button data-f="pendiente" onclick="setSolFilter(this)">Pendiente</button>
+        <button data-f="en_proceso" onclick="setSolFilter(this)">En camino</button>
+        <button data-f="cubierta" onclick="setSolFilter(this)">Atendidas</button>
+      </div>
+      <div id="lista-solicitudes"></div>
     </div>
 
     <div class="panel" id="panel-edificios">
@@ -184,6 +203,7 @@ function srcTag(p) {
 }
 
 const URG_LABEL = { critica:'🔴 Crítica', urgente:'🟠 Urgente', normal:'🟢 Normal' };
+const EST_LABEL = { pendiente:'Pendiente', en_proceso:'En camino', cubierta:'Atendida' };
 const DEST_LABEL = {
   necesidad: 'Publicar necesidad',
   edificio: 'Registrar edificio colapsado',
@@ -410,8 +430,75 @@ function showTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.tab === name));
   document.querySelectorAll('.panel').forEach(p => p.classList.toggle('on', p.id === 'panel-' + name));
   if (name === 'posts') loadPosts();
+  if (name === 'solicitudes') loadSolicitudes();
   if (name === 'scraper') pollScraperStatus();
   if (name === 'equipo') loadAdmins();
+}
+
+let solFilter = 'activas';
+
+function setSolFilter(btn) {
+  document.querySelectorAll('#sol-filters button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  solFilter = btn.dataset.f;
+  loadSolicitudes();
+}
+
+function solTipoText(n) {
+  const tipos = (n.tipos && n.tipos.length) ? n.tipos : [n.tipo].filter(Boolean);
+  return tipos.join(', ');
+}
+
+function renderSolicitudCard(n) {
+  const cls = n.estado === 'cubierta' ? 'card-done' : n.estado === 'en_proceso' ? 'card-proc' : '';
+  const atencion = n.en_atencion_por
+    ? `<div class="meta" style="margin-top:6px;color:var(--ora)">🙋 En camino: <b>${esc(n.en_atencion_por)}</b>${n.en_atencion_at ? ' · ' + new Date(n.en_atencion_at).toLocaleString('es-VE') : ''}</div>`
+    : '';
+  const notas = `<textarea rows="2" placeholder="Notas de coordinación..." style="margin-top:8px;font-size:13px" onchange="saveNotasSol('${n.id}', this.value)">${esc(n.notas_coordinador || '')}</textarea>`;
+  const actions = n.estado !== 'cubierta' ? `<div class="row">
+    ${n.estado === 'en_proceso' ? `<button class="btn btn-s" onclick="liberarSol('${n.id}')">↩ Liberar</button>` : ''}
+    <button class="btn btn-g" onclick="cubrirSol('${n.id}')">✓ Marcar atendida</button>
+  </div>` : '';
+  return `<div class="card ${cls}" id="sol-${n.id}">
+    <h3>${URG_LABEL[n.urgencia] || ''} ${esc(solTipoText(n))} — ${esc(n.zona)}</h3>
+    <div class="meta">📍 ${esc(n.direccion_exacta)} · 📞 ${esc(n.telefono)}${n.nombre_contacto ? ' · ' + esc(n.nombre_contacto) : ''}</div>
+    <div class="meta"><span class="badge">${EST_LABEL[n.estado] || n.estado}</span> · ⏱ ${new Date(n.created_at).toLocaleString('es-VE')}${n.confirmaciones > 1 ? ' · ' + n.confirmaciones + ' confirmaciones' : ''}</div>
+    ${n.descripcion ? `<div class="txt">${esc(n.descripcion)}</div>` : ''}
+    ${atencion}${notas}${actions}
+  </div>`;
+}
+
+async function loadSolicitudes() {
+  const el = document.getElementById('lista-solicitudes');
+  el.innerHTML = '<div class="empty">Cargando...</div>';
+  let q = db.from('necesidades').select('*').is('merged_into', null).order('created_at', { ascending: false }).limit(60);
+  if (solFilter === 'activas') q = q.in('estado', ['pendiente', 'en_proceso']);
+  else q = q.eq('estado', solFilter);
+  const { data, error } = await q;
+  if (error) { el.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  if (!data?.length) { el.innerHTML = '<div class="empty">Nada en este filtro.</div>'; return; }
+  el.innerHTML = data.map(renderSolicitudCard).join('');
+}
+
+async function cubrirSol(id) {
+  const { error } = await db.rpc('marcar_cubierta', { p_id: id, p_telefono: null });
+  if (error) { toast(error.message); return; }
+  toast('Marcada como atendida');
+  loadSolicitudes();
+}
+
+async function liberarSol(id) {
+  if (!confirm('¿Liberar para que otro voluntario pueda tomarla?')) return;
+  const { error } = await db.rpc('liberar_atencion', { p_id: id });
+  if (error) { toast(error.message); return; }
+  toast('Liberada');
+  loadSolicitudes();
+}
+
+async function saveNotasSol(id, text) {
+  const { error } = await db.from('necesidades').update({ notas_coordinador: text.trim() || null }).eq('id', id);
+  if (error) toast(error.message);
+  else toast('Notas guardadas');
 }
 
 async function loadPosts() {
@@ -586,6 +673,10 @@ async function logout() {
   document.getElementById('login-password').value = '';
   toast('Sesión cerrada');
 }
+
+db.channel('admin-sol').on('postgres_changes', { event: '*', schema: 'public', table: 'necesidades' }, () => {
+  if (document.getElementById('panel-solicitudes')?.classList.contains('on')) loadSolicitudes();
+}).subscribe();
 </script>
 </body>
 </html>

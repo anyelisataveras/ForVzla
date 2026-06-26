@@ -98,7 +98,10 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .card{background:#fff;border:1px solid #ECE7E1;border-left:4px solid #B7AFA6;border-radius:14px;padding:14px 15px;margin-bottom:12px}
 .card.r{border-left-color:var(--red)}.card.o{border-left-color:var(--ora)}.card.g{border-left-color:var(--grn)}.card.done{opacity:.55}.card.acopio{border-left-color:var(--grn)}
 .c-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:5px}.c-loc{font-size:14px;font-weight:800;line-height:1.25}.c-addr{font-size:12px;color:var(--txt2);margin-top:2px;line-height:1.4}
-.badge{font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;white-space:nowrap;flex-shrink:0}.badge.r{background:var(--redl);color:var(--redd)}.badge.o{background:var(--oral);color:var(--ora)}.badge.g{background:var(--grnl);color:var(--grn)}.badge.done{background:var(--line3);color:var(--txt3)}
+.badge{font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;white-space:nowrap;flex-shrink:0}.badge.r{background:var(--redl);color:var(--redd)}.badge.o{background:var(--oral);color:var(--ora)}.badge.g{background:var(--grnl);color:var(--grn)}.badge.done{background:var(--line3);color:var(--txt3)}.badge.atn{background:var(--oral);color:#9A5B10}
+.card.en-proceso{border-left-color:var(--ora)}
+.btn-voy{background:var(--ora);color:#fff}
+.c-atencion{font-size:12px;color:#9A5B10;background:var(--oral);border-radius:8px;padding:6px 9px;margin-top:9px;font-weight:600}
 .c-tipo{font-size:13px;color:#4A4540;margin:8px 0 4px}.c-desc{font-size:13px;line-height:1.5;color:#3A3530;margin-top:8px}
 .c-qty{display:inline-block;font-size:11px;background:var(--blul);color:var(--blu);padding:2px 7px;border-radius:4px;margin-bottom:5px}
 .c-nota{font-size:12px;background:var(--yell);color:var(--yelt);border-left:3px solid var(--yel);padding:6px 9px;border-radius:0 6px 6px 0;margin-top:9px;font-weight:600}
@@ -329,6 +332,15 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
   <button class="modal-cancel" onclick="closeDupe()">Cancelar</button>
 </div></div>
 
+<div class="modal" id="attend-modal"><div class="modal-card" onclick="event.stopPropagation()">
+  <h3>🙋 Voy en camino</h3>
+  <p class="modal-body" style="font-size:13px;color:var(--txt2);margin-bottom:12px">Tu teléfono solo lo ven coordinadores y quien pidió ayuda si hace falta. Así evitamos que diez personas llamen al mismo caso.</p>
+  <div class="fld" style="margin-top:0"><label>📞 Tu teléfono <span class="req">*</span></label>
+    <input type="tel" id="attend-tel" inputmode="tel" placeholder="+58 412 555 1234"></div>
+  <button class="modal-new" style="background:var(--ora)" onclick="confirmAttend()">Confirmar — voy a ayudar</button>
+  <button class="modal-cancel" onclick="closeAttend()">Cancelar</button>
+</div></div>
+
 <script>
 const SB_URL='https://ebsgvamzaegjgpjkpick.supabase.co';
 const SB_KEY='sb_publishable_vg8SSOkKpgvwOSyi2k-aVg_lslrQsBA';
@@ -465,11 +477,30 @@ function mapEstado(s){s=(s||'').toLowerCase();
   if(s.includes('falc'))return'Falcón';if(s.includes('miranda'))return'Miranda';if(s.includes('lara'))return'Lara';return'Otra';}
 
 function focusEdifOnMap(id){goScreen('ayudar');setAyudarView('mapa');setTimeout(()=>{const e=(mapData?.edifs||[]).find(x=>x.id===id);if(e?.lat&&e?.lng)mainMap.setView([e.lat,e.lng],16);},350);}
-function needSortKey(n){return{critica:0,urgente:1,normal:2}[n.urgencia]??3;}
+function needSortKey(n){const urg={critica:0,urgente:1,normal:2}[n.urgencia]??3;const st=n.estado==='pendiente'?0:n.estado==='en_proceso'?1:2;return urg*10+st;}
 function emptyHelpMsg(){const mapHint='<br><span style="font-size:12px;color:var(--txt3)">Los edificios colapsados están en la vista <button type="button" class="donar-link" style="font-size:12px;padding:0" onclick="setAyudarView(\'mapa\')">Mapa</button>.</span>';
   return`<div class="empty">🎉 Nadie pide eso cerca ahora.${mapHint}</div>`;}
-function needCard(n){const done=n.estado==='cubierta',cls=done?'done':UE[n.urgencia]||'';
-  const badge=done?'<span class="badge done">✓ Cubierta</span>':`<span class="badge ${UE[n.urgencia]||''}">${UL[n.urgencia]||''}</span>`;
+function normTel(t){return(t||'').replace(/[\s\-()]/g,'');}
+function isMyAttend(n){return volTel&&n.en_atencion_por&&normTel(n.en_atencion_por)===normTel(volTel);}
+let volTel='',pendingAttendId=null;
+function openAttend(id){pendingAttendId=id;document.getElementById('attend-tel').value=volTel||'';document.getElementById('attend-modal').classList.add('on');setTimeout(()=>document.getElementById('attend-tel').focus(),200);}
+function closeAttend(){document.getElementById('attend-modal').classList.remove('on');pendingAttendId=null;}
+async function confirmAttend(){const tel=document.getElementById('attend-tel').value.trim();
+  if(!tel){flashFixed('Escribe tu teléfono para confirmar.',true);return;}
+  const id=pendingAttendId;closeAttend();
+  const{error}=await db.rpc('marcar_en_atencion',{p_id:id,p_telefono:tel});
+  if(error){flashFixed(error.message.includes('Otro voluntario')?'Ya hay alguien en camino a ese caso.':(error.message||'No se pudo registrar.'),true);return;}
+  volTel=tel;flashFixed('✅ Quedaste en camino. Contacta y marca atendido cuando llegues.');loadHelp();}
+async function markCubierta(id){if(!confirm('¿Confirmas que este caso ya fue atendido?'))return;
+  const{error}=await db.rpc('marcar_cubierta',{p_id:id,p_telefono:volTel||null});
+  if(error){flashFixed(error.message||'No se pudo marcar.',true);return;}
+  flashFixed('✅ Caso marcado como atendido. ¡Gracias!');loadHelp();}
+function flashFixed(msg,err=false){let t=document.getElementById('toast-fixed');
+  if(!t){t=document.createElement('div');t.id='toast-fixed';t.className='toast-fixed';document.body.appendChild(t);}
+  t.textContent=msg;t.className='toast-fixed show '+(err?'err':'ok');clearTimeout(flashFixed._t);flashFixed._t=setTimeout(()=>t.classList.remove('show'),4200);}
+function needCard(n){const done=n.estado==='cubierta',enProc=n.estado==='en_proceso'&&n.en_atencion_por;
+  const cls=done?'done':enProc?'en-proceso':(UE[n.urgencia]||'');
+  let badge=done?'<span class="badge done">✓ Cubierta</span>':enProc?'<span class="badge atn">🙋 En camino</span>':`<span class="badge ${UE[n.urgencia]||''}">${UL[n.urgencia]||''}</span>`;
   const unval=!n.validada&&n.fuente!=='ciudadano'?'<span class="unval">Sin validar</span>':'';const wa=n.whatsapp||n.telefono;
   const waMsg=`Hola ${n.nombre_contacto||''}, vi tu solicitud de ${tipoText(n)} en Ayuda Venezuela. ¿Cómo ayudo?`;
   const dist=n.distancia_m!=null?fmDist(n.distancia_m):'';
@@ -478,14 +509,25 @@ function needCard(n){const done=n.estado==='cubierta',cls=done?'done':UE[n.urgen
   if(subs)extras.push('🔧 '+subs);if(n.otro)extras.push('➕ '+n.otro);if(n.cantidad)extras.push(n.cantidad);
   const extraLine=extras.length?`<div class="c-tipo" style="margin-top:6px">${escHtml(extras.join(' · '))}</div>`:'';
   const loc=escHtml(n.zona)+(n.edificio_id?' 🏚':'');
+  const mine=isMyAttend(n);
+  const atencionLine=enProc&&!mine?`<div class="c-atencion">🙋 Voluntario en camino${n.en_atencion_at?' · '+ago(n.en_atencion_at):''}</div>`:'';
+  const atencionMine=enProc&&mine?`<div class="c-atencion" style="background:var(--grnl);color:var(--grnh)">✓ Tú vas en camino${n.en_atencion_at?' · '+ago(n.en_atencion_at):''}</div>`:'';
+  let actions='';
+  if(!done){
+    const contact=`<a class="btn-call" href="tel:${n.telefono}">📞 Llamar</a>${wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank">💬 WhatsApp</a>`:''}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
+    if(n.estado==='pendiente')actions=contact+`<button class="btn-voy" onclick="openAttend('${n.id}')">🙋 Voy en camino</button>`;
+    else if(mine)actions=contact+`<button class="btn-voy" style="background:var(--grn)" onclick="markCubierta('${n.id}')">✓ Ya atendido</button>`;
+    else actions=contact;
+  }
   return `<div class="card ${cls}">
     <div class="c-top"><div><div class="c-loc">${needTitle(n)}</div><div class="c-addr">📍 ${escHtml(shortAddr(n))}${loc?` · ${loc}`:''}${srcTag(n.fuente)}${unval}</div></div>${badge}</div>
     <div class="c-tipo"><b>${tipoIcons(n)} ${tipoText(n)}</b>${dist?' · a '+dist:''} · ⏱ ${ago(n.created_at)}${conf}</div>
     ${extraLine}
     ${desc?`<div class="c-desc">${escHtml(desc)}</div>`:''}
     ${trapWarning(n)?'<div class="c-nota">⚠️ Posibles personas atrapadas</div>':''}
+    ${atencionLine}${atencionMine}
     ${n.notas_coordinador?`<div class="c-nota" style="background:var(--blul);color:var(--blut);border-color:var(--blu)">📋 ${escHtml(cleanPublicText(n.notas_coordinador))}</div>`:''}
-    ${!done?`<div class="actions"><a class="btn-call" href="tel:${n.telefono}">📞 Llamar</a>${wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank">💬 WhatsApp</a>`:''}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a></div>`:''}
+    ${actions?`<div class="actions">${actions}</div>`:''}
   </div>`;}
 
 let helpTipo='',helpPos=null;
