@@ -41,11 +41,23 @@ Panel separado con **magic link** (Supabase Auth):
 # Terminal 1 — app
 npm run dev
 
-# Terminal 2 — servidor scraper
+# Terminal 2 — servidor scraper (local)
 npm run scraper:server
 ```
 
 Abre `http://localhost:3000/admin.html`
+
+### Desplegar servidor scraper (Railway)
+
+1. En Railway: nuevo servicio desde el repo, **root directory** = `scraper`
+2. Variables de entorno (mismas que `.env` + publishable key):
+   - `APIFY_TOKEN`, `ANTHROPIC_API_KEY`, `SUPABASE_KEY` (service_role)
+   - `SUPABASE_ANON_KEY` (publishable; verifica JWT en POST /run)
+3. Genera dominio público en Railway → copia la URL
+4. Pégala en `public/scraper-config.js` → `window.SCRAPER_URL = 'https://...'`
+5. Commit + push (Vercel redeploya el admin)
+
+El admin en prod llama a esa URL; en local sigue usando `http://localhost:3456`.
 
 ## Requisitos
 

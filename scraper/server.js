@@ -17,7 +17,8 @@ import { loadEnvFiles } from './lib/loadEnv.js';
 loadEnvFiles();
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const PORT = +(process.env.SCRAPER_PORT || 3456);
+// Railway inyecta PORT; en local usa SCRAPER_PORT o 3456.
+const PORT = +(process.env.PORT || process.env.SCRAPER_PORT || 3456);
 const SB_URL = process.env.SUPABASE_URL || 'https://ebsgvamzaegjgpjkpick.supabase.co';
 const SB_ANON = process.env.SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY;
 const SB_SERVICE = process.env.SUPABASE_KEY;
@@ -103,7 +104,7 @@ const server = http.createServer(async (req, res) => {
   res.end('Not found');
 });
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`Scraper server :${PORT}  POST /run  GET /status`);
   if (!SB_ANON) console.warn('⚠ Falta SUPABASE_ANON_KEY (o SUPABASE_PUBLISHABLE_KEY) en .env');
 });

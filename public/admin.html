@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#1E3A5F">
 <title>Admin — Ayuda Venezuela</title>
+<script src="/scraper-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -107,7 +108,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
     <div class="panel" id="panel-scraper">
       <p style="font-size:13px;color:var(--g4);margin-bottom:12px;line-height:1.5">
-        Dispara una corrida del scraper. Requiere el servidor <code>scraper/server.js</code> corriendo.
+        Dispara una corrida del scraper en el servidor remoto. En local: <code>npm run scraper:server</code>.
       </p>
       <button class="btn btn-p" id="btn-run-scraper" onclick="runScraper()">▶ Correr scraper</button>
       <button class="btn btn-s" onclick="pollScraperStatus()">↻ Ver estado</button>
@@ -134,8 +135,11 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 <script>
 const SB_URL = 'https://ebsgvamzaegjgpjkpick.supabase.co';
 const SB_KEY = 'sb_publishable_vg8SSOkKpgvwOSyi2k-aVg_lslrQsBA';
-// Cambia en producción si el scraper corre en otro host (Railway, etc.)
-const SCRAPER_URL = window.SCRAPER_URL || 'http://localhost:3456';
+const SCRAPER_URL = (() => {
+  if (window.SCRAPER_URL) return window.SCRAPER_URL.replace(/\/$/, '');
+  const local = /localhost|127\.0\.0\.1/.test(location.hostname);
+  return local ? 'http://localhost:3456' : '';
+})();
 
 const db = supabase.createClient(SB_URL, SB_KEY, {
   auth: { persistSession: true, detectSessionInUrl: false }
@@ -316,6 +320,7 @@ async function loadCentros() {
 }
 
 async function runScraper() {
+  if (!SCRAPER_URL) { toast('Falta SCRAPER_URL en scraper-config.js'); return; }
   if (!session?.access_token) { toast('Sin sesión'); return; }
   const btn = document.getElementById('btn-run-scraper');
   btn.disabled = true;
@@ -331,12 +336,16 @@ async function runScraper() {
     if (pollTimer) clearInterval(pollTimer);
     pollTimer = setInterval(pollScraperStatus, 3000);
   } catch (e) {
-    toast('Error: ' + e.message + ' — ¿server.js corriendo?');
+    toast('Error: ' + e.message + ' — revisa scraper-config.js o npm run scraper:server');
   }
   btn.disabled = false;
 }
 
 async function pollScraperStatus() {
+  if (!SCRAPER_URL) {
+    document.getElementById('scraper-log').textContent = 'Configura window.SCRAPER_URL en public/scraper-config.js';
+    return;
+  }
   try {
     const res = await fetch(SCRAPER_URL + '/status');
     const j = await res.json();
