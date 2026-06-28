@@ -74,13 +74,10 @@ details.sum summary::-webkit-details-marker{display:none}
   <div id="login-screen">
     <h2 style="font-size:18px;margin-bottom:8px">Entrar al panel</h2>
     <p style="font-size:13px;color:var(--g4);margin-bottom:16px;line-height:1.5">
-      Solo coordinadores autorizados. Elige tu correo y la contraseña del equipo (<code>vzla26</code> si ya corrieron el script de alta).
+      Solo coordinadores autorizados. Usa el correo y la contraseña que te dio el equipo.
     </p>
     <div class="fld"><label>Correo</label>
-      <select id="login-email">
-        <option value="anyelisa.taveras@gmail.com">Anyelisa Taveras</option>
-        <option value="campinsmc@gmail.com">María Cristina Campins (Cris)</option>
-      </select>
+      <input type="email" id="login-email" autocomplete="email" placeholder="tu@correo.com" inputmode="email">
     </div>
     <div class="fld"><label>Contraseña</label><input type="password" id="login-password" autocomplete="current-password"></div>
     <button class="btn btn-p" id="btn-login" onclick="loginWithPassword()">Entrar</button>
@@ -400,7 +397,7 @@ function showLoginScreen() {
 function authErrMsg(err) {
   const m = (err?.message || '').toLowerCase();
   if (m.includes('invalid login')) {
-    return 'Contraseña incorrecta o tu usuario no existe en Auth. Corre en terminal: ./scripts/create-admin-user.sh all vzla26';
+    return 'Contraseña incorrecta o tu usuario no existe. Pide al equipo que ejecute scripts/create-admin-user.sh con tu correo.';
   }
   if (m.includes('email not confirmed')) return 'Correo sin confirmar. Corre create-admin-user.sh o confirma en Supabase Auth.';
   return err?.message || 'No se pudo entrar';
@@ -445,7 +442,7 @@ async function onSession(s) {
 }
 
 async function loginWithPassword() {
-  const email = document.getElementById('login-email').value.trim();
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
   const password = document.getElementById('login-password').value;
   if (!email || !password) { toast('Correo y contraseña'); return; }
   const btn = document.getElementById('btn-login');
@@ -477,6 +474,9 @@ function openApp(label) {
 db.auth.onAuthStateChange((_e, s) => { void onSession(s); });
 db.auth.getSession().then(({ data }) => onSession(data.session));
 
+document.getElementById('login-email').addEventListener('keydown', e => {
+  if (e.key === 'Enter') loginWithPassword();
+});
 document.getElementById('login-password').addEventListener('keydown', e => {
   if (e.key === 'Enter') loginWithPassword();
 });

@@ -65,6 +65,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .edif-pick-wrap.open{display:block}
 .edif-pick-map{height:220px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line2);margin-top:6px}
 .edif-pick-map .leaflet-container{height:100%;width:100%}
+.dir-pick-wrap{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line2)}
 .geo-mini{height:140px;border-radius:var(--r);overflow:hidden;border:1px solid var(--line2);margin-top:8px;display:none}
 .geo-auto{font-size:12px;color:var(--txt);background:var(--surf);border-radius:var(--r);padding:8px 11px;margin-top:8px;display:none}.geo-auto b{color:var(--grn)}
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}
@@ -244,8 +245,14 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
       <div class="loc-panel" id="loc-panel-dir">
         <div class="loc-search"><input type="text" id="r-dir-input" placeholder="Calle, sector, punto de referencia..." inputmode="text" autocomplete="street-address"></div>
         <button type="button" class="geo-btn solid" id="geo-dir-btn" onclick="geocodeDir()">Usar esta dirección</button>
+        <button type="button" class="link-btn" style="display:block;margin:10px auto 0" onclick="showDirPickMap()">📍 Marcar punto aproximado en el mapa</button>
         <p class="loc-hint">Útil si reportas desde lejos o el GPS no sirve.</p>
         <div class="loc-error" id="loc-dir-error" style="display:none"></div>
+        <div class="dir-pick-wrap" id="loc-dir-map-wrap" style="display:none">
+          <p class="loc-hint">Toca el mapa donde está el lugar. No hace falta ser exacto.</p>
+          <div class="edif-pick-map"><div id="dir-pick-map-el"></div></div>
+          <button type="button" class="geo-btn solid" id="geo-dir-approx-btn" onclick="confirmDirApprox()" disabled>Usar este punto</button>
+        </div>
       </div>
       <div class="loc-panel" id="loc-panel-edif">
         <div class="loc-search"><input type="text" id="r-edif-search" placeholder="Busca un edificio..." oninput="filterEdifList()"></div>
@@ -472,6 +479,9 @@ function changeLocation(){
   document.getElementById('geo-btn-r').textContent='📍 Usar mi ubicación';document.getElementById('geo-btn-r').disabled=false;
   document.getElementById('geo-dir-btn').textContent='Usar esta dirección';document.getElementById('geo-dir-btn').disabled=false;
   document.getElementById('loc-dir-error').style.display='none';
+  document.getElementById('loc-dir-map-wrap').style.display='none';
+  dirPickLat=null;dirPickLng=null;
+  document.getElementById('geo-dir-approx-btn').disabled=true;
   document.getElementById('loc-confirmed').style.display='none';document.getElementById('loc-selector').style.display='block';
   setLocTab('gps');}
 async function loadEdifTabList(){
@@ -579,25 +589,70 @@ function sosHere(lat,lng,nombre,zona,edifId){goScreen('reportar');
     confirmLocation('edif',nombre||'Edificio colapsado');setLocTab('edif');}}
 
 let locFromGps=false;
+let dirPickMap,dirPickMarker,dirPickLat=null,dirPickLng=null;
 function hasReportCoords(){return!!(document.getElementById('r-lat').value&&document.getElementById('r-lng').value);}
+async function nominatimSearch(q){
+  const url=`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1&accept-language=es&countrycodes=ve`;
+  const r=await fetch(url,{headers:{'Accept-Language':'es'}});return r.json();}
+async function showDirPickMap(){
+  const wrap=document.getElementById('loc-dir-map-wrap');
+  wrap.style.display='block';
+  let la=parseFloat(document.getElementById('r-lat').value),lo=parseFloat(document.getElementById('r-lng').value);
+  if(!la||!lo){la=edifRefLat;lo=edifRefLng;}
+  if(!la||!lo){
+    await new Promise(resolve=>{
+      if(!navigator.geolocation){resolve();return;}
+      navigator.geolocation.getCurrentPosition(p=>{edifRefLat=p.coords.latitude;edifRefLng=p.coords.longitude;resolve();},
+        ()=>resolve(),{enableHighAccuracy:false,timeout:5000,maximumAge:120000});});
+    la=edifRefLat;lo=edifRefLng;
+  }
+  const center=la&&lo?[la,lo]:[10.55,-66.9],zoom=la&&lo?14:9;
+  if(!dirPickMap){
+    dirPickMap=L.map('dir-pick-map-el',{zoomControl:true,attributionControl:false}).setView(center,zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(dirPickMap);
+    dirPickMap.on('click',e=>{dirPickLat=e.latlng.lat;dirPickLng=e.latlng.lng;
+      if(!dirPickMarker)dirPickMarker=L.marker([dirPickLat,dirPickLng]).addTo(dirPickMap);
+      else dirPickMarker.setLatLng([dirPickLat,dirPickLng]);
+      document.getElementById('geo-dir-approx-btn').disabled=false;});
+  }else{dirPickMap.setView(center,zoom);}
+  setTimeout(()=>dirPickMap.invalidateSize(),180);
+  wrap.scrollIntoView({behavior:'smooth',block:'nearest'});}
+async function confirmDirApprox(){
+  const errEl=document.getElementById('loc-dir-error');
+  if(!dirPickLat||!dirPickLng){errEl.textContent='Toca el mapa para marcar el punto.';errEl.style.display='block';return;}
+  const q=document.getElementById('r-dir-input').value.trim()||'Punto marcado en mapa';
+  document.getElementById('r-lat').value=dirPickLat;document.getElementById('r-lng').value=dirPickLng;
+  document.getElementById('r-dir').value=q+' (aprox.)';document.getElementById('r-edif').value='';locFromGps=false;
+  errEl.style.display='none';
+  try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${dirPickLat}&lon=${dirPickLng}&zoom=12&accept-language=es`);
+    const j=await r.json(),a=j.address||{};
+    document.getElementById('r-zona').value=mapEstado(a.state||a.region||'');
+  }catch{document.getElementById('r-zona').value='Otra';}
+  const short=q.length>60?q.slice(0,57)+'…':q;
+  confirmLocation('dir','Aproximado: '+short);
+  document.getElementById('loc-dir-map-wrap').style.display='none';}
 async function geocodeDir(silent=false){
   const q=document.getElementById('r-dir-input').value.trim(),errEl=document.getElementById('loc-dir-error');
   if(!q){if(!silent){errEl.textContent='Escribe calle, sector y ciudad.';errEl.style.display='block';}return false;}
   const btn=document.getElementById('geo-dir-btn');
   if(!silent){btn.textContent='⏳ Buscando...';btn.disabled=true;errEl.style.display='none';}
-  try{const url=`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q+', Venezuela')}&limit=1&accept-language=es`;
-    const r=await fetch(url,{headers:{'Accept-Language':'es'}});const j=await r.json();
-    if(!j?.length){if(!silent){errEl.textContent='No encontramos esa dirección. Prueba con más detalle o usa GPS.';errEl.style.display='block';}
+  try{
+    let j=await nominatimSearch(q+', Venezuela');
+    if(!j?.length)j=await nominatimSearch(q);
+    if(!j?.length){if(!silent){
+      errEl.textContent='No encontramos esa dirección. Marca el punto aproximado en el mapa de abajo.';
+      errEl.style.display='block';await showDirPickMap();}
       btn.textContent='Usar esta dirección';btn.disabled=false;return false;}
     const hit=j[0],la=parseFloat(hit.lat),lo=parseFloat(hit.lon),dir=hit.display_name||q;
     const zona=mapEstado((hit.address||{}).state||(hit.address||{}).region||'');
     document.getElementById('r-lat').value=la;document.getElementById('r-lng').value=lo;
     document.getElementById('r-zona').value=zona;document.getElementById('r-dir').value=dir;
     document.getElementById('r-edif').value='';locFromGps=false;
+    document.getElementById('loc-dir-map-wrap').style.display='none';
     btn.textContent='Usar esta dirección';btn.disabled=false;
     const short=dir.length>72?dir.slice(0,69)+'…':dir;
     confirmLocation('dir','Dirección: '+short);return true;
-  }catch{if(!silent){errEl.textContent='No se pudo buscar la dirección. Revisa tu conexión.';errEl.style.display='block';}
+  }catch{if(!silent){errEl.textContent='Sin conexión. Marca el punto en el mapa.';errEl.style.display='block';await showDirPickMap();}
     btn.textContent='Usar esta dirección';btn.disabled=false;return false;}}
 function captureGeo(){const btn=document.getElementById('geo-btn-r');btn.textContent='⏳ Buscando señal...';btn.disabled=true;
   navigator.geolocation.getCurrentPosition(async pos=>{const {latitude:la,longitude:lo,accuracy:ac}=pos.coords;
@@ -760,6 +815,9 @@ function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-dir-input','r-edif','r
   document.getElementById('geo-btn-r').textContent='📍 Usar mi ubicación';document.getElementById('geo-btn-r').disabled=false;
   document.getElementById('geo-dir-btn').textContent='Usar esta dirección';document.getElementById('geo-dir-btn').disabled=false;
   document.getElementById('loc-dir-error').style.display='none';
+  document.getElementById('loc-dir-map-wrap').style.display='none';
+  dirPickLat=null;dirPickLng=null;
+  document.getElementById('geo-dir-approx-btn').disabled=true;
   selectedReportEdifId=null;clearReportEdifHighlight();
   document.getElementById('edif-pick-wrap').classList.remove('open');
   document.getElementById('loc-confirmed').style.display='none';document.getElementById('loc-selector').style.display='block';
@@ -789,7 +847,7 @@ function goScreen(name){document.querySelectorAll('.view').forEach(v=>v.classLis
   if(name==='acopio')loadAcopio();
   if(name==='ofrecer'&&!acopioCache.length)loadAcopio();
   window.scrollTo(0,0);
-  setTimeout(()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();},150);}
+  setTimeout(()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();if(dirPickMap)dirPickMap.invalidateSize();},150);}
 
 function onLiveData(){
   if(document.getElementById('view-home').classList.contains('on'))loadHomeStats();
@@ -797,7 +855,7 @@ function onLiveData(){
     if(ayudarView==='lista')loadHelp();else populateMap();}}
 db.channel('live').on('postgres_changes',{event:'*',schema:'public',table:'necesidades'},onLiveData)
   .on('postgres_changes',{event:'*',schema:'public',table:'edificios_colapsados'},onLiveData).subscribe();
-window.addEventListener('resize',()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();});
+window.addEventListener('resize',()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();if(dirPickMap)dirPickMap.invalidateSize();});
 
 buildGrid('tipo-grid',TIPOS,'pickTipo');
 buildGrid('tipo-grid-o',TIPOS_O,'pickTipoO','gbtn-g');
