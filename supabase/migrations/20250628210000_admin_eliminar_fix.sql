@@ -1,6 +1,6 @@
--- Admin: quitar solicitudes falsas, donaciones, centros y edificios del mapa público
+-- Fix: migración 190000 fallaba en necesidades_cercanas (p.lng → p_lng).
+-- Idempotente — corre en SQL Editor si "Quitar" falla con necesidades_estado_check.
 
--- ── Necesidades: estado "eliminada" (oculta sin borrar historial) ──
 alter table necesidades drop constraint if exists necesidades_estado_check;
 alter table necesidades add constraint necesidades_estado_check
   check (estado in ('pendiente', 'en_proceso', 'cubierta', 'eliminada'));
@@ -28,7 +28,6 @@ $$;
 
 grant execute on function eliminar_necesidad(uuid) to authenticated;
 
--- Ocultar eliminadas en mapa y lista pública
 drop function if exists necesidades_cercanas(double precision, double precision, double precision, text);
 
 create or replace function necesidades_cercanas(
@@ -66,7 +65,6 @@ language sql stable as $$
   order by distancia_m asc;
 $$;
 
--- No atender solicitudes ya quitadas
 create or replace function marcar_en_atencion(p_id uuid, p_telefono text)
 returns void language plpgsql security definer set search_path = public as $$
 declare
@@ -102,7 +100,6 @@ begin
 end;
 $$;
 
--- ── Donaciones (recursos): solo admin borra ──
 grant delete on table public.recursos to authenticated;
 
 drop policy if exists "admin_delete_recursos" on recursos;

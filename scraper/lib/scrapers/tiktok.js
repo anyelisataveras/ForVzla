@@ -5,8 +5,9 @@ export async function scrapeTikTok({ apifyToken, hashtags, keywords, maxTiktok }
   console.log('🎵 TikTok...');
   const searchTags = [...new Set([...hashtags, ...keywordsToHashtags(keywords)])];
   const items = await runApifyActor(apifyToken, 'clockworks~tiktok-scraper', {
-    hashtags: searchTags,
-    searchQueries: keywords,
+    hashtags: searchTags.slice(0, 8),
+    searchQueries: keywords.slice(0, 6),
+    maxItems: maxTiktok,
     resultsPerPage: maxTiktok,
     shouldDownloadVideos: false,
     shouldDownloadCovers: false,

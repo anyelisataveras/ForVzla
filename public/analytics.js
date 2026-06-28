@@ -44,6 +44,7 @@
     // ── Centros de acopio ───────────────────────────────────────────────
     ACOPIO_LIST_LOADED: 'acopio_list_loaded',
     ACOPIO_GPS_REQUESTED: 'acopio_gps_requested',
+    ACOPIO_FILTER_CHANGED: 'acopio_filter_changed',
     ACOPIO_CONTACT_CLICKED: 'acopio_contact_clicked',
 
     // ── Donar recurso a centro ──────────────────────────────────────────
