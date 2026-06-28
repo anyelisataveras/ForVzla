@@ -519,7 +519,7 @@ function renderSolicitudCard(n) {
   const atencion = n.en_atencion_por
     ? `<div class="meta" style="margin-top:6px;color:var(--ora)">🙋 En camino: <b>${esc(n.en_atencion_por)}</b>${n.en_atencion_at ? ' · ' + new Date(n.en_atencion_at).toLocaleString('es-VE') : ''}</div>`
     : '';
-  const notas = `<textarea rows="2" placeholder="Notas de coordinación..." style="margin-top:8px;font-size:13px" onchange="saveNotasSol('${n.id}', this.value)">${esc(n.notas_coordinador || '')}</textarea>`;
+  const notas = `<textarea rows="2" placeholder="Notas de coordinación (no cambia el estado)..." style="margin-top:8px;font-size:13px" onchange="saveNotasSol('${n.id}', this.value)">${esc(n.notas_coordinador || '')}</textarea>`;
   const actions = n.estado !== 'cubierta' ? `<div class="row">
     ${n.estado === 'en_proceso' ? `<button class="btn btn-s" onclick="liberarSol('${n.id}')">↩ Liberar</button>` : ''}
     <button class="btn btn-g" onclick="cubrirSol('${n.id}')">✓ Marcar atendida</button>
@@ -546,7 +546,10 @@ async function loadSolicitudes() {
 }
 
 async function cubrirSol(id) {
-  const { error } = await db.rpc('marcar_cubierta', { p_id: id, p_telefono: null });
+  let { error } = await db.rpc('marcar_cubierta', { p_id: id });
+  if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(error.message || ''))) {
+    ({ error } = await db.from('necesidades').update({ estado: 'cubierta' }).eq('id', id));
+  }
   if (error) { toast(error.message); return; }
   toast('Marcada como atendida');
   loadSolicitudes();
@@ -555,7 +558,10 @@ async function cubrirSol(id) {
 
 async function liberarSol(id) {
   if (!confirm('¿Liberar para que otro voluntario pueda tomarla?')) return;
-  const { error } = await db.rpc('liberar_atencion', { p_id: id });
+  let { error } = await db.rpc('liberar_atencion', { p_id: id });
+  if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(error.message || ''))) {
+    ({ error } = await db.from('necesidades').update({ estado: 'pendiente' }).eq('id', id));
+  }
   if (error) { toast(error.message); return; }
   toast('Liberada');
   loadSolicitudes();

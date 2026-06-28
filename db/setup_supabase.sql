@@ -171,7 +171,7 @@ returns void language sql as $$
 $$;
 
 create or replace function marcar_en_atencion(p_id uuid, p_telefono text)
-returns void language plpgsql as $$
+returns void language plpgsql security definer set search_path = public as $$
 declare
   v_tel text := nullif(trim(p_telefono), '');
   v_row necesidades%rowtype;
@@ -188,7 +188,7 @@ end;
 $$;
 
 create or replace function marcar_cubierta(p_id uuid, p_telefono text default null)
-returns void language plpgsql as $$
+returns void language plpgsql security definer set search_path = public as $$
 declare
   v_tel text := nullif(trim(coalesce(p_telefono, '')), '');
   v_row necesidades%rowtype;
@@ -204,10 +204,16 @@ end;
 $$;
 
 create or replace function liberar_atencion(p_id uuid)
-returns void language sql as $$
+returns void language plpgsql security definer set search_path = public as $$
+begin
   update necesidades set estado = 'pendiente', en_atencion_por = null, en_atencion_at = null
   where id = p_id and estado = 'en_proceso';
+end;
 $$;
+
+grant execute on function marcar_en_atencion(uuid, text) to anon, authenticated;
+grant execute on function marcar_cubierta(uuid, text) to anon, authenticated;
+grant execute on function liberar_atencion(uuid) to anon, authenticated;
 
 -- ── RLS (acceso público de emergencia; moderación vía Table Editor) ──
 alter table necesidades enable row level security;

@@ -765,16 +765,29 @@ function emptyHelpMsg(){const mapHint='<br><span style="font-size:12px;color:var
 function normTel(t){return(t||'').replace(/[\s\-()]/g,'');}
 function isMyAttend(n){return volTel&&n.en_atencion_por&&normTel(n.en_atencion_por)===normTel(volTel);}
 let volTel='',pendingAttendId=null;
+function rpcMissing(e){return e&&(e.code==='PGRST202'||/Could not find the function/i.test(e.message||''));}
+async function marcarCubiertaDb(id,tel){
+  const p=tel?{p_id:id,p_telefono:tel}:{p_id:id};
+  let{error}=await db.rpc('marcar_cubierta',p);
+  if(rpcMissing(error))({error}=await db.from('necesidades').update({estado:'cubierta'}).eq('id',id));
+  return{error};}
+async function marcarEnAtencionDb(id,tel){
+  let{error}=await db.rpc('marcar_en_atencion',{p_id:id,p_telefono:tel});
+  if(rpcMissing(error)){
+    ({error}=await db.from('necesidades').update({estado:'en_proceso',en_atencion_por:tel,en_atencion_at:new Date().toISOString()}).eq('id',id));
+    if(error)({error}=await db.from('necesidades').update({estado:'en_proceso'}).eq('id',id));
+  }
+  return{error};}
 function openAttend(id){pendingAttendId=id;document.getElementById('attend-tel').value=volTel||'';document.getElementById('attend-modal').classList.add('on');setTimeout(()=>document.getElementById('attend-tel').focus(),200);}
 function closeAttend(){document.getElementById('attend-modal').classList.remove('on');pendingAttendId=null;}
 async function confirmAttend(){const tel=document.getElementById('attend-tel').value.trim();
   if(!tel){flashFixed('Escribe tu teléfono para confirmar.',true);return;}
   const id=pendingAttendId;closeAttend();
-  const{error}=await db.rpc('marcar_en_atencion',{p_id:id,p_telefono:tel});
+  const{error}=await marcarEnAtencionDb(id,tel);
   if(error){flashFixed(error.message.includes('Otro voluntario')?'Ya hay alguien en camino a ese caso.':(error.message||'No se pudo registrar.'),true);return;}
   volTel=tel;flashFixed('✅ Quedaste en camino. Contacta y marca atendido cuando llegues.');loadHelp();}
 async function markCubierta(id){if(!confirm('¿Confirmas que este caso ya fue atendido?'))return;
-  const{error}=await db.rpc('marcar_cubierta',{p_id:id,p_telefono:volTel||null});
+  const{error}=await marcarCubiertaDb(id,volTel||null);
   if(error){flashFixed(error.message||'No se pudo marcar.',true);return;}
   flashFixed('✅ Caso marcado como atendido. ¡Gracias!');loadHelp();}
 function hasNeedTel(n){const t=(n?.telefono||'').trim();return!!t&&t.toLowerCase()!=='sin teléfono';}
