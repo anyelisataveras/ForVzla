@@ -9,7 +9,10 @@
     "build": "echo 'Static PWA — no build step'",
     "scraper:dry": "npm run dry --workspace=scraper",
     "scraper:ingesta": "npm run ingesta --workspace=scraper",
-    "scraper:server": "npm run server --workspace=scraper"
+    "scraper:server": "npm run server --workspace=scraper",
+    "import:centros:dry": "DRY_RUN=1 node scripts/import_centros_externos.js",
+    "import:centros": "node scripts/import_centros_externos.js",
+    "import:centros:ve": "ONLY_VE=1 node scripts/import_centros_externos.js"
   },
   "workspaces": [
     "scraper"
