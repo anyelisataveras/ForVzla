@@ -182,11 +182,12 @@ details.sum summary::-webkit-details-marker{display:none}
     <div class="panel" id="panel-equipo">
       <h2 style="font-size:16px;margin-bottom:8px">Invitar administrador</h2>
       <p style="font-size:13px;color:var(--g4);margin-bottom:14px;line-height:1.5">
-        Agrega un correo al equipo. Luego corre <code>scripts/create-admin-user.sh</code> para asignarle la misma contraseña.
+        Agrega un correo al equipo. Se genera una contraseña temporal que debes compartir con la persona.
       </p>
       <div class="fld"><label>Correo *</label><input type="email" id="inv-email" placeholder="colega@correo.com" autocomplete="off"></div>
       <div class="fld"><label>Nombre</label><input type="text" id="inv-nombre" placeholder="Opcional"></div>
-      <button class="btn btn-p" onclick="invitarAdmin()">✉️ Agregar al equipo</button>
+      <button class="btn btn-p" id="btn-invitar" onclick="invitarAdmin()">✉️ Agregar al equipo</button>
+      <div id="credenciales-nuevo" style="display:none"></div>
       <h3 style="font-size:14px;margin:22px 0 8px">Administradores</h3>
       <div id="lista-admins"></div>
     </div>
@@ -405,9 +406,9 @@ function showLoginScreen() {
 function authErrMsg(err) {
   const m = (err?.message || '').toLowerCase();
   if (m.includes('invalid login')) {
-    return 'Contraseña incorrecta o tu usuario no existe. Pide al equipo que ejecute scripts/create-admin-user.sh con tu correo.';
+    return 'Contraseña incorrecta o tu usuario no existe. Pide al equipo que te invite de nuevo desde Equipo.';
   }
-  if (m.includes('email not confirmed')) return 'Correo sin confirmar. Corre create-admin-user.sh o confirma en Supabase Auth.';
+  if (m.includes('email not confirmed')) return 'Correo sin confirmar. Pide al equipo que te reinvite desde Equipo.';
   return err?.message || 'No se pudo entrar';
 }
 
@@ -765,32 +766,79 @@ function parseListInput(id) {
   return document.getElementById(id).value.split(',').map(s => s.trim()).filter(Boolean);
 }
 
+function parseCoord(id) {
+  const raw = document.getElementById(id).value.trim().replace(',', '.');
+  const n = parseFloat(raw);
+  return Number.isFinite(n) ? n : NaN;
+}
+
 async function saveCentro() {
+  if (!session?.user) { toast('Sesión expirada — vuelve a entrar'); return; }
+  const lat = parseCoord('c-lat');
+  const lng = parseCoord('c-lng');
   const row = {
     nombre: document.getElementById('c-nombre').value.trim(),
     organizacion: document.getElementById('c-org').value.trim() || null,
     estado_vzla: document.getElementById('c-estado').value.trim(),
     direccion: document.getElementById('c-dir').value.trim(),
-    lat: +document.getElementById('c-lat').value,
-    lng: +document.getElementById('c-lng').value,
+    lat,
+    lng,
     telefono: document.getElementById('c-tel').value.trim() || null,
     horario: document.getElementById('c-horario').value.trim() || null,
     necesita_ahora: parseListInput('c-necesita'),
     ya_cubierto: parseListInput('c-cubierto'),
     activo: true,
   };
-  if (!row.nombre || !row.estado_vzla || !row.direccion || !row.lat || !row.lng) {
-    toast('Completa campos obligatorios'); return;
+  if (!row.nombre || !row.estado_vzla || !row.direccion || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+    toast('Completa nombre, estado, dirección y coordenadas (ej. 10.61, -66.84)'); return;
   }
-  const { error } = await db.from('centros_acopio').insert(row);
-  if (error) { toast(error.message); return; }
+
+  const rpcArgs = {
+    p_nombre: row.nombre,
+    p_estado_vzla: row.estado_vzla,
+    p_direccion: row.direccion,
+    p_lat: lat,
+    p_lng: lng,
+    p_organizacion: row.organizacion,
+    p_telefono: row.telefono,
+    p_horario: row.horario,
+    p_necesita_ahora: row.necesita_ahora,
+    p_ya_cubierto: row.ya_cubierto,
+  };
+  let { error } = await db.rpc('insertar_centro_acopio', rpcArgs);
+  if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(error.message || ''))) {
+    ({ error } = await db.from('centros_acopio').insert(row));
+  }
+  if (error && /necesita_ahora|ya_cubierto|schema cache/i.test(error.message || '')) {
+    const lean = { ...row };
+    delete lean.necesita_ahora;
+    delete lean.ya_cubierto;
+    ({ error } = await db.from('centros_acopio').insert(lean));
+  }
+  if (error) {
+    toast(error.message.includes('No autorizado') || /row-level security|permission denied/i.test(error.message || '')
+      ? 'Sin permiso para guardar — aplica la migración centros_acopio_admin_insert en Supabase'
+      : error.message);
+    return;
+  }
   toast('Centro guardado');
+  ['c-nombre','c-org','c-estado','c-dir','c-lat','c-lng','c-tel','c-horario','c-necesita','c-cubierto']
+    .forEach(i => { document.getElementById(i).value = ''; });
   loadCentros();
 }
 
 async function loadCentros() {
-  const { data } = await db.from('centros_acopio').select('id,nombre,estado_vzla,direccion,activo,necesita_ahora,ya_cubierto').order('created_at',{ascending:false}).limit(30);
-  document.getElementById('lista-centros').innerHTML = (data||[]).map(c => {
+  const el = document.getElementById('lista-centros');
+  let { data, error } = await db.from('centros_acopio')
+    .select('id,nombre,estado_vzla,direccion,activo,necesita_ahora,ya_cubierto')
+    .order('created_at', { ascending: false }).limit(30);
+  if (error && /necesita_ahora|ya_cubierto|schema cache/i.test(error.message || '')) {
+    ({ data, error } = await db.from('centros_acopio')
+      .select('id,nombre,estado_vzla,direccion,activo')
+      .order('created_at', { ascending: false }).limit(30));
+  }
+  if (error) { el.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  el.innerHTML = (data||[]).map(c => {
     const nec = c.necesita_ahora?.length ? `<div class="meta" style="margin-top:4px;color:var(--red)">Necesitan: ${esc(c.necesita_ahora.join(', '))}</div>` : '';
     const cub = c.ya_cubierto?.length ? `<div class="meta">Cubierto: ${esc(c.ya_cubierto.join(', '))}</div>` : '';
     return `<div class="card" style="border-left-color:var(--grn)"><b>${esc(c.nombre)}</b><div class="meta">${esc(c.estado_vzla)} · ${esc(c.direccion)}</div>${nec}${cub}</div>`;
@@ -893,23 +941,51 @@ async function loadAdmins() {
     </div>`).join('') || '<div class="empty">Sin admins.</div>';
 }
 
+function copiarPwdTemp() {
+  const el = document.getElementById('pwd-temp');
+  if (!el?.textContent) return;
+  navigator.clipboard.writeText(el.textContent).then(() => toast('Contraseña copiada'));
+}
+
+function mostrarCredenciales(email, password) {
+  const box = document.getElementById('credenciales-nuevo');
+  box.innerHTML = `
+    <div class="card" style="border-left-color:var(--grn);margin-top:14px">
+      <b>✓ Usuario listo</b>
+      <div class="meta" style="margin-top:6px">Correo: <b>${esc(email)}</b></div>
+      <div class="meta">Contraseña temporal: <code id="pwd-temp">${esc(password)}</code></div>
+      <button type="button" class="btn btn-s" style="margin-top:10px" onclick="copiarPwdTemp()">📋 Copiar contraseña</button>
+      <p style="font-size:12px;color:var(--g4);margin-top:10px;line-height:1.4">Comparte estas credenciales con la persona. No se volverá a mostrar.</p>
+    </div>`;
+  box.style.display = 'block';
+}
+
 async function invitarAdmin() {
   const email = document.getElementById('inv-email').value.trim().toLowerCase();
   const nombre = document.getElementById('inv-nombre').value.trim();
   if (!email) { toast('Escribe el correo'); return; }
 
-  const { error: insErr } = await db.from('admin_users').insert({
-    email,
-    nombre: nombre || null,
+  const btn = document.getElementById('btn-invitar');
+  btn.disabled = true;
+  btn.textContent = 'Creando…';
+
+  const { data, error } = await db.rpc('invitar_admin', {
+    p_email: email,
+    p_nombre: nombre || null,
   });
-  if (insErr) {
-    toast(insErr.code === '23505' ? 'Ese correo ya es admin' : insErr.message);
+
+  btn.disabled = false;
+  btn.textContent = '✉️ Agregar al equipo';
+
+  if (error) {
+    toast(/no autorizado/i.test(error.message) ? 'Sin permiso' : error.message);
     return;
   }
 
-  toast('Admin agregado: ' + email + ' (asigna contraseña con scripts/create-admin-user.sh)');
   document.getElementById('inv-email').value = '';
   document.getElementById('inv-nombre').value = '';
+  mostrarCredenciales(data.email, data.password);
+  toast('Admin agregado: ' + email);
   loadAdmins();
 }
 
