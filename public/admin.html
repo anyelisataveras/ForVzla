@@ -158,9 +158,11 @@ details.sum summary::-webkit-details-marker{display:none}
       <div class="fld"><label>Nombre *</label><input id="c-nombre"></div>
       <div class="fld"><label>Organización</label><input id="c-org"></div>
       <div class="fld"><label>Estado *</label><input id="c-estado" placeholder="Miranda"></div>
-      <div class="fld"><label>Dirección *</label><input id="c-dir"></div>
-      <div class="fld"><label>Lat / Lng *</label>
-        <div style="display:flex;gap:8px"><input id="c-lat" inputmode="decimal"><input id="c-lng" inputmode="decimal"></div>
+      <div class="fld"><label>Dirección *</label><input id="c-dir" placeholder="Calle, sector, ciudad"></div>
+      <div class="fld"><label>Coordenadas en mapa *</label>
+        <p style="font-size:12px;color:var(--g4);margin-bottom:8px;line-height:1.45">Dos números decimales (ej. <code>10.49</code> y <code>-66.90</code>). No uses códigos tipo <code>G432+R8</code>.</p>
+        <button type="button" class="btn btn-s" id="btn-geocode-centro" onclick="geocodeCentro()" style="margin-top:0;margin-bottom:8px">📍 Buscar por dirección</button>
+        <div style="display:flex;gap:8px"><input id="c-lat" inputmode="decimal" placeholder="Lat (10.49)"><input id="c-lng" inputmode="decimal" placeholder="Lng (-66.90)"></div>
       </div>
       <div class="fld"><label>Teléfono</label><input id="c-tel" inputmode="tel"></div>
       <div class="fld"><label>Horario</label><input id="c-horario" placeholder="8am - 8pm"></div>
@@ -791,16 +793,86 @@ function parseListInput(id) {
   return document.getElementById(id).value.split(',').map(s => s.trim()).filter(Boolean);
 }
 
-function parseCoord(id) {
-  const raw = document.getElementById(id).value.trim().replace(',', '.');
-  const n = parseFloat(raw);
+function parseCoordValue(raw) {
+  const s = (raw || '').trim().replace(',', '.');
+  if (!s || !/^-?\d+(\.\d+)?$/.test(s)) return NaN;
+  const n = parseFloat(s);
   return Number.isFinite(n) ? n : NaN;
+}
+
+function parseCoordsPair() {
+  const latEl = document.getElementById('c-lat');
+  const lngEl = document.getElementById('c-lng');
+  let latRaw = latEl.value.trim();
+  let lngRaw = lngEl.value.trim();
+  const blob = latRaw + ' ' + lngRaw;
+
+  const at = blob.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (at) return { lat: parseFloat(at[1]), lng: parseFloat(at[2]) };
+
+  const q = blob.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (q) return { lat: parseFloat(q[1]), lng: parseFloat(q[2]) };
+
+  const pair = latRaw.match(/^(-?\d+[.,]\d+)\s*[,;]\s*(-?\d+[.,]\d+)$/);
+  if (pair && !lngRaw) {
+    latRaw = pair[1];
+    lngRaw = pair[2];
+  }
+
+  const lat = parseCoordValue(latRaw);
+  const lng = parseCoordValue(lngRaw);
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    latEl.value = lat.toFixed(6);
+    lngEl.value = lng.toFixed(6);
+  }
+  return { lat, lng };
+}
+
+async function nominatimSearch(q) {
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1&accept-language=es&countrycodes=ve`;
+  const r = await fetch(url, { headers: { 'Accept-Language': 'es' } });
+  return r.json();
+}
+
+async function geocodeCentro(silent) {
+  const dir = document.getElementById('c-dir').value.trim();
+  const estado = document.getElementById('c-estado').value.trim();
+  if (!dir) {
+    if (!silent) toast('Escribe la dirección arriba');
+    return false;
+  }
+  const btn = document.getElementById('btn-geocode-centro');
+  if (!silent && btn) { btn.textContent = '⏳ Buscando…'; btn.disabled = true; }
+  try {
+    const queries = [
+      [dir, estado, 'Venezuela'].filter(Boolean).join(', '),
+      dir + ', Venezuela',
+      dir,
+    ];
+    let hit = null;
+    for (const q of queries) {
+      const j = await nominatimSearch(q);
+      if (j?.length) { hit = j[0]; break; }
+    }
+    if (!hit) {
+      if (!silent) toast('No encontramos esa dirección — revisa calle y estado');
+      return false;
+    }
+    document.getElementById('c-lat').value = parseFloat(hit.lat).toFixed(6);
+    document.getElementById('c-lng').value = parseFloat(hit.lon).toFixed(6);
+    if (!silent) toast('Coordenadas encontradas');
+    return true;
+  } catch {
+    if (!silent) toast('Sin conexión para buscar la dirección');
+    return false;
+  } finally {
+    if (!silent && btn) { btn.textContent = '📍 Buscar por dirección'; btn.disabled = false; }
+  }
 }
 
 async function saveCentro() {
   if (!session?.user) { toast('Sesión expirada — vuelve a entrar'); return; }
-  const lat = parseCoord('c-lat');
-  const lng = parseCoord('c-lng');
+  let { lat, lng } = parseCoordsPair();
   const row = {
     nombre: document.getElementById('c-nombre').value.trim(),
     organizacion: document.getElementById('c-org').value.trim() || null,
@@ -814,8 +886,19 @@ async function saveCentro() {
     ya_cubierto: parseListInput('c-cubierto'),
     activo: true,
   };
-  if (!row.nombre || !row.estado_vzla || !row.direccion || !Number.isFinite(lat) || !Number.isFinite(lng)) {
-    toast('Completa nombre, estado, dirección y coordenadas (ej. 10.61, -66.84)'); return;
+  if ((!Number.isFinite(lat) || !Number.isFinite(lng)) && row.direccion) {
+    toast('Buscando coordenadas de la dirección…');
+    if (await geocodeCentro(true)) {
+      ({ lat, lng } = parseCoordsPair());
+      row.lat = lat;
+      row.lng = lng;
+    }
+  }
+  if (!row.nombre || !row.estado_vzla || !row.direccion) {
+    toast('Completa nombre, estado y dirección'); return;
+  }
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    toast('Faltan coordenadas — pulsa «Buscar por dirección» o pega lat/lng (ej. 10.49, -66.90)'); return;
   }
 
   const rpcArgs = {
