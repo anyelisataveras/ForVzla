@@ -140,7 +140,7 @@ returns table (
   tipo text, tipos text[], subtipo text, subtipos text[], otro text,
   urgencia text, descripcion text, cantidad text, personas_afectadas int,
   nombre_contacto text, telefono text, whatsapp text, estado text, validada boolean,
-  notas_coordinador text, confirmaciones int, fuente text, edificio_id uuid,
+  notas_coordinador text, confirmaciones int, fuente text, source_url text, edificio_id uuid,
   en_atencion_por text, en_atencion_at timestamptz,
   created_at timestamptz, distancia_m double precision
 )
@@ -148,7 +148,7 @@ language sql stable as $$
   select n.id, n.zona, n.direccion_exacta, n.lat, n.lng, n.tipo, n.tipos, n.subtipo, n.subtipos,
          n.otro, n.urgencia, n.descripcion, n.cantidad, n.personas_afectadas,
          n.nombre_contacto, n.telefono, n.whatsapp, n.estado, n.validada,
-         n.notas_coordinador, n.confirmaciones, n.fuente, n.edificio_id,
+         n.notas_coordinador, n.confirmaciones, n.fuente, n.source_url, n.edificio_id,
          n.en_atencion_por, n.en_atencion_at, n.created_at,
          _dist_m(p_lat, p_lng, n.lat, n.lng) as distancia_m
   from necesidades n

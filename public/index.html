@@ -143,7 +143,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .unval{display:inline-block;font-size:9px;background:var(--yell);color:var(--yelt);border:1px solid var(--yel);border-radius:3px;padding:1px 5px;margin-left:5px}
 .actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
 .actions a,.actions button{color:#fff;border:none;border-radius:9px;padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:3px;font-family:inherit}
-.btn-call{background:var(--grn)}.btn-wa{background:#25D366}.btn-map{background:var(--blu)}.btn-edif{background:var(--red)}.btn-sh{background:none!important;border:1px solid var(--line2)!important;color:var(--txt2)!important}
+.btn-call{background:var(--grn)}.btn-wa{background:#25D366}.btn-map{background:var(--blu)}.btn-post{background:#833AB4}.btn-edif{background:var(--red)}.btn-sh{background:none!important;border:1px solid var(--line2)!important;color:var(--txt2)!important}
 .acopio-need{margin-top:11px;background:var(--redl);border-radius:10px;padding:9px 11px}
 .acopio-need-lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--redd)}
 .acopio-need-txt{font-size:13px;font-weight:700;color:#3A3530;margin-top:4px;line-height:1.45}
@@ -258,7 +258,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
   <div class="fsec">
     <button class="back-btn" onclick="goScreen('home')">← Volver</button>
     <div class="ftitle">🆘 Necesito ayuda</div>
-    <div class="fsub">Tres pasos y un teléfono. Quien ayude cerca de ti lo verá enseguida.</div>
+    <div class="fsub">Tres pasos. Teléfono o enlace del post si no hay línea en el sitio.</div>
     <div class="fstep"><span class="n">1</span> ¿Dónde estás?</div>
     <div class="loc-confirmed" id="loc-confirmed" style="display:none">
       <span class="loc-confirmed-text" id="loc-confirmed-text"></span>
@@ -312,7 +312,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     </div>
     <div class="fld"><label>📞 Teléfono de contacto <span class="req" id="tel-req-mark">*</span> <span style="font-weight:400;color:var(--txt3)" id="r-tel-hint">— para que te contacten</span></label>
       <input type="tel" id="r-tel" placeholder="+58 412 555 1234" inputmode="tel"></div>
-    <label class="chk-row"><input type="checkbox" id="r-sin-tel" onchange="onSinTelToggle()"><span>No hay teléfono en el sitio (edificio atrapado, etc.)</span></label>
+    <label class="chk-row"><input type="checkbox" id="r-sin-tel" onchange="onSinTelToggle()"><span>No hay teléfono en el sitio (edificio atrapado, publicación en redes, etc.)</span></label>
+    <div class="fld" id="r-post-url-wrap">
+      <label>🔗 Enlace del post <span class="req" id="post-req-mark" style="display:none">*</span> <span style="font-weight:400;color:var(--txt3)" id="r-post-hint">— Instagram, TikTok, X…</span></label>
+      <input type="url" id="r-post-url" placeholder="https://instagram.com/p/… o https://tiktok.com/…" inputmode="url" autocapitalize="none" spellcheck="false">
+    </div>
     <div class="fld"><label>WhatsApp <span style="font-weight:400;color:var(--txt3)">(si difiere del teléfono)</span></label>
       <input type="tel" id="r-wa" inputmode="tel" placeholder="+58..."></div>
     <div class="fld"><label>Detalle</label>
@@ -662,7 +666,7 @@ function renderMap(){if(!mapData||!markersLayer)return;markersLayer.clearLayers(
     m.bindPopup(`<b>🏚 ${e.nombre}</b><br>${e.sector||e.zona}<br><small>🔴 Crítica · ${(e.estado_edificio||'colapsado').replace(/_/g,' ')}</small>${trap}${notaHtml}<br><button type="button" class="btn-edif" onclick="sosHere(${e.lat},${e.lng},'${safe}','${e.zona}','${e.id}')">🆘 Pedir ayuda aquí</button>`);b.push([e.lat,e.lng]);});
   needs.forEach(n=>{if(!n.lat||!n.lng)return;const c={critica:'#C0392B',urgente:'#E67E22',normal:'#27AE60'}[n.urgencia]||'#888';
     const m=L.marker([n.lat,n.lng],{icon:dot(c)}).addTo(markersLayer);
-    const telHtml=hasNeedTel(n)?`📞 <a href="tel:${n.telefono}">${n.telefono}</a>`:'📵 Sin teléfono — ver ubicación';
+    const telHtml=hasNeedTel(n)?`📞 <a href="tel:${n.telefono}">${n.telefono}</a>`:(hasNeedPost(n)?`🔗 <a href="${n.source_url}" target="_blank" rel="noopener">Ver en ${needPostLabel(n.fuente)}</a>`:'📵 Sin teléfono — ver ubicación');
     const wa=n.whatsapp||n.telefono;
     m.bindPopup(`<b>${tipoIcons(n)} ${tipoText(n)}</b><br>${n.direccion_exacta}<br>${telHtml}${hasNeedTel(n)&&wa?`<br><a href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}`);b.push([n.lat,n.lng]);});
   acopios.forEach(a=>{if(!a.lat||!a.lng)return;const m=L.marker([a.lat,a.lng],{icon:dot('#1E8449',13)}).addTo(markersLayer);
@@ -790,11 +794,22 @@ async function markCubierta(id){if(!confirm('¿Confirmas que este caso ya fue at
   const{error}=await marcarCubiertaDb(id,volTel||null);
   if(error){flashFixed(error.message||'No se pudo marcar.',true);return;}
   flashFixed('✅ Caso marcado como atendido. ¡Gracias!');loadHelp();}
-function hasNeedTel(n){const t=(n?.telefono||'').trim();return!!t&&t.toLowerCase()!=='sin teléfono';}
+function hasNeedTel(n){const t=(n?.telefono||'').trim();return!!t&&t.toLowerCase()!=='sin teléfono'&&t!=='s/d';}
+function hasNeedPost(n){return!!(n?.source_url||'').trim();}
+function needPostLabel(f){return({instagram:'Instagram',tiktok:'TikTok',twitter:'X',telegram:'Telegram'}[f]||'redes');}
+function needPostBtn(n){if(!hasNeedPost(n))return'';const lbl=needPostLabel(n.fuente);return`<a class="btn-post" href="${escAttr(n.source_url)}" target="_blank" rel="noopener">🔗 Ver en ${lbl}</a>`;}
+function fuenteFromPostUrl(url){if(!url)return'ciudadano';const u=url.toLowerCase();
+  if(u.includes('instagram.com')||u.includes('instagr.am'))return'instagram';
+  if(u.includes('tiktok.com'))return'tiktok';
+  if(u.includes('twitter.com')||u.includes('x.com'))return'twitter';
+  if(u.includes('t.me')||u.includes('telegram'))return'telegram';
+  return'ciudadano';}
 function onSinTelToggle(){
   const on=document.getElementById('r-sin-tel').checked;
   document.getElementById('tel-req-mark').style.display=on?'none':'inline';
-  document.getElementById('r-tel-hint').textContent=on?'— opcional: el tuyo si reportas desde lejos':'— para que te contacten';}
+  document.getElementById('post-req-mark').style.display=on?'inline':'none';
+  document.getElementById('r-tel-hint').textContent=on?'— opcional: el tuyo si reportas desde lejos':'— para que te contacten';
+  document.getElementById('r-post-hint').textContent=on?'— pega el link de la publicación original':'— si viste el caso en Instagram, TikTok u otra red';}
 function flashFixed(msg,err=false){let t=document.getElementById('toast-fixed');
   if(!t){t=document.createElement('div');t.id='toast-fixed';t.className='toast-fixed';document.body.appendChild(t);}
   t.textContent=msg;t.className='toast-fixed show '+(err?'err':'ok');clearTimeout(flashFixed._t);flashFixed._t=setTimeout(()=>t.classList.remove('show'),4200);}
@@ -817,8 +832,9 @@ function needCard(n){const done=n.estado==='cubierta',enProc=n.estado==='en_proc
   if(!done){
     const telLine=hasTel?`<a class="btn-call" href="tel:${n.telefono}">📞 ${escHtml(n.telefono)}</a>`:'';
     const waLine=wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank">💬 WhatsApp</a>`:'';
-    const noTelLine=!hasTel?'<span class="c-nota" style="background:var(--yell);color:var(--yelt);border-color:var(--yel);flex:1 1 100%">📵 Sin teléfono en el sitio — ir al mapa</span>':'';
-    const contact=`${telLine}${waLine}${noTelLine}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
+    const postLine=needPostBtn(n);
+    const noTelLine=!hasTel&&!hasNeedPost(n)?'<span class="c-nota" style="background:var(--yell);color:var(--yelt);border-color:var(--yel);flex:1 1 100%">📵 Sin teléfono en el sitio — ir al mapa</span>':'';
+    const contact=`${telLine}${waLine}${postLine}${noTelLine}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
     if(n.estado==='pendiente')actions=contact+`<button class="btn-voy" onclick="openAttend('${n.id}')">🙋 Voy en camino</button>`;
     else if(mine)actions=contact+`<button class="btn-voy" style="background:var(--grn)" onclick="markCubierta('${n.id}')">✓ Ya atendido</button>`;
     else actions=contact;
@@ -894,7 +910,9 @@ function gatherNeed(){const tipos=[...selTipos],labels=tipos.map(t=>SHORT[t]||t)
   urgencia:selUrg,descripcion:desc,cantidad:null,personas_afectadas:parseInt(document.getElementById('r-pers').value)||null,
   nombre_contacto:document.getElementById('r-nombre').value.trim()||'Vecino/a',telefono:document.getElementById('r-tel').value.trim()||null,
   whatsapp:document.getElementById('r-wa').value.trim()||null,edificio_id:document.getElementById('r-edif').value||null,
-  fuente:'ciudadano',validada:false,estado:'pendiente'};}
+  source_url:(()=>{const u=document.getElementById('r-post-url').value.trim();return u||null;})(),
+  fuente:fuenteFromPostUrl(document.getElementById('r-post-url').value.trim()),
+  validada:false,estado:'pendiente'};}
 function tiposOverlap(a,b){return a.some(t=>b.some(x=>x===t||(t&&x&&t.toLowerCase()===x.toLowerCase())))}
 async function findDupes(n){const{data}=await db.rpc('necesidades_cercanas',{p_lat:n.lat,p_lng:n.lng,p_radio_m:200,p_tipo:null});
   if(!data?.length)return[];const mine=needTipos(n);return data.filter(d=>tiposOverlap(mine,needTipos(d)));}
@@ -903,8 +921,10 @@ async function checkAndSubmit(){
   if(!locationConfirmed||!hasReportCoords()){showToast('r','Confirma tu ubicación en el paso 1 (GPS, dirección o edificio).',true);return;}
   if(!selTipos.length&&!otro){showToast('r','Toca qué necesitas o escribe en Otro (paso 2).',true);return;}
   const sinTel=document.getElementById('r-sin-tel').checked,tel=document.getElementById('r-tel').value.trim(),desc=document.getElementById('r-desc').value.trim();
+  const postUrl=document.getElementById('r-post-url').value.trim();
   if(!sinTel&&!tel){showToast('r','Falta teléfono de contacto.',true);return;}
-  if(sinTel&&!tel&&!desc){showToast('r','Sin teléfono en el sitio: escribe un detalle (cuántas personas, qué pasa).',true);return;}
+  if(postUrl&&!/^https?:\/\/.+/i.test(postUrl)){showToast('r','El enlace del post debe empezar con http:// o https://',true);return;}
+  if(sinTel&&!tel&&!postUrl&&!desc){showToast('r','Sin teléfono: pega el enlace del post o escribe un detalle (cuántas personas, qué pasa).',true);return;}
   const n=gatherNeed();const btn=document.getElementById('btn-r');btn.disabled=true;btn.textContent='Revisando...';
   const data=await findDupes(n);
   btn.disabled=false;btn.textContent='Publicar SOS';
@@ -917,7 +937,7 @@ async function forceNew(){closeDupe();if(pendingNeed)await doInsertNeed(pendingN
 async function doInsertNeed(n){const btn=document.getElementById('btn-r');btn.disabled=true;btn.textContent='Publicando...';
   const{error}=await db.from('necesidades').insert(n);btn.disabled=false;btn.textContent='Publicar SOS';
   if(error){showToast('r','Error al enviar. Revisa tu conexión.',true);return;}showToast('r','✅ SOS publicado. Quien ayude cerca lo verá enseguida.');resetNeed();}
-function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-dir-input','r-edif','r-edif-nombre','r-edif-search','r-tel','r-wa','r-desc','r-pers','r-nombre','r-otro'].forEach(i=>document.getElementById(i).value='');
+function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-dir-input','r-edif','r-edif-nombre','r-edif-search','r-tel','r-wa','r-post-url','r-desc','r-pers','r-nombre','r-otro'].forEach(i=>document.getElementById(i).value='');
   selTipos=[];selSubs=[];selUrg='urgente';locFromGps=false;locationConfirmed=false;locMethod=null;gpsAccuracy=null;edifListCache=[];
   document.querySelectorAll('#tipo-grid .gbtn').forEach(b=>b.classList.remove('on'));
   document.querySelectorAll('.ubtn').forEach(b=>b.classList.remove('on'));document.querySelector('.ubtn.urg').classList.add('on');
@@ -1021,7 +1041,7 @@ async function submitAsesor(){
   ['a-nombre','a-titulo','a-desc','a-dispo','a-tel'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   goScreen('asesoria');showToast('a','✅ ¡Gracias! Tu ayuda ya está publicada.');}
 
-function shareNeed(n){const txt=`${UL[n.urgencia]||''} #AyudaVenezuela\n📍 ${n.zona} — ${n.direccion_exacta}\n${tipoIcons(n)} ${tipoText(n)}\n📝 ${n.descripcion}\n📞 ${n.telefono||''}${n.lat&&n.lng?'\n🗺 '+gmapsRoute(n.lat,n.lng):''}`;
+function shareNeed(n){const contact=hasNeedTel(n)?`📞 ${n.telefono}`:(hasNeedPost(n)?`🔗 ${n.source_url}`:'');const txt=`${UL[n.urgencia]||''} #AyudaVenezuela\n📍 ${n.zona} — ${n.direccion_exacta}\n${tipoIcons(n)} ${tipoText(n)}\n📝 ${n.descripcion}${contact?'\n'+contact:''}${n.lat&&n.lng?'\n🗺 '+gmapsRoute(n.lat,n.lng):''}`;
   if(navigator.share)navigator.share({title:'Necesidad Venezuela',text:txt}).catch(()=>{});
   else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>alert('Copiado. Pégalo en WhatsApp.'));else prompt('Copia:',txt);}
 function showToast(v,m,err=false){const t=document.getElementById('toast-'+v);t.textContent=m;t.className='toast '+(err?'err':'ok')+' show';t.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>t.classList.remove('show'),5500);}
