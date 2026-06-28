@@ -126,23 +126,30 @@
    */
   function initPostHog(apiKey, opts) {
     if (!apiKey || !global.posthog) return;
+    if (/(?:^|[?&])ph_debug=1(?:&|$)/.test(global.location.search)) {
+      global.__FORVZLA_ANALYTICS_DEBUG__ = true;
+    }
     global.posthog.init(apiKey, {
-      api_host: (opts && opts.apiHost) || 'https://us.i.posthog.com',
+      api_host: (opts && opts.apiHost) || 'https://eu.i.posthog.com',
       persistence: 'cookie',
+      person_profiles: 'always',
       capture_pageview: false,
       capture_pageleave: true,
       disable_session_recording: true,
       autocapture: false,
-    });
-    track(EVENTS.APP_OPENED, {
-      path: global.location.pathname,
-      referrer_host: (() => {
-        try {
-          return global.document.referrer ? new URL(global.document.referrer).host : null;
-        } catch {
-          return null;
-        }
-      })(),
+      loaded: function () {
+        global.posthog.register({ app: 'ayuda_venezuela', host: global.location.host });
+        track(EVENTS.APP_OPENED, {
+          path: global.location.pathname,
+          referrer_host: (() => {
+            try {
+              return global.document.referrer ? new URL(global.document.referrer).host : null;
+            } catch {
+              return null;
+            }
+          })(),
+        });
+      },
     });
   }
 
