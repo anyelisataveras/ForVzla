@@ -6,6 +6,8 @@
   "scripts": {
     "dry": "DRY_RUN=1 node ingesta_redes.js",
     "ingesta": "node ingesta_redes.js",
+    "ingesta:tv:dry": "DRY_RUN=1 node ingesta_terremotovenezuela.js",
+    "ingesta:tv": "node ingesta_terremotovenezuela.js",
     "purge": "node purge_seeds.js",
     "server": "node server.js"
   },
