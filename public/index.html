@@ -151,6 +151,20 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .acopio-need-lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--redd)}
 .acopio-need-txt{font-size:13px;font-weight:700;color:#3A3530;margin-top:4px;line-height:1.45}
 .acopio-cubierto{font-size:12px;color:var(--txt3);margin-top:7px}
+.chips-acopio .chip.on{background:var(--grn);border-color:var(--grn);color:#fff}
+.acopio-ctrl{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px}
+.acopio-search{margin-top:12px}
+.acopio-search input{width:100%;padding:12px 13px;border:1px solid var(--line2);border-radius:12px;font-size:15px;background:#fff;font-family:inherit}
+.acopio-filters{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.acopio-filters select{font-size:12px;font-weight:700;padding:7px 11px;border-radius:20px;border:1px solid var(--line2);background:#fff;color:var(--txt);font-family:inherit}
+.btn-donar-acopio{background:var(--grn);color:#fff}
+.centro-pick-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;max-height:min(42vh,320px);overflow-y:auto;-webkit-overflow-scrolling:touch}
+.centro-pick-item{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line2);border-radius:13px;padding:12px 13px;cursor:pointer;font-family:inherit}
+.centro-pick-item.on{background:var(--grnl);border-color:var(--grn)}
+.centro-pick-item .cp-name{font-size:14px;font-weight:800;color:var(--txt);display:block;line-height:1.25}
+.centro-pick-item .cp-meta{font-size:12px;color:var(--txt2);margin-top:3px;display:block;line-height:1.35}
+.centro-pick-item .cp-warn{font-size:11px;color:var(--ora);margin-top:4px;display:block;font-weight:600}
+.centro-near-btn{margin-top:8px;font-size:13px;padding:11px}
 .leaflet-popup-content .btn-edif{display:block;width:100%;margin-top:8px;background:var(--red)!important;color:#fff!important;border:none!important;border-radius:var(--r);padding:10px 12px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit;text-align:center;box-sizing:border-box}
 .spin-wrap{text-align:center;padding:32px 20px;color:var(--txt2);font-size:13px;grid-column:1/-1}.spinner{width:26px;height:26px;border:3px solid var(--line3);border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 10px}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -380,8 +394,37 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     <button class="back-btn" onclick="goScreen('home')">← Volver</button>
     <div class="sec-title">📦 Centros de acopio</div>
     <p class="sec-sub">Mira qué necesita cada centro <b>ahora mismo</b> antes de llevar algo.</p>
-    <button class="geo-btn geo-mini-btn" id="geo-acopio-btn" onclick="locateForAcopio()" style="margin-top:14px">📍 Ordenar por cercanía</button>
-    <div id="lista-acopio"><div class="spin-wrap"><div class="spinner"></div>Cargando...</div></div>
+    <div class="acopio-ctrl">
+      <button class="geo-btn geo-mini-btn" id="geo-acopio-btn" onclick="locateForAcopio()">📍 Ordenar por cercanía</button>
+      <div class="seg">
+        <button type="button" id="tgl-acopio-lista" class="on" onclick="setAcopioView('lista')">Lista</button>
+        <button type="button" id="tgl-acopio-mapa" onclick="setAcopioView('mapa')">Mapa</button>
+      </div>
+    </div>
+    <div class="acopio-search"><input type="search" id="acopio-q" placeholder="Buscar centro o zona…" oninput="debounceAcopioRender()"></div>
+    <div class="chips chips-acopio" id="acopio-chips">
+      <button type="button" class="chip on" data-t="" onclick="setAcopioChip(this)">Todo</button>
+      <button type="button" class="chip" data-t="Agua" onclick="setAcopioChip(this)">💧 Agua</button>
+      <button type="button" class="chip" data-t="Medicinas" onclick="setAcopioChip(this)">💊 Medicinas</button>
+      <button type="button" class="chip" data-t="Comida" onclick="setAcopioChip(this)">🍎 Comida</button>
+      <button type="button" class="chip" data-t="Palas" onclick="setAcopioChip(this)">⛏ Palas</button>
+      <button type="button" class="chip" data-t="Ropa" onclick="setAcopioChip(this)">👕 Ropa</button>
+      <button type="button" class="chip" data-t="Herramientas" onclick="setAcopioChip(this)">🔧 Equipos</button>
+    </div>
+    <div class="acopio-filters">
+      <select id="acopio-estado" onchange="renderAcopio()"><option value="">Todo Venezuela</option></select>
+      <select id="acopio-orden" onchange="renderAcopio()">
+        <option value="cercania">Orden: cercanía</option>
+        <option value="nombre">Orden: nombre</option>
+        <option value="urgencia">Orden: urgencia</option>
+      </select>
+    </div>
+    <div id="acopio-lista-wrap">
+      <div id="lista-acopio"><div class="spin-wrap"><div class="spinner"></div>Cargando...</div></div>
+    </div>
+    <div id="acopio-mapa-wrap" style="display:none">
+      <div class="map-stage" style="margin-top:14px"><div class="map-hint">Centros de acopio activos. Toca un pin para ver detalle.</div><div id="acopio-map"></div></div>
+    </div>
   </div>
 </div>
 
@@ -395,7 +438,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     <div class="fstep"><span class="n">1</span> ¿Qué ofreces?</div>
     <div class="grid" id="tipo-grid-o"></div>
     <div class="fld" style="margin-top:14px"><label>Cantidad <span class="req">*</span></label><input type="text" id="o-qty" placeholder="Ej: 500 botellas 1L · camión 5 ton"></div>
-    <div class="fld"><label>Centro de acopio para entregar</label><select id="o-acopio"><option value="">Selecciona...</option></select></div>
+    <div class="fstep"><span class="n">2</span> ¿A qué centro?</div>
+    <div class="acopio-search"><input type="search" id="o-centro-q" placeholder="Buscar centro…" oninput="debounceCentroPicker()"></div>
+    <button type="button" class="geo-btn centro-near-btn" id="o-centro-near" onclick="pickNearestCentro()">Usar el más cercano que reciba lo que ofreces</button>
+    <div class="centro-pick-list" id="o-centro-list"></div>
+    <input type="hidden" id="o-acopio" value="">
     <div class="fld"><label>📞 Teléfono <span class="req">*</span></label><input type="tel" id="o-tel" inputmode="tel" placeholder="+58 412 555 1234"></div>
     <div class="fld"><label>Nombre</label><input type="text" id="o-nombre" placeholder="Opcional"></div>
     <button class="btn-primary grn" id="btn-o" onclick="submitRecurso()">Publicar recurso</button>
@@ -538,7 +585,7 @@ function pickSub(btn){const h=btn.dataset.h,i=selSubs.indexOf(h);
   if(i>=0){selSubs.splice(i,1);btn.classList.remove('on');btn.textContent=h;}
   else{selSubs.push(h);btn.classList.add('on');btn.textContent='✓ '+h;}}
 function setUrg(btn){document.querySelectorAll('.ubtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selUrg=btn.dataset.u;}
-function pickTipoO(btn){document.querySelectorAll('#tipo-grid-o .gbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selTipoO=btn.dataset.t;}
+function pickTipoO(btn){document.querySelectorAll('#tipo-grid-o .gbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selTipoO=btn.dataset.t;renderCentroPicker();}
 
 function openInfo(){document.getElementById('info-modal').classList.add('on');ph(_ev().INFO_MODAL_OPENED);}
 function closeInfo(){document.getElementById('info-modal').classList.remove('on');ph(_ev().INFO_MODAL_CLOSED);}
@@ -660,7 +707,7 @@ function initMainMap(){if(mainMap)return;mainMap=L.map('main-map',{zoomControl:t
 function dot(c,s=12){return L.divIcon({html:`<div style="background:${c};width:${s}px;height:${s}px;border-radius:50%;border:2px solid rgba(255,255,255,.85);box-shadow:0 1px 3px rgba(0,0,0,.4)"></div>`,className:'',iconSize:[s,s],iconAnchor:[s/2,s/2]});}
 async function populateMap(){initMainMap();
   const [{data:needs},{data:acopios},{data:edifs}]=await Promise.all([
-    db.from('necesidades').select('*').neq('estado','cubierta').is('merged_into',null),
+    db.from('necesidades').select('*').in('estado',['pendiente','en_proceso']).is('merged_into',null),
     db.from('centros_acopio').select('*').eq('activo',true),
     db.from('edificios_colapsados').select('*')]);
   mapData={needs:needs||[],acopios:acopios||[],edifs:edifs||[]};renderMap();}
@@ -880,7 +927,7 @@ function locateForHelp(){const btn=document.getElementById('geo-ayudar-btn');btn
   ()=>{btn.textContent='❌ Sin GPS. Mostrando todas.';btn.disabled=false;ph(_ev().HELP_GPS_REQUESTED,{success:false});if(ayudarView==='lista')loadHelp();},{enableHighAccuracy:true,timeout:10000});}
 async function loadHelp(){const el=document.getElementById('lista-ayudar');el.innerHTML='<div class="spin-wrap"><div class="spinner"></div>Buscando solicitudes...</div>';
   const{data:needsRaw}=helpPos?await db.rpc('necesidades_cercanas',{p_lat:helpPos.lat,p_lng:helpPos.lng,p_radio_m:300000,p_tipo:null})
-    :await db.from('necesidades').select('*').neq('estado','cubierta').is('merged_into',null).order('urgencia');
+    :await db.from('necesidades').select('*').in('estado',['pendiente','en_proceso']).is('merged_into',null).order('urgencia');
   let needs=needsRaw||[];
   if(helpTipo)needs=needs.filter(n=>needTipos(n).some(t=>(t||'').toLowerCase().includes(helpTipo.toLowerCase())));
   needs.sort((a,b)=>{const ka=needSortKey(a),kb=needSortKey(b);if(ka!==kb)return ka-kb;
@@ -888,27 +935,166 @@ async function loadHelp(){const el=document.getElementById('lista-ayudar');el.in
   ph(_ev().HELP_LIST_LOADED,{count:needs.length,has_gps:!!helpPos,filter:helpTipo||'todo',empty:needs.length===0});
   el.innerHTML=needs.map(needCard).join('')||emptyHelpMsg();}
 
-let acopioCache=[];
-async function loadAcopio(uLat,uLng){const el=document.getElementById('lista-acopio');
-  if(!acopioCache.length){const{data}=await db.from('centros_acopio').select('*').eq('activo',true).order('estado_vzla');acopioCache=data||[];
-    const sel=document.getElementById('o-acopio');sel.innerHTML='<option value="">Selecciona...</option>';acopioCache.forEach(a=>{sel.innerHTML+=`<option value="${a.id}">${a.nombre} — ${a.estado_vzla}</option>`;});}
-  let list=[...acopioCache];if(uLat&&uLng)list=list.map(a=>({...a,km:dist0(uLat,uLng,a.lat,a.lng)})).sort((a,b)=>a.km-b.km);
-  ph(_ev().ACOPIO_LIST_LOADED,{count:list.length,sorted_by_gps:!!(uLat&&uLng)});
-  el.innerHTML=list.map(a=>{
-    const nec=(a.necesita_ahora&&a.necesita_ahora.length)?`<div class="acopio-need"><div class="acopio-need-lbl">Necesitan ahora</div><div class="acopio-need-txt">${escHtml(a.necesita_ahora.join(' · '))}</div></div>`:'';
-    const cub=(a.ya_cubierto&&a.ya_cubierto.length)?`<div class="acopio-cubierto">✓ Ya cubierto: ${escHtml(a.ya_cubierto.join(', '))}</div>`:'';
-    return `<div class="card acopio"><div class="c-top"><div><div class="c-loc">📦 ${escHtml(a.nombre)}</div><div class="c-addr">📍 ${escHtml(a.estado_vzla)} — ${escHtml(a.direccion)}${a.organizacion?' · '+escHtml(a.organizacion):''}</div></div></div>
+let acopioCache=[],acopioPos=null,acopioNeedFilter='',acopioView='lista',acopioMap,acopioMarkersLayer,acopioFilterTimer,centroPickerTimer,selCentroO='';
+const TIPO_O_KEY={'Agua embotellada':'agua','Alimentos no perecederos':'comida','Medicamentos':'medicin','Transporte (vehículo)':'transport','Personal médico':'medic','Equipos de rescate':'rescate','Herramientas / Equipos':'herramient','Refugio / espacio físico':'refug','Donación económica':'donac'};
+
+function acopioNeedMatch(c,filter){
+  if(!filter)return true;
+  const needs=(c.necesita_ahora||[]).join(' ').toLowerCase();
+  if(!needs)return true;
+  const f=filter.toLowerCase();
+  if(f==='comida')return needs.includes('comida')||needs.includes('alimento');
+  if(f==='medicinas')return needs.includes('medic');
+  return needs.includes(f);
+}
+function acopioTipoMatch(c,tipo){
+  if(!tipo)return true;
+  const kw=TIPO_O_KEY[tipo]||tipo.toLowerCase().slice(0,5);
+  const needs=(c.necesita_ahora||[]).join(' ').toLowerCase();
+  if(!needs)return true;
+  if(kw==='comida')return needs.includes('comida')||needs.includes('alimento');
+  return needs.includes(kw);
+}
+function debounceAcopioRender(){clearTimeout(acopioFilterTimer);acopioFilterTimer=setTimeout(renderAcopio,180);}
+function setAcopioChip(btn){document.querySelectorAll('#acopio-chips .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');acopioNeedFilter=btn.dataset.t;ph(_ev().ACOPIO_FILTER_CHANGED,{filter:acopioNeedFilter||'todo'});renderAcopio();}
+function setAcopioView(v){
+  acopioView=v;
+  document.getElementById('tgl-acopio-lista').classList.toggle('on',v==='lista');
+  document.getElementById('tgl-acopio-mapa').classList.toggle('on',v==='mapa');
+  document.getElementById('acopio-lista-wrap').style.display=v==='lista'?'block':'none';
+  document.getElementById('acopio-mapa-wrap').style.display=v==='mapa'?'block':'none';
+  if(v==='mapa'){initAcopioMap();renderAcopioMap();setTimeout(()=>acopioMap&&acopioMap.invalidateSize(),150);}
+}
+function getFilteredAcopios(){
+  const q=(document.getElementById('acopio-q')?.value||'').trim().toLowerCase();
+  const estado=document.getElementById('acopio-estado')?.value||'';
+  const orden=document.getElementById('acopio-orden')?.value||'cercania';
+  let list=acopioCache.filter(a=>a.activo!==false);
+  if(estado)list=list.filter(a=>a.estado_vzla===estado);
+  if(acopioNeedFilter)list=list.filter(a=>acopioNeedMatch(a,acopioNeedFilter));
+  if(q)list=list.filter(a=>{const blob=[a.nombre,a.organizacion,a.estado_vzla,a.ciudad,a.direccion].filter(Boolean).join(' ').toLowerCase();return blob.includes(q);});
+  if(acopioPos&&acopioPos.lat)list=list.map(a=>({...a,km:dist0(acopioPos.lat,acopioPos.lng,a.lat,a.lng)}));
+  if(orden==='nombre')list.sort((a,b)=>(a.nombre||'').localeCompare(b.nombre||'','es'));
+  else if(orden==='urgencia')list.sort((a,b)=>(b.necesita_ahora?.length||0)-(a.necesita_ahora?.length||0));
+  else if(acopioPos)list.sort((a,b)=>(a.km??999)-(b.km??999));
+  else list.sort((a,b)=>(a.estado_vzla||'').localeCompare(b.estado_vzla||'','es'));
+  return list;
+}
+function acopioCard(a){
+  const nec=(a.necesita_ahora&&a.necesita_ahora.length)?`<div class="acopio-need"><div class="acopio-need-lbl">Necesitan ahora</div><div class="acopio-need-txt">${escHtml(a.necesita_ahora.join(' · '))}</div></div>`:'';
+  const cub=(a.ya_cubierto&&a.ya_cubierto.length)?`<div class="acopio-cubierto">✓ Ya cubierto: ${escHtml(a.ya_cubierto.join(', '))}</div>`:'';
+  const loc=[a.estado_vzla,a.ciudad,a.direccion].filter(Boolean).join(' — ');
+  return `<div class="card acopio"><div class="c-top"><div><div class="c-loc">📦 ${escHtml(a.nombre)}</div><div class="c-addr">📍 ${escHtml(loc)}${a.organizacion?' · '+escHtml(a.organizacion):''}</div></div></div>
     ${a.km!==undefined?`<span class="c-dist">📍 a ${a.km<1?(a.km*1000).toFixed(0)+' m':a.km.toFixed(1)+' km'} de ti</span>`:''}
     ${nec}${cub}
-    <div class="actions"><a class="btn-map" href="${gmapsRoute(a.lat,a.lng)}" target="_blank">🗺 Cómo llegar</a>${a.telefono?`<a class="btn-call" href="tel:${a.telefono}">📞 Llamar</a>`:''}</div></div>`;}).join('')||'<div class="empty">No hay centros activos.</div>';}
-function dist0(la1,lo1,la2,lo2){const R=6371,dL=(la2-la1)*Math.PI/180,dG=(lo2-lo1)*Math.PI/180;const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dG/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+    <div class="actions"><a class="btn-map" href="${gmapsRoute(a.lat,a.lng)}" target="_blank" rel="noopener">🗺 Cómo llegar</a>${a.telefono?`<a class="btn-call" href="tel:${escAttr(a.telefono)}">📞 Llamar</a>`:''}<button type="button" class="btn-donar-acopio" onclick="goDonarCentro('${a.id}')">Llevar donación →</button></div></div>`;
+}
+async function ensureAcopioCache(){
+  if(acopioCache.length)return;
+  const{data}=await db.from('centros_acopio').select('*').eq('activo',true).order('estado_vzla');
+  acopioCache=data||[];
+  const estados=[...new Set(acopioCache.map(a=>a.estado_vzla).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));
+  const sel=document.getElementById('acopio-estado');
+  if(sel)sel.innerHTML='<option value="">Todo Venezuela</option>'+estados.map(e=>`<option value="${escAttr(e)}">${escHtml(e)}</option>`).join('');
+}
+async function loadAcopio(uLat,uLng){
+  if(uLat!=null&&uLng!=null)acopioPos={lat:uLat,lng:uLng};
+  const el=document.getElementById('lista-acopio');
+  el.innerHTML='<div class="spin-wrap"><div class="spinner"></div>Cargando...</div>';
+  await ensureAcopioCache();
+  renderAcopio();
+}
+function renderAcopio(){
+  const list=getFilteredAcopios();
+  ph(_ev().ACOPIO_LIST_LOADED,{count:list.length,sorted_by_gps:!!acopioPos,filter:acopioNeedFilter||'todo',empty:list.length===0});
+  const el=document.getElementById('lista-acopio');
+  if(el)el.innerHTML=list.map(acopioCard).join('')||'<div class="empty">No hay centros que coincidan.</div>';
+  if(acopioView==='mapa')renderAcopioMap();
+  if(document.getElementById('view-ofrecer').classList.contains('on'))renderCentroPicker();
+}
+function initAcopioMap(){
+  if(acopioMap)return;
+  acopioMap=L.map('acopio-map',{zoomControl:true,attributionControl:false}).setView([10.55,-66.9],8);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(acopioMap);
+  acopioMarkersLayer=L.layerGroup().addTo(acopioMap);
+}
+function renderAcopioMap(){
+  initAcopioMap();
+  acopioMarkersLayer.clearLayers();
+  const list=getFilteredAcopios();
+  const b=[];
+  list.forEach(a=>{
+    if(!a.lat||!a.lng)return;
+    b.push([a.lat,a.lng]);
+    const nec=a.necesita_ahora?.length?`<br><b>Necesitan:</b> ${escHtml(a.necesita_ahora.join(', '))}`:'';
+    const m=L.marker([a.lat,a.lng],{icon:dot('#1E8449',13)}).addTo(acopioMarkersLayer);
+    m.bindPopup(`<b>${escHtml(a.nombre)}</b><br>${escHtml(a.estado_vzla||'')} — ${escHtml(a.direccion||'')}${nec}<br><a href="${gmapsRoute(a.lat,a.lng)}" target="_blank" rel="noopener">Cómo llegar</a>`);
+  });
+  if(b.length)acopioMap.fitBounds(b,{padding:[25,25],maxZoom:12});
+  else acopioMap.setView(acopioPos?[acopioPos.lat,acopioPos.lng]:[10.55,-66.9],acopioPos?11:8);
+}
 function locateForAcopio(){const btn=document.getElementById('geo-acopio-btn');btn.textContent='⏳ Ubicando...';btn.disabled=true;
   navigator.geolocation.getCurrentPosition(p=>{btn.className='geo-btn ok geo-mini-btn';btn.textContent='✅ Ordenados por cercanía';btn.disabled=false;ph(_ev().ACOPIO_GPS_REQUESTED,{success:true});loadAcopio(p.coords.latitude,p.coords.longitude);},
   ()=>{btn.textContent='❌ Sin GPS';btn.disabled=false;ph(_ev().ACOPIO_GPS_REQUESTED,{success:false});},{enableHighAccuracy:true,timeout:10000});}
+function goDonarCentro(id){selCentroO=id;document.getElementById('o-acopio').value=id||'';goScreen('ofrecer');renderCentroPicker();}
+function debounceCentroPicker(){clearTimeout(centroPickerTimer);centroPickerTimer=setTimeout(renderCentroPicker,180);}
+function getCentroPickerList(){
+  const q=(document.getElementById('o-centro-q')?.value||'').trim().toLowerCase();
+  let list=acopioCache.filter(a=>a.activo!==false);
+  if(q)list=list.filter(a=>{const blob=[a.nombre,a.estado_vzla,a.direccion].filter(Boolean).join(' ').toLowerCase();return blob.includes(q);});
+  if(acopioPos)list=list.map(a=>({...a,km:dist0(acopioPos.lat,acopioPos.lng,a.lat,a.lng)}));
+  list.sort((a,b)=>{
+    if(selTipoO){
+      const ma=acopioTipoMatch(a,selTipoO)?0:1,mb=acopioTipoMatch(b,selTipoO)?0:1;
+      if(ma!==mb)return ma-mb;
+    }
+    if(acopioPos)return(a.km??999)-(b.km??999);
+    return(a.nombre||'').localeCompare(b.nombre||'','es');
+  });
+  return list;
+}
+function renderCentroPicker(){
+  const el=document.getElementById('o-centro-list');
+  if(!el)return;
+  if(!acopioCache.length){el.innerHTML='<div class="empty" style="padding:16px">Cargando centros…</div>';ensureAcopioCache().then(renderCentroPicker);return;}
+  const list=getCentroPickerList();
+  if(selCentroO&&!list.some(a=>a.id===selCentroO)){selCentroO='';document.getElementById('o-acopio').value='';}
+  el.innerHTML=list.slice(0,40).map(a=>{
+    const dist=a.km!==undefined?(a.km<1?(a.km*1000).toFixed(0)+' m':a.km.toFixed(1)+' km'):'';
+    const needs=a.necesita_ahora?.length?`Necesitan: ${escHtml(a.necesita_ahora.join(', '))}`:'Sin lista de necesidades';
+    const warn=selTipoO&&!acopioTipoMatch(a,selTipoO)?'<span class="cp-warn">No indica que reciba esto ahora</span>':'';
+    return `<button type="button" class="centro-pick-item${a.id===selCentroO?' on':''}" onclick="pickCentroO('${a.id}')"><span class="cp-name">${escHtml(a.nombre)}</span><span class="cp-meta">${dist?dist+' · ':''}${escHtml(a.estado_vzla||'')} · ${needs}</span>${warn}</button>`;
+  }).join('')||'<div class="empty" style="padding:16px">Ningún centro coincide. Prueba otra búsqueda.</div>';
+}
+function pickCentroO(id){selCentroO=id;document.getElementById('o-acopio').value=id;renderCentroPicker();}
+function pickNearestCentro(){
+  const run=()=>{
+    let list=getCentroPickerList().filter(a=>a.lat&&a.lng);
+    if(selTipoO){
+      const matched=list.filter(a=>acopioTipoMatch(a,selTipoO));
+      if(matched.length)list=matched;
+    }
+    if(!list.length){showToast('o','No hay centros que coincidan.',true);return;}
+    pickCentroO(list[0].id);
+    showToast('o','Centro más cercano seleccionado.');
+  };
+  if(acopioPos){run();return;}
+  const btn=document.getElementById('o-centro-near');
+  if(btn){btn.textContent='⏳ Ubicando…';btn.disabled=true;}
+  navigator.geolocation.getCurrentPosition(p=>{
+    acopioPos={lat:p.coords.latitude,lng:p.coords.longitude};
+    if(btn){btn.textContent='Usar el más cercano que reciba lo que ofreces';btn.disabled=false;}
+    run();
+  },()=>{
+    if(btn){btn.textContent='Usar el más cercano que reciba lo que ofreces';btn.disabled=false;}
+    showToast('o','Activa GPS o elige un centro de la lista.',true);
+  },{enableHighAccuracy:true,timeout:10000});
+}
+function dist0(la1,lo1,la2,lo2){const R=6371,dL=(la2-la1)*Math.PI/180,dG=(lo2-lo1)*Math.PI/180;const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dG/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 
 async function loadHomeStats(){
   const[{count:nc},{count:cc}]=await Promise.all([
-    db.from('necesidades').select('*',{count:'exact',head:true}).neq('estado','cubierta').is('merged_into',null),
+    db.from('necesidades').select('*',{count:'exact',head:true}).in('estado',['pendiente','en_proceso']).is('merged_into',null),
     db.from('centros_acopio').select('*',{count:'exact',head:true}).eq('activo',true)]);
   document.getElementById('stat-needs').textContent=nc??0;
   document.getElementById('stat-centros').textContent=cc??0;}
@@ -983,7 +1169,8 @@ async function submitRecurso(){if(!selTipoO){showToast('o','Toca qué ofreces.',
   btn.disabled=false;btn.textContent='Publicar recurso';if(error){ph(_ev().RESOURCE_PUBLISH_FAILED,{error_code:error.code||'unknown'});showToast('o','Error al enviar.',true);return;}
   ph(_ev().RESOURCE_PUBLISHED,{tipo:selTipoO,has_centro:!!acId});
   showToast('o','✅ Recurso publicado. ¡Gracias!');selTipoO='';document.querySelectorAll('#tipo-grid-o .gbtn').forEach(b=>b.classList.remove('on'));
-  ['o-qty','o-acopio','o-tel','o-nombre'].forEach(i=>document.getElementById(i).value='');}
+  ['o-qty','o-acopio','o-centro-q','o-tel','o-nombre'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
+  selCentroO='';renderCentroPicker();}
 
 const AS_CATS=[{t:'Legal',e:'⚖️'},{t:'Psicológica',e:'🧠'},{t:'Educación',e:'🎓'},{t:'Salud',e:'🏥'},{t:'Trámites',e:'💼'}];
 const AS_CATS_FORM=AS_CATS.concat([{t:'Otro',e:'➕'}]);
@@ -1069,24 +1256,26 @@ function showToast(v,m,err=false){const t=document.getElementById('toast-'+v);t.
 function goScreen(name){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.getElementById('view-'+name).classList.add('on');
   ph(_ev().SCREEN_VIEWED,{screen:name});
-  document.getElementById('fab').classList.toggle('show',name==='ayudar'||name==='centros'||name==='asesoria');
+  document.getElementById('fab').classList.toggle('show',name==='ayudar'||name==='acopio'||name==='asesoria');
   if(name==='home')loadHomeStats();
   if(name==='ayudar'){if(ayudarView==='lista')loadHelp();else{initMainMap();populateMap();}}
   if(name==='acopio')loadAcopio();
-  if(name==='ofrecer'&&!acopioCache.length)loadAcopio();
+  if(name==='ofrecer'){ensureAcopioCache().then(()=>renderCentroPicker());}
   if(name==='asesoria')loadAsesoria();
   window.scrollTo(0,0);
-  setTimeout(()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();if(dirPickMap)dirPickMap.invalidateSize();},150);}
+  setTimeout(()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();if(dirPickMap)dirPickMap.invalidateSize();if(acopioMap)acopioMap.invalidateSize();},150);}
 
 function onLiveData(){
   if(document.getElementById('view-home').classList.contains('on'))loadHomeStats();
   if(document.getElementById('view-ayudar').classList.contains('on')){
     if(ayudarView==='lista')loadHelp();else populateMap();}
-  if(document.getElementById('view-asesoria').classList.contains('on'))loadAsesoria();}
+  if(document.getElementById('view-asesoria').classList.contains('on'))loadAsesoria();
+  if(document.getElementById('view-acopio').classList.contains('on'))loadAcopio(acopioPos?.lat,acopioPos?.lng);}
 db.channel('live').on('postgres_changes',{event:'*',schema:'public',table:'necesidades'},onLiveData)
   .on('postgres_changes',{event:'*',schema:'public',table:'edificios_colapsados'},onLiveData)
-  .on('postgres_changes',{event:'*',schema:'public',table:'asesores'},onLiveData).subscribe();
-window.addEventListener('resize',()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();if(dirPickMap)dirPickMap.invalidateSize();});
+  .on('postgres_changes',{event:'*',schema:'public',table:'asesores'},onLiveData)
+  .on('postgres_changes',{event:'*',schema:'public',table:'centros_acopio'},()=>{acopioCache=[];onLiveData();}).subscribe();
+window.addEventListener('resize',()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();if(dirPickMap)dirPickMap.invalidateSize();if(acopioMap)acopioMap.invalidateSize();});
 
 buildGrid('tipo-grid',TIPOS,'pickTipo');
 buildGrid('tipo-grid-o',TIPOS_O,'pickTipoO','gbtn-g');

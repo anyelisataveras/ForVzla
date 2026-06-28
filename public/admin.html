@@ -77,6 +77,24 @@ details.sum summary::-webkit-details-marker{display:none}
 .c-geo-ok{color:var(--grn);font-weight:600}.c-geo-warn{color:var(--ora);font-weight:600}
 .centro-loc-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .centro-loc-btns .btn{flex:1;min-width:100px;width:auto;margin-top:0;padding:11px 8px;font-size:13px}
+.centros-toolbar{display:flex;gap:8px;margin-bottom:10px;align-items:stretch}
+.centros-search{flex:1;min-width:0}
+.centros-search input{width:100%;padding:11px;border:1px solid var(--g2);border-radius:var(--r);font-size:14px}
+.centro-add-btn{width:auto;flex-shrink:0;margin-top:0;padding:11px 14px;font-size:13px;white-space:nowrap}
+.centros-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.centros-filters select,.centros-filters button{font-size:11px;font-weight:700;padding:6px 10px;border-radius:20px;border:1px solid var(--g2);background:var(--g0);cursor:pointer;font-family:inherit}
+.centros-filters button.on{background:var(--blul);border-color:var(--blu);color:var(--blu)}
+.centros-count{font-size:12px;color:var(--g4);margin-bottom:8px}
+.centro-card-badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.centro-card-badges .badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;background:var(--g1);color:var(--g4)}
+.centro-card-badges .badge.need{background:#FDEDEC;color:var(--red)}
+.centro-card-badges .badge.ext{background:#FEF9E7;color:var(--ora)}
+.centro-card-inactive{opacity:.55;border-left-color:var(--g4)!important}
+.back-centros{background:none;border:none;color:var(--blu);font-size:14px;font-weight:700;cursor:pointer;padding:0 0 12px;font-family:inherit;display:flex;align-items:center;gap:6px}
+.centros-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.centros-form-grid{grid-template-columns:1fr}}
+.card-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.card-actions .btn{width:auto;flex:1;min-width:90px;margin-top:0;padding:9px 10px;font-size:12px}
 </style>
 </head>
 <body>
@@ -132,6 +150,7 @@ details.sum summary::-webkit-details-marker{display:none}
         <button data-f="pendiente" onclick="setSolFilter(this)">Pendiente</button>
         <button data-f="en_proceso" onclick="setSolFilter(this)">En camino</button>
         <button data-f="cubierta" onclick="setSolFilter(this)">Atendidas</button>
+        <button data-f="eliminada" onclick="setSolFilter(this)">Quitadas</button>
       </div>
       <div id="lista-solicitudes"></div>
     </div>
@@ -161,41 +180,68 @@ details.sum summary::-webkit-details-marker{display:none}
       <div class="fld"><label>Personas atrapadas</label><select id="e-atrap"><option value="false">No</option><option value="true">Sí</option></select></div>
       <div class="fld"><label>Notas</label><textarea id="e-notas" rows="2"></textarea></div>
       <button class="btn btn-g" onclick="saveEdificio()">Guardar edificio</button>
+      <button type="button" class="btn btn-s" id="btn-cancel-edif" style="display:none" onclick="cancelEdificioEdit()">Cancelar edición</button>
       <h3 style="font-size:14px;margin:20px 0 8px">Registrados</h3>
       <div id="lista-edificios"></div>
     </div>
 
     <div class="panel" id="panel-centros">
-      <h2 style="font-size:16px;margin-bottom:12px">Agregar centro de acopio</h2>
-      <div class="fld"><label>Nombre *</label><input id="c-nombre"></div>
-      <div class="fld"><label>Organización</label><input id="c-org"></div>
-      <div class="fld"><label>Estado *</label><input id="c-estado" placeholder="Miranda"></div>
-      <div class="fld"><label>Dirección *</label><input id="c-dir" placeholder="Calle, sector, ciudad"></div>
-      <div class="fld"><label>Ubicación en mapa *</label>
-        <p style="font-size:12px;color:var(--g4);margin-bottom:8px;line-height:1.45">Marca el pin en el mapa o usa una opción abajo. La dirección sola muchas veces no alcanza en Venezuela.</p>
-        <div class="centro-loc-btns">
-          <button type="button" class="btn btn-s" id="btn-geocode-centro" onclick="geocodeCentro()">🔍 Buscar</button>
-          <button type="button" class="btn btn-s" onclick="gpsCentro()">📍 Estoy aquí</button>
-          <button type="button" class="btn btn-s" onclick="toggleCentroMap()">🗺 Mapa</button>
+      <div id="centros-list-view">
+        <div class="centros-toolbar">
+          <div class="centros-search"><input type="search" id="centros-q" placeholder="Buscar nombre, dirección…" oninput="debounceCentrosFilter()"></div>
+          <button type="button" class="btn btn-g centro-add-btn" onclick="openCentroForm()">+ Nuevo</button>
         </div>
-        <input id="c-maps-link" placeholder="Pega link de Google Maps (Compartir → Copiar enlace)" style="width:100%;padding:11px;border:1px solid var(--g2);border-radius:var(--r);font-size:14px;margin-bottom:8px" oninput="applyMapsLinkDebounced()">
-        <div id="c-geo-status" class="meta" style="display:none;margin-bottom:6px"></div>
-        <div id="c-map-wrap" style="display:none">
-          <div id="c-map-el" class="centro-pick-map"></div>
-          <p class="meta" style="margin-top:6px">Toca el mapa para colocar o ajustar el pin.</p>
+        <div class="centros-filters">
+          <select id="cf-pais" onchange="populateCentroFilterSelects();renderCentrosList()"><option value="">Todos los países</option></select>
+          <select id="cf-estado" onchange="onCentroEstadoFilter()"><option value="">Todos los estados</option></select>
+          <select id="cf-ciudad" onchange="renderCentrosList()"><option value="">Todas las ciudades</option></select>
+          <button type="button" class="on" data-f="activo" onclick="setCentroActFilter(this)">Activos</button>
+          <button type="button" data-f="inactivo" onclick="setCentroActFilter(this)">Inactivos</button>
+          <button type="button" data-f="todos" onclick="setCentroActFilter(this)">Todos</button>
+          <button type="button" id="cf-urgente" onclick="toggleCentroUrgFilter()">Con necesidad</button>
+          <button type="button" id="cf-import" onclick="toggleCentroImportFilter()">Importados</button>
         </div>
-        <div style="display:flex;gap:8px;margin-top:8px">
-          <input id="c-lat" inputmode="decimal" placeholder="Lat" style="font-size:13px;flex:1;padding:9px;border:1px solid var(--g2);border-radius:var(--r)">
-          <input id="c-lng" inputmode="decimal" placeholder="Lng" style="font-size:13px;flex:1;padding:9px;border:1px solid var(--g2);border-radius:var(--r)">
-        </div>
+        <div id="centros-count" class="centros-count"></div>
+        <div id="lista-centros"></div>
       </div>
-      <div class="fld"><label>Teléfono</label><input id="c-tel" inputmode="tel"></div>
-      <div class="fld"><label>Horario</label><input id="c-horario" placeholder="8am - 8pm"></div>
-      <div class="fld"><label>Necesitan ahora</label><input id="c-necesita" placeholder="Agua, Medicinas, Palas (separado por comas)"></div>
-      <div class="fld"><label>Ya cubierto</label><input id="c-cubierto" placeholder="Ropa, comida (separado por comas)"></div>
-      <button class="btn btn-g" onclick="saveCentro()">Guardar centro</button>
-      <h3 style="font-size:14px;margin:20px 0 8px">Registrados</h3>
-      <div id="lista-centros"></div>
+
+      <div id="centros-form-view" style="display:none">
+        <button type="button" class="back-centros" onclick="closeCentroForm()">← Volver a la lista</button>
+        <h2 id="centro-form-title" style="font-size:16px;margin-bottom:12px">Nuevo centro de acopio</h2>
+        <div class="fld"><label>Nombre *</label><input id="c-nombre"></div>
+        <div class="fld"><label>Organización</label><input id="c-org"></div>
+        <div class="centros-form-grid">
+          <div class="fld"><label>País *</label><input id="c-pais" value="Venezuela"></div>
+          <div class="fld"><label>Estado *</label><input id="c-estado" placeholder="Miranda"></div>
+        </div>
+        <div class="fld"><label>Ciudad / municipio</label><input id="c-ciudad" placeholder="Los Teques, Chacao…"></div>
+        <div class="fld"><label>Dirección *</label><input id="c-dir" placeholder="Calle, sector, ciudad"></div>
+        <div class="fld"><label>Ubicación en mapa *</label>
+          <p style="font-size:12px;color:var(--g4);margin-bottom:8px;line-height:1.45">Marca el pin en el mapa o usa una opción abajo. La dirección sola muchas veces no alcanza en Venezuela.</p>
+          <div class="centro-loc-btns">
+            <button type="button" class="btn btn-s" id="btn-geocode-centro" onclick="geocodeCentro()">🔍 Buscar</button>
+            <button type="button" class="btn btn-s" onclick="gpsCentro()">📍 Estoy aquí</button>
+            <button type="button" class="btn btn-s" onclick="toggleCentroMap()">🗺 Mapa</button>
+          </div>
+          <input id="c-maps-link" placeholder="Pega link de Google Maps (Compartir → Copiar enlace)" style="width:100%;padding:11px;border:1px solid var(--g2);border-radius:var(--r);font-size:14px;margin-bottom:8px" oninput="applyMapsLinkDebounced()">
+          <div id="c-geo-status" class="meta" style="display:none;margin-bottom:6px"></div>
+          <div id="c-map-wrap" style="display:none">
+            <div id="c-map-el" class="centro-pick-map"></div>
+            <p class="meta" style="margin-top:6px">Toca el mapa para colocar o ajustar el pin.</p>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <input id="c-lat" inputmode="decimal" placeholder="Lat" style="font-size:13px;flex:1;padding:9px;border:1px solid var(--g2);border-radius:var(--r)">
+            <input id="c-lng" inputmode="decimal" placeholder="Lng" style="font-size:13px;flex:1;padding:9px;border:1px solid var(--g2);border-radius:var(--r)">
+          </div>
+        </div>
+        <div class="fld"><label>Teléfono</label><input id="c-tel" inputmode="tel"></div>
+        <div class="fld"><label>WhatsApp</label><input id="c-wa" inputmode="tel" placeholder="Si difiere del teléfono"></div>
+        <div class="fld"><label>Horario</label><input id="c-horario" placeholder="8am - 8pm"></div>
+        <div class="fld"><label>Necesitan ahora</label><input id="c-necesita" placeholder="Agua, Medicinas, Palas (separado por comas)"></div>
+        <div class="fld"><label>Ya cubierto</label><input id="c-cubierto" placeholder="Ropa, comida (separado por comas)"></div>
+        <button type="button" class="btn btn-g" onclick="saveCentro()">Guardar centro</button>
+        <button type="button" class="btn btn-s" onclick="closeCentroForm()">Cancelar</button>
+      </div>
     </div>
 
     <div class="panel" id="panel-asesores">
@@ -279,7 +325,8 @@ function srcTag(p) {
 }
 
 const URG_LABEL = { critica:'🔴 Crítica', urgente:'🟠 Urgente', normal:'🟢 Normal' };
-const EST_LABEL = { pendiente:'Pendiente', en_proceso:'En camino', cubierta:'Atendida' };
+const EST_LABEL = { pendiente:'Pendiente', en_proceso:'En camino', cubierta:'Atendida', eliminada:'Quitada' };
+const NEC_ACTIVAS = ['pendiente', 'en_proceso'];
 const DEST_LABEL = {
   necesidad: 'Publicar necesidad',
   edificio: 'Registrar edificio colapsado',
@@ -450,6 +497,7 @@ function prefillCentro(id) {
   const p = postsCache[id];
   if (!p) { toast('Post no encontrado'); return; }
   showTab('centros');
+  openCentroForm();
   document.getElementById('c-nombre').value = left(p.descripcion || p.texto, 80) || 'Centro de acopio';
   document.getElementById('c-estado').value = p.zona || '';
   document.getElementById('c-dir').value = p.direccion || p.ubicacion_post || '';
@@ -561,6 +609,8 @@ function showTab(name) {
   if (name === 'posts') loadPosts();
   if (name === 'solicitudes') loadSolicitudes();
   if (name === 'enlaces') loadEnlaces();
+  if (name === 'edificios') loadEdificios();
+  if (name === 'centros') { closeCentroForm(); loadCentros(); }
   if (name === 'asesores') loadAsesores();
   if (name === 'scraper') pollScraperStatus();
   if (name === 'equipo') loadAdmins();
@@ -581,15 +631,19 @@ function solTipoText(n) {
 }
 
 function renderSolicitudCard(n) {
-  const cls = n.estado === 'cubierta' ? 'card-done' : n.estado === 'en_proceso' ? 'card-proc' : '';
+  const cls = n.estado === 'cubierta' ? 'card-done' : n.estado === 'eliminada' ? 'card-skip' : n.estado === 'en_proceso' ? 'card-proc' : '';
   const atencion = n.en_atencion_por
     ? `<div class="meta" style="margin-top:6px;color:var(--ora)">🙋 En camino: <b>${esc(n.en_atencion_por)}</b>${n.en_atencion_at ? ' · ' + new Date(n.en_atencion_at).toLocaleString('es-VE') : ''}</div>`
     : '';
-  const notas = `<textarea rows="2" placeholder="Notas de coordinación (no cambia el estado)..." style="margin-top:8px;font-size:13px" onchange="saveNotasSol('${n.id}', this.value)">${esc(n.notas_coordinador || '')}</textarea>`;
-  const actions = n.estado !== 'cubierta' ? `<div class="row">
+  const notas = n.estado === 'eliminada' ? '' : `<textarea rows="2" placeholder="Notas de coordinación (no cambia el estado)..." style="margin-top:8px;font-size:13px" onchange="saveNotasSol('${n.id}', this.value)">${esc(n.notas_coordinador || '')}</textarea>`;
+  const actions = n.estado === 'eliminada' ? `<div class="row">
+    <button class="btn btn-g" onclick="restaurarSol('${n.id}')">↩ Restaurar</button>
+  </div>`
+    : n.estado !== 'cubierta' ? `<div class="row">
     ${n.estado === 'en_proceso' ? `<button class="btn btn-s" onclick="liberarSol('${n.id}')">↩ Liberar</button>` : ''}
     <button class="btn btn-g" onclick="cubrirSol('${n.id}')">✓ Marcar atendida</button>
-  </div>` : '';
+    <button class="btn btn-s" onclick="eliminarSol('${n.id}')">🗑 Quitar</button>
+  </div>` : `<div class="row"><button class="btn btn-s" onclick="eliminarSol('${n.id}')">🗑 Quitar</button></div>`;
   return `<div class="card ${cls}" id="sol-${n.id}">
     <h3>${URG_LABEL[n.urgencia] || ''} ${esc(solTipoText(n))} — ${esc(n.zona)}</h3>
     <div class="meta">📍 ${esc(n.direccion_exacta)} · ${n.telefono && n.telefono !== 's/d' ? '📞 ' + esc(n.telefono) : (n.source_url ? `<a href="${esc(n.source_url)}" target="_blank" rel="noopener">🔗 Ver publicación</a>` : '📵 Sin teléfono')}${n.nombre_contacto ? ' · ' + esc(n.nombre_contacto) : ''}</div>
@@ -603,7 +657,7 @@ async function loadSolicitudes() {
   const el = document.getElementById('lista-solicitudes');
   el.innerHTML = '<div class="empty">Cargando...</div>';
   let q = db.from('necesidades').select('*').is('merged_into', null).order('created_at', { ascending: false }).limit(60);
-  if (solFilter === 'activas') q = q.in('estado', ['pendiente', 'en_proceso']);
+  if (solFilter === 'activas') q = q.in('estado', NEC_ACTIVAS);
   else q = q.eq('estado', solFilter);
   const { data, error } = await q;
   if (error) { el.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
@@ -638,6 +692,41 @@ async function saveNotasSol(id, text) {
   const { error } = await db.from('necesidades').update({ notas_coordinador: text.trim() || null }).eq('id', id);
   if (error) toast(error.message);
   else toast('Notas guardadas');
+}
+
+async function eliminarSol(id) {
+  if (!confirm('¿Quitar esta solicitud del mapa? (fake, duplicado o error)')) return;
+  let { error } = await db.rpc('eliminar_necesidad', { p_id: id });
+  if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(error.message || ''))) {
+    ({ error } = await db.from('necesidades').update({
+      estado: 'eliminada', en_atencion_por: null, en_atencion_at: null,
+    }).eq('id', id));
+  }
+  if (error) {
+    toast(error.message.includes('No autorizado')
+      ? 'Sin permiso — aplica la migración admin_eliminar_contenido en Supabase'
+      : error.message);
+    return;
+  }
+  toast('Solicitud quitada del mapa');
+  loadSolicitudes();
+  if (document.getElementById('panel-enlaces')?.classList.contains('on')) loadEnlaces();
+}
+
+async function restaurarSol(id) {
+  if (!confirm('¿Volver a publicar esta solicitud en el mapa?')) return;
+  let { error } = await db.rpc('restaurar_necesidad', { p_id: id });
+  if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(error.message || ''))) {
+    ({ error } = await db.from('necesidades').update({ estado: 'pendiente' }).eq('id', id).eq('estado', 'eliminada'));
+  }
+  if (error) {
+    toast(error.message.includes('No autorizado')
+      ? 'Sin permiso — aplica la migración restaurar_necesidad en Supabase'
+      : error.message);
+    return;
+  }
+  toast('Solicitud restaurada');
+  loadSolicitudes();
 }
 
 const REC_EST = { disponible: 'Disponible', asignado: 'Asignado', entregado: 'Entregado' };
@@ -680,10 +769,12 @@ function renderEnlacePar(n) {
     <b>⏳ Sin voluntario</b>
     <div style="color:var(--g4)">Nadie ha marcado «voy en camino».</div>
   </div>`;
-  const actions = n.estado !== 'cubierta' ? `<div class="row">
+  const actions = n.estado === 'eliminada' ? ''
+    : n.estado !== 'cubierta' ? `<div class="row">
     ${n.estado === 'en_proceso' ? `<button class="btn btn-s" onclick="liberarSol('${n.id}')">↩ Liberar</button>` : ''}
     <button class="btn btn-g" onclick="cubrirSol('${n.id}')">✓ Atendida</button>
-  </div>` : `<div class="meta">✓ Atendida</div>`;
+    <button class="btn btn-s" onclick="eliminarSol('${n.id}')">🗑 Quitar</button>
+  </div>` : `<div class="row"><button class="btn btn-s" onclick="eliminarSol('${n.id}')">🗑 Quitar</button></div>`;
   return `<div class="card ${cls}">
     <div class="match-grid">${victimSide}<div class="match-arrow">↔</div>${volSide}</div>
     <div class="meta" style="margin-top:8px"><span class="badge">${EST_LABEL[n.estado] || n.estado}</span> · ${URG_LABEL[n.urgencia] || ''} · Publicado ${fmtWhen(n.created_at)}</div>
@@ -699,7 +790,8 @@ function renderRecursoCentro(r, centro) {
   const actions = r.estado !== 'entregado' ? `<div class="row">
     ${r.estado === 'disponible' ? `<button class="btn btn-o" onclick="setRecursoEstado('${r.id}','asignado')">📋 Asignado</button>` : ''}
     <button class="btn btn-g" onclick="setRecursoEstado('${r.id}','entregado')">✓ Entregado</button>
-  </div>` : '';
+    <button class="btn btn-s" onclick="eliminarRecurso('${r.id}')">🗑 Quitar</button>
+  </div>` : `<div class="row"><button class="btn btn-s" onclick="eliminarRecurso('${r.id}')">🗑 Quitar</button></div>`;
   return `<div class="card ${cls}">
     <div class="match-grid">
       <div class="match-side">
@@ -771,6 +863,19 @@ async function setRecursoEstado(id, estado) {
   loadEnlaces();
 }
 
+async function eliminarRecurso(id) {
+  if (!confirm('¿Quitar esta oferta de donación del sistema?')) return;
+  const { error } = await db.from('recursos').delete().eq('id', id);
+  if (error) {
+    toast(/permission denied|row-level security/i.test(error.message || '')
+      ? 'Sin permiso — aplica la migración admin_eliminar_contenido en Supabase'
+      : error.message);
+    return;
+  }
+  toast('Donación eliminada');
+  loadEnlaces();
+}
+
 let postFilter = 'todos';
 
 function setPostFilter(btn) {
@@ -828,17 +933,70 @@ async function saveEdificio() {
     notas: document.getElementById('e-notas').value.trim() || null,
   };
   if (!row.nombre || !row.zona || !row.lat || !row.lng) { toast('Completa nombre, zona y coordenadas'); return; }
-  const { error } = await db.from('edificios_colapsados').insert(row);
+  let error;
+  if (edificioEditId) {
+    ({ error } = await db.from('edificios_colapsados').update(row).eq('id', edificioEditId));
+  } else {
+    ({ error } = await db.from('edificios_colapsados').insert(row));
+  }
   if (error) { toast(error.message); return; }
-  toast('Edificio guardado');
-  ['e-nombre','e-sector','e-notas'].forEach(i => document.getElementById(i).value = '');
+  toast(edificioEditId ? 'Edificio actualizado' : 'Edificio guardado');
+  cancelEdificioEdit();
   loadEdificios();
 }
 
+let edificioEditId = null;
+
+function cancelEdificioEdit() {
+  edificioEditId = null;
+  ['e-nombre','e-sector','e-notas','e-lat','e-lng'].forEach(i => document.getElementById(i).value = '');
+  document.getElementById('e-zona').value = '';
+  document.getElementById('e-atrap').value = 'false';
+  document.getElementById('btn-cancel-edif').style.display = 'none';
+  document.querySelector('#panel-edificios h2').textContent = 'Agregar edificio colapsado';
+}
+
+function editEdificio(id) {
+  const e = edificiosAdminCache.find(x => x.id === id);
+  if (!e) { toast('Edificio no encontrado'); return; }
+  edificioEditId = id;
+  document.getElementById('e-nombre').value = e.nombre || '';
+  document.getElementById('e-zona').value = e.zona || '';
+  document.getElementById('e-sector').value = e.sector || '';
+  document.getElementById('e-lat').value = e.lat ?? '';
+  document.getElementById('e-lng').value = e.lng ?? '';
+  document.getElementById('e-atrap').value = e.personas_atrapadas ? 'true' : 'false';
+  document.getElementById('e-notas').value = e.notas || '';
+  document.getElementById('btn-cancel-edif').style.display = 'block';
+  document.querySelector('#panel-edificios h2').textContent = 'Editar edificio';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function eliminarEdificio(id) {
+  if (!confirm('¿Eliminar este edificio del mapa?')) return;
+  const { error } = await db.from('edificios_colapsados').delete().eq('id', id);
+  if (error) { toast(error.message); return; }
+  if (edificioEditId === id) cancelEdificioEdit();
+  toast('Edificio eliminado');
+  loadEdificios();
+}
+
+let edificiosAdminCache = [];
+
 async function loadEdificios() {
-  const { data } = await db.from('edificios_colapsados').select('id,nombre,zona,sector,lat,lng,personas_atrapadas').order('created_at',{ascending:false}).limit(30);
-  document.getElementById('lista-edificios').innerHTML = (data||[]).map(e =>
-    `<div class="card" style="border-left-color:var(--red)"><b>${esc(e.nombre)}</b><div class="meta">${esc(e.zona)} ${e.sector?'· '+esc(e.sector):''} · ${e.lat?.toFixed(4)}, ${e.lng?.toFixed(4)}${e.personas_atrapadas?' · atrapadas':''}</div></div>`
+  const { data } = await db.from('edificios_colapsados')
+    .select('id,nombre,zona,sector,lat,lng,personas_atrapadas,notas')
+    .order('created_at',{ascending:false}).limit(30);
+  edificiosAdminCache = data || [];
+  document.getElementById('lista-edificios').innerHTML = edificiosAdminCache.map(e =>
+    `<div class="card" style="border-left-color:var(--red)">
+      <b>${esc(e.nombre)}</b>
+      <div class="meta">${esc(e.zona)} ${e.sector?'· '+esc(e.sector):''} · ${e.lat?.toFixed(4)}, ${e.lng?.toFixed(4)}${e.personas_atrapadas?' · atrapadas':''}</div>
+      <div class="card-actions">
+        <button type="button" class="btn btn-p" onclick="editEdificio('${e.id}')">Editar</button>
+        <button type="button" class="btn btn-s" onclick="eliminarEdificio('${e.id}')">🗑 Eliminar</button>
+      </div>
+    </div>`
   ).join('') || '<div class="empty">Ninguno aún.</div>';
 }
 
@@ -1070,15 +1228,18 @@ async function saveCentro() {
   const row = {
     nombre: document.getElementById('c-nombre').value.trim(),
     organizacion: document.getElementById('c-org').value.trim() || null,
+    pais: document.getElementById('c-pais').value.trim() || 'Venezuela',
     estado_vzla: document.getElementById('c-estado').value.trim(),
+    ciudad: document.getElementById('c-ciudad').value.trim() || null,
     direccion: document.getElementById('c-dir').value.trim(),
     lat,
     lng,
     telefono: document.getElementById('c-tel').value.trim() || null,
+    whatsapp: document.getElementById('c-wa').value.trim() || null,
     horario: document.getElementById('c-horario').value.trim() || null,
     necesita_ahora: parseListInput('c-necesita'),
     ya_cubierto: parseListInput('c-cubierto'),
-    activo: true,
+    activo: centroEditId ? (centrosAdminCache.find(c => c.id === centroEditId)?.activo ?? true) : true,
   };
   if ((!Number.isFinite(lat) || !Number.isFinite(lng)) && (row.direccion || row.estado_vzla)) {
     toast('Buscando ubicación…');
@@ -1097,27 +1258,46 @@ async function saveCentro() {
     return;
   }
 
-  const rpcArgs = {
-    p_nombre: row.nombre,
-    p_estado_vzla: row.estado_vzla,
-    p_direccion: row.direccion,
-    p_lat: lat,
-    p_lng: lng,
-    p_organizacion: row.organizacion,
-    p_telefono: row.telefono,
-    p_horario: row.horario,
-    p_necesita_ahora: row.necesita_ahora,
-    p_ya_cubierto: row.ya_cubierto,
-  };
-  let { error } = await db.rpc('insertar_centro_acopio', rpcArgs);
-  if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(error.message || ''))) {
-    ({ error } = await db.from('centros_acopio').insert(row));
-  }
-  if (error && /necesita_ahora|ya_cubierto|schema cache/i.test(error.message || '')) {
-    const lean = { ...row };
-    delete lean.necesita_ahora;
-    delete lean.ya_cubierto;
-    ({ error } = await db.from('centros_acopio').insert(lean));
+  let error;
+  if (centroEditId) {
+    const upd = { ...row };
+    delete upd.activo;
+    ({ error } = await db.from('centros_acopio').update(upd).eq('id', centroEditId));
+    if (error && /pais|ciudad|whatsapp|schema cache/i.test(error.message || '')) {
+      delete upd.pais; delete upd.ciudad; delete upd.whatsapp;
+      ({ error } = await db.from('centros_acopio').update(upd).eq('id', centroEditId));
+    }
+  } else {
+    const rpcArgs = {
+      p_nombre: row.nombre,
+      p_estado_vzla: row.estado_vzla,
+      p_direccion: row.direccion,
+      p_lat: lat,
+      p_lng: lng,
+      p_organizacion: row.organizacion,
+      p_telefono: row.telefono,
+      p_horario: row.horario,
+      p_necesita_ahora: row.necesita_ahora,
+      p_ya_cubierto: row.ya_cubierto,
+    };
+    ({ error } = await db.rpc('insertar_centro_acopio', rpcArgs));
+    if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(error.message || ''))) {
+      ({ error } = await db.from('centros_acopio').insert(row));
+    }
+    if (error && /necesita_ahora|ya_cubierto|schema cache/i.test(error.message || '')) {
+      const lean = { ...row };
+      delete lean.necesita_ahora;
+      delete lean.ya_cubierto;
+      ({ error } = await db.from('centros_acopio').insert(lean));
+    }
+    if (!error && (row.pais !== 'Venezuela' || row.ciudad || row.whatsapp)) {
+      const extra = {};
+      if (row.pais) extra.pais = row.pais;
+      if (row.ciudad) extra.ciudad = row.ciudad;
+      if (row.whatsapp) extra.whatsapp = row.whatsapp;
+      const { data: inserted } = await db.from('centros_acopio').select('id').eq('nombre', row.nombre).eq('direccion', row.direccion).order('created_at', { ascending: false }).limit(1).maybeSingle();
+      if (inserted?.id) await db.from('centros_acopio').update(extra).eq('id', inserted.id);
+    }
   }
   if (error) {
     toast(error.message.includes('No autorizado') || /row-level security|permission denied/i.test(error.message || '')
@@ -1125,31 +1305,211 @@ async function saveCentro() {
       : error.message);
     return;
   }
-  toast('Centro guardado');
-  ['c-nombre','c-org','c-estado','c-dir','c-lat','c-lng','c-tel','c-horario','c-necesita','c-cubierto','c-maps-link']
-    .forEach(i => { document.getElementById(i).value = ''; });
+  toast(centroEditId ? 'Centro actualizado' : 'Centro guardado');
+  resetCentroFormFields();
+  closeCentroForm();
+  loadCentros();
+}
+
+function resetCentroFormFields() {
+  ['c-nombre','c-org','c-pais','c-estado','c-ciudad','c-dir','c-lat','c-lng','c-tel','c-wa','c-horario','c-necesita','c-cubierto','c-maps-link']
+    .forEach(i => {
+      const el = document.getElementById(i);
+      if (!el) return;
+      el.value = i === 'c-pais' ? 'Venezuela' : '';
+    });
   document.getElementById('c-geo-status').style.display = 'none';
   document.getElementById('c-map-wrap').style.display = 'none';
   if (centroMarker && centroMap) { centroMap.removeLayer(centroMarker); centroMarker = null; }
-  loadCentros();
+  centroEditId = null;
+}
+
+let centrosAdminCache = [];
+let centroEditId = null;
+let centroActFilter = 'activo';
+let centroUrgFilter = false;
+let centroImportFilter = false;
+let centrosFilterTimer;
+
+function debounceCentrosFilter() {
+  clearTimeout(centrosFilterTimer);
+  centrosFilterTimer = setTimeout(renderCentrosList, 180);
+}
+
+function setCentroActFilter(btn) {
+  document.querySelectorAll('.centros-filters button[data-f]').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  centroActFilter = btn.dataset.f;
+  renderCentrosList();
+}
+
+function toggleCentroUrgFilter() {
+  centroUrgFilter = !centroUrgFilter;
+  document.getElementById('cf-urgente').classList.toggle('on', centroUrgFilter);
+  renderCentrosList();
+}
+
+function toggleCentroImportFilter() {
+  centroImportFilter = !centroImportFilter;
+  document.getElementById('cf-import').classList.toggle('on', centroImportFilter);
+  renderCentrosList();
+}
+
+function onCentroEstadoFilter() {
+  populateCentroCiudadFilter();
+  renderCentrosList();
+}
+
+function populateCentroFilterSelects() {
+  const paises = [...new Set(centrosAdminCache.map(c => c.pais || 'Venezuela').filter(Boolean))].sort();
+  const estadoSel = document.getElementById('cf-estado');
+  const paisSel = document.getElementById('cf-pais');
+  const prevP = paisSel.value;
+  const prevE = estadoSel.value;
+  paisSel.innerHTML = '<option value="">Todos los países</option>' + paises.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+  if (prevP && paises.includes(prevP)) paisSel.value = prevP;
+  const pais = paisSel.value;
+  const estados = [...new Set(centrosAdminCache.filter(c => !pais || (c.pais || 'Venezuela') === pais).map(c => c.estado_vzla).filter(Boolean))].sort();
+  estadoSel.innerHTML = '<option value="">Todos los estados</option>' + estados.map(e => `<option value="${esc(e)}">${esc(e)}</option>`).join('');
+  if (prevE && estados.includes(prevE)) estadoSel.value = prevE;
+  populateCentroCiudadFilter();
+}
+
+function populateCentroCiudadFilter() {
+  const pais = document.getElementById('cf-pais').value;
+  const estado = document.getElementById('cf-estado').value;
+  const ciudadSel = document.getElementById('cf-ciudad');
+  const prev = ciudadSel.value;
+  const ciudades = [...new Set(centrosAdminCache.filter(c => {
+    if (pais && (c.pais || 'Venezuela') !== pais) return false;
+    if (estado && c.estado_vzla !== estado) return false;
+    return c.ciudad;
+  }).map(c => c.ciudad))].sort();
+  ciudadSel.innerHTML = '<option value="">Todas las ciudades</option>' + ciudades.map(c => `<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  if (prev && ciudades.includes(prev)) ciudadSel.value = prev;
+}
+
+function filterCentrosAdmin() {
+  const q = (document.getElementById('centros-q').value || '').trim().toLowerCase();
+  const pais = document.getElementById('cf-pais').value;
+  const estado = document.getElementById('cf-estado').value;
+  const ciudad = document.getElementById('cf-ciudad').value;
+  return centrosAdminCache.filter(c => {
+    if (centroActFilter === 'activo' && !c.activo) return false;
+    if (centroActFilter === 'inactivo' && c.activo) return false;
+    if (pais && (c.pais || 'Venezuela') !== pais) return false;
+    if (estado && c.estado_vzla !== estado) return false;
+    if (ciudad && c.ciudad !== ciudad) return false;
+    if (centroUrgFilter && !(c.necesita_ahora?.length)) return false;
+    if (centroImportFilter && !c.fuente) return false;
+    if (q) {
+      const blob = [c.nombre, c.organizacion, c.estado_vzla, c.ciudad, c.direccion, c.pais].filter(Boolean).join(' ').toLowerCase();
+      if (!blob.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function renderCentroAdminCard(c) {
+  const loc = [c.estado_vzla, c.ciudad, c.direccion].filter(Boolean).join(' · ');
+  const nec = c.necesita_ahora?.length ? `<span class="badge need">${esc(c.necesita_ahora.join(', '))}</span>` : '';
+  const ext = c.fuente ? `<span class="badge ext">${esc(c.fuente)}</span>` : '';
+  const act = c.activo ? '<span class="badge">Activo</span>' : '<span class="badge">Inactivo</span>';
+  const approx = c.ubicacion_aproximada ? '<span class="badge ext">Ubic. aprox.</span>' : '';
+  const cub = c.ya_cubierto?.length ? `<div class="meta">Cubierto: ${esc(c.ya_cubierto.join(', '))}</div>` : '';
+  const toggleBtn = c.activo
+    ? `<button type="button" class="btn btn-o" onclick="toggleCentroActivo('${c.id}',false)">Pausar</button>`
+    : `<button type="button" class="btn btn-g" onclick="toggleCentroActivo('${c.id}',true)">Reactivar</button>`;
+  return `<div class="card${c.activo ? '' : ' centro-card-inactive'}" style="border-left-color:var(--grn)">
+    <b>${esc(c.nombre)}</b>
+    <div class="meta">${esc(c.pais || 'Venezuela')} · ${esc(loc)}</div>
+    <div class="centro-card-badges">${nec}${ext}${act}${approx}</div>
+    ${cub}
+    <div class="card-actions">
+      <button type="button" class="btn btn-p" onclick="openCentroForm('${c.id}')">Editar</button>
+      ${toggleBtn}
+      <button type="button" class="btn btn-s" onclick="eliminarCentro('${c.id}')">🗑 Eliminar</button>
+    </div>
+  </div>`;
+}
+
+function renderCentrosList() {
+  const el = document.getElementById('lista-centros');
+  const list = filterCentrosAdmin();
+  document.getElementById('centros-count').textContent =
+    `${list.length} de ${centrosAdminCache.length} centros · orden: más recientes`;
+  el.innerHTML = list.map(renderCentroAdminCard).join('') || '<div class="empty">Ninguno coincide con los filtros.</div>';
 }
 
 async function loadCentros() {
   const el = document.getElementById('lista-centros');
-  let { data, error } = await db.from('centros_acopio')
-    .select('id,nombre,estado_vzla,direccion,activo,necesita_ahora,ya_cubierto')
-    .order('created_at', { ascending: false }).limit(30);
+  el.innerHTML = '<div class="empty">Cargando...</div>';
+  const fullSel = 'id,nombre,organizacion,pais,estado_vzla,ciudad,direccion,activo,necesita_ahora,ya_cubierto,fuente,telefono,whatsapp,horario,lat,lng,ubicacion_aproximada,created_at';
+  const leanSel = 'id,nombre,organizacion,estado_vzla,direccion,activo,necesita_ahora,ya_cubierto,created_at';
+  let { data, error } = await db.from('centros_acopio').select(fullSel).order('created_at', { ascending: false }).limit(500);
+  if (error && /pais|ciudad|fuente|whatsapp|ubicacion_aproximada|schema cache/i.test(error.message || '')) {
+    ({ data, error } = await db.from('centros_acopio').select(leanSel).order('created_at', { ascending: false }).limit(500));
+  }
   if (error && /necesita_ahora|ya_cubierto|schema cache/i.test(error.message || '')) {
     ({ data, error } = await db.from('centros_acopio')
       .select('id,nombre,estado_vzla,direccion,activo')
-      .order('created_at', { ascending: false }).limit(30));
+      .order('created_at', { ascending: false }).limit(500));
   }
   if (error) { el.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
-  el.innerHTML = (data||[]).map(c => {
-    const nec = c.necesita_ahora?.length ? `<div class="meta" style="margin-top:4px;color:var(--red)">Necesitan: ${esc(c.necesita_ahora.join(', '))}</div>` : '';
-    const cub = c.ya_cubierto?.length ? `<div class="meta">Cubierto: ${esc(c.ya_cubierto.join(', '))}</div>` : '';
-    return `<div class="card" style="border-left-color:var(--grn)"><b>${esc(c.nombre)}</b><div class="meta">${esc(c.estado_vzla)} · ${esc(c.direccion)}</div>${nec}${cub}</div>`;
-  }).join('') || '<div class="empty">Ninguno aún.</div>';
+  centrosAdminCache = data || [];
+  populateCentroFilterSelects();
+  renderCentrosList();
+}
+
+function openCentroForm(id) {
+  document.getElementById('centros-list-view').style.display = 'none';
+  document.getElementById('centros-form-view').style.display = 'block';
+  resetCentroFormFields();
+  if (id) {
+    const c = centrosAdminCache.find(x => x.id === id);
+    if (!c) { toast('Centro no encontrado'); closeCentroForm(); return; }
+    centroEditId = id;
+    document.getElementById('centro-form-title').textContent = 'Editar centro de acopio';
+    document.getElementById('c-nombre').value = c.nombre || '';
+    document.getElementById('c-org').value = c.organizacion || '';
+    document.getElementById('c-pais').value = c.pais || 'Venezuela';
+    document.getElementById('c-estado').value = c.estado_vzla || '';
+    document.getElementById('c-ciudad').value = c.ciudad || '';
+    document.getElementById('c-dir').value = c.direccion || '';
+    document.getElementById('c-tel').value = c.telefono || '';
+    document.getElementById('c-wa').value = c.whatsapp || '';
+    document.getElementById('c-horario').value = c.horario || '';
+    document.getElementById('c-necesita').value = (c.necesita_ahora || []).join(', ');
+    document.getElementById('c-cubierto').value = (c.ya_cubierto || []).join(', ');
+    if (c.lat != null && c.lng != null) {
+      setCentroCoords(+c.lat, +c.lng, { approx: !!c.ubicacion_aproximada, label: c.ubicacion_aproximada ? '≈ Ubicación guardada' : '✓ Ubicación guardada' });
+    }
+  } else {
+    document.getElementById('centro-form-title').textContent = 'Nuevo centro de acopio';
+    centroEditId = null;
+  }
+}
+
+function closeCentroForm() {
+  document.getElementById('centros-list-view').style.display = 'block';
+  document.getElementById('centros-form-view').style.display = 'none';
+  centroEditId = null;
+}
+
+async function toggleCentroActivo(id, activo) {
+  const { error } = await db.from('centros_acopio').update({ activo }).eq('id', id);
+  if (error) { toast(error.message); return; }
+  toast(activo ? 'Centro reactivado' : 'Centro pausado');
+  loadCentros();
+}
+
+async function eliminarCentro(id) {
+  if (!confirm('¿Eliminar este centro de acopio de forma permanente?')) return;
+  const { error } = await db.from('centros_acopio').delete().eq('id', id);
+  if (error) { toast(error.message); return; }
+  if (centroEditId === id) closeCentroForm();
+  toast('Centro eliminado');
+  loadCentros();
 }
 
 function renderAsesorAdmin(a) {

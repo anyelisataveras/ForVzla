@@ -54,7 +54,7 @@ create table necesidades (
   nombre_contacto text not null,
   telefono text,
   whatsapp text,
-  estado text not null default 'pendiente' check (estado in ('pendiente','en_proceso','cubierta')),
+  estado text not null default 'pendiente' check (estado in ('pendiente','en_proceso','cubierta','eliminada')),
   validada boolean default false,
   notas_coordinador text,
   -- Antiduplicados / procedencia
@@ -161,7 +161,7 @@ language sql stable as $$
          n.en_atencion_por, n.en_atencion_at, n.created_at,
          _dist_m(p_lat, p_lng, n.lat, n.lng) as distancia_m
   from necesidades n
-  where n.estado <> 'cubierta'
+  where n.estado in ('pendiente', 'en_proceso')
     and n.merged_into is null
     and n.lat is not null and n.lng is not null
     and (
@@ -188,6 +188,7 @@ begin
   if v_tel is null then raise exception 'Falta teléfono del voluntario'; end if;
   select * into v_row from necesidades where id = p_id for update;
   if not found then raise exception 'Solicitud no encontrada'; end if;
+  if v_row.estado = 'eliminada' then raise exception 'Esta solicitud fue retirada'; end if;
   if v_row.estado = 'cubierta' then raise exception 'Esta solicitud ya está atendida'; end if;
   if v_row.estado = 'en_proceso' and v_row.en_atencion_por is not null and v_row.en_atencion_por <> v_tel then
     raise exception 'Otro voluntario ya va en camino';
@@ -204,6 +205,7 @@ declare
 begin
   select * into v_row from necesidades where id = p_id for update;
   if not found then raise exception 'Solicitud no encontrada'; end if;
+  if v_row.estado = 'eliminada' then raise exception 'Esta solicitud fue retirada'; end if;
   if v_row.estado = 'cubierta' then return; end if;
   if v_tel is not null and v_row.en_atencion_por is not null and v_row.en_atencion_por <> v_tel then
     raise exception 'Solo quien va en camino puede marcarla atendida';
@@ -224,6 +226,31 @@ grant execute on function marcar_en_atencion(uuid, text) to anon, authenticated;
 grant execute on function marcar_cubierta(uuid, text) to anon, authenticated;
 grant execute on function liberar_atencion(uuid) to anon, authenticated;
 
+create or replace function eliminar_necesidad(p_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not is_admin() then raise exception 'No autorizado'; end if;
+  update necesidades
+    set estado = 'eliminada', en_atencion_por = null, en_atencion_at = null
+  where id = p_id and merged_into is null;
+  if not found then raise exception 'Solicitud no encontrada'; end if;
+end;
+$$;
+
+grant execute on function eliminar_necesidad(uuid) to authenticated;
+
+create or replace function restaurar_necesidad(p_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if not is_admin() then raise exception 'No autorizado'; end if;
+  update necesidades set estado = 'pendiente'
+  where id = p_id and merged_into is null and estado = 'eliminada';
+  if not found then raise exception 'Solicitud no encontrada o no está quitada'; end if;
+end;
+$$;
+
+grant execute on function restaurar_necesidad(uuid) to authenticated;
+
 -- ── RLS (acceso público de emergencia; moderación vía Table Editor) ──
 alter table necesidades enable row level security;
 alter table recursos enable row level security;
@@ -237,6 +264,7 @@ create policy "pub_update_necesidades" on necesidades for update using (true);
 create policy "pub_read_recursos"   on recursos for select using (true);
 create policy "pub_insert_recursos" on recursos for insert with check (true);
 create policy "pub_update_recursos" on recursos for update using (true);
+create policy "admin_delete_recursos" on recursos for delete using (is_admin());
 
 create policy "pub_read_acopio"   on centros_acopio for select using (true);
 create policy "pub_insert_acopio" on centros_acopio for insert with check (true);
