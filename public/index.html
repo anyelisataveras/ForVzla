@@ -10,6 +10,9 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="analytics-config.js"></script>
+<script>!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);</script>
+<script src="analytics.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--bg:#F1EEEA;--surf:#FBFAF8;--red:#C0392B;--redd:#9B2418;--redh:#A93226;--redl:#FBEDEA;--ora:#E67E22;--oral:#FDF1E4;--grn:#1E8449;--grnh:#15603A;--grnl:#E9F6EE;--blu:#2471A3;--blul:#EBF3F9;--blut:#1E5F8C;--yel:#E8B72E;--yell:#FEF7E6;--yelt:#8A6D11;--ind:#5A4AA0;--indh:#4A3C88;--indl:#EEEBF6;--indt:#463A82;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--line3:#EDE8E1;--priv:#EDF6F0;--privb:#CDE8D8;--privt:#2C5A3F;--r:12px;--rm:14px;--app-max:1000px}
@@ -294,7 +297,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
           <div class="edif-pick-map"><div id="edif-pick-map-el"></div></div>
         </div>
       </div>
-      <div class="privacy-line"><span>🔒</span><span>Solo se usa para mostrar tu pin en el mapa. Sin registro de usuario ni rastreo de ningún tipo.</span></div>
+      <div class="privacy-line"><span>🔒</span><span>Solo se usa para mostrar tu pin en el mapa. Sin registro de cuenta. Usamos estadísticas anónimas para mejorar el servicio (nunca tu teléfono ni ubicación exacta).</span></div>
     </div>
     <input type="hidden" id="r-lat"><input type="hidden" id="r-lng"><input type="hidden" id="r-zona"><input type="hidden" id="r-dir"><input type="hidden" id="r-edif"><input type="hidden" id="r-edif-nombre">
     <div class="fstep"><span class="n">2</span> ¿Qué necesitas? <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--txt3)">— marca las que quieras</span></div>
@@ -462,7 +465,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
   <div class="modal-how"><span style="font-size:20px">🆘</span><p class="modal-body"><b>Pedir ayuda</b> — reporta un lugar y qué necesitas.</p></div>
   <div class="modal-how"><span style="font-size:20px">🤝</span><p class="modal-body"><b>Quiero ayudar</b> — elige qué puedes dar y contacta directo a quien lo necesita cerca de ti.</p></div>
   <div class="modal-how"><span style="font-size:20px">💬</span><p class="modal-body"><b>Orientación profesional</b> — abogados, psicólogos, maestros y más ofrecen ayuda gratuita. Pídela o publica la tuya.</p></div>
-  <div class="priv-box"><span style="font-size:18px">🔒</span><p>Solo pedimos la información estrictamente necesaria. La ubicación se usa únicamente para mostrar el pin en el mapa. <b>No hay registro de usuario ni rastreo de ningún tipo.</b></p></div>
+  <div class="priv-box"><span style="font-size:18px">🔒</span><p>Solo pedimos la información estrictamente necesaria. La ubicación se usa únicamente para mostrar el pin en el mapa. <b>No hay registro de cuenta.</b> Usamos estadísticas anónimas para saber cuánta gente usa la plataforma y dónde simplificar el proceso — sin guardar tu teléfono ni tu ubicación exacta.</p></div>
   <button class="btn-dark" onclick="closeInfo()">Entendido</button>
 </div></div>
 
@@ -487,6 +490,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 const SB_URL='https://ebsgvamzaegjgpjkpick.supabase.co';
 const SB_KEY='sb_publishable_vg8SSOkKpgvwOSyi2k-aVg_lslrQsBA';
 const db=supabase.createClient(SB_URL,SB_KEY);
+function ph(ev,p){if(window.ForVzlaAnalytics)ForVzlaAnalytics.track(ev,p);}
+function _ev(){return ForVzlaAnalytics.EVENTS;}
 const TIPOS=[{t:'Rescate',e:'🚒'},{t:'Agua potable',e:'💧'},{t:'Alimentos',e:'🍎'},{t:'Medicamentos',e:'💊'},{t:'Médicos / paramédicos',e:'🏥'},{t:'Refugio / carpas',e:'⛺'},{t:'Sangre / donantes',e:'🩸'},{t:'Transporte',e:'🚛'},{t:'Herramientas / Equipos',e:'🔧'}];
 const TIPOS_O=[{t:'Agua embotellada',e:'💧'},{t:'Alimentos no perecederos',e:'🍎'},{t:'Medicamentos',e:'💊'},{t:'Transporte (vehículo)',e:'🚛'},{t:'Personal médico',e:'🏥'},{t:'Equipos de rescate',e:'🚒'},{t:'Herramientas / Equipos',e:'🔧'},{t:'Refugio / espacio físico',e:'⛺'},{t:'Donación económica',e:'💵'}];
 const HERRAM=['Guantes','Tapabocas','Palas','Sequetas','Disco de corte','Motosierra','Cascos','Linternas','Tobos','Esmeriles'];
@@ -535,8 +540,8 @@ function pickSub(btn){const h=btn.dataset.h,i=selSubs.indexOf(h);
 function setUrg(btn){document.querySelectorAll('.ubtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selUrg=btn.dataset.u;}
 function pickTipoO(btn){document.querySelectorAll('#tipo-grid-o .gbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selTipoO=btn.dataset.t;}
 
-function openInfo(){document.getElementById('info-modal').classList.add('on')}
-function closeInfo(){document.getElementById('info-modal').classList.remove('on')}
+function openInfo(){document.getElementById('info-modal').classList.add('on');ph(_ev().INFO_MODAL_OPENED);}
+function closeInfo(){document.getElementById('info-modal').classList.remove('on');ph(_ev().INFO_MODAL_CLOSED);}
 
 const EDIF_RADIO_M=500;
 let locationConfirmed=false,locMethod=null,gpsAccuracy=null,locTab='gps',edifListCache=[],edifRefLat=null,edifRefLng=null;
@@ -550,6 +555,7 @@ function nearbyEdificios(lat,lng,radioM=EDIF_RADIO_M){
     .map(e=>({...e,dist_m:Math.round(dist0(lat,lng,e.lat,e.lng)*1000)})).sort((a,b)=>a.dist_m-b.dist_m);}
 function setLocTab(tab){
   locTab=tab;
+  ph(_ev().LOCATION_TAB_SELECTED,{method:tab});
   document.querySelectorAll('.loc-tabs button').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));
   document.querySelectorAll('.loc-panel').forEach(p=>p.classList.toggle('on',p.id==='loc-panel-'+tab));
   if(tab==='edif')loadEdifTabList();}
@@ -557,7 +563,8 @@ function confirmLocation(method,summary){
   locationConfirmed=true;locMethod=method;
   document.getElementById('loc-confirmed-text').textContent='✅ Ubicación lista — '+summary;
   document.getElementById('loc-confirmed').style.display='block';
-  document.getElementById('loc-selector').style.display='none';}
+  document.getElementById('loc-selector').style.display='none';
+  ph(_ev().LOCATION_CONFIRMED,{method,has_edificio:!!document.getElementById('r-edif').value,accuracy_bucket:ForVzlaAnalytics.accuracyBucket(gpsAccuracy)});}
 function changeLocation(){
   locationConfirmed=false;locMethod=null;gpsAccuracy=null;locFromGps=false;
   ['r-lat','r-lng','r-zona','r-dir','r-edif','r-edif-nombre'].forEach(id=>document.getElementById(id).value='');
@@ -731,6 +738,7 @@ async function geocodeDir(silent=false){
     let j=await nominatimSearch(q+', Venezuela');
     if(!j?.length)j=await nominatimSearch(q);
     if(!j?.length){if(!silent){
+      ph(_ev().LOCATION_FAILED,{method:'dir',reason:'not_found'});
       errEl.textContent='No encontramos esa dirección. Marca el punto aproximado en el mapa de abajo.';
       errEl.style.display='block';await showDirPickMap();}
       btn.textContent='Usar esta dirección';btn.disabled=false;return false;}
@@ -743,7 +751,7 @@ async function geocodeDir(silent=false){
     btn.textContent='Usar esta dirección';btn.disabled=false;
     const short=dir.length>72?dir.slice(0,69)+'…':dir;
     confirmLocation('dir','Dirección: '+short);return true;
-  }catch{if(!silent){errEl.textContent='Sin conexión. Marca el punto en el mapa.';errEl.style.display='block';await showDirPickMap();}
+  }catch{if(!silent){ph(_ev().LOCATION_FAILED,{method:'dir',reason:'network'});errEl.textContent='Sin conexión. Marca el punto en el mapa.';errEl.style.display='block';await showDirPickMap();}
     btn.textContent='Usar esta dirección';btn.disabled=false;return false;}}
 function captureGeo(){const btn=document.getElementById('geo-btn-r');btn.textContent='⏳ Buscando señal...';btn.disabled=true;
   navigator.geolocation.getCurrentPosition(async pos=>{const {latitude:la,longitude:lo,accuracy:ac}=pos.coords;
@@ -756,6 +764,7 @@ function captureGeo(){const btn=document.getElementById('geo-btn-r');btn.textCon
     }catch{document.getElementById('r-zona').value='';document.getElementById('r-dir').value='Ubicación GPS';}
     confirmLocation('gps',`Tu ubicación GPS (±${gpsAccuracy}m)`);
   },()=>{btn.textContent='📍 Usar mi ubicación';btn.disabled=false;
+    ph(_ev().LOCATION_FAILED,{method:'gps',reason:'denied_or_timeout'});
     showToast('r','No pudimos usar el GPS. Prueba la pestaña Dirección o Edificio.',true);},{enableHighAccuracy:true,timeout:12000});}
 function mapEstado(s){s=(s||'').toLowerCase();
   if(s.includes('guaira')||s.includes('vargas'))return'La Guaira';if(s.includes('capital')||s.includes('caracas'))return'Caracas';
@@ -782,17 +791,19 @@ async function marcarEnAtencionDb(id,tel){
     if(error)({error}=await db.from('necesidades').update({estado:'en_proceso'}).eq('id',id));
   }
   return{error};}
-function openAttend(id){pendingAttendId=id;document.getElementById('attend-tel').value=volTel||'';document.getElementById('attend-modal').classList.add('on');setTimeout(()=>document.getElementById('attend-tel').focus(),200);}
+function openAttend(id){pendingAttendId=id;ph(_ev().HELP_ATTEND_MODAL_OPENED,{need_id:id});document.getElementById('attend-tel').value=volTel||'';document.getElementById('attend-modal').classList.add('on');setTimeout(()=>document.getElementById('attend-tel').focus(),200);}
 function closeAttend(){document.getElementById('attend-modal').classList.remove('on');pendingAttendId=null;}
 async function confirmAttend(){const tel=document.getElementById('attend-tel').value.trim();
   if(!tel){flashFixed('Escribe tu teléfono para confirmar.',true);return;}
   const id=pendingAttendId;closeAttend();
   const{error}=await marcarEnAtencionDb(id,tel);
   if(error){flashFixed(error.message.includes('Otro voluntario')?'Ya hay alguien en camino a ese caso.':(error.message||'No se pudo registrar.'),true);return;}
+  ph(_ev().HELP_ATTEND_CONFIRMED,{need_id:id});
   volTel=tel;flashFixed('✅ Quedaste en camino. Contacta y marca atendido cuando llegues.');loadHelp();}
 async function markCubierta(id){if(!confirm('¿Confirmas que este caso ya fue atendido?'))return;
   const{error}=await marcarCubiertaDb(id,volTel||null);
   if(error){flashFixed(error.message||'No se pudo marcar.',true);return;}
+  ph(_ev().HELP_MARKED_CUBIERTA,{need_id:id});
   flashFixed('✅ Caso marcado como atendido. ¡Gracias!');loadHelp();}
 function hasNeedTel(n){const t=(n?.telefono||'').trim();return!!t&&t.toLowerCase()!=='sin teléfono'&&t!=='s/d';}
 function hasNeedPost(n){return!!(n?.source_url||'').trim();}
@@ -830,11 +841,11 @@ function needCard(n){const done=n.estado==='cubierta',enProc=n.estado==='en_proc
   const atencionMine=enProc&&mine?`<div class="c-atencion" style="background:var(--grnl);color:var(--grnh)">✓ Tú vas en camino${n.en_atencion_at?' · '+ago(n.en_atencion_at):''}</div>`:'';
   let actions='';
   if(!done){
-    const telLine=hasTel?`<a class="btn-call" href="tel:${n.telefono}">📞 ${escHtml(n.telefono)}</a>`:'';
-    const waLine=wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank">💬 WhatsApp</a>`:'';
-    const postLine=needPostBtn(n);
+    const telLine=hasTel?`<a class="btn-call" href="tel:${n.telefono}" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'tel',need_id:'${n.id}'})">📞 ${escHtml(n.telefono)}</a>`:'';
+    const waLine=wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'wa',need_id:'${n.id}'})">💬 WhatsApp</a>`:'';
+    const postLine=needPostBtn(n).replace('<a class="btn-post"','<a class="btn-post" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:\'post\',need_id:\''+n.id+'\'})"');
     const noTelLine=!hasTel&&!hasNeedPost(n)?'<span class="c-nota" style="background:var(--yell);color:var(--yelt);border-color:var(--yel);flex:1 1 100%">📵 Sin teléfono en el sitio — ir al mapa</span>':'';
-    const contact=`${telLine}${waLine}${postLine}${noTelLine}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
+    const contact=`${telLine}${waLine}${postLine}${noTelLine}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'map',need_id:'${n.id}'})">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
     if(n.estado==='pendiente')actions=contact+`<button class="btn-voy" onclick="openAttend('${n.id}')">🙋 Voy en camino</button>`;
     else if(mine)actions=contact+`<button class="btn-voy" style="background:var(--grn)" onclick="markCubierta('${n.id}')">✓ Ya atendido</button>`;
     else actions=contact;
@@ -852,8 +863,10 @@ function needCard(n){const done=n.estado==='cubierta',enProc=n.estado==='en_proc
 
 let helpTipo='',helpPos=null;
 function setChip(btn){document.querySelectorAll('#help-chips .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');helpTipo=btn.dataset.t;
+  ph(_ev().HELP_FILTER_CHANGED,{tipo:helpTipo||'todo'});
   if(ayudarView==='lista')loadHelp();else populateMap();}
 function setAyudarView(v){ayudarView=v;
+  ph(_ev().HELP_VIEW_CHANGED,{view:v});
   document.getElementById('tgl-lista').classList.toggle('on',v==='lista');
   document.getElementById('tgl-mapa').classList.toggle('on',v==='mapa');
   document.getElementById('ayudar-lista-wrap').style.display=v==='lista'?'block':'none';
@@ -862,8 +875,9 @@ function setAyudarView(v){ayudarView=v;
   else loadHelp();}
 function locateForHelp(){const btn=document.getElementById('geo-ayudar-btn');btn.textContent='⏳ Ubicando...';btn.disabled=true;
   navigator.geolocation.getCurrentPosition(p=>{helpPos={lat:p.coords.latitude,lng:p.coords.longitude};btn.className='geo-btn ok geo-mini-btn';btn.textContent='✅ Ordenado por cercanía';btn.disabled=false;
+    ph(_ev().HELP_GPS_REQUESTED,{success:true});
     if(ayudarView==='lista')loadHelp();else populateMap();},
-  ()=>{btn.textContent='❌ Sin GPS. Mostrando todas.';btn.disabled=false;if(ayudarView==='lista')loadHelp();},{enableHighAccuracy:true,timeout:10000});}
+  ()=>{btn.textContent='❌ Sin GPS. Mostrando todas.';btn.disabled=false;ph(_ev().HELP_GPS_REQUESTED,{success:false});if(ayudarView==='lista')loadHelp();},{enableHighAccuracy:true,timeout:10000});}
 async function loadHelp(){const el=document.getElementById('lista-ayudar');el.innerHTML='<div class="spin-wrap"><div class="spinner"></div>Buscando solicitudes...</div>';
   const{data:needsRaw}=helpPos?await db.rpc('necesidades_cercanas',{p_lat:helpPos.lat,p_lng:helpPos.lng,p_radio_m:300000,p_tipo:null})
     :await db.from('necesidades').select('*').neq('estado','cubierta').is('merged_into',null).order('urgencia');
@@ -871,6 +885,7 @@ async function loadHelp(){const el=document.getElementById('lista-ayudar');el.in
   if(helpTipo)needs=needs.filter(n=>needTipos(n).some(t=>(t||'').toLowerCase().includes(helpTipo.toLowerCase())));
   needs.sort((a,b)=>{const ka=needSortKey(a),kb=needSortKey(b);if(ka!==kb)return ka-kb;
     return(a.distancia_m??999999999)-(b.distancia_m??999999999);});
+  ph(_ev().HELP_LIST_LOADED,{count:needs.length,has_gps:!!helpPos,filter:helpTipo||'todo',empty:needs.length===0});
   el.innerHTML=needs.map(needCard).join('')||emptyHelpMsg();}
 
 let acopioCache=[];
@@ -878,6 +893,7 @@ async function loadAcopio(uLat,uLng){const el=document.getElementById('lista-aco
   if(!acopioCache.length){const{data}=await db.from('centros_acopio').select('*').eq('activo',true).order('estado_vzla');acopioCache=data||[];
     const sel=document.getElementById('o-acopio');sel.innerHTML='<option value="">Selecciona...</option>';acopioCache.forEach(a=>{sel.innerHTML+=`<option value="${a.id}">${a.nombre} — ${a.estado_vzla}</option>`;});}
   let list=[...acopioCache];if(uLat&&uLng)list=list.map(a=>({...a,km:dist0(uLat,uLng,a.lat,a.lng)})).sort((a,b)=>a.km-b.km);
+  ph(_ev().ACOPIO_LIST_LOADED,{count:list.length,sorted_by_gps:!!(uLat&&uLng)});
   el.innerHTML=list.map(a=>{
     const nec=(a.necesita_ahora&&a.necesita_ahora.length)?`<div class="acopio-need"><div class="acopio-need-lbl">Necesitan ahora</div><div class="acopio-need-txt">${escHtml(a.necesita_ahora.join(' · '))}</div></div>`:'';
     const cub=(a.ya_cubierto&&a.ya_cubierto.length)?`<div class="acopio-cubierto">✓ Ya cubierto: ${escHtml(a.ya_cubierto.join(', '))}</div>`:'';
@@ -887,8 +903,8 @@ async function loadAcopio(uLat,uLng){const el=document.getElementById('lista-aco
     <div class="actions"><a class="btn-map" href="${gmapsRoute(a.lat,a.lng)}" target="_blank">🗺 Cómo llegar</a>${a.telefono?`<a class="btn-call" href="tel:${a.telefono}">📞 Llamar</a>`:''}</div></div>`;}).join('')||'<div class="empty">No hay centros activos.</div>';}
 function dist0(la1,lo1,la2,lo2){const R=6371,dL=(la2-la1)*Math.PI/180,dG=(lo2-lo1)*Math.PI/180;const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dG/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 function locateForAcopio(){const btn=document.getElementById('geo-acopio-btn');btn.textContent='⏳ Ubicando...';btn.disabled=true;
-  navigator.geolocation.getCurrentPosition(p=>{btn.className='geo-btn ok geo-mini-btn';btn.textContent='✅ Ordenados por cercanía';btn.disabled=false;loadAcopio(p.coords.latitude,p.coords.longitude);},
-  ()=>{btn.textContent='❌ Sin GPS';btn.disabled=false;},{enableHighAccuracy:true,timeout:10000});}
+  navigator.geolocation.getCurrentPosition(p=>{btn.className='geo-btn ok geo-mini-btn';btn.textContent='✅ Ordenados por cercanía';btn.disabled=false;ph(_ev().ACOPIO_GPS_REQUESTED,{success:true});loadAcopio(p.coords.latitude,p.coords.longitude);},
+  ()=>{btn.textContent='❌ Sin GPS';btn.disabled=false;ph(_ev().ACOPIO_GPS_REQUESTED,{success:false});},{enableHighAccuracy:true,timeout:10000});}
 
 async function loadHomeStats(){
   const[{count:nc},{count:cc}]=await Promise.all([
@@ -897,7 +913,7 @@ async function loadHomeStats(){
   document.getElementById('stat-needs').textContent=nc??0;
   document.getElementById('stat-centros').textContent=cc??0;}
 
-function startSOS(){goScreen('reportar');if(!locationConfirmed)captureGeo();}
+function startSOS(){ph(_ev().SOS_FAB_CLICKED);goScreen('reportar');if(!locationConfirmed)captureGeo();}
 function gatherNeed(){const tipos=[...selTipos],labels=tipos.map(t=>SHORT[t]||t),otro=document.getElementById('r-otro').value.trim();
   let desc=document.getElementById('r-desc').value.trim();
   if(otro&&!desc)desc=`Otro: ${otro}`;
@@ -918,25 +934,27 @@ async function findDupes(n){const{data}=await db.rpc('necesidades_cercanas',{p_l
   if(!data?.length)return[];const mine=needTipos(n);return data.filter(d=>tiposOverlap(mine,needTipos(d)));}
 async function checkAndSubmit(){
   const otro=document.getElementById('r-otro').value.trim();
-  if(!locationConfirmed||!hasReportCoords()){showToast('r','Confirma tu ubicación en el paso 1 (GPS, dirección o edificio).',true);return;}
-  if(!selTipos.length&&!otro){showToast('r','Toca qué necesitas o escribe en Otro (paso 2).',true);return;}
+  if(!locationConfirmed||!hasReportCoords()){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'no_location'});showToast('r','Confirma tu ubicación en el paso 1 (GPS, dirección o edificio).',true);return;}
+  if(!selTipos.length&&!otro){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'no_tipo'});showToast('r','Toca qué necesitas o escribe en Otro (paso 2).',true);return;}
   const sinTel=document.getElementById('r-sin-tel').checked,tel=document.getElementById('r-tel').value.trim(),desc=document.getElementById('r-desc').value.trim();
   const postUrl=document.getElementById('r-post-url').value.trim();
-  if(!sinTel&&!tel){showToast('r','Falta teléfono de contacto.',true);return;}
-  if(postUrl&&!/^https?:\/\/.+/i.test(postUrl)){showToast('r','El enlace del post debe empezar con http:// o https://',true);return;}
-  if(sinTel&&!tel&&!postUrl&&!desc){showToast('r','Sin teléfono: pega el enlace del post o escribe un detalle (cuántas personas, qué pasa).',true);return;}
+  if(!sinTel&&!tel){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'no_tel'});showToast('r','Falta teléfono de contacto.',true);return;}
+  if(postUrl&&!/^https?:\/\/.+/i.test(postUrl)){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'bad_url'});showToast('r','El enlace del post debe empezar con http:// o https://',true);return;}
+  if(sinTel&&!tel&&!postUrl&&!desc){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'sin_tel_sin_detalle'});showToast('r','Sin teléfono: pega el enlace del post o escribe un detalle (cuántas personas, qué pasa).',true);return;}
   const n=gatherNeed();const btn=document.getElementById('btn-r');btn.disabled=true;btn.textContent='Revisando...';
   const data=await findDupes(n);
   btn.disabled=false;btn.textContent='Publicar SOS';
   if(data.length){showDupe(data,n);return;}await doInsertNeed(n);}
 let pendingNeed=null;
-function showDupe(list,n){pendingNeed=n;document.getElementById('dupe-list').innerHTML=list.slice(0,4).map(d=>`<div class="dupe"><b>${tipoIcons(d)} ${tipoText(d)} — ${escHtml(d.zona)}</b><div class="meta">📍 ${escHtml(d.direccion_exacta)} · a ${fmDist(d.distancia_m)} · ${d.confirmaciones} confirmaciones</div><div class="meta">${escHtml(d.descripcion)}</div><button onclick="confirmExisting('${d.id}')">✅ Es lo mismo, confirmar</button></div>`).join('');document.getElementById('dupe-modal').classList.add('on');}
+function showDupe(list,n){pendingNeed=n;ph(_ev().NEED_DUPLICATE_SHOWN,{dupe_count:list.length});document.getElementById('dupe-list').innerHTML=list.slice(0,4).map(d=>`<div class="dupe"><b>${tipoIcons(d)} ${tipoText(d)} — ${escHtml(d.zona)}</b><div class="meta">📍 ${escHtml(d.direccion_exacta)} · a ${fmDist(d.distancia_m)} · ${d.confirmaciones} confirmaciones</div><div class="meta">${escHtml(d.descripcion)}</div><button onclick="confirmExisting('${d.id}')">✅ Es lo mismo, confirmar</button></div>`).join('');document.getElementById('dupe-modal').classList.add('on');}
 function closeDupe(){document.getElementById('dupe-modal').classList.remove('on');}
-async function confirmExisting(id){await db.rpc('confirmar_necesidad',{p_id:id});closeDupe();showToast('r','✅ Confirmaste un reporte existente. ¡Gracias!');resetNeed();}
-async function forceNew(){closeDupe();if(pendingNeed)await doInsertNeed(pendingNeed);}
+async function confirmExisting(id){await db.rpc('confirmar_necesidad',{p_id:id});ph(_ev().NEED_DUPLICATE_CONFIRMED,{need_id:id});closeDupe();showToast('r','✅ Confirmaste un reporte existente. ¡Gracias!');resetNeed();}
+async function forceNew(){ph(_ev().NEED_DUPLICATE_FORCED_NEW,{dupe_count:document.querySelectorAll('#dupe-list .dupe').length});closeDupe();if(pendingNeed)await doInsertNeed(pendingNeed);}
 async function doInsertNeed(n){const btn=document.getElementById('btn-r');btn.disabled=true;btn.textContent='Publicando...';
   const{error}=await db.from('necesidades').insert(n);btn.disabled=false;btn.textContent='Publicar SOS';
-  if(error){showToast('r','Error al enviar. Revisa tu conexión.',true);return;}showToast('r','✅ SOS publicado. Quien ayude cerca lo verá enseguida.');resetNeed();}
+  if(error){ph(_ev().NEED_PUBLISH_FAILED,{error_code:error.code||'unknown'});showToast('r','Error al enviar. Revisa tu conexión.',true);return;}
+  ph(_ev().NEED_PUBLISHED,{tipos:needTipos(n),urgencia:n.urgencia,loc_method:locMethod,sin_tel:document.getElementById('r-sin-tel').checked,has_post_url:!!n.source_url,has_edificio:!!n.edificio_id,fuente:n.fuente});
+  showToast('r','✅ SOS publicado. Quien ayude cerca lo verá enseguida.');resetNeed();}
 function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-dir-input','r-edif','r-edif-nombre','r-edif-search','r-tel','r-wa','r-post-url','r-desc','r-pers','r-nombre','r-otro'].forEach(i=>document.getElementById(i).value='');
   selTipos=[];selSubs=[];selUrg='urgente';locFromGps=false;locationConfirmed=false;locMethod=null;gpsAccuracy=null;edifListCache=[];
   document.querySelectorAll('#tipo-grid .gbtn').forEach(b=>b.classList.remove('on'));
@@ -962,7 +980,8 @@ async function submitRecurso(){if(!selTipoO){showToast('o','Toca qué ofreces.',
   const acId=document.getElementById('o-acopio').value,ac=acopioCache.find(a=>a.id===acId);
   const{error}=await db.from('recursos').insert({tipo:selTipoO,cantidad:qty,centro_acopio_id:acId||null,zona_origen:ac?ac.estado_vzla:null,
     direccion_origen:ac?ac.nombre+' — '+ac.direccion:null,nombre_contacto:document.getElementById('o-nombre').value.trim()||'Donante',telefono:tel,estado:'disponible'});
-  btn.disabled=false;btn.textContent='Publicar recurso';if(error){showToast('o','Error al enviar.',true);return;}
+  btn.disabled=false;btn.textContent='Publicar recurso';if(error){ph(_ev().RESOURCE_PUBLISH_FAILED,{error_code:error.code||'unknown'});showToast('o','Error al enviar.',true);return;}
+  ph(_ev().RESOURCE_PUBLISHED,{tipo:selTipoO,has_centro:!!acId});
   showToast('o','✅ Recurso publicado. ¡Gracias!');selTipoO='';document.querySelectorAll('#tipo-grid-o .gbtn').forEach(b=>b.classList.remove('on'));
   ['o-qty','o-acopio','o-tel','o-nombre'].forEach(i=>document.getElementById(i).value='');}
 
@@ -972,7 +991,7 @@ const AS_MODO_ICON={Llamada:'📞',WhatsApp:'💬',Video:'🎥',Chat:'💭',Pres
 const AS_MODOS=['Llamada','WhatsApp','Video','Chat','Presencial'];
 let asesorCat='',asesoresCache=[],selAsesorCat='',selModos=[];
 
-function setAsesorChip(btn){document.querySelectorAll('#asesor-chips .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');asesorCat=btn.dataset.t;renderAsesoria();}
+function setAsesorChip(btn){document.querySelectorAll('#asesor-chips .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');asesorCat=btn.dataset.t;ph(_ev().ASESORIA_FILTER_CHANGED,{categoria:asesorCat||'todo'});renderAsesoria();}
 function pickAsesorCat(btn){document.querySelectorAll('#asesor-cat-grid .gbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selAsesorCat=btn.dataset.t;
   const otro=document.getElementById('a-cat-otro'),isOtro=selAsesorCat==='Otro';
   otro.style.display=isOtro?'block':'none';
@@ -1011,8 +1030,8 @@ function asesorCard(a){
     <div class="asesor-meta">🕐 ${escHtml(a.disponibilidad||'Consultar')} · 🗣 ${escHtml(a.idiomas||'Español')}</div>
     ${modos?`<div class="asesor-modos">Atiende por: ${modos}</div>`:''}
     <div class="actions">
-      <a class="btn-call" href="tel:${tel}">📞 Llamar</a>
-      ${wa?`<a class="btn-wa" href="${waLink(wa)}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}
+      <a class="btn-call" href="tel:${tel}" onclick="ph(_ev().ASESORIA_CONTACT_CLICKED,{channel:'tel',categoria:'${escAttr(a.categoria)}'})">📞 Llamar</a>
+      ${wa?`<a class="btn-wa" href="${waLink(wa)}" target="_blank" rel="noopener" onclick="ph(_ev().ASESORIA_CONTACT_CLICKED,{channel:'wa',categoria:'${escAttr(a.categoria)}'})">💬 WhatsApp</a>`:''}
     </div>
   </div>`;}
 async function submitAsesor(){
@@ -1034,7 +1053,8 @@ async function submitAsesor(){
     descripcion:desc,modos:selModos,disponibilidad:document.getElementById('a-dispo').value.trim()||null,
     telefono:tel,whatsapp:null});
   btn.disabled=false;btn.textContent='Publicar mi ayuda';
-  if(error){showToast('a','No se pudo publicar. Reintenta.',true);return;}
+  if(error){ph(_ev().ASESOR_PUBLISH_FAILED,{error_code:error.code||'unknown'});showToast('a','No se pudo publicar. Reintenta.',true);return;}
+  ph(_ev().ASESOR_PUBLISHED,{categoria,modos_count:selModos.length});
   selAsesorCat='';resetModoChips();
   document.querySelectorAll('#asesor-cat-grid .gbtn').forEach(b=>b.classList.remove('on'));
   const otroEl=document.getElementById('a-cat-otro');otroEl.value='';otroEl.style.display='none';
@@ -1048,6 +1068,7 @@ function showToast(v,m,err=false){const t=document.getElementById('toast-'+v);t.
 
 function goScreen(name){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.getElementById('view-'+name).classList.add('on');
+  ph(_ev().SCREEN_VIEWED,{screen:name});
   document.getElementById('fab').classList.toggle('show',name==='ayudar'||name==='centros'||name==='asesoria');
   if(name==='home')loadHomeStats();
   if(name==='ayudar'){if(ayudarView==='lista')loadHelp();else{initMainMap();populateMap();}}
@@ -1071,6 +1092,8 @@ buildGrid('tipo-grid',TIPOS,'pickTipo');
 buildGrid('tipo-grid-o',TIPOS_O,'pickTipoO','gbtn-g');
 document.getElementById('asesor-cat-grid').innerHTML=AS_CATS_FORM.map(x=>`<button type="button" class="gbtn gbtn-as" data-t="${x.t}" onclick="pickAsesorCat(this)"><span class="e">${x.e}</span>${x.t}</button>`).join('');
 document.getElementById('asesor-modos-chips').innerHTML=AS_MODOS.map(m=>`<button type="button" class="subchip subchip-as" data-m="${m}" onclick="pickModoAsesor(this)">${m}</button>`).join('');
+if(window.POSTHOG_KEY&&window.ForVzlaAnalytics)ForVzlaAnalytics.initPostHog(POSTHOG_KEY,{apiHost:window.POSTHOG_HOST});
+ph(_ev().SCREEN_VIEWED,{screen:'home'});
 loadHomeStats();
 </script>
 </body>

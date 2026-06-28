@@ -106,8 +106,13 @@ details.sum summary::-webkit-details-marker{display:none}
 
     <div class="panel on" id="panel-posts">
       <p style="font-size:13px;color:var(--g4);margin-bottom:12px;line-height:1.5">
-        La IA resume cada post y sugiere qué crear. Pulsa la acción recomendada o elige otra.
+        La IA resume cada post. <b>Solo lo que apruebes aquí</b> se publica en el mapa. Revisa críticos con cuidado.
       </p>
+      <div class="filter-chips" id="post-filters">
+        <button class="on" data-f="todos" onclick="setPostFilter(this)">Todos</button>
+        <button data-f="critica" onclick="setPostFilter(this)">🔴 Críticos</button>
+        <button data-f="listos" onclick="setPostFilter(this)">✓ Listos para publicar</button>
+      </div>
       <div id="lista-posts"></div>
     </div>
 
@@ -283,20 +288,29 @@ function analizarPost(p) {
   const esRescate = cat === 'rescate' || tipo === 'Rescate';
   const esCentro = cat === 'centro_acopio' || /centro de acopio|punto de acopio|donaciones en|recibimos don/i.test(blob);
   const esEdificio = esRescate || /colaps|derrumb|atrap|edificio|torre|residen|estructura dañ/i.test(blob);
+  const esNoticiaPasada = /fue rescatad|ya fue rescat|lograron rescatar|rescatad[oa]s?\s+(del|de los|hace)|operación exitosa|celebramos|emotivo rescate|historia de/i.test(blob);
   const generico = /genérico|sin especificar|no especifica|post genérico|poco detalle/i.test(p.descripcion || '');
 
   const alertas = [];
+  if (esNoticiaPasada) alertas.push('⚠ Parece noticia ya resuelta — verifica que sigan pidiendo ayuda');
   if (!hasGeo) alertas.push('Sin coordenadas — no se puede registrar edificio en mapa');
   if (!hasZona) alertas.push('Zona imprecisa');
   if (!hasTel) alertas.push(hasUrl ? 'Sin teléfono — contacto vía publicación' : 'Sin teléfono de contacto');
   if (generico) alertas.push('Descripción muy vaga');
+  if (urg === 'critica' && !hasGeo && !hasZona) alertas.push('Crítico sin ubicación — alto riesgo de falso positivo');
 
   let destino = 'necesidad';
   let why = '';
 
-  if (esCentro && hasGeo && hasZona) {
+  if (esNoticiaPasada) {
+    destino = 'rechazar';
+    why = 'Parece noticia o rescate ya ocurrido, no un pedido activo de ayuda.';
+  } else if (esCentro && hasGeo && hasZona) {
     destino = 'centro';
     why = 'Parece un centro de acopio con ubicación — créalo en tab Centros.';
+  } else if (urg === 'critica' && conf < 0.8 && (!hasGeo || !hasZona)) {
+    destino = 'rechazar';
+    why = 'Marcado crítico pero faltan ubicación o confianza — mejor no publicar sin verificar.';
   } else if (conf < 0.6 && (generico || (!hasContact && alertas.length >= 2))) {
     destino = 'rechazar';
     why = 'Confianza baja y faltan datos clave para publicar con seguridad.';
@@ -733,14 +747,29 @@ async function setRecursoEstado(id, estado) {
   loadEnlaces();
 }
 
+let postFilter = 'todos';
+
+function setPostFilter(btn) {
+  document.querySelectorAll('#post-filters button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  postFilter = btn.dataset.f;
+  loadPosts();
+}
+
 async function loadPosts() {
   const el = document.getElementById('lista-posts');
   el.innerHTML = '<div class="empty">Cargando...</div>';
   const { data, error } = await db.from('posts_redes')
-    .select('*').eq('estado', 'pendiente').order('created_at', { ascending: false }).limit(50);
+    .select('*').eq('estado', 'pendiente').order('created_at', { ascending: false }).limit(80);
   if (error) { el.innerHTML = `<div class="empty">Error: ${esc(error.message)}</div>`; return; }
   if (!data?.length) { el.innerHTML = '<div class="empty">No hay posts pendientes.</div>'; return; }
-  const sorted = [...data].sort((a, b) => analizarPost(b).score - analizarPost(a).score);
+  let sorted = [...data].sort((a, b) => analizarPost(b).score - analizarPost(a).score);
+  if (postFilter === 'critica') sorted = sorted.filter(p => p.urgencia === 'critica');
+  if (postFilter === 'listos') sorted = sorted.filter(p => {
+    const a = analizarPost(p);
+    return a.destino !== 'rechazar' && a.cardClass === 'card-ready';
+  });
+  if (!sorted.length) { el.innerHTML = '<div class="empty">Nada en este filtro.</div>'; return; }
   postsCache = Object.fromEntries(sorted.map(p => [p.id, p]));
   el.innerHTML = sorted.map(renderPostCard).join('');
 }

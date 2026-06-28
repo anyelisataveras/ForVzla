@@ -1,6 +1,7 @@
 import crypto from 'node:crypto';
 import { clasificar, INGESTAR_CATEGORIAS } from './classifier.js';
 import { geocode } from './geocode.js';
+import { evaluarCandidato } from './quality.js';
 
 export function hashPost(plataforma, post_id) {
   return crypto.createHash('sha256').update(`${plataforma}:${post_id}`).digest('hex').slice(0, 32);
@@ -27,8 +28,9 @@ export async function procesar(post, { db, anthropicKey, dryRun }) {
   if (!geo && c.zona) geo = await geocode(c.zona);
 
   const tipo = c.categoria === 'rescate' ? (c.tipo || 'Rescate') : (c.tipo || 'Otra');
-  const candidato = INGESTAR_CATEGORIAS.has(c.categoria) && (c.confianza ?? 0) >= 0.55;
-  const estadoPost = candidato ? 'pendiente' : 'descartado';
+  const { urgencia, estadoPost } = INGESTAR_CATEGORIAS.has(c.categoria)
+    ? evaluarCandidato(c, post, geo)
+    : { urgencia: c.urgencia || 'urgente', estadoPost: 'descartado' };
 
   const fila = {
     plataforma: post.plataforma,
@@ -41,7 +43,7 @@ export async function procesar(post, { db, anthropicKey, dryRun }) {
     source_hash: hash,
     categoria: c.categoria,
     tipo,
-    urgencia: c.urgencia,
+    urgencia,
     zona: c.zona,
     direccion: c.direccion,
     descripcion: c.descripcion,

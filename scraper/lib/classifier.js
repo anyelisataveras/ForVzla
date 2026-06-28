@@ -21,12 +21,16 @@ Analiza el post y devuelve SOLO un JSON (sin markdown) con esta estructura exact
 }
 
 Reglas:
-- categoria "necesidad" = alguien PIDE ayuda/recursos concretos.
-- categoria "rescate" = operación activa, personas atrapadas, evacuación urgente.
+- categoria "necesidad" = alguien PIDE ayuda/recursos concretos AHORA (pedido activo).
+- categoria "rescate" = operación activa, personas atrapadas, evacuación urgente EN CURSO.
 - centro_acopio = OFRECEN recibir donaciones (no es necesidad).
 - voluntariado, ayuda_intl, replica_sismica, informativo, irrelevante = no son pedidos de ayuda.
+- NOTICIAS ya resueltas (alguien "fue rescatado", "lograron sacar", emotivo sin pedido) → informativo, NO rescate.
 - tipo: si categoria es necesidad o rescate, usa uno de: ${TIPOS.join(', ')}. Si rescate, prefiere "Rescate".
-- confianza: 0..1 qué tan seguro estás de la clasificación.`;
+- urgencia "critica" SOLO si hay peligro de vida AHORA: atrapados bajo escombros, edificio a punto de caer, heridos graves sin atención.
+- urgencia "urgente" = necesidad real pero sin vida en riesgo inmediato.
+- urgencia "normal" = puede esperar horas.
+- confianza: 0..1 qué tan seguro estás. Baja (<0.6) si el post es vago, genérico o mezcla varios temas.`;
 
 export const INGESTAR_CATEGORIAS = new Set(['necesidad', 'rescate']);
 
