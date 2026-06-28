@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <meta name="theme-color" content="#1E3A5F">
 <title>Admin — Ayuda Venezuela</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="/scraper-config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
@@ -70,6 +72,11 @@ details.sum summary::-webkit-details-marker{display:none}
 .modal-box .meta{margin-bottom:6px}
 .modal-pwd{font-size:20px;font-weight:800;letter-spacing:.06em;background:var(--g1);padding:12px;border-radius:var(--r);text-align:center;margin:12px 0;font-family:ui-monospace,monospace}
 .modal-note{font-size:12px;color:var(--g4);line-height:1.45;margin-top:12px}
+.centro-pick-map{height:220px;border-radius:var(--r);border:1px solid var(--g2);overflow:hidden;margin-top:8px}
+.centro-pick-map .leaflet-container{height:100%;width:100%}
+.c-geo-ok{color:var(--grn);font-weight:600}.c-geo-warn{color:var(--ora);font-weight:600}
+.centro-loc-btns{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.centro-loc-btns .btn{flex:1;min-width:100px;width:auto;margin-top:0;padding:11px 8px;font-size:13px}
 </style>
 </head>
 <body>
@@ -164,10 +171,23 @@ details.sum summary::-webkit-details-marker{display:none}
       <div class="fld"><label>Organización</label><input id="c-org"></div>
       <div class="fld"><label>Estado *</label><input id="c-estado" placeholder="Miranda"></div>
       <div class="fld"><label>Dirección *</label><input id="c-dir" placeholder="Calle, sector, ciudad"></div>
-      <div class="fld"><label>Coordenadas en mapa *</label>
-        <p style="font-size:12px;color:var(--g4);margin-bottom:8px;line-height:1.45">Dos números decimales (ej. <code>10.49</code> y <code>-66.90</code>). No uses códigos tipo <code>G432+R8</code>.</p>
-        <button type="button" class="btn btn-s" id="btn-geocode-centro" onclick="geocodeCentro()" style="margin-top:0;margin-bottom:8px">📍 Buscar por dirección</button>
-        <div style="display:flex;gap:8px"><input id="c-lat" inputmode="decimal" placeholder="Lat (10.49)"><input id="c-lng" inputmode="decimal" placeholder="Lng (-66.90)"></div>
+      <div class="fld"><label>Ubicación en mapa *</label>
+        <p style="font-size:12px;color:var(--g4);margin-bottom:8px;line-height:1.45">Marca el pin en el mapa o usa una opción abajo. La dirección sola muchas veces no alcanza en Venezuela.</p>
+        <div class="centro-loc-btns">
+          <button type="button" class="btn btn-s" id="btn-geocode-centro" onclick="geocodeCentro()">🔍 Buscar</button>
+          <button type="button" class="btn btn-s" onclick="gpsCentro()">📍 Estoy aquí</button>
+          <button type="button" class="btn btn-s" onclick="toggleCentroMap()">🗺 Mapa</button>
+        </div>
+        <input id="c-maps-link" placeholder="Pega link de Google Maps (Compartir → Copiar enlace)" style="width:100%;padding:11px;border:1px solid var(--g2);border-radius:var(--r);font-size:14px;margin-bottom:8px" oninput="applyMapsLinkDebounced()">
+        <div id="c-geo-status" class="meta" style="display:none;margin-bottom:6px"></div>
+        <div id="c-map-wrap" style="display:none">
+          <div id="c-map-el" class="centro-pick-map"></div>
+          <p class="meta" style="margin-top:6px">Toca el mapa para colocar o ajustar el pin.</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <input id="c-lat" inputmode="decimal" placeholder="Lat" style="font-size:13px;flex:1;padding:9px;border:1px solid var(--g2);border-radius:var(--r)">
+          <input id="c-lng" inputmode="decimal" placeholder="Lng" style="font-size:13px;flex:1;padding:9px;border:1px solid var(--g2);border-radius:var(--r)">
+        </div>
       </div>
       <div class="fld"><label>Teléfono</label><input id="c-tel" inputmode="tel"></div>
       <div class="fld"><label>Horario</label><input id="c-horario" placeholder="8am - 8pm"></div>
@@ -433,10 +453,14 @@ function prefillCentro(id) {
   document.getElementById('c-nombre').value = left(p.descripcion || p.texto, 80) || 'Centro de acopio';
   document.getElementById('c-estado').value = p.zona || '';
   document.getElementById('c-dir').value = p.direccion || p.ubicacion_post || '';
-  if (p.lat) document.getElementById('c-lat').value = p.lat;
-  if (p.lng) document.getElementById('c-lng').value = p.lng;
   document.getElementById('c-tel').value = p.telefono && p.telefono !== 's/d' ? p.telefono : '';
-  toast('Formulario de centro prellenado — revisa y guarda');
+  if (p.lat != null && p.lng != null) {
+    setCentroCoords(+p.lat, +p.lng, { approx: false, label: '✓ Coordenadas del post' });
+    ensureCentroMap();
+  } else {
+    geocodeCentro(true);
+  }
+  toast('Formulario de centro prellenado — revisa el pin en el mapa');
 }
 
 function showLoginScreen() {
@@ -830,11 +854,19 @@ function parseCoordValue(raw) {
 }
 
 function parseCoordsPair() {
+  const link = document.getElementById('c-maps-link')?.value.trim();
+  if (link) {
+    const fromLink = parseGoogleMapsUrl(link);
+    if (fromLink) return fromLink;
+  }
   const latEl = document.getElementById('c-lat');
   const lngEl = document.getElementById('c-lng');
   let latRaw = latEl.value.trim();
   let lngRaw = lngEl.value.trim();
   const blob = latRaw + ' ' + lngRaw;
+
+  const fromBlob = parseGoogleMapsUrl(blob);
+  if (fromBlob) return fromBlob;
 
   const at = blob.match(/@(-?\d+\.?\d*),(-?\d+\.?\d*)/);
   if (at) return { lat: parseFloat(at[1]), lng: parseFloat(at[2]) };
@@ -857,6 +889,133 @@ function parseCoordsPair() {
   return { lat, lng };
 }
 
+function stripPostal(s) {
+  return (s || '').replace(/\s+\d{4,5}\s*$/, '').trim();
+}
+
+function buildGeocodeQueries(dir, estado) {
+  const queries = [];
+  const seen = new Set();
+  const add = q => {
+    q = q.replace(/\s+/g, ' ').trim();
+    if (!q || seen.has(q.toLowerCase())) return;
+    seen.add(q.toLowerCase());
+    queries.push(q);
+  };
+
+  if (dir) {
+    add([dir, estado, 'Venezuela'].filter(Boolean).join(', '));
+    if (!/venezuela/i.test(dir)) add(dir + ', Venezuela');
+    const parts = dir.split(',').map(s => stripPostal(s.trim())).filter(Boolean);
+    for (let n = Math.min(3, parts.length); n >= 1; n--) {
+      const chunk = parts.slice(-n).filter(p => !/^venezuela$/i.test(p));
+      if (chunk.length) add([...chunk, estado, 'Venezuela'].filter(Boolean).join(', '));
+    }
+    if (parts.length >= 2) {
+      const sector = parts[parts.length - 2];
+      const city = stripPostal(parts[parts.length - 1]);
+      if (sector && city && !/^venezuela$/i.test(city) && sector !== city) {
+        add([sector, city, estado, 'Venezuela'].filter(Boolean).join(', '));
+      }
+      if (city && !/^venezuela$/i.test(city)) {
+        add([city, estado, 'Venezuela'].filter(Boolean).join(', '));
+      }
+    }
+  }
+  if (estado) add(`${estado}, Venezuela`);
+  return queries;
+}
+
+function parseGoogleMapsUrl(raw) {
+  if (!raw) return null;
+  const s = raw.trim();
+  let m = s.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+  if (m) return { lat: +m[1], lng: +m[2] };
+  m = s.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+  if (m) return { lat: +m[1], lng: +m[2] };
+  m = s.match(/[?&]q=(-?\d+\.?\d*),(-?\d+\.?\d*)/);
+  if (m) return { lat: +m[1], lng: +m[2] };
+  return null;
+}
+
+let centroMap, centroMarker, mapsLinkTimer;
+
+function setCentroCoords(lat, lng, opts) {
+  opts = opts || {};
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+  document.getElementById('c-lat').value = lat.toFixed(6);
+  document.getElementById('c-lng').value = lng.toFixed(6);
+  const status = document.getElementById('c-geo-status');
+  if (opts.label) {
+    status.textContent = opts.label;
+    status.className = 'meta ' + (opts.approx ? 'c-geo-warn' : 'c-geo-ok');
+    status.style.display = 'block';
+  }
+  if (centroMap) {
+    centroMap.setView([lat, lng], opts.approx ? 13 : 15);
+    if (!centroMarker) centroMarker = L.marker([lat, lng]).addTo(centroMap);
+    else centroMarker.setLatLng([lat, lng]);
+  }
+}
+
+function ensureCentroMap() {
+  const wrap = document.getElementById('c-map-wrap');
+  wrap.style.display = 'block';
+  const la = parseFloat(document.getElementById('c-lat').value);
+  const lo = parseFloat(document.getElementById('c-lng').value);
+  const has = Number.isFinite(la) && Number.isFinite(lo);
+  const center = has ? [la, lo] : [10.55, -66.9];
+  const zoom = has ? 14 : 6;
+  if (!centroMap) {
+    centroMap = L.map('c-map-el', { zoomControl: true, attributionControl: false }).setView(center, zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18 }).addTo(centroMap);
+    centroMap.on('click', e => {
+      setCentroCoords(e.latlng.lat, e.latlng.lng, { approx: false, label: '📍 Punto marcado en el mapa' });
+    });
+  } else {
+    centroMap.setView(center, zoom);
+  }
+  if (has) {
+    if (!centroMarker) centroMarker = L.marker(center).addTo(centroMap);
+    else centroMarker.setLatLng(center);
+  }
+  setTimeout(() => centroMap.invalidateSize(), 200);
+}
+
+function toggleCentroMap() {
+  ensureCentroMap();
+  document.getElementById('c-map-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function gpsCentro() {
+  if (!navigator.geolocation) { toast('GPS no disponible en este dispositivo'); return; }
+  toast('Obteniendo ubicación…');
+  navigator.geolocation.getCurrentPosition(
+    p => {
+      setCentroCoords(p.coords.latitude, p.coords.longitude, { approx: false, label: '📍 Tu ubicación GPS' });
+      ensureCentroMap();
+      toast('Ubicación GPS lista');
+    },
+    () => toast('No pudimos usar el GPS'),
+    { enableHighAccuracy: true, timeout: 12000 }
+  );
+}
+
+function applyMapsLinkDebounced() {
+  clearTimeout(mapsLinkTimer);
+  mapsLinkTimer = setTimeout(applyMapsLink, 300);
+}
+
+function applyMapsLink() {
+  const raw = document.getElementById('c-maps-link').value.trim();
+  if (!raw) return;
+  const c = parseGoogleMapsUrl(raw);
+  if (!c) return;
+  setCentroCoords(c.lat, c.lng, { approx: false, label: '✓ Desde enlace de Google Maps' });
+  ensureCentroMap();
+  toast('Ubicación del enlace aplicada');
+}
+
 async function nominatimSearch(q) {
   const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1&accept-language=es&countrycodes=ve`;
   const r = await fetch(url, { headers: { 'Accept-Language': 'es' } });
@@ -866,36 +1025,42 @@ async function nominatimSearch(q) {
 async function geocodeCentro(silent) {
   const dir = document.getElementById('c-dir').value.trim();
   const estado = document.getElementById('c-estado').value.trim();
-  if (!dir) {
-    if (!silent) toast('Escribe la dirección arriba');
+  if (!dir && !estado) {
+    if (!silent) toast('Escribe dirección o estado');
     return false;
   }
   const btn = document.getElementById('btn-geocode-centro');
-  if (!silent && btn) { btn.textContent = '⏳ Buscando…'; btn.disabled = true; }
+  if (!silent && btn) { btn.textContent = '⏳…'; btn.disabled = true; }
   try {
-    const queries = [
-      [dir, estado, 'Venezuela'].filter(Boolean).join(', '),
-      dir + ', Venezuela',
-      dir,
-    ];
+    const queries = buildGeocodeQueries(dir, estado);
     let hit = null;
-    for (const q of queries) {
-      const j = await nominatimSearch(q);
-      if (j?.length) { hit = j[0]; break; }
+    let qIndex = -1;
+    for (let i = 0; i < queries.length; i++) {
+      if (i > 0) await new Promise(r => setTimeout(r, 1100));
+      const j = await nominatimSearch(queries[i]);
+      if (j?.length) { hit = j[0]; qIndex = i; break; }
     }
     if (!hit) {
-      if (!silent) toast('No encontramos esa dirección — revisa calle y estado');
+      if (!silent) {
+        toast('No encontramos el lugar — marca el pin en el mapa');
+        toggleCentroMap();
+      }
       return false;
     }
-    document.getElementById('c-lat').value = parseFloat(hit.lat).toFixed(6);
-    document.getElementById('c-lng').value = parseFloat(hit.lon).toFixed(6);
-    if (!silent) toast('Coordenadas encontradas');
+    const approx = qIndex > 0 || (hit.place_rank != null && hit.place_rank > 17);
+    const shortName = (hit.display_name || '').split(',').slice(0, 2).join(',').trim();
+    const label = approx
+      ? `≈ ${shortName || 'Ubicación aproximada'} — ajusta el pin en el mapa`
+      : `✓ ${shortName || 'Ubicación encontrada'}`;
+    setCentroCoords(parseFloat(hit.lat), parseFloat(hit.lon), { approx, label });
+    ensureCentroMap();
+    if (!silent) toast(approx ? 'Ubicación aproximada — revisa el mapa' : 'Ubicación encontrada');
     return true;
   } catch {
-    if (!silent) toast('Sin conexión para buscar la dirección');
+    if (!silent) { toast('Sin conexión — marca el pin en el mapa'); toggleCentroMap(); }
     return false;
   } finally {
-    if (!silent && btn) { btn.textContent = '📍 Buscar por dirección'; btn.disabled = false; }
+    if (!silent && btn) { btn.textContent = '🔍 Buscar'; btn.disabled = false; }
   }
 }
 
@@ -915,8 +1080,8 @@ async function saveCentro() {
     ya_cubierto: parseListInput('c-cubierto'),
     activo: true,
   };
-  if ((!Number.isFinite(lat) || !Number.isFinite(lng)) && row.direccion) {
-    toast('Buscando coordenadas de la dirección…');
+  if ((!Number.isFinite(lat) || !Number.isFinite(lng)) && (row.direccion || row.estado_vzla)) {
+    toast('Buscando ubicación…');
     if (await geocodeCentro(true)) {
       ({ lat, lng } = parseCoordsPair());
       row.lat = lat;
@@ -927,7 +1092,9 @@ async function saveCentro() {
     toast('Completa nombre, estado y dirección'); return;
   }
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
-    toast('Faltan coordenadas — pulsa «Buscar por dirección» o pega lat/lng (ej. 10.49, -66.90)'); return;
+    toast('Marca el pin en el mapa o pega link de Google Maps');
+    toggleCentroMap();
+    return;
   }
 
   const rpcArgs = {
@@ -959,8 +1126,11 @@ async function saveCentro() {
     return;
   }
   toast('Centro guardado');
-  ['c-nombre','c-org','c-estado','c-dir','c-lat','c-lng','c-tel','c-horario','c-necesita','c-cubierto']
+  ['c-nombre','c-org','c-estado','c-dir','c-lat','c-lng','c-tel','c-horario','c-necesita','c-cubierto','c-maps-link']
     .forEach(i => { document.getElementById(i).value = ''; });
+  document.getElementById('c-geo-status').style.display = 'none';
+  document.getElementById('c-map-wrap').style.display = 'none';
+  if (centroMarker && centroMap) { centroMap.removeLayer(centroMarker); centroMarker = null; }
   loadCentros();
 }
 
