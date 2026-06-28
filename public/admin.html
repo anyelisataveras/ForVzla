@@ -517,7 +517,7 @@ function renderSolicitudCard(n) {
   </div>` : '';
   return `<div class="card ${cls}" id="sol-${n.id}">
     <h3>${URG_LABEL[n.urgencia] || ''} ${esc(solTipoText(n))} — ${esc(n.zona)}</h3>
-    <div class="meta">📍 ${esc(n.direccion_exacta)} · 📞 ${esc(n.telefono)}${n.nombre_contacto ? ' · ' + esc(n.nombre_contacto) : ''}</div>
+    <div class="meta">📍 ${esc(n.direccion_exacta)} · ${n.telefono ? '📞 ' + esc(n.telefono) : '📵 Sin teléfono'}${n.nombre_contacto ? ' · ' + esc(n.nombre_contacto) : ''}</div>
     <div class="meta"><span class="badge">${EST_LABEL[n.estado] || n.estado}</span> · ⏱ ${new Date(n.created_at).toLocaleString('es-VE')}${n.confirmaciones > 1 ? ' · ' + n.confirmaciones + ' confirmaciones' : ''}</div>
     ${n.descripcion ? `<div class="txt">${esc(n.descripcion)}</div>` : ''}
     ${atencion}${notas}${actions}
@@ -584,7 +584,7 @@ function renderEnlacePar(n) {
   const cls = n.estado === 'cubierta' ? 'card-done' : 'card-proc';
   const victimSide = `<div class="match-side">
     <b>🆘 Pide ayuda</b>
-    <div><strong>${esc(n.nombre_contacto || 'Vecino/a')}</strong> · ${telLink(n.telefono)}</div>
+    <div><strong>${esc(n.nombre_contacto || 'Vecino/a')}</strong> · ${n.telefono ? telLink(n.telefono) : '📵 Sin teléfono en el sitio'}</div>
     <div style="margin-top:4px">${esc(solTipoText(n))} · ${esc(n.zona)}</div>
     <div style="margin-top:4px;color:var(--g4)">📍 ${esc(n.direccion_exacta || '—')}</div>
     ${n.descripcion ? `<div style="margin-top:6px">${esc(n.descripcion)}</div>` : ''}

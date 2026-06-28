@@ -80,6 +80,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .subchip{font-size:13px;font-weight:600;padding:8px 12px;border-radius:10px;background:var(--surf);border:1.5px solid var(--line2);cursor:pointer;color:var(--txt2);font-family:inherit}
 .subchip.on{background:var(--blul);border-color:var(--blu);color:var(--blut)}
 .inp-otro{width:100%;padding:13px;border:1px dashed #C9C1B7;border-radius:12px;font-size:15px;background:var(--surf);color:var(--txt);margin-top:11px;font-family:inherit}
+.chk-row{display:flex;align-items:flex-start;gap:10px;margin-top:10px;font-size:13px;color:var(--txt2);line-height:1.45;cursor:pointer}
+.chk-row input{width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:var(--red)}
 .fld{margin-top:12px}.fld label{display:block;font-size:13px;font-weight:600;color:var(--txt2);margin-bottom:5px}
 .fld input,.fld textarea,.fld select{width:100%;padding:14px 13px;border:1px solid var(--line2);border-radius:12px;font-size:16px;background:#fff;color:var(--txt);font-family:inherit;-webkit-appearance:none}
 .fld input:focus,.fld textarea:focus,.fld select:focus{outline:2px solid var(--red);outline-offset:1px}.fld textarea{height:74px;resize:none}.req{color:var(--red)}
@@ -278,8 +280,9 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
       <button class="ubtn urg on" data-u="urgente" onclick="setUrg(this)">🟠 Urgente</button>
       <button class="ubtn nor" data-u="normal" onclick="setUrg(this)">🟢 Normal</button>
     </div>
-    <div class="fld"><label>📞 Teléfono <span class="req">*</span> <span style="font-weight:400;color:var(--txt3)">— para que te contacten</span></label>
+    <div class="fld"><label>📞 Teléfono de contacto <span class="req" id="tel-req-mark">*</span> <span style="font-weight:400;color:var(--txt3)" id="r-tel-hint">— para que te contacten</span></label>
       <input type="tel" id="r-tel" placeholder="+58 412 555 1234" inputmode="tel"></div>
+    <label class="chk-row"><input type="checkbox" id="r-sin-tel" onchange="onSinTelToggle()"><span>No hay teléfono en el sitio (edificio atrapado, etc.)</span></label>
     <div class="fld"><label>WhatsApp <span style="font-weight:400;color:var(--txt3)">(si difiere del teléfono)</span></label>
       <input type="tel" id="r-wa" inputmode="tel" placeholder="+58..."></div>
     <div class="fld"><label>Detalle</label>
@@ -483,6 +486,7 @@ function changeLocation(){
   dirPickLat=null;dirPickLng=null;
   document.getElementById('geo-dir-approx-btn').disabled=true;
   document.getElementById('loc-confirmed').style.display='none';document.getElementById('loc-selector').style.display='block';
+  document.getElementById('r-sin-tel').checked=false;onSinTelToggle();
   setLocTab('gps');}
 async function loadEdifTabList(){
   const listEl=document.getElementById('edif-list');
@@ -576,8 +580,10 @@ function renderMap(){if(!mapData||!markersLayer)return;markersLayer.clearLayers(
     const nota=cleanPublicText(e.notas);const notaHtml=nota?`<br><small>${nota.replace(/</g,'')}</small>`:'';
     m.bindPopup(`<b>🏚 ${e.nombre}</b><br>${e.sector||e.zona}<br><small>🔴 Crítica · ${(e.estado_edificio||'colapsado').replace(/_/g,' ')}</small>${trap}${notaHtml}<br><button type="button" class="btn-edif" onclick="sosHere(${e.lat},${e.lng},'${safe}','${e.zona}','${e.id}')">🆘 Pedir ayuda aquí</button>`);b.push([e.lat,e.lng]);});
   needs.forEach(n=>{if(!n.lat||!n.lng)return;const c={critica:'#C0392B',urgente:'#E67E22',normal:'#27AE60'}[n.urgencia]||'#888';
-    const m=L.marker([n.lat,n.lng],{icon:dot(c)}).addTo(markersLayer);const wa=n.whatsapp||n.telefono;
-    m.bindPopup(`<b>${tipoIcons(n)} ${tipoText(n)}</b><br>${n.direccion_exacta}<br>📞 <a href="tel:${n.telefono}">${n.telefono}</a>${wa?`<br><a href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}`);b.push([n.lat,n.lng]);});
+    const m=L.marker([n.lat,n.lng],{icon:dot(c)}).addTo(markersLayer);
+    const telHtml=hasNeedTel(n)?`📞 <a href="tel:${n.telefono}">${n.telefono}</a>`:'📵 Sin teléfono — ver ubicación';
+    const wa=n.whatsapp||n.telefono;
+    m.bindPopup(`<b>${tipoIcons(n)} ${tipoText(n)}</b><br>${n.direccion_exacta}<br>${telHtml}${hasNeedTel(n)&&wa?`<br><a href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}`);b.push([n.lat,n.lng]);});
   acopios.forEach(a=>{if(!a.lat||!a.lng)return;const m=L.marker([a.lat,a.lng],{icon:dot('#1E8449',13)}).addTo(markersLayer);
     m.bindPopup(`<b>📦 ${a.nombre}</b><br>${a.estado_vzla}<br>${a.direccion}`);b.push([a.lat,a.lng]);});
   if(b.length)mainMap.fitBounds(b,{padding:[25,25],maxZoom:12});}
@@ -690,13 +696,19 @@ async function markCubierta(id){if(!confirm('¿Confirmas que este caso ya fue at
   const{error}=await db.rpc('marcar_cubierta',{p_id:id,p_telefono:volTel||null});
   if(error){flashFixed(error.message||'No se pudo marcar.',true);return;}
   flashFixed('✅ Caso marcado como atendido. ¡Gracias!');loadHelp();}
+function hasNeedTel(n){const t=(n?.telefono||'').trim();return!!t&&t.toLowerCase()!=='sin teléfono';}
+function onSinTelToggle(){
+  const on=document.getElementById('r-sin-tel').checked;
+  document.getElementById('tel-req-mark').style.display=on?'none':'inline';
+  document.getElementById('r-tel-hint').textContent=on?'— opcional: el tuyo si reportas desde lejos':'— para que te contacten';}
 function flashFixed(msg,err=false){let t=document.getElementById('toast-fixed');
   if(!t){t=document.createElement('div');t.id='toast-fixed';t.className='toast-fixed';document.body.appendChild(t);}
   t.textContent=msg;t.className='toast-fixed show '+(err?'err':'ok');clearTimeout(flashFixed._t);flashFixed._t=setTimeout(()=>t.classList.remove('show'),4200);}
 function needCard(n){const done=n.estado==='cubierta',enProc=n.estado==='en_proceso'&&n.en_atencion_por;
   const cls=done?'done':enProc?'en-proceso':(UE[n.urgencia]||'');
   let badge=done?'<span class="badge done">✓ Cubierta</span>':enProc?'<span class="badge atn">🙋 En camino</span>':`<span class="badge ${UE[n.urgencia]||''}">${UL[n.urgencia]||''}</span>`;
-  const unval=!n.validada&&n.fuente!=='ciudadano'?'<span class="unval">Sin validar</span>':'';const wa=n.whatsapp||n.telefono;
+  const unval=!n.validada&&n.fuente!=='ciudadano'?'<span class="unval">Sin validar</span>':'';const hasTel=hasNeedTel(n);
+  const wa=hasTel?(n.whatsapp||n.telefono):null;
   const waMsg=`Hola ${n.nombre_contacto||''}, vi tu solicitud de ${tipoText(n)} en Ayuda Venezuela. ¿Cómo ayudo?`;
   const dist=n.distancia_m!=null?fmDist(n.distancia_m):'';
   const conf=n.confirmaciones>1?` · ${n.confirmaciones} confirmaciones`:'';const subs=subtiposText(n);
@@ -709,7 +721,10 @@ function needCard(n){const done=n.estado==='cubierta',enProc=n.estado==='en_proc
   const atencionMine=enProc&&mine?`<div class="c-atencion" style="background:var(--grnl);color:var(--grnh)">✓ Tú vas en camino${n.en_atencion_at?' · '+ago(n.en_atencion_at):''}</div>`:'';
   let actions='';
   if(!done){
-    const contact=`<a class="btn-call" href="tel:${n.telefono}">📞 Llamar</a>${wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank">💬 WhatsApp</a>`:''}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
+    const telLine=hasTel?`<a class="btn-call" href="tel:${n.telefono}">📞 ${escHtml(n.telefono)}</a>`:'';
+    const waLine=wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank">💬 WhatsApp</a>`:'';
+    const noTelLine=!hasTel?'<span class="c-nota" style="background:var(--yell);color:var(--yelt);border-color:var(--yel);flex:1 1 100%">📵 Sin teléfono en el sitio — ir al mapa</span>':'';
+    const contact=`${telLine}${waLine}${noTelLine}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
     if(n.estado==='pendiente')actions=contact+`<button class="btn-voy" onclick="openAttend('${n.id}')">🙋 Voy en camino</button>`;
     else if(mine)actions=contact+`<button class="btn-voy" style="background:var(--grn)" onclick="markCubierta('${n.id}')">✓ Ya atendido</button>`;
     else actions=contact;
@@ -783,7 +798,7 @@ function gatherNeed(){const tipos=[...selTipos],labels=tipos.map(t=>SHORT[t]||t)
   lat:parseFloat(document.getElementById('r-lat').value)||null,lng:parseFloat(document.getElementById('r-lng').value)||null,
   tipo:tipos[0]||'Otro',tipos:tipos.length?tipos:null,subtipo:selSubs[0]||null,subtipos:selSubs.length?selSubs:null,otro:otro||null,
   urgencia:selUrg,descripcion:desc,cantidad:null,personas_afectadas:parseInt(document.getElementById('r-pers').value)||null,
-  nombre_contacto:document.getElementById('r-nombre').value.trim()||'Vecino/a',telefono:document.getElementById('r-tel').value.trim(),
+  nombre_contacto:document.getElementById('r-nombre').value.trim()||'Vecino/a',telefono:document.getElementById('r-tel').value.trim()||null,
   whatsapp:document.getElementById('r-wa').value.trim()||null,edificio_id:document.getElementById('r-edif').value||null,
   fuente:'ciudadano',validada:false,estado:'pendiente'};}
 function tiposOverlap(a,b){return a.some(t=>b.some(x=>x===t||(t&&x&&t.toLowerCase()===x.toLowerCase())))}
@@ -793,7 +808,9 @@ async function checkAndSubmit(){
   const otro=document.getElementById('r-otro').value.trim();
   if(!locationConfirmed||!hasReportCoords()){showToast('r','Confirma tu ubicación en el paso 1 (GPS, dirección o edificio).',true);return;}
   if(!selTipos.length&&!otro){showToast('r','Toca qué necesitas o escribe en Otro (paso 2).',true);return;}
-  if(!document.getElementById('r-tel').value.trim()){showToast('r','Falta tu teléfono para que te contacten.',true);return;}
+  const sinTel=document.getElementById('r-sin-tel').checked,tel=document.getElementById('r-tel').value.trim(),desc=document.getElementById('r-desc').value.trim();
+  if(!sinTel&&!tel){showToast('r','Falta teléfono de contacto.',true);return;}
+  if(sinTel&&!tel&&!desc){showToast('r','Sin teléfono en el sitio: escribe un detalle (cuántas personas, qué pasa).',true);return;}
   const n=gatherNeed();const btn=document.getElementById('btn-r');btn.disabled=true;btn.textContent='Revisando...';
   const data=await findDupes(n);
   btn.disabled=false;btn.textContent='Publicar SOS';
@@ -821,6 +838,7 @@ function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-dir-input','r-edif','r
   selectedReportEdifId=null;clearReportEdifHighlight();
   document.getElementById('edif-pick-wrap').classList.remove('open');
   document.getElementById('loc-confirmed').style.display='none';document.getElementById('loc-selector').style.display='block';
+  document.getElementById('r-sin-tel').checked=false;onSinTelToggle();
   setLocTab('gps');}
 
 async function submitRecurso(){if(!selTipoO){showToast('o','Toca qué ofreces.',true);return;}

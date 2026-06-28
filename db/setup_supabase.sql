@@ -52,7 +52,7 @@ create table necesidades (
   cantidad text,
   personas_afectadas int,
   nombre_contacto text not null,
-  telefono text not null,
+  telefono text,
   whatsapp text,
   estado text not null default 'pendiente' check (estado in ('pendiente','en_proceso','cubierta')),
   validada boolean default false,
