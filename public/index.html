@@ -426,6 +426,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     <div class="fsub">Comparte tu especialidad. Aparecerás en la lista para que quien lo necesite te contacte directo.</div>
     <div class="fstep fstep-ind"><span class="n">1</span> ¿En qué puedes orientar?</div>
     <div class="grid" id="asesor-cat-grid"></div>
+    <input type="text" class="inp-otro" id="a-cat-otro" placeholder="➕ Otro — escribe el servicio que ofreces" style="display:none">
     <div class="fstep fstep-ind"><span class="n">2</span> Sobre ti</div>
     <div class="fld" style="margin-top:0"><label>Nombre o grupo <span class="req">*</span></label>
       <input type="text" id="a-nombre" placeholder="Ej: Dra. Carmen Ríos · Voluntarios UCV"></div>
@@ -939,7 +940,11 @@ const AS_MODOS=['Llamada','WhatsApp','Video','Chat','Presencial'];
 let asesorCat='',asesoresCache=[],selAsesorCat='',selModos=[];
 
 function setAsesorChip(btn){document.querySelectorAll('#asesor-chips .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');asesorCat=btn.dataset.t;renderAsesoria();}
-function pickAsesorCat(btn){document.querySelectorAll('#asesor-cat-grid .gbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selAsesorCat=btn.dataset.t;}
+function pickAsesorCat(btn){document.querySelectorAll('#asesor-cat-grid .gbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selAsesorCat=btn.dataset.t;
+  const otro=document.getElementById('a-cat-otro'),isOtro=selAsesorCat==='Otro';
+  otro.style.display=isOtro?'block':'none';
+  if(!isOtro)otro.value='';
+  else setTimeout(()=>otro.focus(),80);}
 function pickModoAsesor(btn){const m=btn.dataset.m,i=selModos.indexOf(m);
   if(i>=0){selModos.splice(i,1);btn.classList.remove('on');btn.textContent=m;}
   else{selModos.push(m);btn.classList.add('on');btn.textContent='✓ '+m;}}
@@ -965,7 +970,7 @@ function asesorCard(a){
   const tel=escAttr(a.telefono||'');
   return`<div class="card asesor">
     <div class="asesor-head">
-      <span class="asesor-emoji">${AS_CATS.find(c=>c.t===a.categoria)?.e||'💬'}</span>
+      <span class="asesor-emoji">${AS_CATS.find(c=>c.t===a.categoria)?.e||'➕'}</span>
       <div style="min-width:0;flex:1"><b>${escHtml(a.nombre)}</b><span class="asesor-prof">${escHtml(a.profesion||'')}</span></div>
       <span class="asesor-cat">${escHtml(a.categoria)}</span>
     </div>
@@ -982,18 +987,24 @@ async function submitAsesor(){
   const desc=document.getElementById('a-desc').value.trim();
   const tel=document.getElementById('a-tel').value.trim();
   if(!selAsesorCat){showToast('a','Toca en qué puedes orientar.',true);return;}
+  let categoria=selAsesorCat;
+  if(selAsesorCat==='Otro'){
+    categoria=document.getElementById('a-cat-otro').value.trim();
+    if(!categoria){showToast('a','Escribe el servicio que ofreces.',true);return;}
+  }
   if(!nombre){showToast('a','Falta tu nombre o el del grupo.',true);return;}
   if(!desc){showToast('a','Cuenta brevemente con qué ayudas.',true);return;}
   if(!tel){showToast('a','Falta tu teléfono para que te contacten.',true);return;}
   const btn=document.getElementById('btn-a');btn.disabled=true;btn.textContent='Publicando...';
   const{error}=await db.from('asesores').insert({
-    categoria:selAsesorCat,nombre,profesion:document.getElementById('a-titulo').value.trim()||null,
+    categoria,nombre,profesion:document.getElementById('a-titulo').value.trim()||null,
     descripcion:desc,modos:selModos,disponibilidad:document.getElementById('a-dispo').value.trim()||null,
     telefono:tel,whatsapp:null});
   btn.disabled=false;btn.textContent='Publicar mi ayuda';
   if(error){showToast('a','No se pudo publicar. Reintenta.',true);return;}
   selAsesorCat='';resetModoChips();
   document.querySelectorAll('#asesor-cat-grid .gbtn').forEach(b=>b.classList.remove('on'));
+  const otroEl=document.getElementById('a-cat-otro');otroEl.value='';otroEl.style.display='none';
   ['a-nombre','a-titulo','a-desc','a-dispo','a-tel'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   goScreen('asesoria');showToast('a','✅ ¡Gracias! Tu ayuda ya está publicada.');}
 
