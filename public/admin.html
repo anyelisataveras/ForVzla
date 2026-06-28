@@ -91,6 +91,7 @@ details.sum summary::-webkit-details-marker{display:none}
       <button class="tab" data-tab="enlaces" onclick="showTab('enlaces')">🤝 Enlaces</button>
       <button class="tab" data-tab="edificios" onclick="showTab('edificios')">🏚 Edificios</button>
       <button class="tab" data-tab="centros" onclick="showTab('centros')">📦 Centros</button>
+      <button class="tab" data-tab="asesores" onclick="showTab('asesores')">💬 Asesores</button>
       <button class="tab" data-tab="scraper" onclick="showTab('scraper')">⚙️ Scraper</button>
       <button class="tab" data-tab="equipo" onclick="showTab('equipo')">👥 Equipo</button>
     </div>
@@ -160,6 +161,13 @@ details.sum summary::-webkit-details-marker{display:none}
       <button class="btn btn-g" onclick="saveCentro()">Guardar centro</button>
       <h3 style="font-size:14px;margin:20px 0 8px">Registrados</h3>
       <div id="lista-centros"></div>
+    </div>
+
+    <div class="panel" id="panel-asesores">
+      <p style="font-size:13px;color:var(--g4);margin-bottom:12px;line-height:1.5">
+        Orientación profesional gratuita publicada por voluntarios. Pausa o elimina publicaciones inválidas.
+      </p>
+      <div id="lista-asesores"></div>
     </div>
 
     <div class="panel" id="panel-scraper">
@@ -487,6 +495,7 @@ function showTab(name) {
   if (name === 'posts') loadPosts();
   if (name === 'solicitudes') loadSolicitudes();
   if (name === 'enlaces') loadEnlaces();
+  if (name === 'asesores') loadAsesores();
   if (name === 'scraper') pollScraperStatus();
   if (name === 'equipo') loadAdmins();
 }
@@ -780,6 +789,50 @@ async function loadCentros() {
     const cub = c.ya_cubierto?.length ? `<div class="meta">Cubierto: ${esc(c.ya_cubierto.join(', '))}</div>` : '';
     return `<div class="card" style="border-left-color:var(--grn)"><b>${esc(c.nombre)}</b><div class="meta">${esc(c.estado_vzla)} · ${esc(c.direccion)}</div>${nec}${cub}</div>`;
   }).join('') || '<div class="empty">Ninguno aún.</div>';
+}
+
+function renderAsesorAdmin(a) {
+  const modos = (a.modos || []).join(', ');
+  const estado = a.estado === 'activo'
+    ? '<span class="badge" style="background:var(--grnl);color:var(--grn)">Activo</span>'
+    : '<span class="badge" style="background:#FDEDEC;color:var(--red)">Pausado</span>';
+  const actions = a.estado === 'activo'
+    ? `<div class="row"><button class="btn btn-o" onclick="pausarAsesor('${a.id}')">⏸ Pausar</button><button class="btn btn-s" onclick="eliminarAsesor('${a.id}')">🗑 Eliminar</button></div>`
+    : `<div class="row"><button class="btn btn-g" onclick="activarAsesor('${a.id}')">▶ Reactivar</button><button class="btn btn-s" onclick="eliminarAsesor('${a.id}')">🗑 Eliminar</button></div>`;
+  return `<div class="card" style="border-left-color:#5A4AA0">
+    <h3>${esc(a.nombre)}${a.profesion ? ' · ' + esc(a.profesion) : ''}</h3>
+    <div class="meta">${estado} · ${esc(a.categoria)} · 📞 ${esc(a.telefono)} · ${new Date(a.created_at).toLocaleString('es-VE')}</div>
+    ${modos ? `<div class="meta" style="margin-top:4px">Atiende: ${esc(modos)}</div>` : ''}
+    <div class="txt">${esc(a.descripcion)}</div>
+    ${actions}
+  </div>`;
+}
+
+async function loadAsesores() {
+  const el = document.getElementById('lista-asesores');
+  el.innerHTML = '<div class="empty">Cargando...</div>';
+  const { data, error } = await db.from('asesores').select('*').order('created_at', { ascending: false }).limit(50);
+  if (error) { el.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  el.innerHTML = (data || []).map(renderAsesorAdmin).join('') || '<div class="empty">Ningún asesor publicado.</div>';
+}
+
+async function pausarAsesor(id) {
+  const { error } = await db.from('asesores').update({ estado: 'pausado' }).eq('id', id);
+  if (error) { toast(error.message); return; }
+  toast('Asesor pausado'); loadAsesores();
+}
+
+async function activarAsesor(id) {
+  const { error } = await db.from('asesores').update({ estado: 'activo' }).eq('id', id);
+  if (error) { toast(error.message); return; }
+  toast('Asesor reactivado'); loadAsesores();
+}
+
+async function eliminarAsesor(id) {
+  if (!confirm('¿Eliminar esta publicación de forma permanente?')) return;
+  const { error } = await db.from('asesores').delete().eq('id', id);
+  if (error) { toast(error.message); return; }
+  toast('Eliminado'); loadAsesores();
 }
 
 async function runScraper() {

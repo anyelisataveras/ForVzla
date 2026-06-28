@@ -12,7 +12,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--bg:#F1EEEA;--surf:#FBFAF8;--red:#C0392B;--redd:#9B2418;--redh:#A93226;--redl:#FBEDEA;--ora:#E67E22;--oral:#FDF1E4;--grn:#1E8449;--grnh:#15603A;--grnl:#E9F6EE;--blu:#2471A3;--blul:#EBF3F9;--blut:#1E5F8C;--yel:#E8B72E;--yell:#FEF7E6;--yelt:#8A6D11;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--line3:#EDE8E1;--priv:#EDF6F0;--privb:#CDE8D8;--privt:#2C5A3F;--r:12px;--rm:14px;--app-max:1000px}
+:root{--bg:#F1EEEA;--surf:#FBFAF8;--red:#C0392B;--redd:#9B2418;--redh:#A93226;--redl:#FBEDEA;--ora:#E67E22;--oral:#FDF1E4;--grn:#1E8449;--grnh:#15603A;--grnl:#E9F6EE;--blu:#2471A3;--blul:#EBF3F9;--blut:#1E5F8C;--yel:#E8B72E;--yell:#FEF7E6;--yelt:#8A6D11;--ind:#5A4AA0;--indh:#4A3C88;--indl:#EEEBF6;--indt:#463A82;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--line3:#EDE8E1;--priv:#EDF6F0;--privb:#CDE8D8;--privt:#2C5A3F;--r:12px;--rm:14px;--app-max:1000px}
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px;overscroll-behavior:none}
 .app{max-width:var(--app-max);margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;position:relative}
 .hdr{background:#fff;color:var(--txt);padding:11px 18px;border-bottom:1px solid var(--line);flex-shrink:0;position:sticky;top:0;z-index:30}
@@ -40,6 +40,13 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .hero-cta{margin-top:auto;padding-top:16px;font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:6px}
 .stats-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:22px;padding:14px 16px;background:#fff;border:1px solid var(--line);border-radius:16px;font-size:14px}
 .stats-row b{font-weight:800}.stat-dot{width:9px;height:9px;border-radius:50%;display:inline-block}.stat-sep{width:1px;height:16px;background:var(--line)}
+.home-asesoria{width:100%;text-align:left;cursor:pointer;border:1px solid #DAD3EC;border-radius:18px;padding:18px 19px;margin-top:14px;background:#fff;display:flex;align-items:center;gap:15px;font-family:inherit}
+.home-asesoria:active{transform:translateY(1px)}@media (hover:hover){.home-asesoria:hover{border-color:#B9ADE0;background:#FBFAFE}}
+.home-asesoria-ico{flex-shrink:0;width:50px;height:50px;border-radius:14px;background:var(--indl);display:inline-flex;align-items:center;justify-content:center;font-size:26px;line-height:1}
+.home-asesoria-body{flex:1;min-width:0}
+.home-asesoria-t{display:block;font-size:16px;font-weight:800;color:var(--txt);line-height:1.2}
+.home-asesoria-s{display:block;font-size:13px;color:var(--txt2);margin-top:3px;line-height:1.45}
+.home-asesoria-cta{flex-shrink:0;color:var(--ind);font-size:14px;font-weight:800;display:inline-flex;align-items:center;gap:5px}
 .more-lbl{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--txt3);margin:18px 0 9px}
 .more-row{display:flex;flex-wrap:wrap;gap:10px}
 .more-btn{flex:1 1 200px;cursor:pointer;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;font-size:14px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:9px;font-family:inherit}
@@ -72,6 +79,20 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .gbtn{background:#fff;border:2px solid var(--line3);border-radius:14px;padding:14px 6px;text-align:center;cursor:pointer;font-size:13px;font-weight:700;color:#3A3530;line-height:1.2;font-family:inherit}
 .gbtn .e{display:block;font-size:25px;margin-bottom:4px}.gbtn.on{background:var(--redl);border-color:var(--red);color:var(--redd)}
 .gbtn-g.on{background:var(--grnl);border-color:var(--grn);color:var(--grnh)}
+.gbtn-as.on{background:var(--indl);border-color:var(--ind);color:var(--indt)}
+.fstep-ind{color:var(--ind)}.fstep-ind .n{background:var(--ind)}
+.subchip-as.on{background:var(--indl);border-color:var(--ind);color:var(--indt)}
+.btn-primary.ind{background:var(--ind)}.btn-primary.ind:active:not(:disabled){background:var(--indh)}
+.asesor-link{background:none;border:none;color:var(--ind);font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+.card.asesor{border-left-color:var(--ind)}
+.asesor-head{display:flex;align-items:flex-start;gap:11px}
+.asesor-emoji{flex-shrink:0;width:42px;height:42px;border-radius:12px;background:var(--indl);display:inline-flex;align-items:center;justify-content:center;font-size:22px;line-height:1}
+.asesor-prof{display:block;font-size:13px;color:var(--ind);font-weight:700;margin-top:2px}
+.asesor-cat{flex-shrink:0;font-size:11px;font-weight:800;padding:4px 10px;border-radius:999px;background:var(--indl);color:var(--indt);white-space:nowrap}
+.asesor-desc{font-size:13px;line-height:1.5;color:#3A3530;margin-top:10px}
+.asesor-meta{font-size:12px;color:var(--txt2);margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.asesor-modos{font-size:12px;color:var(--txt3);margin-top:6px}
+.asesor .btn-call{background:var(--ind)}
 .urg{display:flex;gap:8px}.ubtn{flex:1;border:2px solid var(--line3);border-radius:12px;padding:13px 6px;text-align:center;cursor:pointer;font-size:14px;font-weight:800;background:#fff;color:var(--txt3);font-family:inherit}
 .ubtn.on.crit{background:var(--red);border-color:var(--red);color:#fff}.ubtn.on.urg{background:var(--ora);border-color:var(--ora);color:#fff}.ubtn.on.nor{background:var(--grn);border-color:var(--grn);color:#fff}
 .subbox{margin-top:11px;background:#fff;border:1px solid var(--line2);border-radius:14px;padding:13px;display:none}.subbox.show{display:block}
@@ -96,6 +117,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .chips::-webkit-scrollbar{display:none}
 .chip{flex:0 0 auto;font-size:13px;font-weight:700;padding:8px 14px;border-radius:999px;background:#fff;border:1px solid var(--line2);cursor:pointer;color:var(--txt2);white-space:nowrap;font-family:inherit}
 .chips-help .chip.on{background:var(--grn);border-color:var(--grn);color:#fff}
+.chips-asesor .chip.on{background:var(--ind);border-color:var(--ind);color:#fff}
 .chips-lbl{font-size:13px;font-weight:700;color:var(--txt2);margin-top:18px}
 .ayudar-ctrl{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:14px}
 .geo-mini-btn{width:auto;padding:11px 14px;font-size:13px;border-radius:11px}
@@ -169,8 +191,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .edif-card-badge.dist{background:var(--line3);color:var(--txt2)}
 .edif-hint{font-size:12px;color:var(--txt2);margin-top:8px;line-height:1.45;text-align:center}
 .link-btn{background:none;border:none;color:var(--blu);font-size:12px;font-weight:700;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline}
-#lista-ayudar,#lista-acopio{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-top:14px;align-items:start}
-#lista-ayudar>.card,#lista-acopio>.card{margin-bottom:0}
+#lista-ayudar,#lista-acopio,#lista-asesoria{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-top:14px;align-items:start}
+#lista-ayudar>.card,#lista-acopio>.card,#lista-asesoria>.card{margin-bottom:0}
 .info-btn:focus-visible,.hero-card:focus-visible,.more-btn:focus-visible,.back-btn:focus-visible,.chip:focus-visible,.gbtn:focus-visible,.ubtn:focus-visible,.geo-btn:focus-visible,.btn-primary:focus-visible,.fab:focus-visible,.edif-card:focus-visible,.loc-tabs button:focus-visible,.loc-change-btn:focus-visible,.link-btn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 @media (min-width:640px){.app{box-shadow:0 0 0 1px var(--line),0 8px 32px rgba(0,0,0,.06)}.hdr h1{font-size:16px}.hdr p{font-size:12px}}
 @media (min-width:960px){.modal{align-items:center;padding:20px}.modal-card{border-radius:20px;max-height:min(85vh,640px);box-shadow:0 12px 40px rgba(0,0,0,.2)}#view-reportar .fsec{max-width:580px;padding-bottom:40px}}
@@ -214,6 +236,14 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
       <span class="stat-sep"></span>
       <span><span class="stat-dot" style="background:var(--grn)"></span> <b id="stat-centros">—</b> centros de acopio</span>
     </div>
+    <button type="button" class="home-asesoria" onclick="goScreen('asesoria')">
+      <span class="home-asesoria-ico">💬</span>
+      <span class="home-asesoria-body">
+        <span class="home-asesoria-t">Orientación profesional gratuita</span>
+        <span class="home-asesoria-s">Abogados, psicólogos, maestros y más, listos para ayudarte sin costo.</span>
+      </span>
+      <span class="home-asesoria-cta">Ver <span style="font-size:17px">→</span></span>
+    </button>
     <div class="more-lbl">Más opciones</div>
     <div class="more-row">
       <button class="more-btn" onclick="goScreen('acopio')">📦 Centros de acopio</button>
@@ -365,6 +395,55 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
   </div>
 </div>
 
+<!-- ORIENTACIÓN PROFESIONAL -->
+<div class="view" id="view-asesoria">
+  <div class="pad">
+    <button class="back-btn" onclick="goScreen('home')">← Volver</button>
+    <div class="sec-title">💬 Orientación profesional gratuita</div>
+    <p class="sec-sub">Especialistas que regalan su tiempo y conocimiento. Contacta directo, <b>sin costo</b>.</p>
+    <div class="chips chips-asesor" id="asesor-chips">
+      <button type="button" class="chip on" data-t="" onclick="setAsesorChip(this)">Todo</button>
+      <button type="button" class="chip" data-t="Legal" onclick="setAsesorChip(this)">⚖️ Legal</button>
+      <button type="button" class="chip" data-t="Psicológica" onclick="setAsesorChip(this)">🧠 Psicológica</button>
+      <button type="button" class="chip" data-t="Educación" onclick="setAsesorChip(this)">🎓 Educación</button>
+      <button type="button" class="chip" data-t="Salud" onclick="setAsesorChip(this)">🏥 Salud</button>
+      <button type="button" class="chip" data-t="Trámites" onclick="setAsesorChip(this)">💼 Trámites</button>
+    </div>
+    <div id="lista-asesoria"><div class="spin-wrap"><div class="spinner"></div>Cargando especialistas...</div></div>
+    <div class="donar-banner">
+      <p>¿Eres profesional y quieres orientar a quien lo necesita?</p>
+      <button type="button" class="asesor-link" onclick="goScreen('ofrecer-asesoria')">Ofrecer mi ayuda →</button>
+    </div>
+  </div>
+</div>
+
+<!-- OFRECER ORIENTACIÓN -->
+<div class="view" id="view-ofrecer-asesoria">
+  <div id="toast-a" class="toast"></div>
+  <div class="fsec">
+    <button class="back-btn" onclick="goScreen('asesoria')">← Volver</button>
+    <div class="ftitle">🙋 Ofrecer mi ayuda profesional</div>
+    <div class="fsub">Comparte tu especialidad. Aparecerás en la lista para que quien lo necesite te contacte directo.</div>
+    <div class="fstep fstep-ind"><span class="n">1</span> ¿En qué puedes orientar?</div>
+    <div class="grid" id="asesor-cat-grid"></div>
+    <div class="fstep fstep-ind"><span class="n">2</span> Sobre ti</div>
+    <div class="fld" style="margin-top:0"><label>Nombre o grupo <span class="req">*</span></label>
+      <input type="text" id="a-nombre" placeholder="Ej: Dra. Carmen Ríos · Voluntarios UCV"></div>
+    <div class="fld"><label>Profesión o rol <span style="font-weight:400;color:var(--txt3)">— opcional</span></label>
+      <input type="text" id="a-titulo" placeholder="Ej: Abogada · Psicólogo clínico · Maestra"></div>
+    <div class="fld"><label>¿Con qué ayudas? <span class="req">*</span></label>
+      <textarea id="a-desc" placeholder="Ej: Orientación sobre seguros, daños a la propiedad y documentos perdidos."></textarea></div>
+    <div class="fstep fstep-ind"><span class="n">3</span> Cómo te contactan</div>
+    <div class="subbox-lbl" style="margin-top:0">¿Cómo atiendes? <span style="font-weight:400;color:var(--txt3)">— marca las que quieras</span></div>
+    <div class="subchips" id="asesor-modos-chips"></div>
+    <div class="fld"><label>Disponibilidad <span style="font-weight:400;color:var(--txt3)">— opcional</span></label>
+      <input type="text" id="a-dispo" placeholder="Ej: Lun–Sáb · 9am–6pm · 24 h"></div>
+    <div class="fld"><label>📞 Teléfono <span class="req">*</span></label>
+      <input type="tel" id="a-tel" inputmode="tel" placeholder="+58 412 555 1234"></div>
+    <button class="btn-primary ind" id="btn-a" onclick="submitAsesor()">Publicar mi ayuda</button>
+  </div>
+</div>
+
 <div class="fab-bar"><button class="fab" id="fab" onclick="startSOS()">🆘 Pedir ayuda</button></div>
 </div>
 
@@ -377,6 +456,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
   <div class="modal-sec">Cómo funciona</div>
   <div class="modal-how"><span style="font-size:20px">🆘</span><p class="modal-body"><b>Pedir ayuda</b> — reporta un lugar y qué necesitas.</p></div>
   <div class="modal-how"><span style="font-size:20px">🤝</span><p class="modal-body"><b>Quiero ayudar</b> — elige qué puedes dar y contacta directo a quien lo necesita cerca de ti.</p></div>
+  <div class="modal-how"><span style="font-size:20px">💬</span><p class="modal-body"><b>Orientación profesional</b> — abogados, psicólogos, maestros y más ofrecen ayuda gratuita. Pídela o publica la tuya.</p></div>
   <div class="priv-box"><span style="font-size:18px">🔒</span><p>Solo pedimos la información estrictamente necesaria. La ubicación se usa únicamente para mostrar el pin en el mapa. <b>No hay registro de usuario ni rastreo de ningún tipo.</b></p></div>
   <button class="btn-dark" onclick="closeInfo()">Entendido</button>
 </div></div>
@@ -852,6 +932,71 @@ async function submitRecurso(){if(!selTipoO){showToast('o','Toca qué ofreces.',
   showToast('o','✅ Recurso publicado. ¡Gracias!');selTipoO='';document.querySelectorAll('#tipo-grid-o .gbtn').forEach(b=>b.classList.remove('on'));
   ['o-qty','o-acopio','o-tel','o-nombre'].forEach(i=>document.getElementById(i).value='');}
 
+const AS_CATS=[{t:'Legal',e:'⚖️'},{t:'Psicológica',e:'🧠'},{t:'Educación',e:'🎓'},{t:'Salud',e:'🏥'},{t:'Trámites',e:'💼'}];
+const AS_CATS_FORM=AS_CATS.concat([{t:'Otro',e:'➕'}]);
+const AS_MODO_ICON={Llamada:'📞',WhatsApp:'💬',Video:'🎥',Chat:'💭',Presencial:'📍'};
+const AS_MODOS=['Llamada','WhatsApp','Video','Chat','Presencial'];
+let asesorCat='',asesoresCache=[],selAsesorCat='',selModos=[];
+
+function setAsesorChip(btn){document.querySelectorAll('#asesor-chips .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');asesorCat=btn.dataset.t;renderAsesoria();}
+function pickAsesorCat(btn){document.querySelectorAll('#asesor-cat-grid .gbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selAsesorCat=btn.dataset.t;}
+function pickModoAsesor(btn){const m=btn.dataset.m,i=selModos.indexOf(m);
+  if(i>=0){selModos.splice(i,1);btn.classList.remove('on');btn.textContent=m;}
+  else{selModos.push(m);btn.classList.add('on');btn.textContent='✓ '+m;}}
+function resetModoChips(){selModos=[];
+  document.querySelectorAll('#asesor-modos-chips .subchip').forEach(b=>{b.classList.remove('on');b.textContent=b.dataset.m;});}
+
+async function loadAsesoria(){
+  const el=document.getElementById('lista-asesoria');
+  el.innerHTML='<div class="spin-wrap"><div class="spinner"></div>Cargando especialistas...</div>';
+  const{data,error}=await db.from('asesores').select('*').eq('estado','activo').order('created_at',{ascending:false});
+  if(error){el.innerHTML='<div class="empty">No se pudo cargar. Reintenta en un momento.</div>';return;}
+  asesoresCache=data||[];renderAsesoria();}
+function renderAsesoria(){
+  const el=document.getElementById('lista-asesoria');
+  const list=asesorCat?asesoresCache.filter(a=>a.categoria===asesorCat):asesoresCache;
+  el.innerHTML=list.map(asesorCard).join('')||emptyAsesorMsg();}
+function emptyAsesorMsg(){
+  if(asesorCat)return`<div class="empty">Nadie en <b>${escHtml(asesorCat)}</b> por ahora. Prueba otra categoría o <button type="button" class="asesor-link" style="font-size:13px;padding:0" onclick="goScreen('ofrecer-asesoria')">ofrece tu ayuda</button>.</div>`;
+  return`<div class="empty">Aún no hay especialistas publicados. ¿Puedes orientar? <button type="button" class="asesor-link" style="font-size:13px;padding:0" onclick="goScreen('ofrecer-asesoria')">Ofrecer mi ayuda</button></div>`;}
+function asesorCard(a){
+  const modos=(a.modos||[]).map(m=>(AS_MODO_ICON[m]||'')+' '+escHtml(m)).join(' · ');
+  const wa=a.whatsapp||a.telefono;
+  const tel=escAttr(a.telefono||'');
+  return`<div class="card asesor">
+    <div class="asesor-head">
+      <span class="asesor-emoji">${AS_CATS.find(c=>c.t===a.categoria)?.e||'💬'}</span>
+      <div style="min-width:0;flex:1"><b>${escHtml(a.nombre)}</b><span class="asesor-prof">${escHtml(a.profesion||'')}</span></div>
+      <span class="asesor-cat">${escHtml(a.categoria)}</span>
+    </div>
+    <p class="asesor-desc">${escHtml(a.descripcion)}</p>
+    <div class="asesor-meta">🕐 ${escHtml(a.disponibilidad||'Consultar')} · 🗣 ${escHtml(a.idiomas||'Español')}</div>
+    ${modos?`<div class="asesor-modos">Atiende por: ${modos}</div>`:''}
+    <div class="actions">
+      <a class="btn-call" href="tel:${tel}">📞 Llamar</a>
+      ${wa?`<a class="btn-wa" href="${waLink(wa)}" target="_blank" rel="noopener">💬 WhatsApp</a>`:''}
+    </div>
+  </div>`;}
+async function submitAsesor(){
+  const nombre=document.getElementById('a-nombre').value.trim();
+  const desc=document.getElementById('a-desc').value.trim();
+  const tel=document.getElementById('a-tel').value.trim();
+  if(!selAsesorCat){showToast('a','Toca en qué puedes orientar.',true);return;}
+  if(!nombre){showToast('a','Falta tu nombre o el del grupo.',true);return;}
+  if(!desc){showToast('a','Cuenta brevemente con qué ayudas.',true);return;}
+  if(!tel){showToast('a','Falta tu teléfono para que te contacten.',true);return;}
+  const btn=document.getElementById('btn-a');btn.disabled=true;btn.textContent='Publicando...';
+  const{error}=await db.from('asesores').insert({
+    categoria:selAsesorCat,nombre,profesion:document.getElementById('a-titulo').value.trim()||null,
+    descripcion:desc,modos:selModos,disponibilidad:document.getElementById('a-dispo').value.trim()||null,
+    telefono:tel,whatsapp:null});
+  btn.disabled=false;btn.textContent='Publicar mi ayuda';
+  if(error){showToast('a','No se pudo publicar. Reintenta.',true);return;}
+  selAsesorCat='';resetModoChips();
+  document.querySelectorAll('#asesor-cat-grid .gbtn').forEach(b=>b.classList.remove('on'));
+  ['a-nombre','a-titulo','a-desc','a-dispo','a-tel'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  goScreen('asesoria');showToast('a','✅ ¡Gracias! Tu ayuda ya está publicada.');}
+
 function shareNeed(n){const txt=`${UL[n.urgencia]||''} #AyudaVenezuela\n📍 ${n.zona} — ${n.direccion_exacta}\n${tipoIcons(n)} ${tipoText(n)}\n📝 ${n.descripcion}\n📞 ${n.telefono||''}${n.lat&&n.lng?'\n🗺 '+gmapsRoute(n.lat,n.lng):''}`;
   if(navigator.share)navigator.share({title:'Necesidad Venezuela',text:txt}).catch(()=>{});
   else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>alert('Copiado. Pégalo en WhatsApp.'));else prompt('Copia:',txt);}
@@ -859,24 +1004,29 @@ function showToast(v,m,err=false){const t=document.getElementById('toast-'+v);t.
 
 function goScreen(name){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.getElementById('view-'+name).classList.add('on');
-  document.getElementById('fab').classList.toggle('show',name==='ayudar'||name==='centros');
+  document.getElementById('fab').classList.toggle('show',name==='ayudar'||name==='centros'||name==='asesoria');
   if(name==='home')loadHomeStats();
   if(name==='ayudar'){if(ayudarView==='lista')loadHelp();else{initMainMap();populateMap();}}
   if(name==='acopio')loadAcopio();
   if(name==='ofrecer'&&!acopioCache.length)loadAcopio();
+  if(name==='asesoria')loadAsesoria();
   window.scrollTo(0,0);
   setTimeout(()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();if(dirPickMap)dirPickMap.invalidateSize();},150);}
 
 function onLiveData(){
   if(document.getElementById('view-home').classList.contains('on'))loadHomeStats();
   if(document.getElementById('view-ayudar').classList.contains('on')){
-    if(ayudarView==='lista')loadHelp();else populateMap();}}
+    if(ayudarView==='lista')loadHelp();else populateMap();}
+  if(document.getElementById('view-asesoria').classList.contains('on'))loadAsesoria();}
 db.channel('live').on('postgres_changes',{event:'*',schema:'public',table:'necesidades'},onLiveData)
-  .on('postgres_changes',{event:'*',schema:'public',table:'edificios_colapsados'},onLiveData).subscribe();
+  .on('postgres_changes',{event:'*',schema:'public',table:'edificios_colapsados'},onLiveData)
+  .on('postgres_changes',{event:'*',schema:'public',table:'asesores'},onLiveData).subscribe();
 window.addEventListener('resize',()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();if(dirPickMap)dirPickMap.invalidateSize();});
 
 buildGrid('tipo-grid',TIPOS,'pickTipo');
 buildGrid('tipo-grid-o',TIPOS_O,'pickTipoO','gbtn-g');
+document.getElementById('asesor-cat-grid').innerHTML=AS_CATS_FORM.map(x=>`<button type="button" class="gbtn gbtn-as" data-t="${x.t}" onclick="pickAsesorCat(this)"><span class="e">${x.e}</span>${x.t}</button>`).join('');
+document.getElementById('asesor-modos-chips').innerHTML=AS_MODOS.map(m=>`<button type="button" class="subchip subchip-as" data-m="${m}" onclick="pickModoAsesor(this)">${m}</button>`).join('');
 loadHomeStats();
 </script>
 </body>
