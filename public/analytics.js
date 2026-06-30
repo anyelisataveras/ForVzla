@@ -105,22 +105,37 @@
     return 'low';
   }
 
+  function screenPath(screen) {
+    return screen === 'home' ? '/' : '/' + screen;
+  }
+
+  function screenFromPath(pathname) {
+    const slug = (pathname || '/').replace(/^\/+|\/+$/g, '');
+    return slug && SCREENS.includes(slug) ? slug : 'home';
+  }
+
   /**
    * Web Analytics de PostHog solo lee $pageview (no eventos custom).
-   * En SPA simulamos rutas: /, /reportar, /ayudar, etc.
+   * Cambiamos la URL con history.pushState y dejamos que capture_pageview:
+   * 'history_change' emita $pageview y $pageleave como en una SPA normal.
    * @param {string} screen
    */
   function capturePageview(screen) {
-    if (!global.posthog || typeof global.posthog.capture !== 'function') return;
-    const path = screen === 'home' ? '/' : '/' + screen;
-    const url = global.location.origin + path;
-    global.posthog.capture('$pageview', {
-      $current_url: url,
-      $pathname: path,
-      screen,
-    });
+    const path = screenPath(screen);
+    const target = path + (global.location.search || '');
+    const current = global.location.pathname + (global.location.search || '');
+    if (current === target) {
+      if (global.posthog && typeof global.posthog.capture === 'function') {
+        global.posthog.capture('$pageview');
+      }
+      if (global.__FORVZLA_ANALYTICS_DEBUG__) {
+        console.debug('[analytics]', '$pageview', { path, screen, mode: 'initial' });
+      }
+      return;
+    }
+    global.history.pushState({ screen }, '', target);
     if (global.__FORVZLA_ANALYTICS_DEBUG__) {
-      console.debug('[analytics]', '$pageview', { url, screen });
+      console.debug('[analytics]', '$pageview', { path, screen, mode: 'history_change' });
     }
   }
 
@@ -150,9 +165,10 @@
     }
     global.posthog.init(apiKey, {
       api_host: (opts && opts.apiHost) || 'https://eu.i.posthog.com',
+      ui_host: 'https://eu.posthog.com',
       persistence: 'cookie',
       person_profiles: 'always',
-      capture_pageview: false,
+      capture_pageview: 'history_change',
       capture_pageleave: true,
       disable_session_recording: true,
       autocapture: false,
@@ -168,9 +184,16 @@
             }
           })(),
         });
-        capturePageview('home');
-        track(EVENTS.SCREEN_VIEWED, { screen: 'home' });
+        const screen = screenFromPath(global.location.pathname);
+        capturePageview(screen);
+        track(EVENTS.SCREEN_VIEWED, { screen });
       },
+    });
+    global.addEventListener('popstate', function () {
+      const screen = screenFromPath(global.location.pathname);
+      if (typeof global.__forvzlaGoScreenFromHistory === 'function') {
+        global.__forvzlaGoScreenFromHistory(screen);
+      }
     });
   }
 
@@ -179,6 +202,7 @@
     SCREENS,
     track,
     capturePageview,
+    screenFromPath,
     initPostHog,
     accuracyBucket,
     sanitizeProps,

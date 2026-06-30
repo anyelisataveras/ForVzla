@@ -1257,10 +1257,10 @@ function shareNeed(n){const contact=hasNeedTel(n)?`📞 ${n.telefono}`:(hasNeedP
   else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>alert('Copiado. Pégalo en WhatsApp.'));else prompt('Copia:',txt);}
 function showToast(v,m,err=false){const t=document.getElementById('toast-'+v);t.textContent=m;t.className='toast '+(err?'err':'ok')+' show';t.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>t.classList.remove('show'),5500);}
 
-function goScreen(name){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
+function goScreen(name,fromHistory){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.getElementById('view-'+name).classList.add('on');
   ph(_ev().SCREEN_VIEWED,{screen:name});
-  if(window.ForVzlaAnalytics)ForVzlaAnalytics.capturePageview(name);
+  if(!fromHistory&&window.ForVzlaAnalytics)ForVzlaAnalytics.capturePageview(name);
   document.getElementById('fab').classList.toggle('show',name==='ayudar'||name==='acopio'||name==='asesoria');
   if(name==='home')loadHomeStats();
   if(name==='ayudar'){if(ayudarView==='lista')loadHelp();else{initMainMap();populateMap();}}
@@ -1286,6 +1286,7 @@ buildGrid('tipo-grid',TIPOS,'pickTipo');
 buildGrid('tipo-grid-o',TIPOS_O,'pickTipoO','gbtn-g');
 document.getElementById('asesor-cat-grid').innerHTML=AS_CATS_FORM.map(x=>`<button type="button" class="gbtn gbtn-as" data-t="${x.t}" onclick="pickAsesorCat(this)"><span class="e">${x.e}</span>${x.t}</button>`).join('');
 document.getElementById('asesor-modos-chips').innerHTML=AS_MODOS.map(m=>`<button type="button" class="subchip subchip-as" data-m="${m}" onclick="pickModoAsesor(this)">${m}</button>`).join('');
+window.__forvzlaGoScreenFromHistory=function(name){goScreen(name,true);};
 if(window.POSTHOG_KEY&&window.ForVzlaAnalytics)ForVzlaAnalytics.initPostHog(POSTHOG_KEY,{apiHost:window.POSTHOG_HOST});
 else ph(_ev().SCREEN_VIEWED,{screen:'home'});
 loadHomeStats();
