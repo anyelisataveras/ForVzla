@@ -1,11 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
   <title id="title">FORVZLA favicon vectorial</title>
-  <desc id="desc">Favicon vectorial limpio de FORVZLA: pin de ubicación con corazón en negativo, colores de Venezuela y ocho estrellas.</desc>
+  <desc id="desc">Favicon FORVZLA con fondo blanco: pin de ubicación, corazón y colores de Venezuela.</desc>
   <defs>
     <clipPath id="forvzla-pin-clip">
       <path d="M256 482C238 459 217 435 195 411C132 342 72 276 72 202C72 103 151 36 256 36C361 36 440 103 440 202C440 276 380 342 317 411C295 435 274 459 256 482Z"/>
     </clipPath>
   </defs>
+  <rect width="512" height="512" rx="96" fill="#FFFFFF"/>
+  <g transform="translate(256 256) scale(0.84) translate(-256 -256)">
   <g clip-path="url(#forvzla-pin-clip)">
     <rect width="512" height="512" fill="#FFCC00"/>
     <path d="M284 36H512V512H297C338 446 366 365 374 288C385 180 346 91 284 36Z" fill="#D80027"/>
@@ -21,5 +23,6 @@
       <polygon points="218.80,363.73 223.38,367.42 228.62,364.76 226.52,370.25 230.67,374.42 224.80,374.12 222.12,379.35 220.59,373.68 214.78,372.75 219.71,369.54" fill="#FFFFFF"/>
       <polygon points="244.35,389.36 249.06,392.50 253.87,389.53 252.35,394.98 256.66,398.64 251.01,398.87 248.86,404.10 246.89,398.80 241.25,398.37 245.69,394.86" fill="#FFFFFF"/>
       <polygon points="267.99,413.02 272.76,415.61 277.13,412.39 276.15,417.73 280.57,420.89 275.19,421.60 273.54,426.78 271.20,421.88 265.77,421.92 269.70,418.18" fill="#FFFFFF"/>
+  </g>
   </g>
 </svg>
