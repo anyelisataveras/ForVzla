@@ -106,6 +106,25 @@
   }
 
   /**
+   * Web Analytics de PostHog solo lee $pageview (no eventos custom).
+   * En SPA simulamos rutas: /, /reportar, /ayudar, etc.
+   * @param {string} screen
+   */
+  function capturePageview(screen) {
+    if (!global.posthog || typeof global.posthog.capture !== 'function') return;
+    const path = screen === 'home' ? '/' : '/' + screen;
+    const url = global.location.origin + path;
+    global.posthog.capture('$pageview', {
+      $current_url: url,
+      $pathname: path,
+      screen,
+    });
+    if (global.__FORVZLA_ANALYTICS_DEBUG__) {
+      console.debug('[analytics]', '$pageview', { url, screen });
+    }
+  }
+
+  /**
    * @param {string} event
    * @param {Record<string, unknown>} [props]
    */
@@ -149,6 +168,8 @@
             }
           })(),
         });
+        capturePageview('home');
+        track(EVENTS.SCREEN_VIEWED, { screen: 'home' });
       },
     });
   }
@@ -157,6 +178,7 @@
     EVENTS,
     SCREENS,
     track,
+    capturePageview,
     initPostHog,
     accuracyBucket,
     sanitizeProps,
