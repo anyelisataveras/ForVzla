@@ -100,6 +100,21 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .asesor-meta{font-size:12px;color:var(--txt2);margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .asesor-modos{font-size:12px;color:var(--txt3);margin-top:6px}
 .asesor .btn-call{background:var(--ind)}
+.card.asesor.org{border-left-color:#7B6BB8}
+.asesor-tels{margin-top:12px;border:1px solid var(--line2);border-radius:12px;overflow:hidden;background:var(--surf)}
+.asesor-tels>summary{cursor:pointer;list-style:none;padding:12px 14px;font-size:14px;font-weight:800;color:var(--ind);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.asesor-tels>summary::-webkit-details-marker{display:none}
+.asesor-tels>summary::after{content:'▼';font-size:11px;opacity:.65;transition:transform .2s}
+.asesor-tels[open]>summary::after{transform:rotate(180deg)}
+.asesor-tels[open]>summary{border-bottom:1px solid var(--line2)}
+.asesor-tel-list{display:flex;flex-direction:column}
+.asesor-tel-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line2);text-decoration:none;color:inherit;font-size:14px}
+.asesor-tel-row:last-child{border-bottom:none}
+.asesor-tel-row:active{background:#EDE9F8}
+@media (hover:hover){.asesor-tel-row:hover{background:#F7F5FC}}
+.asesor-tel-num{font-weight:700;color:var(--txt);font-variant-numeric:tabular-nums}
+.asesor-tel-go{flex-shrink:0;font-size:13px;font-weight:800;color:var(--ind)}
+.chips-zona{margin-top:8px}
 .urg{display:flex;gap:8px}.ubtn{flex:1;border:2px solid var(--line3);border-radius:12px;padding:13px 6px;text-align:center;cursor:pointer;font-size:14px;font-weight:800;background:#fff;color:var(--txt3);font-family:inherit}
 .ubtn.on.crit{background:var(--red);border-color:var(--red);color:#fff}.ubtn.on.urg{background:var(--ora);border-color:var(--ora);color:#fff}.ubtn.on.nor{background:var(--grn);border-color:var(--grn);color:#fff}
 .subbox{margin-top:11px;background:#fff;border:1px solid var(--line2);border-radius:14px;padding:13px;display:none}.subbox.show{display:block}
@@ -466,6 +481,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
       <button type="button" class="chip" data-t="Educación" onclick="setAsesorChip(this)">🎓 Educación</button>
       <button type="button" class="chip" data-t="Salud" onclick="setAsesorChip(this)">🏥 Salud</button>
       <button type="button" class="chip" data-t="Trámites" onclick="setAsesorChip(this)">💼 Trámites</button>
+    </div>
+    <div class="chips chips-asesor chips-zona" id="asesor-zona-chips">
+      <button type="button" class="chip on" data-z="" onclick="setAsesorZona(this)">Todos los países</button>
+      <button type="button" class="chip" data-z="ve" onclick="setAsesorZona(this)">🇻🇪 Venezuela</button>
+      <button type="button" class="chip" data-z="ext" onclick="setAsesorZona(this)">🌎 En el exterior</button>
     </div>
     <div id="lista-asesoria"><div class="spin-wrap"><div class="spinner"></div>Cargando especialistas...</div></div>
     <div class="donar-banner">
@@ -1180,9 +1200,29 @@ const AS_CATS=[{t:'Legal',e:'⚖️'},{t:'Psicológica',e:'🧠'},{t:'Educación
 const AS_CATS_FORM=AS_CATS.concat([{t:'Otro',e:'➕'}]);
 const AS_MODO_ICON={Llamada:'📞',WhatsApp:'💬',Video:'🎥',Chat:'💭',Presencial:'📍'};
 const AS_MODOS=['Llamada','WhatsApp','Video','Chat','Presencial'];
-let asesorCat='',asesoresCache=[],selAsesorCat='',selModos=[];
+const AS_PAIS_FLAG={'Venezuela':'🇻🇪','México':'🇲🇽','Colombia':'🇨🇴','Estados Unidos':'🇺🇸','Argentina':'🇦🇷','Chile':'🇨🇱'};
+let asesorCat='',asesorZona='',asesoresCache=[],selAsesorCat='',selModos=[];
 
-function setAsesorChip(btn){document.querySelectorAll('#asesor-chips .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');asesorCat=btn.dataset.t;ph(_ev().ASESORIA_FILTER_CHANGED,{categoria:asesorCat||'todo'});renderAsesoria();}
+function setAsesorChip(btn){document.querySelectorAll('#asesor-chips .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');asesorCat=btn.dataset.t;ph(_ev().ASESORIA_FILTER_CHANGED,{categoria:asesorCat||'todo',zona:asesorZona||'todo'});renderAsesoria();}
+function setAsesorZona(btn){document.querySelectorAll('#asesor-zona-chips .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');asesorZona=btn.dataset.z;ph(_ev().ASESORIA_FILTER_CHANGED,{categoria:asesorCat||'todo',zona:asesorZona||'todo'});renderAsesoria();}
+function telHref(t){return 'tel:'+(t||'').replace(/[^\d+]/g,'');}
+function asesorTels(a){const ts=(a.telefonos&&a.telefonos.length)?a.telefonos:(a.telefono?[a.telefono]:[]);return ts.filter(Boolean);}
+function isAsesorOrg(a){return a.tipo==='organizacion'||(a.pais&&a.pais.trim())||asesorTels(a).length>1;}
+function asesorPaisLbl(pais){return pais?(AS_PAIS_FLAG[pais]||'🌎')+' '+escHtml(pais):'';}
+function sortAsesores(list){return list.slice().sort((a,b)=>{
+  const ao=isAsesorOrg(a)?0:1,bo=isAsesorOrg(b)?0:1;
+  if(ao!==bo)return ao-bo;
+  if(isAsesorOrg(a)&&isAsesorOrg(b)){
+    if(a.pais==='Venezuela')return -1;if(b.pais==='Venezuela')return 1;
+    return(a.pais||'').localeCompare(b.pais||'','es');
+  }
+  return new Date(b.created_at)-new Date(a.created_at);});}
+function filterAsesores(list){
+  let r=list;
+  if(asesorCat)r=r.filter(a=>a.categoria===asesorCat);
+  if(asesorZona==='ve')r=r.filter(a=>!a.pais||a.pais==='Venezuela');
+  else if(asesorZona==='ext')r=r.filter(a=>a.pais&&a.pais!=='Venezuela');
+  return r;}
 function pickAsesorCat(btn){document.querySelectorAll('#asesor-cat-grid .gbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selAsesorCat=btn.dataset.t;
   const otro=document.getElementById('a-cat-otro'),isOtro=selAsesorCat==='Otro';
   otro.style.display=isOtro?'block':'none';
@@ -1202,12 +1242,34 @@ async function loadAsesoria(){
   asesoresCache=data||[];renderAsesoria();}
 function renderAsesoria(){
   const el=document.getElementById('lista-asesoria');
-  const list=asesorCat?asesoresCache.filter(a=>a.categoria===asesorCat):asesoresCache;
+  const list=sortAsesores(filterAsesores(asesoresCache));
   el.innerHTML=list.map(asesorCard).join('')||emptyAsesorMsg();}
 function emptyAsesorMsg(){
-  if(asesorCat)return`<div class="empty">Nadie en <b>${escHtml(asesorCat)}</b> por ahora. Prueba otra categoría o <button type="button" class="asesor-link" style="font-size:13px;padding:0" onclick="goScreen('ofrecer-asesoria')">ofrece tu ayuda</button>.</div>`;
+  const zonaLbl=asesorZona==='ve'?' en Venezuela':asesorZona==='ext'?' en el exterior':'';
+  if(asesorCat)return`<div class="empty">Nadie en <b>${escHtml(asesorCat)}</b>${zonaLbl} por ahora. Prueba otra categoría o <button type="button" class="asesor-link" style="font-size:13px;padding:0" onclick="goScreen('ofrecer-asesoria')">ofrece tu ayuda</button>.</div>`;
+  if(asesorZona)return`<div class="empty">Nadie${zonaLbl} por ahora. Prueba otro filtro o <button type="button" class="asesor-link" style="font-size:13px;padding:0" onclick="goScreen('ofrecer-asesoria')">ofrece tu ayuda</button>.</div>`;
   return`<div class="empty">Aún no hay especialistas publicados. ¿Puedes orientar? <button type="button" class="asesor-link" style="font-size:13px;padding:0" onclick="goScreen('ofrecer-asesoria')">Ofrecer mi ayuda</button></div>`;}
+function asesorOrgCard(a){
+  const modos=(a.modos||[]).map(m=>(AS_MODO_ICON[m]||'')+' '+escHtml(m)).join(' · ');
+  const tels=asesorTels(a),n=tels.length;
+  const paisLbl=asesorPaisLbl(a.pais);
+  const telRows=tels.map(t=>`<a class="asesor-tel-row" href="${telHref(t)}" onclick="ph(_ev().ASESORIA_CONTACT_CLICKED,{channel:'tel',categoria:'${escAttr(a.categoria)}',tipo:'organizacion'})"><span class="asesor-tel-num">📞 ${escHtml(t)}</span><span class="asesor-tel-go">Llamar →</span></a>`).join('');
+  return`<div class="card asesor org">
+    <div class="asesor-head">
+      <span class="asesor-emoji">${AS_CATS.find(c=>c.t===a.categoria)?.e||'➕'}</span>
+      <div style="min-width:0;flex:1"><b>${escHtml(a.nombre)}</b><span class="asesor-prof">${paisLbl?escHtml(a.categoria):escHtml(a.categoria)}</span></div>
+      <span class="asesor-cat">${paisLbl||escHtml(a.categoria)}</span>
+    </div>
+    <p class="asesor-desc">${escHtml(a.descripcion)}</p>
+    <div class="asesor-meta">🕐 ${escHtml(a.disponibilidad||'Consultar')} · 🗣 ${escHtml(a.idiomas||'Español')}</div>
+    ${modos?`<div class="asesor-modos">Atiende por: ${modos}</div>`:''}
+    <details class="asesor-tels">
+      <summary>Ver ${n} línea${n===1?'':'s'} telefónica${n===1?'':'s'}</summary>
+      <div class="asesor-tel-list">${telRows}</div>
+    </details>
+  </div>`;}
 function asesorCard(a){
+  if(isAsesorOrg(a))return asesorOrgCard(a);
   const modos=(a.modos||[]).map(m=>(AS_MODO_ICON[m]||'')+' '+escHtml(m)).join(' · ');
   const wa=a.whatsapp||a.telefono;
   const tel=escAttr(a.telefono||'');
@@ -1221,7 +1283,7 @@ function asesorCard(a){
     <div class="asesor-meta">🕐 ${escHtml(a.disponibilidad||'Consultar')} · 🗣 ${escHtml(a.idiomas||'Español')}</div>
     ${modos?`<div class="asesor-modos">Atiende por: ${modos}</div>`:''}
     <div class="actions">
-      <a class="btn-call" href="tel:${tel}" onclick="ph(_ev().ASESORIA_CONTACT_CLICKED,{channel:'tel',categoria:'${escAttr(a.categoria)}'})">📞 Llamar</a>
+      <a class="btn-call" href="${telHref(a.telefono)}" onclick="ph(_ev().ASESORIA_CONTACT_CLICKED,{channel:'tel',categoria:'${escAttr(a.categoria)}'})">📞 Llamar</a>
       ${wa?`<a class="btn-wa" href="${waLink(wa)}" target="_blank" rel="noopener" onclick="ph(_ev().ASESORIA_CONTACT_CLICKED,{channel:'wa',categoria:'${escAttr(a.categoria)}'})">💬 WhatsApp</a>`:''}
     </div>
   </div>`;}

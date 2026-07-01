@@ -1512,17 +1512,29 @@ async function eliminarCentro(id) {
   loadCentros();
 }
 
+function asesorAdminTels(a) {
+  const ts = (a.telefonos && a.telefonos.length) ? a.telefonos : (a.telefono ? [a.telefono] : []);
+  if (!ts.length) return 'Sin teléfono';
+  if (ts.length === 1) return '📞 ' + esc(ts[0]);
+  return ts.map(t => '📞 ' + esc(t)).join('<br>');
+}
+
 function renderAsesorAdmin(a) {
   const modos = (a.modos || []).join(', ');
+  const esOrg = a.tipo === 'organizacion';
   const estado = a.estado === 'activo'
     ? '<span class="badge" style="background:var(--grnl);color:var(--grn)">Activo</span>'
     : '<span class="badge" style="background:#FDEDEC;color:var(--red)">Pausado</span>';
+  const tipoBadge = esOrg
+    ? `<span class="badge" style="background:#EDE9F8;color:#5A4AA0">${esc(a.pais || 'Organización')}</span> `
+    : '';
   const actions = a.estado === 'activo'
     ? `<div class="row"><button class="btn btn-o" onclick="pausarAsesor('${a.id}')">⏸ Pausar</button><button class="btn btn-s" onclick="eliminarAsesor('${a.id}')">🗑 Eliminar</button></div>`
     : `<div class="row"><button class="btn btn-g" onclick="activarAsesor('${a.id}')">▶ Reactivar</button><button class="btn btn-s" onclick="eliminarAsesor('${a.id}')">🗑 Eliminar</button></div>`;
   return `<div class="card" style="border-left-color:#5A4AA0">
-    <h3>${esc(a.nombre)}${a.profesion ? ' · ' + esc(a.profesion) : ''}</h3>
-    <div class="meta">${estado} · ${esc(a.categoria)} · 📞 ${esc(a.telefono)} · ${new Date(a.created_at).toLocaleString('es-VE')}</div>
+    <h3>${esc(a.nombre)}${!esOrg && a.profesion ? ' · ' + esc(a.profesion) : ''}</h3>
+    <div class="meta">${estado} ${tipoBadge}· ${esc(a.categoria)} · ${new Date(a.created_at).toLocaleString('es-VE')}</div>
+    <div class="meta" style="margin-top:4px">${asesorAdminTels(a)}</div>
     ${modos ? `<div class="meta" style="margin-top:4px">Atiende: ${esc(modos)}</div>` : ''}
     <div class="txt">${esc(a.descripcion)}</div>
     ${actions}

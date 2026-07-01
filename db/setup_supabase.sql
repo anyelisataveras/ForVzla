@@ -415,12 +415,17 @@ create table if not exists asesores (
   idiomas       text default 'Español',
   telefono      text not null,
   whatsapp      text,
+  tipo          text not null default 'persona' check (tipo in ('persona', 'organizacion')),
+  pais          text,
+  telefonos     text[] not null default '{}',
   estado        text not null default 'activo' check (estado in ('activo', 'pausado')),
   created_at    timestamptz not null default now()
 );
 
 create index if not exists asesores_estado_idx on asesores (estado);
 create index if not exists asesores_categoria_idx on asesores (categoria);
+create index if not exists asesores_tipo_idx on asesores (tipo);
+create index if not exists asesores_pais_idx on asesores (pais);
 
 alter table asesores enable row level security;
 
