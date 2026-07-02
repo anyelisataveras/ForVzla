@@ -134,6 +134,17 @@ details.sum summary::-webkit-details-marker{display:none}
       <p style="font-size:13px;color:var(--g4);margin-bottom:12px;line-height:1.5">
         La IA resume cada post. <b>Solo lo que apruebes aquí</b> se publica en el mapa. Revisa críticos con cuidado.
       </p>
+      <div class="filter-chips" id="post-estado-filters">
+        <button class="on" data-e="pendiente" onclick="setPostEstado(this)">⏳ Pendientes</button>
+        <button data-e="aprobado" onclick="setPostEstado(this)">✅ Aprobados</button>
+        <button data-e="descartado" onclick="setPostEstado(this)">🗑 Descartados</button>
+      </div>
+      <div class="filter-chips" id="post-plataforma-filters">
+        <button class="on" data-p="todas" onclick="setPostPlataforma(this)">Todas</button>
+        <button data-p="instagram" onclick="setPostPlataforma(this)">Instagram</button>
+        <button data-p="twitter" onclick="setPostPlataforma(this)">X</button>
+        <button data-p="tiktok" onclick="setPostPlataforma(this)">TikTok</button>
+      </div>
       <div class="filter-chips" id="post-filters">
         <button class="on" data-f="todos" onclick="setPostFilter(this)">Todos</button>
         <button data-f="critica" onclick="setPostFilter(this)">🔴 Críticos</button>
@@ -354,6 +365,7 @@ function srcTag(p) {
 
 const URG_LABEL = { critica:'🔴 Crítica', urgente:'🟠 Urgente', normal:'🟢 Normal' };
 const EST_LABEL = { pendiente:'Pendiente', en_proceso:'En camino', cubierta:'Atendida', eliminada:'Quitada' };
+const EST_POST_LABEL = { pendiente:'⏳ Pendiente', aprobado:'✅ Aprobado', rechazado:'🗑 Descartado', descartado:'🗑 Descartado', duplicado:'♻ Duplicado' };
 const NEC_ACTIVAS = ['pendiente', 'en_proceso'];
 const DEST_LABEL = {
   necesidad: 'Publicar necesidad',
@@ -478,6 +490,11 @@ function renderPostCard(p) {
   const fechaIngreso = fmtWhen(p.created_at);
   const fechasLine = `<div class="meta" style="margin:4px 0"><span title="Cuando se publicó en la red social">📅 Publicado: ${esc(fechaPost)}</span> · <span title="Cuando el scraper lo capturó">📥 Ingresó: ${esc(fechaIngreso)}</span></div>`;
 
+  const procesado = p.estado && p.estado !== 'pendiente';
+  const revisadoLine = procesado
+    ? `<div class="meta" style="margin:4px 0"><span class="badge">${EST_POST_LABEL[p.estado] || esc(p.estado)}</span>${p.revisado_at ? ' · revisado ' + esc(fmtWhen(p.revisado_at)) : ''}${p.notas_admin ? ' · ' + esc(p.notas_admin) : ''}</div>`
+    : '';
+
   let acciones;
   if (rec === 'centro') {
     acciones = `<button class="btn btn-p btn-rec" onclick="prefillCentro('${p.id}')">📦 ${DEST_LABEL.centro}</button>`;
@@ -516,8 +533,7 @@ function renderPostCard(p) {
       </div>
       <div class="meta" style="font-size:13px;color:var(--g5);margin:6px 0">${esc(a.resumen)}</div>
       ${mapLink ? `<div style="margin-bottom:6px">${mapLink}</div>` : ''}
-      ${acciones}
-      ${alt}
+      ${procesado ? revisadoLine : acciones + alt}
       <details class="sum">
         <summary>Ver post original ↗</summary>
         <div class="txt" style="margin-top:8px">${esc(p.texto)}</div>
@@ -1014,6 +1030,8 @@ async function eliminarRecurso(id) {
 }
 
 let postFilter = 'todos';
+let postEstado = 'pendiente';
+let postPlataforma = 'todas';
 
 function setPostFilter(btn) {
   document.querySelectorAll('#post-filters button').forEach(b => b.classList.remove('on'));
@@ -1022,13 +1040,30 @@ function setPostFilter(btn) {
   loadPosts();
 }
 
+function setPostEstado(btn) {
+  document.querySelectorAll('#post-estado-filters button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  postEstado = btn.dataset.e;
+  loadPosts();
+}
+
+function setPostPlataforma(btn) {
+  document.querySelectorAll('#post-plataforma-filters button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  postPlataforma = btn.dataset.p;
+  loadPosts();
+}
+
 async function loadPosts() {
   const el = document.getElementById('lista-posts');
   el.innerHTML = '<div class="empty">Cargando...</div>';
-  const { data, error } = await db.from('posts_redes')
-    .select('*').eq('estado', 'pendiente').order('created_at', { ascending: false }).limit(80);
+  let q = db.from('posts_redes').select('*');
+  if (postEstado === 'descartado') q = q.in('estado', ['rechazado', 'descartado', 'duplicado']);
+  else q = q.eq('estado', postEstado);
+  if (postPlataforma !== 'todas') q = q.eq('plataforma', postPlataforma);
+  const { data, error } = await q.order('created_at', { ascending: false }).limit(80);
   if (error) { el.innerHTML = `<div class="empty">Error: ${esc(error.message)}</div>`; return; }
-  if (!data?.length) { el.innerHTML = '<div class="empty">No hay posts pendientes.</div>'; return; }
+  if (!data?.length) { el.innerHTML = '<div class="empty">No hay posts en este filtro.</div>'; return; }
   let sorted = [...data].sort((a, b) => analizarPost(b).score - analizarPost(a).score);
   if (postFilter === 'critica') sorted = sorted.filter(p => p.urgencia === 'critica');
   if (postFilter === 'listos') sorted = sorted.filter(p => {
