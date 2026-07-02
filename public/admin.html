@@ -446,6 +446,10 @@ function renderPostCard(p) {
     ? `<a href="https://www.google.com/maps?q=${p.lat},${p.lng}" target="_blank" rel="noopener" style="font-size:12px">Ver en mapa ↗</a>`
     : '';
 
+  const fechaPost = p.post_ts ? fmtWhen(p.post_ts) : 'sin fecha';
+  const fechaIngreso = fmtWhen(p.created_at);
+  const fechasLine = `<div class="meta" style="margin:4px 0"><span title="Cuando se publicó en la red social">📅 Publicado: ${esc(fechaPost)}</span> · <span title="Cuando el scraper lo capturó">📥 Ingresó: ${esc(fechaIngreso)}</span></div>`;
+
   let acciones;
   if (rec === 'centro') {
     acciones = `<button class="btn btn-p btn-rec" onclick="prefillCentro('${p.id}')">📦 ${DEST_LABEL.centro}</button>`;
@@ -475,6 +479,7 @@ function renderPostCard(p) {
   return `
     <div class="card ${a.cardClass}" id="post-${p.id}">
       <h3>${srcTag(p.plataforma)} ${esc(a.titulo)}</h3>
+      ${fechasLine}
       <div class="sug ${a.sugClass}">
         <div class="sug-tit">💡 ${esc(DEST_LABEL[a.destino] || DEST_LABEL[rec])}</div>
         <div class="sug-why">${esc(a.why)}</div>
