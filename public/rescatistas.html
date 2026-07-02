@@ -153,6 +153,10 @@ function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace
 function ago(ts){if(!ts)return'';const d=Math.floor((Date.now()-new Date(ts))/60000);if(d<1)return'ahora';if(d<60)return'hace '+d+'m';if(d<1440)return'hace '+Math.floor(d/60)+'h';return'hace '+Math.floor(d/1440)+'d';}
 function cleanText(s){if(!s)return'';return s.replace(/__tv_id:[0-9a-f-]{36}__/gi,'').replace(/https?:\/\/\S+/gi,'').replace(/\s*·\s*·+/g,' · ').replace(/^[·\s]+|[·\s]+$/g,'').trim();}
 function tel(n){return(n||'').replace(/[\s()-]/g,'');}
+// Un valor sirve como teléfono solo si no trae letras (URLs, @user, etc.) y tiene dígitos suficientes.
+function isPhoneish(v){return!!v&&!/[a-z]/i.test(v)&&(v.replace(/\D/g,'').length>=7);}
+// Normaliza a formato wa.me: solo dígitos con código de país (VE por defecto). '' si no es teléfono válido.
+function waNum(v){if(!isPhoneish(v))return'';let d=v.replace(/\D/g,'');if(d.startsWith('00'))d=d.slice(2);if(d.startsWith('0'))d='58'+d.slice(1);return(d.length>=10&&d.length<=15)?d:'';}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 
 function needTipos(n){return(n.tipos&&n.tipos.length)?n.tipos:[n.tipo].filter(Boolean);}
@@ -253,8 +257,8 @@ function card(n){
   const ul={critica:'🔴 Crítica',urgente:'🟠 Urgente',normal:'🟢 Normal'}[urg]||'🟠 Urgente';
   const lat=n.lat,lng=n.lng;
   const mapUrl=lat&&lng?`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locStr(n))}`;
-  const phone=tel(n.telefono);
-  const wa=tel(n.whatsapp||n.telefono);
+  const phone=isPhoneish(n.telefono)?tel(n.telefono):'';
+  const wa=waNum(n.whatsapp||n.telefono);
   const desc=cleanText(n.descripcion);
   const srcName=SRC[n.fuente]||n.fuente||'';
   const rawName=(n.nombre_contacto||'').trim();
