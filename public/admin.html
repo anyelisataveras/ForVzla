@@ -67,7 +67,8 @@ details.sum summary::-webkit-details-marker{display:none}
 .modal{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
 .modal[hidden]{display:none}
 .modal-bg{position:absolute;inset:0;background:rgba(0,0,0,.45)}
-.modal-box{position:relative;width:100%;max-width:400px;background:var(--g0);border-radius:12px;padding:20px 18px;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.modal-box{position:relative;width:100%;max-width:400px;background:var(--g0);border-radius:12px;padding:20px 18px;box-shadow:0 8px 32px rgba(0,0,0,.2);max-height:90vh;overflow:auto}
+.modal-box.wide{max-width:480px}
 .modal-box h2{font-size:17px;margin-bottom:12px;color:var(--navy)}
 .modal-box .meta{margin-bottom:6px}
 .modal-pwd{font-size:20px;font-weight:800;letter-spacing:.06em;background:var(--g1);padding:12px;border-radius:var(--r);text-align:center;margin:12px 0;font-family:ui-monospace,monospace}
@@ -289,6 +290,33 @@ details.sum summary::-webkit-details-marker{display:none}
       <button type="button" class="btn btn-s" onclick="cerrarModalCred()">Cerrar</button>
     </div>
     <p class="modal-note">Copia y envía ahora. Si la pierdes, usa <b>Generar contraseña</b> en la lista de abajo.</p>
+  </div>
+</div>
+<div class="modal" id="modal-sol-edit" hidden>
+  <div class="modal-bg" onclick="cerrarSolEdit()"></div>
+  <div class="modal-box wide" role="dialog" aria-modal="true" aria-labelledby="modal-sol-edit-tit">
+    <h2 id="modal-sol-edit-tit">Editar solicitud</h2>
+    <p class="meta" style="margin-bottom:12px">Corrige teléfono, dirección y contacto. Los voluntarios verán los datos actualizados al instante.</p>
+    <div class="fld"><label>Prioridad</label>
+      <select id="se-urgencia">
+        <option value="critica">🔴 Crítica</option>
+        <option value="urgente">🟠 Urgente</option>
+        <option value="normal">🟢 Normal</option>
+      </select>
+    </div>
+    <div class="fld"><label>Nombre de contacto</label><input type="text" id="se-nombre" placeholder="Vecino/a"></div>
+    <div class="fld"><label>Teléfono</label><input type="tel" id="se-tel" placeholder="0414…" inputmode="tel"></div>
+    <div class="fld"><label>WhatsApp (si es distinto)</label><input type="tel" id="se-wa" placeholder="Opcional" inputmode="tel"></div>
+    <div class="fld"><label>Zona *</label><input type="text" id="se-zona" placeholder="La Guaira, Caracas…"></div>
+    <div class="fld"><label>Dirección exacta *</label><input type="text" id="se-dir" placeholder="Calle, edificio, referencia…"></div>
+    <div class="fld"><label>Lat / Lng</label>
+      <div style="display:flex;gap:8px"><input id="se-lat" placeholder="10.612" inputmode="decimal"><input id="se-lng" placeholder="-66.839" inputmode="decimal"></div>
+      <div class="meta" style="margin-top:4px">Opcional — ajusta si el pin del mapa está mal.</div>
+    </div>
+    <div class="fld"><label>Descripción</label><textarea id="se-desc" rows="3" placeholder="Qué necesitan…"></textarea></div>
+    <div class="fld"><label>Enlace a publicación</label><input type="url" id="se-url" placeholder="Instagram, TikTok… (si no hay teléfono)"></div>
+    <button type="button" class="btn btn-g" id="btn-save-sol-edit" onclick="saveSolEdit()">Guardar cambios</button>
+    <button type="button" class="btn btn-s" onclick="cerrarSolEdit()">Cancelar</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -622,6 +650,8 @@ function showTab(name) {
 }
 
 let solFilter = 'activas';
+let solAdminCache = [];
+let solEditId = null;
 
 function setSolFilter(btn) {
   document.querySelectorAll('#sol-filters button').forEach(b => b.classList.remove('on'));
@@ -642,13 +672,18 @@ function renderSolicitudCard(n) {
     : '';
   const notas = n.estado === 'eliminada' ? '' : `<textarea rows="2" placeholder="Notas de coordinación (no cambia el estado)..." style="margin-top:8px;font-size:13px" onchange="saveNotasSol('${n.id}', this.value)">${esc(n.notas_coordinador || '')}</textarea>`;
   const actions = n.estado === 'eliminada' ? `<div class="row">
+    <button class="btn btn-p" onclick="openSolEdit('${n.id}')">✏️ Editar datos</button>
     <button class="btn btn-g" onclick="restaurarSol('${n.id}')">↩ Restaurar</button>
   </div>`
     : n.estado !== 'cubierta' ? `<div class="row">
+    <button class="btn btn-p" onclick="openSolEdit('${n.id}')">✏️ Editar datos</button>
     ${n.estado === 'en_proceso' ? `<button class="btn btn-s" onclick="liberarSol('${n.id}')">↩ Liberar</button>` : ''}
     <button class="btn btn-g" onclick="cubrirSol('${n.id}')">✓ Marcar atendida</button>
     <button class="btn btn-s" onclick="eliminarSol('${n.id}')">🗑 Quitar</button>
-  </div>` : `<div class="row"><button class="btn btn-s" onclick="eliminarSol('${n.id}')">🗑 Quitar</button></div>`;
+  </div>` : `<div class="row">
+    <button class="btn btn-p" onclick="openSolEdit('${n.id}')">✏️ Editar datos</button>
+    <button class="btn btn-s" onclick="eliminarSol('${n.id}')">🗑 Quitar</button>
+  </div>`;
   return `<div class="card ${cls}" id="sol-${n.id}">
     <h3>${URG_LABEL[n.urgencia] || ''} ${esc(solTipoText(n))} — ${esc(n.zona)}</h3>
     <div class="meta">📍 ${esc(n.direccion_exacta)} · ${n.telefono && n.telefono !== 's/d' ? '📞 ' + esc(n.telefono) : (n.source_url ? `<a href="${esc(n.source_url)}" target="_blank" rel="noopener">🔗 Ver publicación</a>` : '📵 Sin teléfono')}${n.nombre_contacto ? ' · ' + esc(n.nombre_contacto) : ''}</div>
@@ -667,7 +702,99 @@ async function loadSolicitudes() {
   const { data, error } = await q;
   if (error) { el.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
   if (!data?.length) { el.innerHTML = '<div class="empty">Nada en este filtro.</div>'; return; }
+  solAdminCache = data;
   el.innerHTML = data.map(renderSolicitudCard).join('');
+}
+
+async function openSolEdit(id) {
+  let n = solAdminCache.find(x => x.id === id);
+  if (!n) {
+    const { data, error } = await db.from('necesidades').select('*').eq('id', id).maybeSingle();
+    if (error || !data) { toast(error?.message || 'No se encontró la solicitud'); return; }
+    n = data;
+    const i = solAdminCache.findIndex(x => x.id === id);
+    if (i >= 0) solAdminCache[i] = n;
+    else solAdminCache.push(n);
+  }
+  solEditId = id;
+  document.getElementById('se-urgencia').value = ['critica','urgente','normal'].includes(n.urgencia) ? n.urgencia : 'urgente';
+  document.getElementById('se-nombre').value = n.nombre_contacto && n.nombre_contacto !== 'Vecino/a' ? n.nombre_contacto : '';
+  document.getElementById('se-tel').value = n.telefono && n.telefono !== 's/d' ? n.telefono : '';
+  document.getElementById('se-wa').value = n.whatsapp || '';
+  document.getElementById('se-zona').value = n.zona || '';
+  document.getElementById('se-dir').value = n.direccion_exacta || '';
+  document.getElementById('se-lat').value = n.lat != null ? n.lat : '';
+  document.getElementById('se-lng').value = n.lng != null ? n.lng : '';
+  document.getElementById('se-desc').value = n.descripcion || '';
+  document.getElementById('se-url').value = n.source_url || '';
+  document.getElementById('modal-sol-edit').hidden = false;
+}
+
+function cerrarSolEdit() {
+  document.getElementById('modal-sol-edit').hidden = true;
+  solEditId = null;
+}
+
+async function saveSolEdit() {
+  if (!solEditId) return;
+  const zona = document.getElementById('se-zona').value.trim();
+  const direccion = document.getElementById('se-dir').value.trim();
+  if (!zona || !direccion) { toast('Zona y dirección son obligatorias'); return; }
+  const latRaw = document.getElementById('se-lat').value.trim();
+  const lngRaw = document.getElementById('se-lng').value.trim();
+  let lat = null;
+  let lng = null;
+  if (latRaw || lngRaw) {
+    if (!latRaw || !lngRaw) { toast('Si cambias la ubicación, completa lat y lng'); return; }
+    lat = parseFloat(latRaw);
+    lng = parseFloat(lngRaw);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) { toast('Lat y lng deben ser números válidos'); return; }
+  } else {
+    const prev = solAdminCache.find(x => x.id === solEditId);
+    lat = prev?.lat ?? null;
+    lng = prev?.lng ?? null;
+  }
+  const args = {
+    p_id: solEditId,
+    p_nombre_contacto: document.getElementById('se-nombre').value.trim() || 'Vecino/a',
+    p_telefono: document.getElementById('se-tel').value.trim() || null,
+    p_whatsapp: document.getElementById('se-wa').value.trim() || null,
+    p_zona: zona,
+    p_direccion_exacta: direccion,
+    p_lat: lat,
+    p_lng: lng,
+    p_descripcion: document.getElementById('se-desc').value.trim() || null,
+    p_urgencia: document.getElementById('se-urgencia').value || null,
+    p_source_url: document.getElementById('se-url').value.trim() || null,
+  };
+  const btn = document.getElementById('btn-save-sol-edit');
+  btn.disabled = true;
+  let { error } = await db.rpc('editar_necesidad', args);
+  if (error && (error.code === 'PGRST202' || /Could not find the function/i.test(error.message || ''))) {
+    ({ error } = await db.from('necesidades').update({
+      nombre_contacto: args.p_nombre_contacto,
+      telefono: args.p_telefono,
+      whatsapp: args.p_whatsapp,
+      zona: args.p_zona,
+      direccion_exacta: args.p_direccion_exacta,
+      lat: args.p_lat,
+      lng: args.p_lng,
+      descripcion: args.p_descripcion || undefined,
+      urgencia: args.p_urgencia || undefined,
+      source_url: args.p_source_url,
+    }).eq('id', solEditId));
+  }
+  btn.disabled = false;
+  if (error) {
+    toast(error.message.includes('No autorizado')
+      ? 'Sin permiso — aplica la migración admin_editar_necesidad en Supabase'
+      : error.message);
+    return;
+  }
+  toast('Datos actualizados');
+  cerrarSolEdit();
+  if (document.getElementById('panel-solicitudes')?.classList.contains('on')) loadSolicitudes();
+  if (document.getElementById('panel-enlaces')?.classList.contains('on')) loadEnlaces();
 }
 
 async function cubrirSol(id) {
@@ -776,10 +903,14 @@ function renderEnlacePar(n) {
   </div>`;
   const actions = n.estado === 'eliminada' ? ''
     : n.estado !== 'cubierta' ? `<div class="row">
+    <button class="btn btn-p" onclick="openSolEdit('${n.id}')">✏️ Editar datos</button>
     ${n.estado === 'en_proceso' ? `<button class="btn btn-s" onclick="liberarSol('${n.id}')">↩ Liberar</button>` : ''}
     <button class="btn btn-g" onclick="cubrirSol('${n.id}')">✓ Atendida</button>
     <button class="btn btn-s" onclick="eliminarSol('${n.id}')">🗑 Quitar</button>
-  </div>` : `<div class="row"><button class="btn btn-s" onclick="eliminarSol('${n.id}')">🗑 Quitar</button></div>`;
+  </div>` : `<div class="row">
+    <button class="btn btn-p" onclick="openSolEdit('${n.id}')">✏️ Editar datos</button>
+    <button class="btn btn-s" onclick="eliminarSol('${n.id}')">🗑 Quitar</button>
+  </div>`;
   return `<div class="card ${cls}">
     <div class="match-grid">${victimSide}<div class="match-arrow">↔</div>${volSide}</div>
     <div class="meta" style="margin-top:8px"><span class="badge">${EST_LABEL[n.estado] || n.estado}</span> · ${URG_LABEL[n.urgencia] || ''} · Publicado ${fmtWhen(n.created_at)}</div>
@@ -858,6 +989,7 @@ async function loadEnlaces() {
     el.innerHTML = `<div class="empty">${empty[enlaceFilter] || 'Nada aquí.'}</div>`;
     return;
   }
+  solAdminCache = data;
   el.innerHTML = data.map(renderEnlacePar).join('');
 }
 

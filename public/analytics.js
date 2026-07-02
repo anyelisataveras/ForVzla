@@ -78,6 +78,7 @@
     ADMIN_POST_REJECTED: 'admin_post_rejected',
     ADMIN_SOL_CUBIERTA: 'admin_sol_cubierta',
     ADMIN_SOL_LIBERADA: 'admin_sol_liberada',
+    ADMIN_SOL_EDITED: 'admin_sol_edited',
     ADMIN_SCRAPER_RUN: 'admin_scraper_run',
     ADMIN_CENTRO_SAVED: 'admin_centro_saved',
     ADMIN_EDIFICIO_SAVED: 'admin_edificio_saved',
