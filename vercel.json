@@ -4,6 +4,8 @@
   "outputDirectory": "public",
   "framework": null,
   "rewrites": [
+    { "source": "/rescatistas", "destination": "/rescatistas.html" },
+    { "source": "/rescate", "destination": "/rescatistas.html" },
     { "source": "/((?!.*\\..*).*)", "destination": "/index.html" }
   ],
   "headers": [

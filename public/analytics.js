@@ -57,6 +57,18 @@
     ASESOR_PUBLISHED: 'asesor_published',
     ASESOR_PUBLISH_FAILED: 'asesor_publish_failed',
 
+    // ── Vista rescatistas (rescatistas.html) ────────────────────────────
+    RESCATE_PAGE_OPENED: 'rescate_page_opened',
+    RESCATE_LIST_LOADED: 'rescate_list_loaded',
+    RESCATE_LOAD_FAILED: 'rescate_load_failed',
+    RESCATE_SEARCH: 'rescate_search',
+    RESCATE_FILTER_CHANGED: 'rescate_filter_changed',
+    RESCATE_VIEW_CHANGED: 'rescate_view_changed',
+    RESCATE_EMPTY_SHOWN: 'rescate_empty_shown',
+    RESCATE_CONTACT_CLICKED: 'rescate_contact_clicked',
+    RESCATE_STATUS_CHANGED: 'rescate_status_changed',
+    RESCATE_MAP_MARKER_CLICKED: 'rescate_map_marker_clicked',
+
     // ── Admin (admin.html) ──────────────────────────────────────────────
     ADMIN_LOGIN_ATTEMPTED: 'admin_login_attempted',
     ADMIN_LOGIN_SUCCEEDED: 'admin_login_succeeded',

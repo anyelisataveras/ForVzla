@@ -1,14 +1,17 @@
 import { runApifyActor } from '../apify.js';
 
 /** Scraper X/Twitter — actor apidojo/tweet-scraper (portado desde Python). */
-export async function scrapeTwitter({ apifyToken, keywords, maxTwitter }) {
+export async function scrapeTwitter({ apifyToken, keywords, maxTwitter, sinceDate }) {
   console.log('🐦 Twitter/X...');
-  const items = await runApifyActor(apifyToken, 'apidojo~tweet-scraper', {
+  const input = {
     searchTerms: keywords,
     maxItems: maxTwitter,
     lang: 'es',
     twitterContent: 'Latest',
-  });
+  };
+  // Filtra en origen por fecha (YYYY-MM-DD) → menos ítems, menos coste/tokens.
+  if (sinceDate) input.start = sinceDate;
+  const items = await runApifyActor(apifyToken, 'apidojo~tweet-scraper', input);
   return items
     .filter(it => !it.noResults && !it.error)
     .map(it => {

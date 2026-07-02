@@ -66,6 +66,11 @@ create table necesidades (
   merged_into uuid references necesidades(id), -- si != null, es un duplicado fusionado
   en_atencion_por text,
   en_atencion_at timestamptz,
+  -- Flujo del jefe de rescate (vista /rescatistas), independiente de `estado`
+  rescate_estado text not null default 'nuevo'
+    check (rescate_estado in ('nuevo','verificando','confirmada','atendida','falsa')),
+  rescate_notas text,
+  rescate_actualizado_at timestamptz,
   created_at timestamptz default now()
 );
 
@@ -74,6 +79,7 @@ create unique index necesidades_source_hash_uniq
   on necesidades (source_hash) where source_hash is not null;
 create index necesidades_geo_idx on necesidades (lat, lng);
 create index necesidades_estado_idx on necesidades (estado);
+create index idx_necesidades_rescate_estado on necesidades (rescate_estado);
 
 -- ── RECURSOS ─────────────────────────────────────────────────
 create table recursos (
@@ -225,6 +231,27 @@ $$;
 grant execute on function marcar_en_atencion(uuid, text) to anon, authenticated;
 grant execute on function marcar_cubierta(uuid, text) to anon, authenticated;
 grant execute on function liberar_atencion(uuid) to anon, authenticated;
+
+-- Flujo del jefe de rescate (vista /rescatistas). Link directo sin login → anon.
+create or replace function actualizar_rescate_estado(p_id uuid, p_estado text, p_notas text default null)
+returns void language plpgsql security definer set search_path = public as $$
+begin
+  if p_estado not in ('nuevo','verificando','confirmada','atendida','falsa') then
+    raise exception 'Estado de rescate inválido: %', p_estado;
+  end if;
+  update necesidades
+     set rescate_estado = p_estado,
+         rescate_notas = coalesce(nullif(trim(coalesce(p_notas, '')), ''), rescate_notas),
+         rescate_actualizado_at = now(),
+         validada = case when p_estado in ('confirmada','atendida') then true else validada end,
+         estado = case when p_estado = 'atendida' then 'cubierta'
+                       when p_estado = 'falsa' then 'eliminada'
+                       else estado end
+   where id = p_id and merged_into is null;
+  if not found then raise exception 'Solicitud no encontrada'; end if;
+end;
+$$;
+grant execute on function actualizar_rescate_estado(uuid, text, text) to anon, authenticated;
 
 create or replace function eliminar_necesidad(p_id uuid)
 returns void language plpgsql security definer set search_path = public as $$

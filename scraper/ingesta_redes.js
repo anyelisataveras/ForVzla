@@ -23,6 +23,7 @@ import { createClient } from '@supabase/supabase-js';
 import { loadConfig } from './lib/config.js';
 import { loadEnvFiles, missingEnvKeys } from './lib/loadEnv.js';
 import { hashPost, procesar } from './lib/ingest.js';
+import { esRescateProbable, tieneSignosVida } from './lib/quality.js';
 import { scrapeInstagram } from './lib/scrapers/instagram.js';
 import { scrapeTikTok } from './lib/scrapers/tiktok.js';
 import { scrapeTwitter } from './lib/scrapers/twitter.js';
@@ -96,10 +97,35 @@ async function main() {
   });
   console.log(`\n📥 ${unicos.length} posts únicos recolectados`);
 
+  // 1) Recencia: descartar posts más viejos que la ventana (por defecto 24h).
+  //    Sin fecha → lo mantenemos (no podemos afirmar que sea viejo), pero irá al final.
+  const recientes = unicos.filter(p => {
+    const t = p.ts ? Date.parse(p.ts) : NaN;
+    return Number.isNaN(t) ? true : t >= cfg.sinceMs;
+  });
+  const descartadosViejos = unicos.length - recientes.length;
+  console.log(`⏱️  Ventana ${cfg.horasMax}h → ${recientes.length} recientes (${descartadosViejos} viejos descartados)`);
+
+  // 2) Prioridad: rescate primero, luego signos de vida, luego lo más nuevo.
+  //    Así, si se agotan los tokens/créditos a mitad de corrida, lo crítico ya se procesó.
+  const orden = recientes
+    .map(p => {
+      const rescate = esRescateProbable(p.texto);
+      const vida = tieneSignosVida(p.texto);
+      const ts = p.ts ? Date.parse(p.ts) : 0;
+      const score = (vida ? 2000 : 0) + (rescate ? 1000 : 0);
+      return { p, score, ts };
+    })
+    .sort((a, b) => (b.score - a.score) || (b.ts - a.ts))
+    .map(x => x.p);
+
+  const nRescate = orden.filter(p => esRescateProbable(p.texto)).length;
+  console.log(`🚨 Priorizando rescate primero (${nRescate} posibles rescates en cola)`);
+
   const tally = {};
   const ctx = { db, anthropicKey: cfg.anthropicKey, dryRun: cfg.dryRun };
 
-  for (const p of unicos) {
+  for (const p of orden) {
     try {
       const r = await procesar(p, ctx);
       tally[r.estado] = (tally[r.estado] || 0) + 1;

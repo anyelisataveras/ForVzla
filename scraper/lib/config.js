@@ -27,6 +27,12 @@ export function loadConfig() {
   );
   const telegramChannels = splitCsv(process.env.TELEGRAM_CHANNELS);
 
+  // Ventana de recencia: solo nos interesan los posts de las últimas N horas.
+  // Rescate cambia por minutos; lo viejo genera ruido y quema tokens/créditos.
+  const horasMax = +(process.env.HORAS_MAX || 24);
+  const sinceMs = Date.now() - horasMax * 3600 * 1000;
+  const sinceDate = new Date(sinceMs).toISOString().slice(0, 10); // YYYY-MM-DD para actores Apify
+
   return {
     apifyToken: process.env.APIFY_TOKEN,
     anthropicKey: process.env.ANTHROPIC_API_KEY,
@@ -43,6 +49,9 @@ export function loadConfig() {
     maxTwitter: +(process.env.MAX_RESULTS_TWITTER || process.env.MAX_POR_FUENTE || 120),
     maxTelegram: +(process.env.MAX_RESULTS_TELEGRAM || 100),
     radioDupM: +(process.env.RADIO_DUP_M || 200),
+    horasMax,
+    sinceMs,
+    sinceDate,
   };
 }
 

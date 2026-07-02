@@ -3,10 +3,27 @@
 const PEDIDO_ACTIVO = /necesit|urgente|atrapad|colaps|solicit|pedimos|falta|sin agua|sin luz|ayuda|rescate|escombros|desaparecid/i;
 const NOTICIA_RESUELTA = /fue rescatad|ya fue rescat|lograron rescatar|rescatad[oa]s?\s+(del|de los|hace|en)|operación exitosa|celebramos|emotivo rescate|historia de/i;
 
+// Señales de rescate de máxima prioridad: personas atrapadas / bajo escombros / desaparecidas.
+const RESCATE_PROBABLE = /atrapad|soterrad|bajo (los |el )?escombros|escombros|derrumb|colaps|desaparecid|no pueden salir|siguen adentro|siguen dentro|rescate/i;
+// Signos de vida = lo que un jefe de rescate prioriza por encima de todo.
+const SIGNOS_VIDA = /signos de vida|se escuchan|se oyen|golpean|piden auxilio|responden|siguen con vida|están vivos|hay vida|escuchamos/i;
+
 export function esPedidoActivo(texto) {
   const t = (texto || '').toLowerCase();
   if (NOTICIA_RESUELTA.test(t)) return false;
   return PEDIDO_ACTIVO.test(t);
+}
+
+/** ¿El texto sugiere una operación de rescate activa (personas atrapadas)? */
+export function esRescateProbable(texto) {
+  const t = (texto || '').toLowerCase();
+  if (NOTICIA_RESUELTA.test(t)) return false;
+  return RESCATE_PROBABLE.test(t);
+}
+
+/** ¿Menciona signos de vida? Prioridad absoluta para el equipo de rescate. */
+export function tieneSignosVida(texto) {
+  return SIGNOS_VIDA.test((texto || '').toLowerCase());
 }
 
 export function zonaUtil(zona) {
@@ -27,6 +44,7 @@ export function evaluarCandidato(c, post, geo, { confMin = 0.65 } = {}) {
   const hasContact = !!(c.telefono?.trim()) || !!(post.url?.trim());
   const activo = esPedidoActivo(texto);
   const rescate = c.categoria === 'rescate';
+  const signosVida = tieneSignosVida(texto);
 
   let urgencia = c.urgencia || 'urgente';
   if (urgencia === 'critica') {
@@ -34,6 +52,10 @@ export function evaluarCandidato(c, post, geo, { confMin = 0.65 } = {}) {
     else if (!rescate && !hasGeo && !hasZona) urgencia = 'urgente';
     else if (rescate && !hasGeo && !hasZona && !hasContact) urgencia = 'urgente';
   }
+  // Rescate con signos de vida = crítica sí o sí (mientras haya pedido activo).
+  if (rescate && signosVida && activo) urgencia = 'critica';
+  // Un rescate nunca baja de urgente.
+  if (rescate && urgencia === 'normal') urgencia = 'urgente';
 
   if (!activo) {
     return { urgencia, estadoPost: 'descartado', motivo: 'noticia_o_sin_pedido_activo' };

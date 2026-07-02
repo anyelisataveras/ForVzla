@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#9B2418">
+<meta name="robots" content="noindex,nofollow">
+<title>Rescate — Reporte en vivo · Ayuda Venezuela</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png" sizes="180x180">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="analytics-config.js"></script>
+<script>!function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id getGroups get_session_id get_session_replay_url alias set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_property getSessionProperty createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);</script>
+<script src="analytics.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#F1EEEA;--surf:#FBFAF8;--red:#C0392B;--redd:#9B2418;--redh:#A93226;--redl:#FBEDEA;--ora:#E67E22;--oral:#FDF1E4;--grn:#1E8449;--grnh:#15603A;--grnl:#E9F6EE;--blu:#2471A3;--blul:#EBF3F9;--blut:#1E5F8C;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--r:12px}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px}
+.app{max-width:1000px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.hdr{background:var(--redd);color:#fff;padding:14px 18px;box-shadow:0 2px 10px rgba(0,0,0,.12)}
+.hdr h1{font-size:17px;font-weight:800;display:flex;align-items:center;gap:8px}
+.hdr p{font-size:12px;opacity:.85;margin-top:2px}
+.live{display:inline-block;width:8px;height:8px;background:#2ECC71;border-radius:50%;animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.live{animation:none}}
+.hdr-meta{display:flex;align-items:center;gap:12px;margin-top:8px;font-size:12px;opacity:.9;flex-wrap:wrap}
+.refresh{margin-left:auto;background:rgba(255,255,255,.16);border:none;color:#fff;font-size:12px;font-weight:700;padding:6px 12px;border-radius:999px;cursor:pointer;font-family:inherit}
+.refresh:active{background:rgba(255,255,255,.28)}
+.controls{padding:12px 18px 6px;position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);box-shadow:0 6px 14px rgba(0,0,0,.05)}
+.search{width:100%;border:1px solid var(--line2);border-radius:12px;padding:13px 15px;font-size:16px;font-family:inherit;background:#fff;color:var(--txt)}
+.search:focus{outline:none;border-color:var(--red);box-shadow:0 0 0 3px var(--redl)}
+.chiprow{display:flex;gap:8px;overflow-x:auto;padding:11px 0 3px;-webkit-overflow-scrolling:touch}
+.chiprow::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;border:1px solid var(--line2);background:#fff;border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;color:var(--txt2);cursor:pointer;font-family:inherit;white-space:nowrap}
+.chip.on{background:var(--red);border-color:var(--red);color:#fff}
+.chip .n{opacity:.7;font-weight:800;margin-left:4px}
+.viewtabs{display:flex;gap:6px;margin:6px 0 2px}
+.viewtab{flex:1;border:1px solid var(--line2);background:#fff;border-radius:10px;padding:9px;font-size:13px;font-weight:800;color:var(--txt2);cursor:pointer;font-family:inherit}
+.viewtab.on{background:var(--txt);border-color:var(--txt);color:#fff}
+.wrap{padding:6px 18px 80px}
+#map-stage{display:none;height:min(62vh,520px);border-radius:16px;overflow:hidden;border:1px solid var(--line2);background:#fff;margin-top:8px}
+#map{height:100%;width:100%}
+.list{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:9px;margin-top:8px}
+.card{background:#fff;border:1px solid var(--line);border-left:4px solid var(--red);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:5px}
+.card.st-verificando{border-left-color:var(--blu)}
+.card.st-confirmada{border-left-color:var(--grn)}
+.card.st-atendida,.card.st-falsa{border-left-color:var(--txt3);opacity:.72}
+.card-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;white-space:nowrap}
+.b-crit{background:var(--red);color:#fff}.b-urg{background:var(--oral);color:#B4590F}.b-nor{background:var(--grnl);color:var(--grnh)}
+.b-st{background:var(--bg);color:var(--txt2);border:1px solid var(--line2)}
+.b-st.st-nuevo{background:var(--redl);color:var(--redd)}
+.b-st.st-verificando{background:var(--blul);color:var(--blut)}
+.b-st.st-confirmada{background:var(--grnl);color:var(--grnh)}
+.b-st.st-atendida{background:#EEEBE6;color:var(--txt2)}
+.b-st.st-falsa{background:#EEEBE6;color:var(--txt2);text-decoration:line-through}
+.b-trap{background:#2B1512;color:#FFD9D2;display:inline-flex;align-items:center;gap:4px}
+.b-life{background:#7A1109;color:#FFE08A}
+.c-time{margin-left:auto;font-size:11px;color:var(--txt3);font-weight:700;white-space:nowrap}
+.c-title{font-size:15px;font-weight:800;line-height:1.2}
+.c-loc{font-size:13px;color:var(--txt);font-weight:600;display:flex;gap:5px;align-items:flex-start}
+.c-loc .pin{flex-shrink:0}
+.c-desc{font-size:12.5px;line-height:1.45;color:#3A3530;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.c-src{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--txt2);font-weight:700}
+.src-tag{font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;background:var(--bg);border:1px solid var(--line2);color:var(--txt2)}
+.actions{display:flex;flex-wrap:wrap;gap:5px;margin-top:1px}
+.abtn{flex:1 1 auto;text-decoration:none;text-align:center;border-radius:9px;padding:8px 10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;border:1px solid transparent;display:inline-flex;align-items:center;justify-content:center;gap:5px}
+.a-call{background:var(--grn);color:#fff}.a-call:active{background:var(--grnh)}
+.a-wa{background:#25D366;color:#063}.a-wa:active{filter:brightness(.95)}
+.a-map{background:var(--blul);color:var(--blut);border-color:#CDE1F0}
+.a-post{background:var(--bg);color:var(--txt);border-color:var(--line2)}
+.a-notel{flex:1 1 100%;background:var(--redl);color:var(--redd);font-weight:700;font-size:13px;padding:9px;border-radius:10px;text-align:center}
+.status-bar{border-top:1px dashed var(--line2);margin-top:1px;padding-top:7px}
+.status-lbl{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--txt3);margin-bottom:5px}
+.sbtns{display:flex;flex-wrap:wrap;gap:5px}
+.sbtn{flex:1 1 auto;border-radius:8px;padding:7px 6px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;border:1.5px solid var(--line2);background:#fff;color:var(--txt2)}
+.sbtn.s-verificando{border-color:var(--blu);color:var(--blut)}
+.sbtn.s-confirmada{border-color:var(--grn);color:var(--grnh)}
+.sbtn.s-atendida{border-color:var(--txt2);color:var(--txt)}
+.sbtn.s-falsa{border-color:var(--red);color:var(--redd)}
+.sbtn.cur{opacity:.45;cursor:default}
+.sbtn:active:not(.cur){transform:translateY(1px)}
+.rnote{font-size:11.5px;color:var(--txt2);background:var(--surf);border-radius:8px;padding:6px 9px;line-height:1.4}
+.empty{text-align:center;padding:60px 20px;color:var(--txt2)}
+.empty .ico{font-size:40px;margin-bottom:10px}
+.spinner{width:26px;height:26px;border:3px solid var(--line2);border-top-color:var(--red);border-radius:50%;animation:spin .8s linear infinite;margin:50px auto}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:12px 20px;border-radius:999px;font-size:14px;font-weight:700;z-index:999;opacity:0;transition:opacity .2s;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+.toast.show{opacity:1}
+.leaflet-popup-content{font-size:13px;line-height:1.4}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hdr">
+    <h1><span class="live"></span> Rescate — Reporte en vivo</h1>
+    <p>Reportes de personas atrapadas y edificios colapsados publicados en redes. Prioridad: más recientes primero.</p>
+    <div class="hdr-meta">
+      <span id="count-line">Cargando…</span>
+      <span id="updated-line"></span>
+      <button class="refresh" onclick="cargar()">↻ Actualizar</button>
+    </div>
+  </header>
+
+  <div class="controls">
+    <input class="search" id="q" type="search" placeholder="Buscar zona, edificio o dirección (ej. Caraballeda)…" oninput="render();onSearch()" autocomplete="off">
+    <div class="chiprow" id="chips-estado"></div>
+    <div class="chiprow" id="chips-horas"></div>
+    <div class="viewtabs">
+      <button class="viewtab on" id="tab-lista" onclick="setView('lista')">☰ Lista</button>
+      <button class="viewtab" id="tab-mapa" onclick="setView('mapa')">🗺 Mapa</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div id="map-stage"><div id="map"></div></div>
+    <div id="list" class="list"><div class="spinner"></div></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SB_URL='https://ebsgvamzaegjgpjkpick.supabase.co';
+const SB_KEY='sb_publishable_vg8SSOkKpgvwOSyi2k-aVg_lslrQsBA';
+const db=supabase.createClient(SB_URL,SB_KEY);
+
+// ── Analytics (PostHog) — mismo contrato/sanitizado que la app principal ──
+const A=window.ForVzlaAnalytics, E=(A&&A.EVENTS)||{};
+function track(ev,p){try{if(A&&ev)A.track(ev,p);}catch(_){}}
+// Resumen no-sensible de una necesidad para eventos de embudo.
+function needMeta(n){return n?{need_id:n.id,urgencia:n.urgencia,rescate_estado:n.rescate_estado||'nuevo',plataforma:n.fuente,signos_vida:hasLife(n),atrapados:hasTrap(n),tiene_coords:!!(n.lat&&n.lng),tiene_tel:!!(n.telefono||n.whatsapp)}:{};}
+
+let ALL=[], fEstado='activos', fHoras=24, view='lista', map=null, markers=null;
+
+const ESTADOS=[
+  {k:'activos',l:'Activos'},
+  {k:'todos',l:'Todos'},
+  {k:'nuevo',l:'🆕 Nuevos'},
+  {k:'verificando',l:'🔍 Verificando'},
+  {k:'confirmada',l:'✅ Confirmadas'},
+  {k:'atendida',l:'✔️ Atendidas'},
+  {k:'falsa',l:'❌ Falsas'},
+];
+const HORAS=[{k:6,l:'6h'},{k:24,l:'24h'},{k:72,l:'72h'},{k:0,l:'Todo'}];
+const ST_LABEL={nuevo:'🆕 Nuevo',verificando:'🔍 Verificando',confirmada:'✅ Confirmada',atendida:'✔️ Atendida',falsa:'❌ Falsa'};
+const SRC={ciudadano:'Ciudadano',instagram:'Instagram',tiktok:'TikTok',twitter:'X / Twitter',telegram:'Telegram',coordinador:'Coordinador'};
+const LIFE_RE=/signos de vida|se escuchan|se oyen|golpean|piden auxilio|responden|siguen con vida|est[aá]n vivos|hay vida|escuchamos/i;
+const TRAP_RE=/atrapad|soterrad|debajo del|bajo (los |el )?escombros|escombros|no pueden salir|siguen adentro|siguen dentro|derrumb/i;
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function ago(ts){if(!ts)return'';const d=Math.floor((Date.now()-new Date(ts))/60000);if(d<1)return'ahora';if(d<60)return'hace '+d+'m';if(d<1440)return'hace '+Math.floor(d/60)+'h';return'hace '+Math.floor(d/1440)+'d';}
+function cleanText(s){if(!s)return'';return s.replace(/__tv_id:[0-9a-f-]{36}__/gi,'').replace(/https?:\/\/\S+/gi,'').replace(/\s*·\s*·+/g,' · ').replace(/^[·\s]+|[·\s]+$/g,'').trim();}
+function tel(n){return(n||'').replace(/[\s()-]/g,'');}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+
+function needTipos(n){return(n.tipos&&n.tipos.length)?n.tipos:[n.tipo].filter(Boolean);}
+function isRescate(n){return needTipos(n).some(t=>/rescate/i.test(t))||!!n.edificio_id||TRAP_RE.test((n.descripcion||''));}
+function hasLife(n){return LIFE_RE.test((n.descripcion||''));}
+function hasTrap(n){return !!n.edificio_id||TRAP_RE.test((n.descripcion||''));}
+function locStr(n){const d=(n.direccion_exacta||'').trim();const z=(n.zona||'').trim();
+  if(d&&d!=='Ubicación GPS'&&d.toLowerCase()!==z.toLowerCase())return[d,z].filter(Boolean).join(' · ');
+  return z||d||'Ubicación sin especificar';}
+
+async function cargar(){
+  const{data,error}=await db.from('necesidades')
+    .select('*')
+    .is('merged_into',null)
+    .or('tipo.eq.Rescate,tipos.cs.{Rescate},edificio_id.not.is.null')
+    .order('created_at',{ascending:false})
+    .limit(600);
+  if(error){document.getElementById('list').innerHTML='<div class="empty"><div class="ico">⚠️</div>No se pudo cargar. Revisa la conexión e intenta de nuevo.</div>';console.error(error);track(E.RESCATE_LOAD_FAILED,{code:error.code||null});return;}
+  ALL=(data||[]).filter(isRescate);
+  const now=new Date();
+  document.getElementById('updated-line').textContent='Actualizado '+now.toLocaleTimeString('es-VE',{hour:'2-digit',minute:'2-digit'});
+  track(E.RESCATE_LIST_LOADED,{
+    total:ALL.length,
+    con_signos_vida:ALL.filter(hasLife).length,
+    con_atrapados:ALL.filter(hasTrap).length,
+    con_coords:ALL.filter(n=>n.lat&&n.lng).length,
+    sin_telefono:ALL.filter(n=>!n.telefono&&!n.whatsapp).length,
+    nuevos:ALL.filter(n=>(n.rescate_estado||'nuevo')==='nuevo').length,
+    ultimas_24h:ALL.filter(n=>{const t=n.created_at?new Date(n.created_at).getTime():0;return t>=Date.now()-86400000;}).length
+  });
+  render();
+}
+
+function chipCount(k){
+  const base=ALL.filter(withinHoras);
+  if(k==='todos')return base.length;
+  if(k==='activos')return base.filter(n=>n.rescate_estado!=='atendida'&&n.rescate_estado!=='falsa').length;
+  return base.filter(n=>(n.rescate_estado||'nuevo')===k).length;
+}
+function withinHoras(n){if(!fHoras)return true;const t=n.created_at?new Date(n.created_at).getTime():0;return t>=Date.now()-fHoras*3600*1000;}
+
+function renderChips(){
+  document.getElementById('chips-estado').innerHTML=ESTADOS.map(e=>
+    `<button class="chip${fEstado===e.k?' on':''}" onclick="setEstado('${e.k}')">${e.l}<span class="n">${chipCount(e.k)}</span></button>`).join('');
+  document.getElementById('chips-horas').innerHTML='<span class="chip" style="pointer-events:none;background:transparent;border:none;color:var(--txt3);padding-left:0">Ventana:</span>'+
+    HORAS.map(h=>`<button class="chip${fHoras===h.k?' on':''}" onclick="setHoras(${h.k})">${h.l}</button>`).join('');
+}
+function setEstado(k){if(k!==fEstado)track(E.RESCATE_FILTER_CHANGED,{filtro:'estado',valor:k});fEstado=k;render();}
+function setHoras(k){if(k!==fHoras)track(E.RESCATE_FILTER_CHANGED,{filtro:'ventana',valor:k});fHoras=k;render();}
+function setView(v){if(v!==view)track(E.RESCATE_VIEW_CHANGED,{vista:v});view=v;
+  document.getElementById('tab-lista').classList.toggle('on',v==='lista');
+  document.getElementById('tab-mapa').classList.toggle('on',v==='mapa');
+  document.getElementById('map-stage').style.display=v==='mapa'?'block':'none';
+  document.getElementById('list').style.display=v==='mapa'?'none':'grid';
+  if(v==='mapa')renderMapa();
+}
+
+// Búsqueda: debounce para no spamear. No enviamos el término (puede ser ubicación),
+// sí su longitud y si arrojó resultados → señal clave de "qué falta en la data".
+let _searchT=null;
+function onSearch(){clearTimeout(_searchT);_searchT=setTimeout(()=>{
+  const q=(document.getElementById('q').value||'').trim();
+  if(!q)return;
+  track(E.RESCATE_SEARCH,{longitud:q.length,resultados:filtered().length});
+},900);}
+
+function filtered(){
+  const q=(document.getElementById('q').value||'').trim().toLowerCase();
+  let items=ALL.filter(withinHoras);
+  if(fEstado==='activos')items=items.filter(n=>n.rescate_estado!=='atendida'&&n.rescate_estado!=='falsa');
+  else if(fEstado!=='todos')items=items.filter(n=>(n.rescate_estado||'nuevo')===fEstado);
+  if(q)items=items.filter(n=>((n.zona||'')+' '+(n.direccion_exacta||'')+' '+(n.descripcion||'')+' '+(n.nombre_contacto||'')).toLowerCase().includes(q));
+  // Orden: signos de vida arriba, luego más reciente
+  items.sort((a,b)=>{const la=hasLife(a)?1:0,lb=hasLife(b)?1:0;if(la!==lb)return lb-la;
+    return new Date(b.created_at)-new Date(a.created_at);});
+  return items;
+}
+
+function render(){
+  renderChips();
+  const items=filtered();
+  document.getElementById('count-line').textContent=items.length+(items.length===1?' reporte':' reportes');
+  if(view==='mapa'){renderMapa();return;}
+  const el=document.getElementById('list');
+  if(!items.length){el.innerHTML='<div class="empty"><div class="ico">✅</div>No hay reportes de rescate con estos filtros.<br>Prueba ampliar la ventana de tiempo.</div>';
+    const ctx=fEstado+'|'+fHoras+'|'+(document.getElementById('q').value?'q':'');
+    if(_lastEmpty!==ctx){_lastEmpty=ctx;track(E.RESCATE_EMPTY_SHOWN,{estado:fEstado,ventana:fHoras,con_busqueda:!!document.getElementById('q').value});}
+    return;}
+  _lastEmpty=null;
+  el.innerHTML=items.map(card).join('');
+}
+let _lastEmpty=null;
+
+function card(n){
+  const st=n.rescate_estado||'nuevo';
+  const urg=n.urgencia||'urgente';
+  const ub={critica:'b-crit',urgente:'b-urg',normal:'b-nor'}[urg]||'b-urg';
+  const ul={critica:'🔴 Crítica',urgente:'🟠 Urgente',normal:'🟢 Normal'}[urg]||'🟠 Urgente';
+  const lat=n.lat,lng=n.lng;
+  const mapUrl=lat&&lng?`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`:`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(locStr(n))}`;
+  const phone=tel(n.telefono);
+  const wa=tel(n.whatsapp||n.telefono);
+  const desc=cleanText(n.descripcion);
+  const srcName=SRC[n.fuente]||n.fuente||'';
+  const rawName=(n.nombre_contacto||'').trim();
+  const nameOk=rawName && !/^(vecino\/a|donante)$/i.test(rawName) && !/https?:|www\.|@|\//.test(rawName) && rawName.length<=40;
+  const title=nameOk?esc(rawName)
+    :(n.personas_afectadas>1?esc(n.personas_afectadas+' personas atrapadas')
+      :(hasTrap(n)?'Personas atrapadas':'Reporte de rescate'));
+
+  const badges=[`<span class="badge ${ub}">${ul}</span>`];
+  if(hasLife(n))badges.push('<span class="badge b-life">🫀 Signos de vida</span>');
+  else if(hasTrap(n))badges.push('<span class="badge b-trap">⚠️ Atrapados</span>');
+  badges.push(`<span class="badge b-st st-${st}">${ST_LABEL[st]||st}</span>`);
+
+  const contactBtns=[];
+  if(phone)contactBtns.push(`<a class="abtn a-call" href="tel:${esc(phone)}" onclick="rContact('llamar','${n.id}')">📞 Llamar</a>`);
+  if(wa)contactBtns.push(`<a class="abtn a-wa" href="https://wa.me/${esc(wa)}" target="_blank" rel="noopener" onclick="rContact('whatsapp','${n.id}')">WhatsApp</a>`);
+  contactBtns.push(`<a class="abtn a-map" href="${mapUrl}" target="_blank" rel="noopener" onclick="rContact('ruta','${n.id}')">🧭 Ruta</a>`);
+  if(n.source_url)contactBtns.push(`<a class="abtn a-post" href="${esc(n.source_url)}" target="_blank" rel="noopener" onclick="rContact('ver_post','${n.id}')">Ver post ↗</a>`);
+  if(!phone&&!wa)contactBtns.push('<span class="a-notel">📵 Sin teléfono — validar en sitio / ver post</span>');
+
+  const sbtns=['verificando','confirmada','atendida','falsa'].map(s=>
+    `<button class="sbtn s-${s}${st===s?' cur':''}" ${st===s?'':`onclick="setEstadoRescate('${n.id}','${s}')"`}>${ST_LABEL[s]}</button>`).join('');
+
+  return `<article class="card st-${st}">
+    <div class="card-top">${badges.join('')}<span class="c-time">${ago(n.created_at)}</span></div>
+    <div class="c-title">${title}</div>
+    <div class="c-loc"><span class="pin">📍</span><span>${esc(locStr(n))}</span></div>
+    ${desc?`<div class="c-desc">${esc(desc)}</div>`:''}
+    <div class="c-src">${srcName?`<span class="src-tag">${esc(srcName)}</span>`:''}${n.confirmaciones>1?`· ${n.confirmaciones} confirmaciones`:''}</div>
+    <div class="actions">${contactBtns.join('')}</div>
+    ${n.rescate_notas?`<div class="rnote">🗒 ${esc(n.rescate_notas)}</div>`:''}
+    <div class="status-bar">
+      <div class="status-lbl">Estado del rescate ${n.rescate_actualizado_at?'· '+ago(n.rescate_actualizado_at):''}</div>
+      <div class="sbtns">${sbtns}</div>
+    </div>
+  </article>`;
+}
+
+function rContact(metodo,id){track(E.RESCATE_CONTACT_CLICKED,Object.assign({metodo},needMeta(ALL.find(n=>n.id===id))));}
+
+async function setEstadoRescate(id,estado){
+  const labels={verificando:'marcar EN VERIFICACIÓN (mandas brigada a validar)',confirmada:'marcar CONFIRMADA (la brigada validó que es real)',atendida:'marcar ATENDIDA (rescate resuelto — sale del mapa público)',falsa:'marcar como FALSA (sale del mapa público)'};
+  let notas=null;
+  if(estado==='verificando'||estado==='confirmada'){
+    notas=prompt('Nota opcional para el equipo (brigada, hora, contacto):','')||null;
+  }else if(!confirm('¿Seguro que quieres '+labels[estado]+'?')){return;}
+  const local=ALL.find(n=>n.id===id);
+  const desde=(local&&local.rescate_estado)||'nuevo';
+  const{error}=await db.rpc('actualizar_rescate_estado',{p_id:id,p_estado:estado,p_notas:notas});
+  if(error){toast('No se pudo actualizar');console.error(error);track(E.RESCATE_STATUS_CHANGED,{ok:false,a:estado,desde,need_id:id});return;}
+  track(E.RESCATE_STATUS_CHANGED,Object.assign({ok:true,a:estado,desde,con_nota:!!notas},needMeta(local)));
+  if(local){local.rescate_estado=estado;local.rescate_actualizado_at=new Date().toISOString();if(notas)local.rescate_notas=notas;
+    if(estado==='atendida')local.estado='cubierta';if(estado==='falsa')local.estado='eliminada';
+    if(estado==='confirmada'||estado==='atendida')local.validada=true;}
+  toast('✓ '+(ST_LABEL[estado]||estado));
+  render();
+}
+
+function ensureMap(){
+  if(map)return;
+  map=L.map('map',{zoomControl:true,attributionControl:false}).setView([10.6,-66.9],9);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
+  markers=L.layerGroup().addTo(map);
+}
+function markerColor(n){const st=n.rescate_estado||'nuevo';
+  if(st==='confirmada')return'#1E8449';if(st==='verificando')return'#2471A3';
+  if(st==='atendida'||st==='falsa')return'#9A938B';return'#C0392B';}
+function renderMapa(){
+  ensureMap();setTimeout(()=>map.invalidateSize(),50);
+  markers.clearLayers();
+  const items=filtered().filter(n=>n.lat&&n.lng);
+  const pts=[];
+  items.forEach(n=>{
+    const c=markerColor(n);
+    const ico=L.divIcon({className:'',html:`<div style="width:20px;height:20px;border-radius:50%;background:${c};border:2.5px solid #fff;box-shadow:0 1px 5px rgba(0,0,0,.4)"></div>`,iconSize:[20,20],iconAnchor:[10,10]});
+    const m=L.marker([n.lat,n.lng],{icon:ico}).addTo(markers);
+    m.on('click',()=>track(E.RESCATE_MAP_MARKER_CLICKED,needMeta(n)));
+    const life=hasLife(n)?'<b style="color:#9B2418">🫀 Signos de vida</b><br>':(hasTrap(n)?'⚠️ Atrapados<br>':'');
+    m.bindPopup(`${life}<b>${esc(locStr(n))}</b><br>${ST_LABEL[n.rescate_estado||'nuevo']} · ${ago(n.created_at)}<br><a href="https://www.google.com/maps/dir/?api=1&destination=${n.lat},${n.lng}" target="_blank" rel="noopener">🧭 Cómo llegar</a>`);
+    pts.push([n.lat,n.lng]);
+  });
+  if(pts.length)map.fitBounds(pts,{padding:[40,40],maxZoom:14});
+}
+
+// PostHog: page directa (sin router SPA). Registramos page:'rescatistas'
+// para separar esta vista del resto de la app en los dashboards.
+if(window.posthog&&window.POSTHOG_KEY){
+  posthog.init(window.POSTHOG_KEY,{
+    api_host:window.POSTHOG_HOST||'https://eu.i.posthog.com',
+    ui_host:'https://eu.posthog.com',
+    persistence:'cookie',
+    person_profiles:'always',
+    capture_pageview:true,
+    capture_pageleave:true,
+    disable_session_recording:true,
+    autocapture:false,
+    loaded:function(){
+      posthog.register({app:'ayuda_venezuela',page:'rescatistas',host:location.host});
+      track(E.RESCATE_PAGE_OPENED,{
+        referrer_host:(()=>{try{return document.referrer?new URL(document.referrer).host:null;}catch(_){return null;}})(),
+        estado_inicial:fEstado,ventana_inicial:fHoras
+      });
+    }
+  });
+}
+
+db.channel('rescate-live')
+  .on('postgres_changes',{event:'*',schema:'public',table:'necesidades'},()=>cargar())
+  .subscribe();
+
+cargar();
+</script>
+</body>
+</html>
