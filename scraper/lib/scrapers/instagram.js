@@ -4,9 +4,10 @@ import { keywordsToHashtags } from '../config.js';
 export async function scrapeInstagram({ apifyToken, hashtags, keywords, maxInstagram }) {
   console.log('📸 Instagram...');
   const searchTags = [...new Set([...hashtags, ...keywordsToHashtags(keywords)])];
-  const items = await runApifyActor(apifyToken, 'apify~instagram-search-scraper', {
-    search: searchTags.join(' '),
-    searchType: 'hashtag',
+  // instagram-search-scraper (searchType:hashtag) quedó roto → "Empty or private data".
+  // instagram-hashtag-scraper sí devuelve posts por hashtag.
+  const items = await runApifyActor(apifyToken, 'apify~instagram-hashtag-scraper', {
+    hashtags: searchTags,
     resultsLimit: maxInstagram,
   });
   return items

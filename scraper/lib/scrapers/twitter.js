@@ -1,5 +1,13 @@
 import { runApifyActor } from '../apify.js';
 
+// El actor devuelve createdAt como "Fri Nov 24 17:49:36 +0000 2023",
+// que Postgres timestamptz no acepta directo → normalizamos a ISO 8601.
+function normalizarFecha(raw) {
+  if (!raw) return null;
+  const d = new Date(raw);
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
 /** Scraper X/Twitter — actor apidojo/tweet-scraper (portado desde Python). */
 export async function scrapeTwitter({ apifyToken, keywords, maxTwitter, sinceDate }) {
   console.log('🐦 Twitter/X...');
@@ -24,7 +32,7 @@ export async function scrapeTwitter({ apifyToken, keywords, maxTwitter, sinceDat
       texto: it.full_text || it.text || '',
       usuario: author.userName || it.user?.screen_name || '',
       ubicacion_post: null,
-      ts: it.created_at || null,
+      ts: normalizarFecha(it.createdAt || it.created_at),
       _meta: {
         verificado: author.isVerified || false,
         likes: metrics.like_count || it.favorite_count || 0,

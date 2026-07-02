@@ -23,6 +23,7 @@ import { createClient } from '@supabase/supabase-js';
 import { loadConfig } from './lib/config.js';
 import { loadEnvFiles, missingEnvKeys } from './lib/loadEnv.js';
 import { hashPost, procesar } from './lib/ingest.js';
+import { SinSaldoError } from './lib/classifier.js';
 import { esRescateProbable, tieneSignosVida } from './lib/quality.js';
 import { scrapeInstagram } from './lib/scrapers/instagram.js';
 import { scrapeTikTok } from './lib/scrapers/tiktok.js';
@@ -130,6 +131,11 @@ async function main() {
       const r = await procesar(p, ctx);
       tally[r.estado] = (tally[r.estado] || 0) + 1;
     } catch (e) {
+      if (e instanceof SinSaldoError) {
+        console.error(`\n💳 ${e.message}\n   Recarga créditos en Anthropic (Plans & Billing) y reintenta.`);
+        tally.abortado_sin_saldo = (tally.abortado_sin_saldo || 0) + 1;
+        break;
+      }
       console.warn('proc', e.message);
       tally.error = (tally.error || 0) + 1;
     }

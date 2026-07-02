@@ -34,6 +34,9 @@ Reglas:
 
 export const INGESTAR_CATEGORIAS = new Set(['necesidad', 'rescate']);
 
+/** Se activa cuando Anthropic responde "sin saldo": corta la corrida en vez de reintentar 500 veces. */
+export class SinSaldoError extends Error {}
+
 export async function clasificar(post, apiKey) {
   const content = [
     `Plataforma: ${post.plataforma}`,
@@ -56,7 +59,11 @@ export async function clasificar(post, apiKey) {
     }),
   });
   if (!res.ok) {
-    console.warn('Claude', res.status);
+    const body = await res.text().catch(() => '');
+    if (res.status === 400 && /credit balance is too low/i.test(body)) {
+      throw new SinSaldoError('Anthropic sin saldo (credit balance too low)');
+    }
+    console.warn('Claude', res.status, body.slice(0, 200));
     return null;
   }
   const data = await res.json();
