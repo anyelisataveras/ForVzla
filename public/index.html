@@ -58,6 +58,9 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .more-row{display:flex;flex-wrap:wrap;gap:10px}
 .more-btn{flex:1 1 200px;cursor:pointer;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;font-size:14px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:9px;font-family:inherit;text-decoration:none}
 @media (hover:hover){.more-btn:hover{border-color:#CFC8BF}}
+.more-badge{margin-left:auto;background:var(--redl);color:var(--redd);font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.more-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 2s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.more-badge::before{animation:none}}
 .map-stage{position:relative;height:min(52vh,420px);border-radius:18px;overflow:hidden;border:1px solid var(--line2);background:#fff}#main-map{position:absolute;inset:0}
 .map-hint{position:absolute;top:8px;left:8px;right:8px;z-index:500;background:rgba(255,255,255,.94);border-radius:var(--r);padding:7px 10px;font-size:11px;color:var(--txt);box-shadow:0 1px 6px rgba(0,0,0,.15);text-align:center}
 .map-leg{display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;font-size:13px;color:var(--txt2)}
@@ -284,7 +287,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     <div class="more-row">
       <button class="more-btn" onclick="goScreen('acopio')">📦 Centros de acopio</button>
       <button class="more-btn" onclick="goScreen('ofrecer')">🎁 Donar a un centro</button>
-      <a class="more-btn" href="rescatistas.html">🚒 Soy rescatista</a>
+      <a class="more-btn" href="rescatistas.html">🚒 Soy rescatista <span class="more-badge" id="stat-rescate" hidden></span></a>
     </div>
   </div>
 </div>
@@ -1118,11 +1121,14 @@ function pickNearestCentro(){
 function dist0(la1,lo1,la2,lo2){const R=6371,dL=(la2-la1)*Math.PI/180,dG=(lo2-lo1)*Math.PI/180;const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dG/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
 
 async function loadHomeStats(){
-  const[{count:nc},{count:cc}]=await Promise.all([
+  const[{count:nc},{count:cc},{count:rc}]=await Promise.all([
     db.from('necesidades').select('*',{count:'exact',head:true}).in('estado',['pendiente','en_proceso']).is('merged_into',null),
-    db.from('centros_acopio').select('*',{count:'exact',head:true}).eq('activo',true)]);
+    db.from('centros_acopio').select('*',{count:'exact',head:true}).eq('activo',true),
+    db.from('necesidades').select('*',{count:'exact',head:true}).is('merged_into',null).not('rescate_estado','in','(atendida,falsa)').or('tipo.eq.Rescate,tipos.cs.{Rescate},edificio_id.not.is.null')]);
   document.getElementById('stat-needs').textContent=nc??0;
-  document.getElementById('stat-centros').textContent=cc??0;}
+  document.getElementById('stat-centros').textContent=cc??0;
+  const rb=document.getElementById('stat-rescate');
+  if(rb){if(rc){rb.textContent=rc+(rc===1?' rescate espera':' rescates esperan');rb.hidden=false;}else{rb.hidden=true;}}}
 
 function startSOS(){ph(_ev().SOS_FAB_CLICKED);goScreen('reportar');if(!locationConfirmed)captureGeo();}
 function gatherNeed(){const tipos=[...selTipos],labels=tipos.map(t=>SHORT[t]||t),otro=document.getElementById('r-otro').value.trim();
