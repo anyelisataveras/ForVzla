@@ -30,7 +30,13 @@ Reglas:
 - urgencia "critica" SOLO si hay peligro de vida AHORA: atrapados bajo escombros, edificio a punto de caer, heridos graves sin atención.
 - urgencia "urgente" = necesidad real pero sin vida en riesgo inmediato.
 - urgencia "normal" = puede esperar horas.
-- confianza: 0..1 qué tan seguro estás. Baja (<0.6) si el post es vago, genérico o mezcla varios temas.`;
+- confianza: 0..1 qué tan seguro estás. Baja (<0.6) si el post es vago, genérico o mezcla varios temas.
+- Señales de vida (→ rescate crítico): sobreviviente, está vivo/viva, sigue con vida, dio señales, golpes, responde, lo encontramos vivo.
+- Atrapados / escombros: atrapado/a, sigue atrapado, no lo han sacado, bajo/entre escombros.
+- Desaparecidos: desaparecido/a, sin noticias de, se busca a, búsqueda de.
+- Necesidades: SOS, auxilio, ayuda urgente, sin agua/comida/luz, víveres, generadores.
+- Operación rescate (contexto): rescatistas, brigada/equipo de rescate, maquinaria pesada, perros de rescate.
+- centro de acopio / punto de encuentro = OFRECEN recibir (centro_acopio), no necesidad.`;
 
 export const INGESTAR_CATEGORIAS = new Set(['necesidad', 'rescate']);
 

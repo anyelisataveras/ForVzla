@@ -1,16 +1,18 @@
 /** Reglas de calidad post-clasificación: pedido activo, urgencia creíble, cola de moderación. */
 
-const PEDIDO_ACTIVO = /necesit|urgente|atrapad|colaps|solicit|pedimos|falta|sin agua|sin luz|ayuda|rescate|escombros|desaparecid/i;
-const NOTICIA_RESUELTA = /fue rescatad|ya fue rescat|lograron rescatar|rescatad[oa]s?\s+(del|de los|hace|en)|operación exitosa|celebramos|emotivo rescate|historia de/i;
+// Palabras clave PM — pedido activo (necesidad o rescate en curso).
+const PEDIDO_ACTIVO = /necesit|urgente|atrapad|colaps|solicit|pedimos|falta|sin agua|sin comida|sin luz|v[ií]veres|ayuda|auxilio|\bsos\b|rescate|escombros|desaparecid|generador/i;
+const NOTICIA_RESUELTA = /fue rescatad|ya fue rescat|lograron rescatar|rescatad[oa]s?\s+(del|de los|hace|en)|operaci[oó]n exitosa|celebramos|emotivo rescate|historia de|sobrevivi[oó]\b|ya (lo|la) sacaron|lograron sacar/i;
 
-// Señales de rescate de máxima prioridad: personas atrapadas / bajo escombros / desaparecidas.
-const RESCATE_PROBABLE = /atrapad|soterrad|bajo (los |el )?escombros|escombros|derrumb|colaps|desaparecid|no pueden salir|siguen adentro|siguen dentro|rescate/i;
-// Signos de vida = lo que un jefe de rescate prioriza por encima de todo.
-const SIGNOS_VIDA = /signos de vida|se escuchan|se oyen|golpean|piden auxilio|responden|siguen con vida|están vivos|hay vida|escuchamos/i;
+// Rescate activo: atrapados, escombros, desaparecidos, operación en curso.
+const RESCATE_PROBABLE = /atrapad|sigue atrapad|soterrad|bajo (los |el )?escombros|entre los escombros|escombros|derrumb|colaps|desaparecid|no pueden salir|siguen adentro|siguen dentro|no (lo|la) han sacado|rescate|rescatistas|equipo de rescate|brigada de rescate|maquinaria pesada|perros de rescate|sin noticias de|no aparece|se busca a|b[uú]squeda de/i;
+// Signos de vida = prioridad absoluta para el equipo de rescate.
+const SIGNOS_VIDA = /signos de vida|se escuchan|se oyen|golpean|golpes|dando golpes|piden auxilio|responde|responden|siguen con vida|sigue con vida|est[aá] (vivo|viva)|est[aá]n viv[oa]s?|hay vida|escuchamos|sobreviviente|dio se[nñ]ales|(lo|la) encontramos (vivo|viva)|\bcon vida\b/i;
 
 export function esPedidoActivo(texto) {
   const t = (texto || '').toLowerCase();
   if (NOTICIA_RESUELTA.test(t)) return false;
+  if (SIGNOS_VIDA.test(t)) return true;
   return PEDIDO_ACTIVO.test(t);
 }
 
@@ -18,6 +20,7 @@ export function esPedidoActivo(texto) {
 export function esRescateProbable(texto) {
   const t = (texto || '').toLowerCase();
   if (NOTICIA_RESUELTA.test(t)) return false;
+  if (SIGNOS_VIDA.test(t)) return true;
   return RESCATE_PROBABLE.test(t);
 }
 

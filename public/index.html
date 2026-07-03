@@ -56,7 +56,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .home-asesoria-cta{flex-shrink:0;color:var(--ind);font-size:14px;font-weight:800;display:inline-flex;align-items:center;gap:5px}
 .more-lbl{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--txt3);margin:18px 0 9px}
 .more-row{display:flex;flex-wrap:wrap;gap:10px}
-.more-btn{flex:1 1 200px;cursor:pointer;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;font-size:14px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:9px;font-family:inherit}
+.more-btn{flex:1 1 200px;cursor:pointer;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;font-size:14px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:9px;font-family:inherit;text-decoration:none}
 @media (hover:hover){.more-btn:hover{border-color:#CFC8BF}}
 .map-stage{position:relative;height:min(52vh,420px);border-radius:18px;overflow:hidden;border:1px solid var(--line2);background:#fff}#main-map{position:absolute;inset:0}
 .map-hint{position:absolute;top:8px;left:8px;right:8px;z-index:500;background:rgba(255,255,255,.94);border-radius:var(--r);padding:7px 10px;font-size:11px;color:var(--txt);box-shadow:0 1px 6px rgba(0,0,0,.15);text-align:center}
@@ -284,6 +284,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     <div class="more-row">
       <button class="more-btn" onclick="goScreen('acopio')">📦 Centros de acopio</button>
       <button class="more-btn" onclick="goScreen('ofrecer')">🎁 Donar a un centro</button>
+      <a class="more-btn" href="rescatistas.html">🚒 Soy rescatista</a>
     </div>
   </div>
 </div>
@@ -594,7 +595,7 @@ function needTitle(n){const tip=tipoText(n);
   if(n.personas_afectadas===1)return escHtml('1 persona — '+tip);
   return escHtml(tip);}
 function trapWarning(n){if(n.edificio_id)return true;
-  const d=(n.descripcion||'').toLowerCase();return/atrapad|soterrad|debajo del|escombros|no pueden salir/.test(d);}
+  const d=(n.descripcion||'').toLowerCase();return/atrapad|sigue atrapad|soterrad|debajo del|bajo (los |el )?escombros|entre los escombros|escombros|no pueden salir|no (lo|la) han sacado|desaparecid/.test(d);}
 
 function buildGrid(elId,list,fn,cls=''){document.getElementById(elId).innerHTML=list.map(x=>`<button class="gbtn${cls?' '+cls:''}" data-t="${x.t}" onclick="${fn}(this)"><span class="e">${x.e}</span>${SHORT[x.t]||x.t}</button>`).join('');}
 let selTipos=[],selSubs=[],selUrg='urgente',selTipoO='',ayudarView='lista';

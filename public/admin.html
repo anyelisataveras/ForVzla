@@ -394,8 +394,8 @@ function analizarPost(p) {
 
   const esRescate = cat === 'rescate' || tipo === 'Rescate';
   const esCentro = cat === 'centro_acopio' || /centro de acopio|punto de acopio|donaciones en|recibimos don/i.test(blob);
-  const esEdificio = esRescate || /colaps|derrumb|atrap|edificio|torre|residen|estructura dañ/i.test(blob);
-  const esNoticiaPasada = /fue rescatad|ya fue rescat|lograron rescatar|rescatad[oa]s?\s+(del|de los|hace)|operación exitosa|celebramos|emotivo rescate|historia de/i.test(blob);
+  const esEdificio = esRescate || /colaps|derrumb|atrap|edificio|torre|residen|estructura dañ|escombros|desaparecid|bajo (los |el )?escombros|entre los escombros/i.test(blob);
+  const esNoticiaPasada = /fue rescatad|ya fue rescat|lograron rescatar|rescatad[oa]s?\s+(del|de los|hace)|operaci[oó]n exitosa|celebramos|emotivo rescate|historia de|sobrevivi[oó]\b|ya (lo|la) sacaron|lograron sacar/i.test(blob);
   const generico = /genérico|sin especificar|no especifica|post genérico|poco detalle/i.test(p.descripcion || '');
 
   const alertas = [];

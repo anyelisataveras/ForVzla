@@ -146,8 +146,8 @@ const ESTADOS=[
 const HORAS=[{k:6,l:'6h'},{k:24,l:'24h'},{k:72,l:'72h'},{k:0,l:'Todo'}];
 const ST_LABEL={nuevo:'🆕 Nuevo',verificando:'🔍 Verificando',confirmada:'✅ Confirmada',atendida:'✔️ Atendida',falsa:'❌ Falsa'};
 const SRC={ciudadano:'Ciudadano',instagram:'Instagram',tiktok:'TikTok',twitter:'X / Twitter',telegram:'Telegram',coordinador:'Coordinador'};
-const LIFE_RE=/signos de vida|se escuchan|se oyen|golpean|piden auxilio|responden|siguen con vida|est[aá]n vivos|hay vida|escuchamos/i;
-const TRAP_RE=/atrapad|soterrad|debajo del|bajo (los |el )?escombros|escombros|no pueden salir|siguen adentro|siguen dentro|derrumb/i;
+const LIFE_RE=/signos de vida|se escuchan|se oyen|golpean|golpes|dando golpes|piden auxilio|responde|responden|siguen con vida|sigue con vida|est[aá] (vivo|viva)|est[aá]n viv[oa]s?|hay vida|escuchamos|sobreviviente|dio se[nñ]ales|(lo|la) encontramos (vivo|viva)|\bcon vida\b/i;
+const TRAP_RE=/atrapad|sigue atrapad|soterrad|debajo del|bajo (los |el )?escombros|entre los escombros|escombros|no pueden salir|siguen adentro|siguen dentro|no (lo|la) han sacado|derrumb|desaparecid|sin noticias de|no aparece|se busca a|b[uú]squeda de|rescate|maquinaria pesada/i;
 
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function ago(ts){if(!ts)return'';const d=Math.floor((Date.now()-new Date(ts))/60000);if(d<1)return'ahora';if(d<60)return'hace '+d+'m';if(d<1440)return'hace '+Math.floor(d/60)+'h';return'hace '+Math.floor(d/1440)+'d';}

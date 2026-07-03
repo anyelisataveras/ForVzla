@@ -1,16 +1,50 @@
 /** Configuración central — variables de entorno y constantes de búsqueda. */
 
+// Términos PM (refinamiento de posts) → frases de búsqueda Apify.
+// Orden: signos de vida primero (TikTok solo usa los primeros N en searchQueries).
 const DEFAULT_KEYWORDS = [
-  'terremoto Venezuela', 'sismo Caracas', 'centro de acopio Venezuela',
-  'voluntarios Venezuela', '#terremotoVenezuela', '#sismoVenezuela',
-  'necesitamos ayuda La Guaira', 'edificio colapsado Venezuela',
-  'personas atrapadas terremoto', 'necesidades Venezuela'
+  // ── Signos de vida (prioridad máxima) ──
+  'signos de vida escombros', 'se escuchan golpes escombros',
+  'sobreviviente escombros Venezuela', 'sobrevivientes terremoto Venezuela',
+  'está vivo bajo escombros', 'está viva bajo escombros',
+  'sigue con vida escombros', 'hay vida bajo escombros',
+  'encontramos vivo escombros', 'dio señales de vida',
+  'responde bajo escombros', 'golpes bajo escombros',
+  // ── Atrapados / escombros ──
+  'personas atrapadas terremoto', 'sigue atrapado escombros',
+  'no lo han sacado escombros', 'bajo los escombros Venezuela',
+  'entre los escombros terremoto', 'atrapados vivos terremoto',
+  'piden auxilio bajo escombros', 'auxilio atrapados La Guaira',
+  // ── Rescate activo ──
+  'rescate personas atrapadas Venezuela', 'brigada de rescate Venezuela',
+  'equipo de rescate escombros', 'rescatistas terremoto Venezuela',
+  'maquinaria pesada rescate Venezuela', 'perros de rescate escombros',
+  // ── Desaparecidos ──
+  'desaparecidos terremoto Venezuela', 'sin noticias de terremoto',
+  'se busca terremoto Venezuela', 'búsqueda de desaparecidos Venezuela',
+  // ── Necesidades urgentes ──
+  'SOS terremoto Venezuela', 'auxilio urgente Venezuela',
+  'ayuda urgente terremoto', 'sin agua terremoto Venezuela',
+  'sin comida terremoto Venezuela', 'necesitamos víveres Venezuela',
+  'sin luz generadores Venezuela',
+  // ── Contexto / acopio (centros, no necesidad) ──
+  'centro de acopio Venezuela', 'punto de encuentro terremoto',
+  'terremoto Venezuela', 'edificio colapsado Venezuela',
 ];
 
 const DEFAULT_HASHTAGS = [
+  // Geografía
   'AyudaVenezuela', 'TerremotoVenezuela', 'TerremotoYaracuy', 'LaGuaira',
-  'SismoVenezuela', 'Caraballeda', 'VenezuelaTerremoto', 'SOSVenezuela',
-  'terremotoVenezuela', 'sismoVenezuela'
+  'SismoVenezuela', 'Caraballeda', 'VenezuelaTerremoto', 'PlayaGrande', 'Vargas',
+  'terremotoVenezuela', 'sismoVenezuela',
+  // PM — signos de vida / atrapados
+  'SignosDeVida', 'AtrapadosConVida', 'HayVida', 'Sobreviviente',
+  'PersonasAtrapadas', 'BajoEscombros',
+  // PM — rescate / desaparecidos / auxilio
+  'RescateVenezuela', 'Desaparecidos', 'AUXILIO', 'SOSVenezuela',
+  'AuxilioUrgente', 'BrigadaRescate', 'MaquinariaPesada',
+  // PM — necesidades
+  'SinAgua', 'SinComida', 'SinLuz',
 ];
 
 function splitCsv(val, fallback = []) {
