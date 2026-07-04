@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mockup — ForVzla × Guau · Refugios Venezuela</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F1EEEA;--surf:#FBFAF8;--red:#C0392B;--redl:#FBEDEA;--redd:#9B2418;
+  --grn:#1E8449;--grnl:#E9F6EE;--grnh:#15603A;
+  --blu:#2471A3;--blul:#EBF3F9;--blut:#1E5F8C;
+  --ind:#5A4AA0;--indl:#EEEBF6;--indt:#463A82;
+  --guau:#7B5EA7;--guaul:#F3EFFA;--guaut:#5A4580;
+  --amb:#D97706;--ambl:#FFF7ED;--ambd:#92400E;
+  --ora:#E67E22;--oral:#FDF1E4;
+  --txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;
+  --line:#E7E2DB;--line2:#E2DCD4;
+  --r:12px;--app-max:420px;
+}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#2a2826;color:var(--txt);font-size:15px}
+.mock-shell{max-width:1280px;margin:0 auto;padding:16px}
+.mock-top{color:#fff;margin-bottom:16px}
+.mock-top h1{font-size:22px;font-weight:800}
+.mock-top p{font-size:13px;opacity:.78;margin-top:6px;line-height:1.5;max-width:72ch}
+.mock-nav{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.mock-nav button{font-size:11px;font-weight:700;padding:7px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.07);color:#fff;cursor:pointer;font-family:inherit}
+.mock-nav button.on{background:#fff;color:#2a2826;border-color:#fff}
+.mock-nav .sep{width:1px;background:rgba(255,255,255,.2);margin:4px 2px}
+.layout{display:grid;gap:20px}
+@media(min-width:960px){.layout{grid-template-columns:1fr 360px}}
+.phone-label{text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,.55);margin-bottom:8px;letter-spacing:.04em;text-transform:uppercase}
+.phone{width:100%;max-width:var(--app-max);margin:0 auto;background:var(--bg);border-radius:28px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45);border:6px solid #1a1a1a;min-height:720px;display:flex;flex-direction:column;position:relative}
+.phone.guau-phone{border-color:#4a3868;box-shadow:0 20px 60px rgba(90,69,128,.35)}
+.notes{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:18px;color:#e8e4df;font-size:13px;line-height:1.55;max-height:85vh;overflow-y:auto}
+.notes h2{font-size:15px;font-weight:800;color:#fff;margin:16px 0 8px}
+.notes h2:first-child{margin-top:0}
+.notes ul{padding-left:18px;margin:6px 0}
+.notes li{margin-bottom:5px}
+.notes code{font-size:11px;background:rgba(0,0,0,.25);padding:1px 5px;border-radius:4px;color:#ffd89a}
+.notes .tag{display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;margin-right:4px}
+.notes .tag.fv{background:var(--redl);color:var(--red)}
+.notes .tag.gu{background:var(--guaul);color:var(--guau)}
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden}
+.screen.on{display:flex}
+/* ForVzla */
+.pub-hdr{background:#fff;padding:11px 18px;border-bottom:1px solid var(--line);flex-shrink:0;display:flex;align-items:center;gap:10px}
+.pub-hdr .logo{width:32px;height:32px;border-radius:8px;background:var(--redl);display:flex;align-items:center;justify-content:center;font-size:16px}
+.pub-hdr h1{font-size:15px;font-weight:800;flex:1}
+.pub-hdr p{font-size:11px;color:var(--txt3)}
+.pub-hdr .info{width:30px;height:30px;border-radius:50%;border:1px solid var(--line2);background:var(--bg);font-weight:800;font-size:14px;color:var(--txt2);display:flex;align-items:center;justify-content:center}
+.pub-body{flex:1;overflow-y:auto;padding:0 18px 80px}
+.kicker{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#A03228}
+.home-h1{font-size:28px;line-height:1.1;font-weight:800;margin-top:8px}
+.home-p{font-size:14px;color:var(--txt2);margin-top:10px;line-height:1.5}
+.hero-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+.hero-card{flex:1 1 160px;border:none;border-radius:18px;padding:20px 18px;color:#fff;text-align:left;min-height:160px;display:flex;flex-direction:column;font-family:inherit}
+.hero-red{background:linear-gradient(155deg,#C0392B,#9B2418)}
+.hero-grn{background:linear-gradient(155deg,#1E8449,#156034)}
+.hero-ico{font-size:28px}.hero-t{font-size:18px;font-weight:800;margin-top:10px}.hero-s{font-size:13px;opacity:.92;margin-top:5px;line-height:1.4}
+.stats-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;font-size:13px}
+.home-asesoria,.home-guau{width:100%;text-align:left;border-radius:18px;padding:16px 17px;margin-top:12px;background:#fff;display:flex;align-items:center;gap:14px;font-family:inherit;cursor:pointer}
+.home-asesoria{border:1px solid #DAD3EC}
+.home-guau{border:1px solid #E8D5F0;background:linear-gradient(135deg,#FFFBF8,#F9F5FF)}
+.home-asesoria-ico,.home-guau-ico{flex-shrink:0;width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.home-asesoria-ico{background:var(--indl)}
+.home-guau-ico{background:var(--guaul)}
+.home-asesoria-t,.home-guau-t{display:block;font-size:15px;font-weight:800}
+.home-asesoria-s,.home-guau-s{display:block;font-size:12px;color:var(--txt2);margin-top:2px;line-height:1.4}
+.home-asesoria-cta{color:var(--ind);font-size:13px;font-weight:800;flex-shrink:0}
+.home-guau-cta{color:var(--guau);font-size:13px;font-weight:800;flex-shrink:0}
+.more-lbl{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--txt3);margin:16px 0 8px}
+.more-row{display:flex;flex-wrap:wrap;gap:8px}
+.more-btn{flex:1 1 140px;padding:12px 13px;border:1px solid var(--line);border-radius:13px;background:#fff;font-size:13px;font-weight:700;text-align:left;font-family:inherit;cursor:pointer}
+.more-btn.new{border-color:#E8D5F0;background:var(--guaul)}
+.back{background:none;border:none;color:var(--txt2);font-size:14px;font-weight:600;padding:16px 0 0;cursor:pointer;font-family:inherit}
+.sec-title{font-size:22px;font-weight:800;margin-top:4px}
+.sec-sub{font-size:13px;color:var(--txt2);margin-top:6px;line-height:1.45}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.chip{font-size:12px;font-weight:600;padding:7px 12px;border-radius:20px;border:1px solid var(--line);background:#fff;font-family:inherit;cursor:pointer}
+.chip.on{background:var(--grnl);border-color:var(--grn);color:var(--grnh)}
+.card{border:1px solid var(--line);border-left:4px solid var(--ora);border-radius:var(--r);padding:12px;margin-top:10px;background:#fff}
+.card .c-loc{font-size:14px;font-weight:800}
+.card .c-addr{font-size:12px;color:var(--txt2);margin-top:3px}
+.card .c-tipo{font-size:13px;margin-top:8px}
+.card .c-desc{font-size:13px;color:var(--txt2);margin-top:8px;line-height:1.45}
+.badge{font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;display:inline-block}
+.badge.o{background:var(--oral);color:var(--ora)}
+.badge.guau{background:var(--guaul);color:var(--guau);margin-top:6px}
+.actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.actions a,.actions button{font-size:12px;font-weight:700;padding:9px 12px;border-radius:10px;border:none;text-decoration:none;cursor:pointer;font-family:inherit}
+.btn-wa{background:#25D366;color:#fff}
+.btn-map{background:var(--blul);color:var(--blu)}
+.btn-guau{background:var(--guau);color:#fff}
+.btn-voy{background:var(--ora);color:#fff}
+.modal-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center;z-index:50;padding:12px}
+.modal-card{background:#fff;border-radius:20px 20px 16px 16px;padding:20px 18px;width:100%;max-height:90%;overflow-y:auto}
+.modal-card h3{font-size:18px;font-weight:800}
+.modal-body{font-size:14px;color:var(--txt2);line-height:1.5;margin-top:10px}
+.modal-how{display:flex;gap:10px;margin-top:12px;align-items:flex-start}
+.btn-dark{width:100%;padding:14px;border:none;border-radius:12px;background:var(--txt);color:#fff;font-weight:800;margin-top:16px;font-family:inherit;cursor:pointer}
+.tip-box{background:var(--guaul);border:1px solid #E8D5F0;border-radius:14px;padding:14px;margin-top:14px;font-size:13px;line-height:1.45}
+.tip-box b{color:var(--guau)}
+.tip-box a{color:var(--guau);font-weight:800}
+/* Guau screens */
+.guau-hdr{background:linear-gradient(135deg,#7B5EA7,#5A4580);color:#fff;padding:16px 18px;flex-shrink:0}
+.guau-hdr h1{font-size:18px;font-weight:800}
+.guau-hdr p{font-size:12px;opacity:.88;margin-top:4px;line-height:1.4}
+.guau-body{flex:1;overflow-y:auto;padding:0 18px 32px;background:#FAFAFA}
+.guau-banner{background:var(--ambl);border:1px solid #FED7AA;border-radius:12px;padding:11px 13px;margin:14px 0;font-size:12px;line-height:1.45;color:var(--ambd)}
+.guau-banner a{color:var(--blu);font-weight:700}
+.ref-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:12px;cursor:pointer}
+.ref-card .photo{height:100px;border-radius:12px;background:linear-gradient(135deg,#fde68a,#fca5a5);display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:10px}
+.ref-card .name{font-size:16px;font-weight:800}
+.ref-card .meta{font-size:12px;color:var(--txt2);margin-top:3px}
+.ref-card .need{margin-top:8px;font-size:12px;font-weight:700;color:var(--red);background:var(--redl);padding:6px 10px;border-radius:8px;display:inline-block}
+.ref-btns{display:flex;gap:8px;margin-top:12px}
+.ref-btns button{flex:1;padding:11px;border-radius:11px;border:none;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit}
+.btn-ref-primary{background:var(--guau);color:#fff}
+.btn-ref-sec{background:var(--guaul);color:var(--guau)}
+.animal-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.animal-tile{background:#fff;border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.animal-tile .aphoto{height:90px;background:linear-gradient(135deg,#ddd6fe,#fbcfe8);display:flex;align-items:center;justify-content:center;font-size:32px}
+.animal-tile .aname{font-size:13px;font-weight:800;padding:8px 10px 2px}
+.animal-tile .astatus{font-size:10px;color:var(--guau);font-weight:700;padding:0 10px 8px}
+.animal-hero{height:200px;background:linear-gradient(135deg,#c4b5fd,#f9a8d4);display:flex;align-items:center;justify-content:center;font-size:72px;border-radius:0 0 20px 20px;margin:0 -18px}
+.flow-step{font-size:11px;font-weight:800;color:var(--guau);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:4px}
+.fld input,.fld select,.fld textarea{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font-size:15px;font-family:inherit}
+.chip-row{display:flex;flex-wrap:wrap;gap:6px}
+.chip-pick{font-size:12px;font-weight:700;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:#fff;cursor:pointer;font-family:inherit}
+.chip-pick.on{border-color:var(--guau);background:var(--guaul);color:var(--guau)}
+.pay-box{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:12px;font-size:13px;line-height:1.6}
+.pay-box b{display:block;margin-bottom:6px;color:var(--txt)}
+.btn-main{width:100%;padding:14px;border:none;border-radius:12px;background:var(--guau);color:#fff;font-size:15px;font-weight:800;margin-top:14px;cursor:pointer;font-family:inherit}
+.btn-wa-full{width:100%;padding:13px;border:none;border-radius:12px;background:#25D366;color:#fff;font-size:14px;font-weight:800;margin-top:8px;cursor:pointer;font-family:inherit}
+.fv-link{display:block;text-align:center;margin-top:16px;font-size:13px;color:var(--blu);font-weight:700}
+.url-preview{background:#1a1a1a;color:#8f8;border-radius:8px;padding:10px 12px;font-size:10px;word-break:break-all;margin-top:10px;font-family:ui-monospace,monospace;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="mock-shell">
+  <div class="mock-top">
+    <h1>Mockup — ForVzla × Guau · Refugios Venezuela</h1>
+    <p>Propuesta de integración Nivel 1–2: enlaces en ForVzla + flujos Apadrinar/Adoptar en Guau. Toca las pestañas. Contrato completo en <code>docs/guau-forvzla-integration.md</code> · Prompt Guau en <code>docs/guau-refugios-feature-prompt.md</code></p>
+  </div>
+
+  <div class="mock-nav" id="mock-nav">
+    <button class="on" data-screen="fv-home">FV Home</button>
+    <button data-screen="fv-ayudar">FV Quiero ayudar</button>
+    <button data-screen="fv-info">FV Modal info</button>
+    <button data-screen="fv-tip">FV Tip refugio</button>
+    <span class="sep"></span>
+    <button data-screen="gu-list">Guau Listado</button>
+    <button data-screen="gu-refugio">Guau Refugio</button>
+    <button data-screen="gu-animal">Guau Animal</button>
+    <button data-screen="gu-apadrinar">Guau Apadrinar</button>
+    <button data-screen="gu-adoptar">Guau Adoptar</button>
+  </div>
+
+  <div class="layout">
+    <div>
+      <div class="phone-label" id="phone-label">ForVzla — Home (nuevo banner Guau)</div>
+      <div class="phone" id="phone">
+
+        <!-- FV HOME -->
+        <div class="screen on" id="screen-fv-home">
+          <div class="pub-hdr">
+            <div class="logo">🇻🇪</div>
+            <div><h1>Ayuda Venezuela</h1><p>En vivo · Terremoto 24 jun 2026</p></div>
+            <div class="info" onclick="go('fv-info')">?</div>
+          </div>
+          <div class="pub-body" style="padding-top:24px">
+            <div class="kicker">Red de ayuda vecino a vecino</div>
+            <h1 class="home-h1">¿Necesitas ayuda o quieres ayudar?</h1>
+            <p class="home-p">Lo más valioso ahora es <b>pedir lo que necesitas</b> y <b>dar lo que puedes</b>.</p>
+            <div class="hero-row">
+              <div class="hero-card hero-red"><div class="hero-ico">🆘</div><div class="hero-t">Necesito ayuda</div><div class="hero-s">Publica tu SOS en un minuto.</div></div>
+              <div class="hero-card hero-grn"><div class="hero-ico">🤝</div><div class="hero-t">Quiero ayudar</div><div class="hero-s">Ver quién lo necesita cerca.</div></div>
+            </div>
+            <div class="stats-row"><span>🔴 <b>847</b> pedidos activos</span><span>🟢 <b>312</b> centros</span></div>
+
+            <button type="button" class="home-asesoria">
+              <span class="home-asesoria-ico">💬</span>
+              <span style="flex:1"><span class="home-asesoria-t">Orientación profesional gratuita</span><span class="home-asesoria-s">Abogados, psicólogos, maestros…</span></span>
+              <span class="home-asesoria-cta">Ver →</span>
+            </button>
+
+            <button type="button" class="home-guau" onclick="go('gu-list')">
+              <span class="home-guau-ico">🐾</span>
+              <span style="flex:1;text-align:left">
+                <span class="home-guau-t">Ayudar a refugios de animales</span>
+                <span class="home-guau-s">Afectados por el terremoto · Apadrina o adopta desde lejos</span>
+              </span>
+              <span class="home-guau-cta">Guau →</span>
+            </button>
+            <div class="url-preview" id="url-home">→ guau.app/refugios-ve?utm_source=forvzla&utm_medium=home</div>
+
+            <div class="more-lbl">Más opciones</div>
+            <div class="more-row">
+              <button class="more-btn">📦 Centros de acopio</button>
+              <button class="more-btn">🎁 Donar a un centro</button>
+              <button class="more-btn new" onclick="go('gu-list')">🐾 Ayudar a refugios de animales</button>
+              <button class="more-btn">🚒 Soy rescatista</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FV AYUDAR -->
+        <div class="screen" id="screen-fv-ayudar">
+          <div class="pub-hdr"><div class="logo">🇻🇪</div><div><h1>Ayuda Venezuela</h1></div></div>
+          <div class="pub-body">
+            <button class="back">← Volver</button>
+            <div class="sec-title">🤝 Quiero ayudar</div>
+            <p class="sec-sub">Elige qué puedes dar y contacta directo.</p>
+            <div class="chips">
+              <span class="chip">Todo</span><span class="chip on">Comida</span><span class="chip">Refugio</span><span class="chip">Equipos</span>
+            </div>
+            <div class="card">
+              <div class="c-loc">Refugio Ira · 64+ animales</div>
+              <div class="c-addr">📍 Ocumare de la Costa · Aragua · a 12 km</div>
+              <span class="badge o">🟠 Urgente</span>
+              <span class="badge guau">🐾 Refugio de animales</span>
+              <div class="c-tipo"><b>🍎 Comida · ⛺ Refugio</b> · ⏱ 2h · 3 confirmaciones</div>
+              <div class="c-desc">Único refugio del municipio. 64 en albergue + ~150 callejeros en 24 sectores (solo 4 cubiertos). Urgente perrarina/gatarina. Daño pared/techo por temblor.</div>
+              <div class="actions">
+                <a class="btn-wa">💬 WhatsApp</a>
+                <a class="btn-map">🗺 Ruta</a>
+                <a class="btn-guau" onclick="go('gu-refugio')">🐾 Apadrinar en Guau</a>
+                <button class="btn-voy">🙋 Voy en camino</button>
+              </div>
+            </div>
+            <div class="url-preview">→ guau.app/refugios-ve/ira-ocumare?utm_source=forvzla&utm_medium=ayudar_card&need=a1b2…&accion=apadrinar</div>
+          </div>
+        </div>
+
+        <!-- FV INFO MODAL -->
+        <div class="screen" id="screen-fv-info">
+          <div class="pub-hdr"><div class="logo">🇻🇪</div><div><h1>Ayuda Venezuela</h1></div></div>
+          <div class="pub-body" style="opacity:.4;pointer-events:none;padding-top:24px">
+            <div class="kicker">Red de ayuda</div>
+            <h1 class="home-h1">¿Necesitas ayuda…?</h1>
+          </div>
+          <div class="modal-overlay">
+            <div class="modal-card">
+              <h3>🇻🇪 ¿Qué es ForVzla?</h3>
+              <p class="modal-body">Mapa colaborativo de emergencia tras el terremoto. Reporta necesidades; voluntarios ven pins y contactan directo.</p>
+              <div class="modal-how"><span>🆘</span><p class="modal-body"><b>Pedir ayuda</b> — reporta un lugar y qué necesitas.</p></div>
+              <div class="modal-how"><span>🤝</span><p class="modal-body"><b>Quiero ayudar</b> — elige qué dar y contacta cerca.</p></div>
+              <div class="modal-how"><span>💬</span><p class="modal-body"><b>Orientación profesional</b> — ayuda gratuita.</p></div>
+              <div class="modal-how" style="background:var(--guaul);padding:10px;border-radius:12px;margin-top:14px">
+                <span>🐾</span>
+                <p class="modal-body"><b>Ayudar a refugios de animales</b> — refugios afectados por el terremoto. Apadrina, adopta o envía ayuda continua en <b>Guau</b>. ForVzla cubre la urgencia; Guau el vínculo a largo plazo.</p>
+              </div>
+              <button class="btn-dark" onclick="go('fv-home')">Entendido</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- FV TIP REFUGIO -->
+        <div class="screen" id="screen-fv-tip">
+          <div class="pub-hdr"><div class="logo">🇻🇪</div><div><h1>Ayuda Venezuela</h1></div></div>
+          <div class="pub-body">
+            <button class="back">← Volver</button>
+            <div class="sec-title">🆘 Necesito ayuda</div>
+            <p class="sec-sub">Paso 2 — ¿Qué necesitas?</p>
+            <div class="chips" style="margin-top:20px">
+              <span class="chip on">🍎 Comida</span><span class="chip on">⛺ Refugio</span>
+            </div>
+            <div class="fld" style="margin-top:16px">
+              <label>Detalle</label>
+              <textarea rows="3" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;font-family:inherit">Refugio 64 animales. Perrarina urgente. Callejeros en 24 sectores…</textarea>
+            </div>
+            <div class="tip-box">
+              <b>¿Eres refugio de animales afectado por el terremoto?</b><br>
+              Después de publicar, crea tu perfil en <a href="#" onclick="go('gu-refugio');return false">Guau</a> para recibir apadrinamientos y mostrar a tus animalitos a quien quiera ayudar desde lejos.
+            </div>
+            <button class="btn-main" style="background:var(--red);margin-top:20px">Publicar SOS</button>
+          </div>
+        </div>
+
+        <!-- GUAU LISTADO -->
+        <div class="screen" id="screen-gu-list">
+          <div class="guau-hdr">
+            <h1>🐾 Refugios Venezuela</h1>
+            <p>Terremoto 2026 · Apadrina, adopta o envía ayuda a refugios verificados</p>
+          </div>
+          <div class="guau-body">
+            <div class="guau-banner">
+              Llegaste desde <b>ForVzla</b> · <a href="#" onclick="go('fv-ayudar');return false">Ver emergencia en el mapa →</a>
+            </div>
+            <div class="ref-card" onclick="go('gu-refugio')">
+              <div class="photo">🐕🐈</div>
+              <div class="name">Refugio Ira Núñez</div>
+              <div class="meta">Ocumare de la Costa · Aragua · 64+ animales</div>
+              <div class="need">🍎 Urgente: perrarina y gatarina</div>
+              <div class="ref-btns">
+                <button class="btn-ref-primary">Ver refugio</button>
+                <button class="btn-ref-sec">Apadrinar</button>
+              </div>
+            </div>
+            <div class="ref-card" style="opacity:.6">
+              <div class="photo" style="background:linear-gradient(135deg,#bfdbfe,#a5f3fc)">🐾</div>
+              <div class="name">Próximamente más refugios</div>
+              <div class="meta">Verificando refugios en Aragua, Miranda…</div>
+            </div>
+            <a class="fv-link" onclick="go('fv-home');return false">¿Emergencia urgente? Ver mapa en ForVzla</a>
+          </div>
+        </div>
+
+        <!-- GUAU REFUGIO -->
+        <div class="screen" id="screen-gu-refugio">
+          <div class="guau-hdr">
+            <h1>Refugio Ira Núñez</h1>
+            <p>Ocumare de la Costa · Aragua · ✓ Refugio verificado</p>
+          </div>
+          <div class="guau-body">
+            <p style="font-size:13px;color:var(--txt2);margin-top:14px;line-height:1.5">Único refugio del municipio. Albergamos 64 animalitos y alimentamos ~150 callejeros en 24 sectores. Daño en pared y techo por el temblor.</p>
+            <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+              <span class="badge guau">64 en refugio</span>
+              <span class="badge guau">~150 callejeros</span>
+              <span class="badge o">Comida urgente</span>
+            </div>
+            <div class="ref-btns" style="margin-top:16px">
+              <button class="btn-ref-primary" onclick="go('gu-apadrinar')">🐾 Apadrinar este refugio</button>
+            </div>
+            <button class="btn-ref-sec" style="width:100%;margin-top:8px;padding:11px;border-radius:11px;border:none;font-weight:800;font-size:13px;background:var(--blul);color:var(--blu);cursor:pointer;font-family:inherit" onclick="go('fv-ayudar')">🆘 Ver emergencia en ForVzla</button>
+
+            <div class="flow-step">Animalitos que buscan padrino</div>
+            <div class="animal-grid">
+              <div class="animal-tile" onclick="go('gu-animal')"><div class="aphoto">🐕</div><div class="aname">Luna</div><div class="astatus">Busca padrino</div></div>
+              <div class="animal-tile" onclick="go('gu-animal')"><div class="aphoto">🐕</div><div class="aname">Negro</div><div class="astatus">Busca hogar</div></div>
+              <div class="animal-tile"><div class="aphoto">🐈</div><div class="aname">Michi</div><div class="astatus">Busca padrino</div></div>
+              <div class="animal-tile"><div class="aphoto">🐕</div><div class="aname">Toby</div><div class="astatus">Apadrinado ✓</div></div>
+            </div>
+            <div class="url-preview">← forvzla.app/?need=a1b2…&utm_source=guau&utm_medium=refugio_profile</div>
+          </div>
+        </div>
+
+        <!-- GUAU ANIMAL -->
+        <div class="screen" id="screen-gu-animal">
+          <div class="guau-body" style="padding:0">
+            <div class="animal-hero">🐕</div>
+            <div style="padding:0 18px 32px">
+              <button class="back">← Refugio Ira</button>
+              <h2 style="font-size:24px;font-weight:800;margin-top:8px">Luna</h2>
+              <p style="font-size:13px;color:var(--guau);font-weight:700">Busca padrino · Hembra · ~3 años</p>
+              <p style="font-size:14px;color:var(--txt2);margin-top:10px;line-height:1.5">Rescatada de la calle en Ocumare. Cariñosa, convive con gatos. Necesita alimento diario y revisión veterinaria.</p>
+              <div class="ref-btns" style="margin-top:16px">
+                <button class="btn-ref-primary" onclick="go('gu-apadrinar')">🐾 Apadrinar a Luna</button>
+                <button class="btn-ref-sec" onclick="go('gu-adoptar')">🏠 Me interesa adoptar</button>
+              </div>
+              <div class="flow-step">Últimas novedades</div>
+              <div class="pay-box"><b>15 jun</b> Luna comió gracias a su padrina Ana 🧡</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- GUAU APADRINAR -->
+        <div class="screen" id="screen-gu-apadrinar">
+          <div class="guau-hdr"><h1>Apadrinar</h1><p>Paso a paso · sin registro obligatorio</p></div>
+          <div class="guau-body">
+            <div class="flow-step">1 · ¿A quién apadrinas?</div>
+            <div class="chip-row">
+              <button class="chip-pick on">🐕 Luna</button>
+              <button class="chip-pick">Refugio en general</button>
+            </div>
+            <div class="flow-step">2 · ¿Cómo quieres ayudar?</div>
+            <div class="chip-row">
+              <button class="chip-pick on">💵 Donación mensual</button>
+              <button class="chip-pick">🎁 Donación única</button>
+              <button class="chip-pick">📦 Enviar comida</button>
+            </div>
+            <div class="fld"><label>Monto o descripción</label><input value="$10/mes · 1 bolsa perrarina"></div>
+            <div class="flow-step">3 · Tus datos</div>
+            <div class="fld"><label>Nombre *</label><input placeholder="Tu nombre"></div>
+            <div class="fld"><label>Email *</label><input type="email" placeholder="tu@email.com"></div>
+            <div class="fld"><label>País</label><select><option>Venezuela</option><option>Colombia</option><option>España</option><option>EE.UU.</option></select></div>
+            <button class="btn-main">Continuar →</button>
+          </div>
+        </div>
+
+        <!-- GUAU APADRINAR CONFIRM -->
+        <div class="screen" id="screen-gu-apadrinar-confirm" style="display:none"></div>
+
+        <!-- GUAU ADOPTAR - merge into apadrinar screen with toggle - actually separate screen -->
+        <div class="screen" id="screen-gu-adoptar">
+          <div class="guau-hdr"><h1>Me interesa adoptar</h1><p>Luna · Refugio Ira Núñez</p></div>
+          <div class="guau-body">
+            <p style="font-size:13px;color:var(--txt2);margin-top:14px;line-height:1.5">El refugio te contactará para conocer tu caso. La adopción no es automática — es un proceso de evaluación responsable.</p>
+            <div class="fld" style="margin-top:16px"><label>Nombre *</label><input></div>
+            <div class="fld"><label>Email *</label><input type="email"></div>
+            <div class="fld"><label>País / ciudad</label><input placeholder="Caracas, Valencia…"></div>
+            <div class="fld"><label>Teléfono / WhatsApp</label><input></div>
+            <div class="fld"><label>¿Por qué quieres adoptar a Luna?</label><textarea rows="3"></textarea></div>
+            <label style="font-size:12px;color:var(--txt2);display:flex;gap:8px;align-items:flex-start;margin-top:8px">
+              <input type="checkbox" checked style="margin-top:3px"> Entiendo que el refugio me contactará para evaluar el caso
+            </label>
+            <button class="btn-main">Enviar interés de adopción</button>
+            <button class="btn-wa-full">💬 Avisar al refugio por WhatsApp</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="notes" id="notes">
+      <h2>Pantalla actual</h2>
+      <p id="note-screen">ForVzla Home — banner + botón Guau en “Más opciones”</p>
+
+      <h2>Cambios ForVzla (Nivel 1)</h2>
+      <ul>
+        <li><span class="tag fv">NUEVO</span> Banner <code>home-guau</code> (estilo asesoría, acento púrpura Guau)</li>
+        <li><span class="tag fv">NUEVO</span> Botón en “Más opciones”: 🐾 Ayudar a refugios de animales</li>
+        <li><span class="tag fv">NUEVO</span> Línea en modal info</li>
+        <li><span class="tag fv">NIVEL 2</span> Badge + botón en tarjetas SOS de refugio</li>
+        <li><span class="tag fv">NIVEL 2</span> Tip al publicar si detecta keywords animales</li>
+      </ul>
+
+      <h2>Flujos Guau</h2>
+      <ul>
+        <li><span class="tag gu">LISTADO</span> Refugios verificados + banner si <code>?need=</code></li>
+        <li><span class="tag gu">REFUGIO</span> Apadrinar + link ForVzla + grid animales</li>
+        <li><span class="tag gu">ANIMAL</span> Perfil + apadrinar / adoptar</li>
+        <li><span class="tag gu">APADRINAR</span> 3 pasos, métodos pago refugio, WhatsApp</li>
+        <li><span class="tag gu">ADOPTAR</span> Interés, no adopción instantánea</li>
+      </ul>
+
+      <h2>URL en pantalla</h2>
+      <p id="note-url" class="url-preview" style="margin-top:0">guau.app/refugios-ve?utm_source=forvzla&utm_medium=home</p>
+
+      <h2>Documentos</h2>
+      <ul>
+        <li><code>docs/guau-forvzla-integration.md</code> — contrato URLs, params, BD</li>
+        <li><code>docs/guau-refugios-feature-prompt.md</code> — prompt para repo Guau</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+const LABELS={
+  'fv-home':'ForVzla Home — banner Guau + más opciones',
+  'fv-ayudar':'ForVzla Quiero ayudar — tarjeta refugio + Apadrinar',
+  'fv-info':'ForVzla Modal info — línea refugios',
+  'fv-tip':'ForVzla Pedir ayuda — tip para refugios',
+  'gu-list':'Guau /refugios-ve — listado',
+  'gu-refugio':'Guau /refugios-ve/ira-ocumare — perfil refugio',
+  'gu-animal':'Guau animal — Luna',
+  'gu-apadrinar':'Guau flujo apadrinar',
+  'gu-adoptar':'Guau flujo adoptar (interés)'
+};
+const URLS={
+  'fv-home':'guau.app/refugios-ve?utm_source=forvzla&utm_medium=home',
+  'fv-ayudar':'guau.app/refugios-ve/ira-ocumare?utm_source=forvzla&utm_medium=ayudar_card&need={uuid}&accion=apadrinar',
+  'fv-info':'(sin link — copy informativo)',
+  'fv-tip':'guau.app/refugios-ve?utm_source=forvzla&utm_medium=report_tip',
+  'gu-list':'guau.app/refugios-ve?utm_source=forvzla&utm_medium=home&need={uuid}',
+  'gu-refugio':'forvzla.app/?need={uuid}&utm_source=guau&utm_medium=refugio_profile',
+  'gu-animal':'guau.app/refugios-ve/ira-ocumare/animales/{id}?accion=apadrinar',
+  'gu-apadrinar':'POST apadrinamientos · utm + need_id guardados',
+  'gu-adoptar':'POST interes_adopcion · notifica refugio'
+};
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  const el=document.getElementById('screen-'+id);
+  if(el)el.classList.add('on');
+  document.querySelectorAll('#mock-nav button').forEach(b=>{
+    b.classList.toggle('on',b.dataset.screen===id);
+  });
+  document.getElementById('phone-label').textContent=LABELS[id]||id;
+  document.getElementById('note-screen').textContent=LABELS[id]||id;
+  document.getElementById('note-url').textContent=URLS[id]||'—';
+  const phone=document.getElementById('phone');
+  phone.classList.toggle('guau-phone',id.startsWith('gu-'));
+}
+document.getElementById('mock-nav').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-screen]');
+  if(b)go(b.dataset.screen);
+});
+</script>
+</body>
+</html>

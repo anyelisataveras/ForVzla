@@ -38,6 +38,7 @@
     HELP_ATTEND_CONFIRMED: 'help_attend_confirmed',
     HELP_MARKED_CUBIERTA: 'help_marked_cubierta',
     HELP_SHARE_CLICKED: 'help_share_clicked',
+    GUAU_LINK_CLICKED: 'guau_link_clicked',
     MAP_MARKER_CLICKED: 'map_marker_clicked',
     SOS_FAB_CLICKED: 'sos_fab_clicked',
 

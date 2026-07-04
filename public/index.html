@@ -19,7 +19,7 @@
 <script src="analytics.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-:root{--bg:#F1EEEA;--surf:#FBFAF8;--red:#C0392B;--redd:#9B2418;--redh:#A93226;--redl:#FBEDEA;--ora:#E67E22;--oral:#FDF1E4;--grn:#1E8449;--grnh:#15603A;--grnl:#E9F6EE;--blu:#2471A3;--blul:#EBF3F9;--blut:#1E5F8C;--yel:#E8B72E;--yell:#FEF7E6;--yelt:#8A6D11;--ind:#5A4AA0;--indh:#4A3C88;--indl:#EEEBF6;--indt:#463A82;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--line3:#EDE8E1;--priv:#EDF6F0;--privb:#CDE8D8;--privt:#2C5A3F;--r:12px;--rm:14px;--app-max:1000px}
+:root{--bg:#F1EEEA;--surf:#FBFAF8;--red:#C0392B;--redd:#9B2418;--redh:#A93226;--redl:#FBEDEA;--ora:#E67E22;--oral:#FDF1E4;--grn:#1E8449;--grnh:#15603A;--grnl:#E9F6EE;--blu:#2471A3;--blul:#EBF3F9;--blut:#1E5F8C;--yel:#E8B72E;--yell:#FEF7E6;--yelt:#8A6D11;--ind:#5A4AA0;--indh:#4A3C88;--indl:#EEEBF6;--indt:#463A82;--guau:#7B5EA7;--guaul:#F3EFFA;--guaut:#5A4580;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--line3:#EDE8E1;--priv:#EDF6F0;--privb:#CDE8D8;--privt:#2C5A3F;--r:12px;--rm:14px;--app-max:1000px}
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px;overscroll-behavior:none}
 .app{max-width:var(--app-max);margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;position:relative}
 .hdr{background:#fff;color:var(--txt);padding:11px 18px;border-bottom:1px solid var(--line);flex-shrink:0;position:sticky;top:0;z-index:30}
@@ -54,10 +54,18 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .home-asesoria-t{display:block;font-size:16px;font-weight:800;color:var(--txt);line-height:1.2}
 .home-asesoria-s{display:block;font-size:13px;color:var(--txt2);margin-top:3px;line-height:1.45}
 .home-asesoria-cta{flex-shrink:0;color:var(--ind);font-size:14px;font-weight:800;display:inline-flex;align-items:center;gap:5px}
+.home-guau{width:100%;text-align:left;cursor:pointer;border:1px solid #E8D5F0;border-radius:18px;padding:18px 19px;margin-top:14px;background:linear-gradient(135deg,#FFFBF8 0%,#F9F5FF 100%);display:flex;align-items:center;gap:15px;font-family:inherit;text-decoration:none;color:inherit}
+.home-guau:active{transform:translateY(1px)}@media (hover:hover){.home-guau:hover{border-color:#C9B8E8;background:linear-gradient(135deg,#FFFBF8 0%,#F3EDFC 100%)}}
+.home-guau-ico{flex-shrink:0;width:50px;height:50px;border-radius:14px;background:var(--guaul);display:inline-flex;align-items:center;justify-content:center;font-size:26px;line-height:1}
+.home-guau-body{flex:1;min-width:0}
+.home-guau-t{display:block;font-size:16px;font-weight:800;color:var(--txt);line-height:1.2}
+.home-guau-s{display:block;font-size:13px;color:var(--txt2);margin-top:3px;line-height:1.45}
+.home-guau-cta{flex-shrink:0;color:var(--guau);font-size:14px;font-weight:800;display:inline-flex;align-items:center;gap:5px}
 .more-lbl{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--txt3);margin:18px 0 9px}
 .more-row{display:flex;flex-wrap:wrap;gap:10px}
 .more-btn{flex:1 1 200px;cursor:pointer;text-align:left;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;font-size:14px;font-weight:700;color:var(--txt);display:flex;align-items:center;gap:9px;font-family:inherit;text-decoration:none}
-@media (hover:hover){.more-btn:hover{border-color:#CFC8BF}}
+.more-btn.guau{border-color:#E8D5F0;background:var(--guaul)}
+@media (hover:hover){.more-btn:hover{border-color:#CFC8BF}.more-btn.guau:hover{border-color:#C9B8E8}}
 .more-badge{margin-left:auto;background:var(--redl);color:var(--redd);font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
 .more-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 2s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.more-badge::before{animation:none}}
@@ -168,7 +176,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .unval{display:inline-block;font-size:9px;background:var(--yell);color:var(--yelt);border:1px solid var(--yel);border-radius:3px;padding:1px 5px;margin-left:5px}
 .actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
 .actions a,.actions button{color:#fff;border:none;border-radius:9px;padding:9px 13px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:3px;font-family:inherit}
-.btn-call{background:var(--grn)}.btn-wa{background:#25D366}.btn-map{background:var(--blu)}.btn-post{background:#833AB4}.btn-edif{background:var(--red)}.btn-sh{background:none!important;border:1px solid var(--line2)!important;color:var(--txt2)!important}
+.btn-call{background:var(--grn)}.btn-wa{background:#25D366}.btn-map{background:var(--blu)}.btn-guau{background:var(--guau)}.btn-post{background:#833AB4}.btn-edif{background:var(--red)}.btn-sh{background:none!important;border:1px solid var(--line2)!important;color:var(--txt2)!important}
+.badge.guau{background:var(--guaul);color:var(--guau);display:inline-block;margin-top:6px}
 .acopio-need{margin-top:11px;background:var(--redl);border-radius:10px;padding:9px 11px}
 .acopio-need-lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--redd)}
 .acopio-need-txt{font-size:13px;font-weight:700;color:#3A3530;margin-top:4px;line-height:1.45}
@@ -199,6 +208,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .modal-body{font-size:14px;line-height:1.6;color:#3A3530;margin-top:12px}
 .modal-sec{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--txt3);margin:18px 0 8px}
 .modal-how{display:flex;gap:10px;align-items:flex-start;margin-bottom:9px}
+.modal-how-guau{display:flex;gap:10px;align-items:flex-start;margin-top:14px;padding:12px 14px;background:var(--guaul);border:1px solid #E8D5F0;border-radius:14px}
+.modal-how-guau a{color:var(--guau);font-weight:800}
+.tip-guau{background:var(--guaul);border:1px solid #E8D5F0;border-radius:14px;padding:14px 16px;margin-top:16px;font-size:13px;line-height:1.5;color:var(--txt)}
+.tip-guau b{color:var(--guaut);display:block;margin-bottom:4px;font-size:14px}
+.tip-guau a{color:var(--guau);font-weight:800;text-decoration:none}
 .priv-box{margin-top:18px;background:var(--priv);border:1px solid var(--privb);border-radius:14px;padding:13px 15px;display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.55;color:var(--privt)}
 .btn-dark{width:100%;margin-top:18px;background:var(--txt);color:#fff;border:none;border-radius:13px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
 .dupe{border:1px solid var(--line2);border-radius:var(--r);padding:10px;margin-bottom:8px}.dupe b{font-size:13px}.dupe .meta{font-size:11px;color:var(--txt2);margin-top:2px}
@@ -232,7 +246,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .link-btn{background:none;border:none;color:var(--blu);font-size:12px;font-weight:700;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline}
 #lista-ayudar,#lista-acopio,#lista-asesoria{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-top:14px;align-items:start}
 #lista-ayudar>.card,#lista-acopio>.card,#lista-asesoria>.card{margin-bottom:0}
-.info-btn:focus-visible,.hero-card:focus-visible,.more-btn:focus-visible,.back-btn:focus-visible,.chip:focus-visible,.gbtn:focus-visible,.ubtn:focus-visible,.geo-btn:focus-visible,.btn-primary:focus-visible,.fab:focus-visible,.edif-card:focus-visible,.loc-tabs button:focus-visible,.loc-change-btn:focus-visible,.link-btn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.info-btn:focus-visible,.hero-card:focus-visible,.more-btn:focus-visible,.home-guau:focus-visible,.back-btn:focus-visible,.chip:focus-visible,.gbtn:focus-visible,.ubtn:focus-visible,.geo-btn:focus-visible,.btn-primary:focus-visible,.fab:focus-visible,.edif-card:focus-visible,.loc-tabs button:focus-visible,.loc-change-btn:focus-visible,.link-btn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+.leaflet-popup-content .btn-guau-popup{display:inline-block;margin-top:8px;background:var(--guau)!important;color:#fff!important;border-radius:9px;padding:8px 12px;font-weight:800;font-size:12px;text-decoration:none}
 @media (min-width:640px){.app{box-shadow:0 0 0 1px var(--line),0 8px 32px rgba(0,0,0,.06)}.hdr h1{font-size:16px}.hdr p{font-size:12px}}
 @media (min-width:960px){.modal{align-items:center;padding:20px}.modal-card{border-radius:20px;max-height:min(85vh,640px);box-shadow:0 12px 40px rgba(0,0,0,.2)}#view-reportar .fsec{max-width:580px;padding-bottom:40px}}
 </style>
@@ -288,6 +303,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
       <button class="more-btn" onclick="goScreen('acopio')">📦 Centros de acopio</button>
       <button class="more-btn" onclick="goScreen('ofrecer')">🎁 Donar a un centro</button>
       <a class="more-btn" href="rescatistas.html">🚒 Soy rescatista <span class="more-badge" id="stat-rescate" hidden></span></a>
+      <a class="more-btn guau" id="guau-more-link" href="https://guau.app/refugios-ve?utm_source=forvzla&utm_medium=more_options" target="_blank" rel="noopener" onclick="trackGuauLink('more_options')">🐾 Ayudar a refugios de mascotas</a>
     </div>
   </div>
 </div>
@@ -343,7 +359,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
       <div class="subbox-lbl">🔧 ¿Qué herramientas o equipos? <span style="font-weight:400;color:var(--txt3)">— varias</span></div>
       <div class="subchips" id="sub-chips"></div>
     </div>
-    <input type="text" class="inp-otro" id="r-otro" placeholder="➕ Otro — algo que no esté en la lista">
+    <input type="text" class="inp-otro" id="r-otro" placeholder="➕ Otro — algo que no esté en la lista" oninput="syncRefugioTip()">
     <div class="fstep"><span class="n">3</span> Urgencia y contacto</div>
     <div class="urg">
       <button class="ubtn crit" data-u="critica" onclick="setUrg(this)">🔴 Crítica</button>
@@ -360,7 +376,11 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     <div class="fld"><label>WhatsApp <span style="font-weight:400;color:var(--txt3)">(si difiere del teléfono)</span></label>
       <input type="tel" id="r-wa" inputmode="tel" placeholder="+58..."></div>
     <div class="fld"><label>Detalle</label>
-      <textarea id="r-desc" placeholder="Ej: 10 vecinos atrapados, hace falta sacar escombros"></textarea></div>
+      <textarea id="r-desc" placeholder="Ej: 10 vecinos atrapados, hace falta sacar escombros" oninput="syncRefugioTip()"></textarea></div>
+    <div class="tip-guau" id="refugio-guau-tip" style="display:none">
+      <b>¿Eres refugio de mascotas afectado por el terremoto?</b>
+      Después de publicar, crea tu perfil en <a id="guau-report-tip-link" href="https://guau.app/refugios-ve?utm_source=forvzla&utm_medium=report_tip" target="_blank" rel="noopener" onclick="trackGuauLink('report_tip')">Guau</a> para recibir apadrinamientos y mostrar tus animalitos a quien quiera ayudar desde lejos.
+    </div>
     <div class="fld-row">
       <div class="fld"><label>Personas afectadas</label><input type="number" id="r-pers" inputmode="numeric" placeholder="10"></div>
       <div class="fld"><label>Tu nombre</label><input type="text" id="r-nombre" placeholder="Opcional"></div>
@@ -540,6 +560,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
   <div class="modal-how"><span style="font-size:20px">🆘</span><p class="modal-body"><b>Pedir ayuda</b> — reporta un lugar y qué necesitas.</p></div>
   <div class="modal-how"><span style="font-size:20px">🤝</span><p class="modal-body"><b>Quiero ayudar</b> — elige qué puedes dar y contacta directo a quien lo necesita cerca de ti.</p></div>
   <div class="modal-how"><span style="font-size:20px">💬</span><p class="modal-body"><b>Orientación profesional</b> — abogados, psicólogos, maestros y más ofrecen ayuda gratuita. Pídela o publica la tuya.</p></div>
+  <div class="modal-how-guau"><span style="font-size:20px">🐾</span><p class="modal-body" style="margin:0"><b>Ayudar a refugios de mascotas</b> — refugios afectados por el terremoto. Apadrina, adopta o envía ayuda continua en <a id="guau-info-link" href="https://guau.app/refugios-ve?utm_source=forvzla&utm_medium=info_modal" target="_blank" rel="noopener" onclick="trackGuauLink('info_modal')">Guau</a>. ForVzla cubre la urgencia; Guau el vínculo a largo plazo.</p></div>
   <div class="priv-box"><span style="font-size:18px">🔒</span><p>Solo pedimos la información estrictamente necesaria. La ubicación se usa únicamente para mostrar el pin en el mapa. <b>No hay registro de cuenta.</b> Usamos estadísticas anónimas para saber cuánta gente usa la plataforma y dónde simplificar el proceso — sin guardar tu teléfono ni tu ubicación exacta.</p></div>
   <button class="btn-dark" onclick="closeInfo()">Entendido</button>
 </div></div>
@@ -567,6 +588,22 @@ const SB_KEY='sb_publishable_vg8SSOkKpgvwOSyi2k-aVg_lslrQsBA';
 const db=supabase.createClient(SB_URL,SB_KEY);
 function ph(ev,p){if(window.ForVzlaAnalytics)ForVzlaAnalytics.track(ev,p);}
 function _ev(){return ForVzlaAnalytics.EVENTS;}
+const GUAU_REFUGIOS_BASE='https://guau.app/refugios-ve';
+const REFUGIO_KW=/\b(refugio|albergue|animal|animalito|mascota|perr|gato|perrarina|gatarina|calleyer)\b/i;
+function guauRefugioUrl(opts={}){const{slug,needId,zona,accion,medium='link'}=opts;
+  let path=GUAU_REFUGIOS_BASE;if(slug)path+='/'+encodeURIComponent(slug);
+  const q=new URLSearchParams({utm_source:'forvzla',utm_medium:medium});
+  if(needId)q.set('need',needId);if(zona)q.set('zona',zona);if(accion)q.set('accion',accion);
+  return path+'?'+q.toString();}
+function trackGuauLink(medium,extra={}){ph(_ev().GUAU_LINK_CLICKED,{medium,...extra});}
+function isRefugioNeed(n){if(n.refugio_guau_slug)return true;
+  const text=[n.descripcion,n.otro,n.cantidad,...(n.tipos||[]),n.tipo].filter(Boolean).join(' ');
+  return REFUGIO_KW.test(text);}
+function reportLooksRefugio(){const text=[document.getElementById('r-desc').value,document.getElementById('r-otro').value,...selTipos].filter(Boolean).join(' ');
+  return REFUGIO_KW.test(text);}
+function syncRefugioTip(){const el=document.getElementById('refugio-guau-tip');if(el)el.style.display=reportLooksRefugio()?'block':'none';}
+function initGuauLinks(){document.querySelectorAll('#guau-more-link,#guau-info-link,#guau-report-tip-link').forEach(a=>{
+  if(a&&!a.dataset.guauInit){a.href=guauRefugioUrl({medium:a.id==='guau-more-link'?'more_options':a.id==='guau-info-link'?'info_modal':'report_tip'});a.dataset.guauInit='1';});}
 const TIPOS=[{t:'Rescate',e:'🚒'},{t:'Agua potable',e:'💧'},{t:'Alimentos',e:'🍎'},{t:'Medicamentos',e:'💊'},{t:'Médicos / paramédicos',e:'🏥'},{t:'Refugio / carpas',e:'⛺'},{t:'Sangre / donantes',e:'🩸'},{t:'Transporte',e:'🚛'},{t:'Herramientas / Equipos',e:'🔧'}];
 const TIPOS_O=[{t:'Agua embotellada',e:'💧'},{t:'Alimentos no perecederos',e:'🍎'},{t:'Medicamentos',e:'💊'},{t:'Transporte (vehículo)',e:'🚛'},{t:'Personal médico',e:'🏥'},{t:'Equipos de rescate',e:'🚒'},{t:'Herramientas / Equipos',e:'🔧'},{t:'Refugio / espacio físico',e:'⛺'},{t:'Donación económica',e:'💵'}];
 const HERRAM=['Guantes','Tapabocas','Palas','Sequetas','Disco de corte','Motosierra','Cascos','Linternas','Tobos','Esmeriles'];
@@ -604,7 +641,7 @@ function buildGrid(elId,list,fn,cls=''){document.getElementById(elId).innerHTML=
 let selTipos=[],selSubs=[],selUrg='urgente',selTipoO='',ayudarView='lista';
 function pickTipo(btn){const t=btn.dataset.t,i=selTipos.indexOf(t);
   if(i>=0){selTipos.splice(i,1);btn.classList.remove('on');}else{selTipos.push(t);btn.classList.add('on');}
-  syncSubChips();}
+  syncSubChips();syncRefugioTip();}
 function syncSubChips(){const box=document.getElementById('sub-box'),sc=document.getElementById('sub-chips');
   if(selTipos.includes('Herramientas / Equipos')){box.classList.add('show');
     sc.innerHTML=HERRAM.map(h=>`<button type="button" class="subchip${selSubs.includes(h)?' on':''}" data-h="${h}" onclick="pickSub(this)">${selSubs.includes(h)?'✓ ':''}${h}</button>`).join('');}
@@ -750,7 +787,8 @@ function renderMap(){if(!mapData||!markersLayer)return;markersLayer.clearLayers(
     const m=L.marker([n.lat,n.lng],{icon:dot(c)}).addTo(markersLayer);
     const telHtml=hasNeedTel(n)?`📞 <a href="tel:${n.telefono}">${n.telefono}</a>`:(hasNeedPost(n)?`🔗 <a href="${n.source_url}" target="_blank" rel="noopener">Ver en ${needPostLabel(n.fuente)}</a>`:'📵 Sin teléfono — ver ubicación');
     const wa=n.whatsapp||n.telefono;
-    m.bindPopup(`<b>${tipoIcons(n)} ${tipoText(n)}</b><br>${n.direccion_exacta}<br>${telHtml}${hasNeedTel(n)&&wa?`<br><a href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}`);b.push([n.lat,n.lng]);});
+    const guauPop=isRefugioNeed(n)?`<br><a class="btn-guau-popup" href="${guauRefugioUrl({slug:n.refugio_guau_slug,needId:n.id,zona:n.zona,accion:'apadrinar',medium:'map_popup'})}" target="_blank" rel="noopener" onclick="trackGuauLink('map_popup',{need_id:'${n.id}'})">🐾 Apadrinar en Guau</a>`:'';
+    m.bindPopup(`<b>${tipoIcons(n)} ${tipoText(n)}</b><br>${n.direccion_exacta}<br>${telHtml}${hasNeedTel(n)&&wa?`<br><a href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}${guauPop}`);b.push([n.lat,n.lng]);});
   acopios.forEach(a=>{if(!a.lat||!a.lng)return;const m=L.marker([a.lat,a.lng],{icon:dot('#1E8449',13)}).addTo(markersLayer);
     m.bindPopup(`<b>📦 ${a.nombre}</b><br>${a.estado_vzla}<br>${a.direccion}`);b.push([a.lat,a.lng]);});
   if(b.length)mainMap.fitBounds(b,{padding:[25,25],maxZoom:12});}
@@ -910,6 +948,7 @@ function needCard(n){const done=n.estado==='cubierta',enProc=n.estado==='en_proc
   const desc=cleanPublicText(n.descripcion);const extras=[];
   if(subs)extras.push('🔧 '+subs);if(n.otro)extras.push('➕ '+n.otro);if(n.cantidad)extras.push(n.cantidad);
   const extraLine=extras.length?`<div class="c-tipo" style="margin-top:6px">${escHtml(extras.join(' · '))}</div>`:'';
+  const guauBadge=isRefugioNeed(n)?'<span class="badge guau">🐾 Refugio de mascotas</span>':'';
   const loc=escHtml(n.zona)+(n.edificio_id?' 🏚':'');
   const mine=isMyAttend(n);
   const atencionLine=enProc&&!mine?`<div class="c-atencion">🙋 Voluntario en camino${n.en_atencion_at?' · '+ago(n.en_atencion_at):''}</div>`:'';
@@ -919,8 +958,9 @@ function needCard(n){const done=n.estado==='cubierta',enProc=n.estado==='en_proc
     const telLine=hasTel?`<a class="btn-call" href="tel:${n.telefono}" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'tel',need_id:'${n.id}'})">📞 ${escHtml(n.telefono)}</a>`:'';
     const waLine=wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'wa',need_id:'${n.id}'})">💬 WhatsApp</a>`:'';
     const postLine=needPostBtn(n).replace('<a class="btn-post"','<a class="btn-post" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:\'post\',need_id:\''+n.id+'\'})"');
+    const guauLine=isRefugioNeed(n)?`<a class="btn-guau" href="${guauRefugioUrl({slug:n.refugio_guau_slug,needId:n.id,zona:n.zona,accion:'apadrinar',medium:'ayudar_card'})}" target="_blank" rel="noopener" onclick="trackGuauLink('ayudar_card',{need_id:'${n.id}'})">🐾 Apadrinar en Guau</a>`:'';
     const noTelLine=!hasTel&&!hasNeedPost(n)?'<span class="c-nota" style="background:var(--yell);color:var(--yelt);border-color:var(--yel);flex:1 1 100%">📵 Sin teléfono en el sitio — ir al mapa</span>':'';
-    const contact=`${telLine}${waLine}${postLine}${noTelLine}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'map',need_id:'${n.id}'})">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
+    const contact=`${telLine}${waLine}${postLine}${guauLine}${noTelLine}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'map',need_id:'${n.id}'})">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
     if(n.estado==='pendiente')actions=contact+`<button class="btn-voy" onclick="openAttend('${n.id}')">🙋 Voy en camino</button>`;
     else if(mine)actions=contact+`<button class="btn-voy" style="background:var(--grn)" onclick="markCubierta('${n.id}')">✓ Ya atendido</button>`;
     else actions=contact;
@@ -928,6 +968,7 @@ function needCard(n){const done=n.estado==='cubierta',enProc=n.estado==='en_proc
   return `<div class="card ${cls}">
     <div class="c-top"><div><div class="c-loc">${needTitle(n)}</div><div class="c-addr">📍 ${escHtml(shortAddr(n))}${loc?` · ${loc}`:''}${srcTag(n.fuente)}${unval}</div></div>${badge}</div>
     <div class="c-tipo"><b>${tipoIcons(n)} ${tipoText(n)}</b>${dist?' · a '+dist:''} · ⏱ ${ago(n.created_at)}${conf}</div>
+    ${guauBadge}
     ${extraLine}
     ${desc?`<div class="c-desc">${escHtml(desc)}</div>`:''}
     ${trapWarning(n)?'<div class="c-nota">⚠️ Posibles personas atrapadas</div>':''}
@@ -1321,7 +1362,10 @@ async function submitAsesor(){
   ['a-nombre','a-titulo','a-desc','a-dispo','a-tel'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   goScreen('asesoria');showToast('a','✅ ¡Gracias! Tu ayuda ya está publicada.');}
 
-function shareNeed(n){const contact=hasNeedTel(n)?`📞 ${n.telefono}`:(hasNeedPost(n)?`🔗 ${n.source_url}`:'');const txt=`${UL[n.urgencia]||''} #AyudaVenezuela\n📍 ${n.zona} — ${n.direccion_exacta}\n${tipoIcons(n)} ${tipoText(n)}\n📝 ${n.descripcion}${contact?'\n'+contact:''}${n.lat&&n.lng?'\n🗺 '+gmapsRoute(n.lat,n.lng):''}`;
+function shareNeed(n){const contact=hasNeedTel(n)?`📞 ${n.telefono}`:(hasNeedPost(n)?`🔗 ${n.source_url}`:'');
+  const guauExtra=isRefugioNeed(n)?`\n🐾 Apadrinar: ${guauRefugioUrl({slug:n.refugio_guau_slug,needId:n.id,zona:n.zona,accion:'apadrinar',medium:'share'})}`:'';
+  const txt=`${UL[n.urgencia]||''} #AyudaVenezuela\n📍 ${n.zona} — ${n.direccion_exacta}\n${tipoIcons(n)} ${tipoText(n)}\n📝 ${n.descripcion}${contact?'\n'+contact:''}${n.lat&&n.lng?'\n🗺 '+gmapsRoute(n.lat,n.lng):''}${guauExtra}`;
+  if(guauExtra)trackGuauLink('share',{need_id:n.id});
   if(navigator.share)navigator.share({title:'Necesidad Venezuela',text:txt}).catch(()=>{});
   else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>alert('Copiado. Pégalo en WhatsApp.'));else prompt('Copia:',txt);}
 function showToast(v,m,err=false){const t=document.getElementById('toast-'+v);t.textContent=m;t.className='toast '+(err?'err':'ok')+' show';t.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>t.classList.remove('show'),5500);}
@@ -1358,6 +1402,7 @@ document.getElementById('asesor-modos-chips').innerHTML=AS_MODOS.map(m=>`<button
 window.__forvzlaGoScreenFromHistory=function(name){goScreen(name,true);};
 if(window.POSTHOG_KEY&&window.ForVzlaAnalytics)ForVzlaAnalytics.initPostHog(POSTHOG_KEY,{apiHost:window.POSTHOG_HOST});
 else ph(_ev().SCREEN_VIEWED,{screen:'home'});
+initGuauLinks();
 loadHomeStats();
 </script>
 </body>
