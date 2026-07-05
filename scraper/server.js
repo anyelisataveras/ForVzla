@@ -100,11 +100,61 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  if (req.url === '/voluntarios/registrar' && req.method === 'POST') {
+    if (!SB_SERVICE) { json(res, { ok: false, msg: 'Servidor sin SUPABASE_KEY' }, 503); return; }
+    let body = '';
+    for await (const chunk of req) body += chunk;
+    let payload;
+    try { payload = JSON.parse(body || '{}'); } catch { json(res, { ok: false, msg: 'JSON inválido' }, 400); return; }
+    const grupo = (payload.grupo || '').trim();
+    const idDni = (payload.id_dni || '').trim();
+    if (!grupo || !idDni || !(payload.nombre || '').trim() || !(payload.apellido || '').trim() || !(payload.telefono || '').trim()) {
+      json(res, { ok: false, msg: 'Faltan campos obligatorios' }, 400);
+      return;
+    }
+    const svc = createClient(SB_URL, SB_SERVICE);
+    const { data: dup } = await svc.from('voluntarios').select('id').eq('grupo', grupo).eq('id_dni', idDni).maybeSingle();
+    if (dup) { json(res, { ok: false, msg: 'Esta cédula ya está registrada en este grupo' }, 409); return; }
+    const row = {
+      grupo,
+      nombre: String(payload.nombre).trim(),
+      apellido: String(payload.apellido).trim(),
+      edad: payload.edad ?? null,
+      estado_civil: payload.estado_civil || null,
+      id_dni: idDni,
+      telefono: String(payload.telefono).trim(),
+      pais: payload.pais || null,
+      estado_provincia: payload.estado_provincia || null,
+      ciudad: payload.ciudad || null,
+      direccion: payload.direccion || null,
+      red_social_plataforma: payload.red_social_plataforma || null,
+      red_social_usuario: payload.red_social_usuario || null,
+      profesion: payload.profesion || null,
+      oficio: payload.oficio || null,
+      disponibilidad: payload.disponibilidad || null,
+      tiene_hijos: payload.tiene_hijos || null,
+      hijos: Array.isArray(payload.hijos) ? payload.hijos : [],
+      tareas: payload.tareas || null,
+      fortalezas: payload.fortalezas || null,
+      declaracion_jurada: true,
+      asistencia_zona: payload.asistencia_zona || null,
+      medio_transporte: payload.medio_transporte || null,
+      observaciones_logistica: payload.observaciones_logistica || null,
+    };
+    const { data, error } = await svc.from('voluntarios').insert(row).select('numero_voluntaria, id').single();
+    if (error) {
+      json(res, { ok: false, msg: error.message || 'Error al registrar' }, 400);
+      return;
+    }
+    json(res, { ok: true, numero_voluntaria: data.numero_voluntaria, id: data.id });
+    return;
+  }
+
   res.statusCode = 404;
   res.end('Not found');
 });
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Scraper server :${PORT}  POST /run  GET /status`);
+  console.log(`Scraper server :${PORT}  POST /run  POST /voluntarios/registrar  GET /status  GET /health`);
   if (!SB_ANON) console.warn('⚠ Falta SUPABASE_ANON_KEY (o SUPABASE_PUBLISHABLE_KEY) en .env');
 });

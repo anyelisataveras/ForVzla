@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#5A4AA0">
+<meta name="robots" content="noindex,nofollow">
+<title>Cuidadoras Caracas — Registro · Ayuda Venezuela</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="analytics-config.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#F1EEEA;--surf:#FBFAF8;--ind:#5A4AA0;--indh:#4A3C88;--indl:#EEEBF6;--indt:#463A82;--grn:#1E8449;--grnh:#15603A;--grnl:#E9F6EE;--red:#C0392B;--redl:#FBEDEA;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--r:12px;--app-max:580px}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px}
+.app{max-width:var(--app-max);margin:0 auto;min-height:100vh;display:flex;flex-direction:column}
+.hdr{background:var(--ind);color:#fff;padding:16px 18px}
+.hdr a{color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px;margin-bottom:8px}
+.hdr h1{font-size:20px;font-weight:800;line-height:1.2}
+.hdr p{font-size:13px;opacity:.88;margin-top:4px;line-height:1.45}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;margin:16px;padding:20px 18px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.steps{display:flex;gap:6px;margin-bottom:18px}
+.step{flex:1;text-align:center;font-size:11px;font-weight:700;color:var(--txt3)}
+.step-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--line2);display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:13px;font-weight:800;background:#fff}
+.step.on .step-dot{border-color:var(--ind);background:var(--ind);color:#fff}
+.step.done .step-dot{border-color:var(--grn);background:var(--grnl);color:var(--grnh)}
+.step-lbl{display:block}
+.panel{display:none}.panel.on{display:block}
+.stitle{font-size:17px;font-weight:800;margin-bottom:4px}
+.ssub{font-size:13px;color:var(--txt2);margin-bottom:16px;line-height:1.45}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:420px){.grid2{grid-template-columns:1fr}}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line2);border-radius:10px;padding:12px 13px;font-size:16px;font-family:inherit;background:#fff;color:var(--txt)}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ind);box-shadow:0 0 0 3px var(--indl)}
+.field textarea{min-height:72px;resize:vertical}
+.box{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.box-t{font-size:13px;font-weight:800;margin-bottom:10px;color:var(--indt)}
+.radios{display:flex;gap:10px;flex-wrap:wrap}
+.radio{flex:1;min-width:100px;border:1.5px solid var(--line2);border-radius:10px;padding:11px;text-align:center;cursor:pointer;font-weight:700;font-size:14px;color:var(--txt2)}
+.radio input{display:none}
+.radio.on{border-color:var(--ind);background:var(--indl);color:var(--indt)}
+.hijo-row{display:grid;grid-template-columns:1fr 80px;gap:8px;margin-top:8px}
+.nav{display:flex;gap:10px;margin-top:8px}
+.btn{flex:1;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
+.btn-back{background:#fff;border:1px solid var(--line2);color:var(--txt2)}
+.btn-next{background:var(--ind);color:#fff}
+.btn-next:active{background:var(--indh)}
+.btn-submit{background:var(--grn);color:#fff}
+.btn-submit:active{background:var(--grnh)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.jurada{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.45;color:var(--txt2);margin-top:8px}
+.jurada input{margin-top:3px;flex-shrink:0;width:18px;height:18px}
+.err{background:var(--redl);color:var(--red);border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;margin-bottom:12px;display:none}
+.err.show{display:block}
+.ok{text-align:center;padding:32px 12px}
+.ok-ico{font-size:48px;margin-bottom:12px}
+.ok h2{font-size:22px;font-weight:800;margin-bottom:8px}
+.ok p{color:var(--txt2);font-size:14px;line-height:1.5;margin-bottom:20px}
+.ok-num{font-size:28px;font-weight:800;color:var(--ind);margin:8px 0}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:99}
+.toast.show{opacity:1}
+.iti{width:100%}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hdr">
+    <a href="index.html">← Ayuda Venezuela</a>
+    <h1>👩‍👧 Cuidadoras Caracas</h1>
+    <p>Registro de voluntarias para acompañar y cuidar niños en Caracas y La Guaira.</p>
+  </header>
+
+  <main class="card" id="form-wrap">
+    <div class="steps">
+      <div class="step on" id="st1"><div class="step-dot">1</div><span class="step-lbl">Datos</span></div>
+      <div class="step" id="st2"><div class="step-dot">2</div><span class="step-lbl">Entorno</span></div>
+      <div class="step" id="st3"><div class="step-dot">3</div><span class="step-lbl">Colaborar</span></div>
+    </div>
+
+    <div class="err" id="err"></div>
+
+    <form id="f" novalidate>
+      <!-- PASO 1 -->
+      <div class="panel on" id="p1">
+        <div class="stitle">Datos personales</div>
+        <div class="ssub">Información básica y dónde estás.</div>
+        <div class="grid2">
+          <div class="field"><label for="nombre">Nombre *</label><input id="nombre" required autocomplete="given-name"></div>
+          <div class="field"><label for="apellido">Apellido *</label><input id="apellido" required autocomplete="family-name"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="edad">Edad *</label><input id="edad" type="number" min="18" max="99" required inputmode="numeric"></div>
+          <div class="field"><label for="estadoCivil">Estado civil *</label><input id="estadoCivil" required placeholder="Ej: Soltera"></div>
+        </div>
+        <div class="field"><label for="idDni">Cédula / ID *</label><input id="idDni" required placeholder="Ej: V-12.345.678"></div>
+        <div class="field"><label for="telefono">Teléfono *</label><input id="telefono" type="tel" required autocomplete="tel"></div>
+        <div class="box">
+          <div class="box-t">Ubicación actual</div>
+          <div class="grid2">
+            <div class="field"><label for="pais">País *</label><input id="pais" required placeholder="Venezuela"></div>
+            <div class="field"><label for="estado">Estado / Provincia *</label><input id="estado" required placeholder="Miranda"></div>
+          </div>
+          <div class="field"><label for="ciudad">Ciudad *</label><input id="ciudad" required placeholder="Caracas"></div>
+          <div class="field"><label for="direccion">Dirección específica *</label><textarea id="direccion" required placeholder="Urbanización, calle, referencia…"></textarea></div>
+        </div>
+      </div>
+
+      <!-- PASO 2 -->
+      <div class="panel" id="p2">
+        <div class="stitle">Profesión y disponibilidad</div>
+        <div class="ssub">Cómo contactarte y en qué puedes ayudar.</div>
+        <div class="grid2">
+          <div class="field"><label for="redPlat">Red social</label>
+            <select id="redPlat"><option value="">—</option><option>Instagram</option><option>X</option><option>Gmail</option></select>
+          </div>
+          <div class="field"><label for="redUser">Usuario / correo</label><input id="redUser" placeholder="@usuario"></div>
+        </div>
+        <div class="grid2">
+          <div class="field"><label for="profesion">Profesión *</label><input id="profesion" required></div>
+          <div class="field"><label for="oficio">Oficio</label><input id="oficio"></div>
+        </div>
+        <div class="field"><label for="disponibilidad">Disponibilidad de tiempo *</label>
+          <select id="disponibilidad" required>
+            <option value="">Selecciona…</option>
+            <option>Tiempo completo</option><option>Medio tiempo</option>
+            <option>Nocturno</option><option>Diurno</option><option value="Otros">Otros</option>
+          </select>
+        </div>
+        <div class="field" id="dispOtros-wrap" style="display:none"><label for="dispOtros">Especifica</label><input id="dispOtros"></div>
+        <div class="field"><label>¿Tienes hijos? *</label>
+          <div class="radios" id="hijos-radios">
+            <label class="radio"><input type="radio" name="hijos" value="Si"> Sí</label>
+            <label class="radio"><input type="radio" name="hijos" value="No"> No</label>
+          </div>
+        </div>
+        <div id="hijos-wrap" style="display:none">
+          <div class="field"><label for="hijosCant">Cantidad de hijos</label>
+            <select id="hijosCant"><option value="">—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option></select>
+          </div>
+          <div id="hijos-list"></div>
+        </div>
+        <div class="box">
+          <div class="box-t">🚗 Logística de campo (Caracas / La Guaira)</div>
+          <div class="field"><label for="asistenciaZona">¿Dónde puedes asistir?</label>
+            <select id="asistenciaZona">
+              <option value="">— No aplica / remoto —</option>
+              <option>Caracas</option><option>La Guaira</option><option>Ccs o La Guaira</option>
+            </select>
+          </div>
+          <div class="field"><label for="medioTransporte">Medio de transporte</label>
+            <select id="medioTransporte">
+              <option value="">—</option>
+              <option value="sin_transporte">No tengo transporte</option>
+              <option value="carro">Carro</option>
+              <option value="camioneta">Camioneta</option>
+              <option value="moto">Moto</option>
+            </select>
+          </div>
+          <div class="field"><label for="obsLogistica">Observaciones (días, restricciones…)</label><textarea id="obsLogistica" placeholder="Ej: carro solo martes y jueves"></textarea></div>
+        </div>
+      </div>
+
+      <!-- PASO 3 -->
+      <div class="panel" id="p3">
+        <div class="stitle">Tareas y declaración</div>
+        <div class="ssub">Áreas donde quieres colaborar.</div>
+        <div class="field"><label for="tareas">Tareas a colaborar</label><textarea id="tareas" placeholder="Ej: actividades recreativas, comida, apoyo psicológico…"></textarea></div>
+        <div class="field"><label for="fortalezas">Fortalezas</label><textarea id="fortalezas" placeholder="Ej: responsable, experiencia con niños…"></textarea></div>
+        <label class="jurada">
+          <input type="checkbox" id="jurada" required>
+          <span>Declaro bajo juramento que los datos son reales y verificables, y que estoy dispuesta a colaborar como voluntaria en situaciones de emergencia.</span>
+        </label>
+      </div>
+
+      <div class="nav">
+        <button type="button" class="btn btn-back" id="btnBack" style="display:none">← Atrás</button>
+        <button type="button" class="btn btn-next" id="btnNext">Siguiente →</button>
+        <button type="submit" class="btn btn-submit" id="btnSubmit" style="display:none">Confirmar registro</button>
+      </div>
+    </form>
+  </main>
+
+  <div class="card ok" id="ok" hidden>
+    <div class="ok-ico">✅</div>
+    <h2>¡Registro exitoso!</h2>
+    <p>Gracias por unirte a <b>Cuidadoras Caracas</b>. Te contactará la coordinadora del grupo.</p>
+    <div class="ok-num" id="okNum"></div>
+    <button type="button" class="btn btn-next" onclick="location.reload()">Registrar otra voluntaria</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="scraper-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+<script>
+const GRUPO='cuidadoras_caracas';
+const SB_URL='https://ebsgvamzaegjgpjkpick.supabase.co';
+const SB_KEY='sb_publishable_vg8SSOkKpgvwOSyi2k-aVg_lslrQsBA';
+const db=supabase.createClient(SB_URL,SB_KEY);
+
+let step=1,iti;
+const tel=document.getElementById('telefono');
+if(window.intlTelInput){
+  iti=intlTelInput(tel,{initialCountry:'ve',utilsScript:'https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/utils.js'});
+}
+
+function showErr(msg){const e=document.getElementById('err');e.textContent=msg;e.classList.add('show');e.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function hideErr(){document.getElementById('err').classList.remove('show')}
+function flash(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
+
+function setStep(n){
+  step=n;hideErr();
+  [1,2,3].forEach(i=>{
+    document.getElementById('p'+i).classList.toggle('on',i===n);
+    const st=document.getElementById('st'+i);
+    st.classList.toggle('on',i===n);
+    st.classList.toggle('done',i<n);
+  });
+  document.getElementById('btnBack').style.display=n>1?'block':'none';
+  document.getElementById('btnNext').style.display=n<3?'block':'none';
+  document.getElementById('btnSubmit').style.display=n===3?'block':'none';
+}
+
+function val(id,msg){
+  const el=document.getElementById(id);
+  if(!el||!String(el.value||'').trim()){showErr(msg);el?.focus();return false}
+  return true;
+}
+
+function validateStep(n){
+  if(n===1){
+    if(!val('nombre','Escribe tu nombre.'))return false;
+    if(!val('apellido','Escribe tu apellido.'))return false;
+    if(!val('edad','Indica tu edad.'))return false;
+    if(!val('estadoCivil','Indica tu estado civil.'))return false;
+    if(!val('idDni','Indica tu cédula o ID.'))return false;
+    if(iti?!iti.isValidNumber():!tel.value.trim()){showErr('Teléfono inválido.');tel.focus();return false}
+    if(!val('pais','Indica tu país.'))return false;
+    if(!val('estado','Indica estado o provincia.'))return false;
+    if(!val('ciudad','Indica tu ciudad.'))return false;
+    if(!val('direccion','Indica tu dirección.'))return false;
+  }
+  if(n===2){
+    if(!val('profesion','Indica tu profesión.'))return false;
+    if(!document.getElementById('disponibilidad').value){showErr('Selecciona tu disponibilidad.');return false}
+    if(!document.querySelector('input[name="hijos"]:checked')){showErr('Indica si tienes hijos.');return false}
+  }
+  if(n===3){
+    if(!document.getElementById('jurada').checked){showErr('Debes aceptar la declaración jurada.');return false}
+  }
+  return true;
+}
+
+document.getElementById('btnNext').onclick=()=>{if(validateStep(step))setStep(step+1)};
+document.getElementById('btnBack').onclick=()=>setStep(step-1);
+
+document.getElementById('disponibilidad').onchange=e=>{
+  document.getElementById('dispOtros-wrap').style.display=e.target.value==='Otros'?'block':'none';
+};
+
+document.querySelectorAll('#hijos-radios .radio').forEach(l=>{
+  l.onclick=()=>{
+    document.querySelectorAll('#hijos-radios .radio').forEach(x=>x.classList.remove('on'));
+    l.classList.add('on');
+    const si=l.querySelector('input').value==='Si';
+    document.getElementById('hijos-wrap').style.display=si?'block':'none';
+  };
+});
+
+function renderHijos(){
+  const n=parseInt(document.getElementById('hijosCant').value,10)||0;
+  const box=document.getElementById('hijos-list');
+  box.innerHTML='';
+  for(let i=1;i<=n;i++){
+    box.insertAdjacentHTML('beforeend',`<div class="hijo-row"><div class="field" style="margin:0"><label>Sexo hijo ${i}</label><select class="hijo-sexo"><option>Femenino</option><option>Masculino</option></select></div><div class="field" style="margin:0"><label>Edad</label><input class="hijo-edad" type="number" min="0" max="99" inputmode="numeric"></div></div>`);
+  }
+}
+document.getElementById('hijosCant').onchange=renderHijos;
+
+document.getElementById('f').onsubmit=async e=>{
+  e.preventDefault();hideErr();
+  if(!validateStep(3))return;
+  const btn=document.getElementById('btnSubmit');
+  btn.disabled=true;btn.textContent='Guardando…';
+  const idDni=document.getElementById('idDni').value.trim();
+  try{
+    const{data:existe,error:errDup}=await db.rpc('voluntario_existe',{p_grupo:GRUPO,p_id_dni:idDni});
+    if(errDup)throw errDup;
+    if(existe){showErr('Esta cédula ya está registrada en Cuidadoras Caracas.');btn.disabled=false;btn.textContent='Confirmar registro';return}
+    const hijos=[];
+    if(document.querySelector('input[name="hijos"]:checked')?.value==='Si'){
+      document.querySelectorAll('.hijo-sexo').forEach((s,i)=>{
+        hijos.push({sexo:s.value,edad:parseInt(document.querySelectorAll('.hijo-edad')[i]?.value,10)||0});
+      });
+    }
+    const disp=document.getElementById('disponibilidad').value;
+    const payload={
+      grupo:GRUPO,
+      nombre:document.getElementById('nombre').value.trim(),
+      apellido:document.getElementById('apellido').value.trim(),
+      edad:parseInt(document.getElementById('edad').value,10),
+      estado_civil:document.getElementById('estadoCivil').value.trim(),
+      id_dni:idDni,
+      telefono:iti?iti.getNumber():tel.value.trim(),
+      pais:document.getElementById('pais').value.trim(),
+      estado_provincia:document.getElementById('estado').value.trim(),
+      ciudad:document.getElementById('ciudad').value.trim(),
+      direccion:document.getElementById('direccion').value.trim(),
+      red_social_plataforma:document.getElementById('redPlat').value||null,
+      red_social_usuario:document.getElementById('redUser').value.trim()||null,
+      profesion:document.getElementById('profesion').value.trim(),
+      oficio:document.getElementById('oficio').value.trim()||null,
+      disponibilidad:disp==='Otros'?document.getElementById('dispOtros').value.trim():disp,
+      tiene_hijos:document.querySelector('input[name="hijos"]:checked')?.value||null,
+      hijos,
+      tareas:document.getElementById('tareas').value.trim()||null,
+      fortalezas:document.getElementById('fortalezas').value.trim()||null,
+      declaracion_jurada:true,
+      asistencia_zona:document.getElementById('asistenciaZona').value||null,
+      medio_transporte:document.getElementById('medioTransporte').value||null,
+      observaciones_logistica:document.getElementById('obsLogistica').value.trim()||null,
+    };
+    let result;
+    const dupMsg = 'Esta cédula ya está registrada en Cuidadoras Caracas.';
+    const { data: rpcData, error: rpcErr } = await db.rpc('registrar_voluntario', { p_payload: payload });
+    if (!rpcErr) {
+      result = rpcData;
+    } else if (rpcErr.message?.includes('ya está registrada')) {
+      showErr(dupMsg); btn.disabled = false; btn.textContent = 'Confirmar registro'; return;
+    } else if (rpcErr.code !== 'PGRST202') {
+      throw rpcErr;
+    } else {
+      const base = (window.SCRAPER_URL || '').replace(/\/$/, '');
+      if (!base) throw new Error('Registro temporalmente no disponible. Intenta en unos minutos.');
+      const r = await fetch(base + '/voluntarios/registrar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const j = await r.json().catch(() => ({}));
+      if (r.status === 409) { showErr(dupMsg); btn.disabled = false; btn.textContent = 'Confirmar registro'; return; }
+      if (!r.ok || !j.ok) throw new Error(j.msg || 'No se pudo registrar');
+      result = j;
+    }
+    document.getElementById('form-wrap').hidden=true;
+    document.getElementById('ok').hidden=false;
+    document.getElementById('okNum').textContent='Voluntaria N° '+(result?.numero_voluntaria ?? '—');
+    flash('Registro guardado');
+  }catch(err){
+    console.error(err);
+    showErr(err.message||'No se pudo registrar. Intenta de nuevo.');
+    btn.disabled=false;btn.textContent='Confirmar registro';
+  }
+};
+</script>
+</body>
+</html>

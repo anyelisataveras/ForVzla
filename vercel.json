@@ -5,6 +5,8 @@
   "framework": null,
   "rewrites": [
     { "source": "/rescatistas", "destination": "/rescatistas.html" },
+    { "source": "/cuidadoras-caracas", "destination": "/cuidadoras-caracas.html" },
+    { "source": "/voluntarios/cuidadoras-caracas", "destination": "/cuidadoras-caracas.html" },
     { "source": "/rescate", "destination": "/rescatistas.html" },
     { "source": "/((?!.*\\..*).*)", "destination": "/index.html" }
   ],

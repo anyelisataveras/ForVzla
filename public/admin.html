@@ -126,6 +126,7 @@ details.sum summary::-webkit-details-marker{display:none}
       <button class="tab" data-tab="edificios" onclick="showTab('edificios')">🏚 Edificios</button>
       <button class="tab" data-tab="centros" onclick="showTab('centros')">📦 Centros</button>
       <button class="tab" data-tab="asesores" onclick="showTab('asesores')">💬 Asesores</button>
+      <button class="tab" data-tab="voluntarios" onclick="showTab('voluntarios')">👩‍👧 Voluntarias</button>
       <button class="tab" data-tab="scraper" onclick="showTab('scraper')">⚙️ Scraper</button>
       <button class="tab" data-tab="equipo" onclick="showTab('equipo')">👥 Equipo</button>
     </div>
@@ -261,6 +262,18 @@ details.sum summary::-webkit-details-marker{display:none}
         Orientación profesional gratuita publicada por voluntarios. Pausa o elimina publicaciones inválidas.
       </p>
       <div id="lista-asesores"></div>
+    </div>
+
+    <div class="panel" id="panel-voluntarios">
+      <p style="font-size:13px;color:var(--g4);margin-bottom:12px;line-height:1.5">
+        Registro de voluntarias por grupo. Datos privados — solo coordinadoras.
+        <a href="cuidadoras-caracas.html" target="_blank" rel="noopener" style="color:var(--blu);font-weight:700">Abrir formulario ↗</a>
+      </p>
+      <div class="filter-chips" id="vol-grupo-filters">
+        <button class="on" data-g="cuidadoras_caracas" onclick="setVolGrupo(this)">Cuidadoras Caracas</button>
+      </div>
+      <div class="centros-count" id="vol-count"></div>
+      <div id="lista-voluntarios"></div>
     </div>
 
     <div class="panel" id="panel-scraper">
@@ -661,6 +674,7 @@ function showTab(name) {
   if (name === 'edificios') loadEdificios();
   if (name === 'centros') { closeCentroForm(); loadCentros(); }
   if (name === 'asesores') loadAsesores();
+  if (name === 'voluntarios') loadVoluntarios();
   if (name === 'scraper') pollScraperStatus();
   if (name === 'equipo') loadAdmins();
 }
@@ -1738,6 +1752,60 @@ async function eliminarAsesor(id) {
   const { error } = await db.from('asesores').delete().eq('id', id);
   if (error) { toast(error.message); return; }
   toast('Eliminado'); loadAsesores();
+}
+
+let volGrupo = 'cuidadoras_caracas';
+
+function setVolGrupo(btn) {
+  document.querySelectorAll('#vol-grupo-filters button').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  volGrupo = btn.dataset.g;
+  loadVoluntarios();
+}
+
+function volTransporteLabel(v) {
+  const m = { carro: '🚗 Carro', camioneta: '🚐 Camioneta', moto: '🏍 Moto', sin_transporte: 'Sin transporte' };
+  return m[v] || v || '—';
+}
+
+function renderVoluntariaAdmin(v) {
+  const loc = [v.ciudad, v.estado_provincia, v.pais].filter(Boolean).join(', ');
+  const dir = v.direccion ? `<div class="meta">📍 ${esc(v.direccion)}</div>` : '';
+  const log = v.asistencia_zona || v.medio_transporte
+    ? `<div class="meta" style="margin-top:4px">${esc(v.asistencia_zona || '')} · ${volTransporteLabel(v.medio_transporte)}${v.observaciones_logistica ? ' · ' + esc(v.observaciones_logistica) : ''}</div>`
+    : '';
+  return `<div class="card" style="border-left-color:#5A4AA0">
+    <h3>#${v.numero_voluntaria || '—'} · ${esc(v.nombre)} ${esc(v.apellido)}</h3>
+    <div class="meta">${esc(v.profesion || '—')} · ${esc(v.id_dni)} · ${esc(v.telefono)}</div>
+    <div class="meta" style="margin-top:4px">${esc(loc)}</div>
+    ${dir}
+    ${log}
+    ${v.tareas ? `<div class="txt" style="margin-top:6px"><b>Tareas:</b> ${esc(v.tareas)}</div>` : ''}
+    ${v.fortalezas ? `<div class="txt"><b>Fortalezas:</b> ${esc(v.fortalezas)}</div>` : ''}
+    <div class="row"><button class="btn btn-s" onclick="eliminarVoluntaria('${v.id}')">🗑 Eliminar</button></div>
+  </div>`;
+}
+
+async function loadVoluntarios() {
+  const el = document.getElementById('lista-voluntarios');
+  const cnt = document.getElementById('vol-count');
+  el.innerHTML = '<div class="empty">Cargando...</div>';
+  const { data, error } = await db.from('voluntarios')
+    .select('*')
+    .eq('grupo', volGrupo)
+    .order('numero_voluntaria', { ascending: true })
+    .limit(200);
+  if (error) { el.innerHTML = `<div class="empty">${esc(error.message)}</div>`; cnt.textContent = ''; return; }
+  const rows = data || [];
+  cnt.textContent = `${rows.length} voluntaria${rows.length === 1 ? '' : 's'} en ${volGrupo.replace(/_/g, ' ')}`;
+  el.innerHTML = rows.map(renderVoluntariaAdmin).join('') || '<div class="empty">Nadie registrada aún. Comparte el formulario de Cuidadoras Caracas.</div>';
+}
+
+async function eliminarVoluntaria(id) {
+  if (!confirm('¿Eliminar este registro de voluntaria?')) return;
+  const { error } = await db.from('voluntarios').delete().eq('id', id);
+  if (error) { toast(error.message); return; }
+  toast('Eliminada'); loadVoluntarios();
 }
 
 async function runScraper() {
