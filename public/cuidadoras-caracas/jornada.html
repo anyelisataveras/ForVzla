@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#5A4AA0">
+<title>Jornada — Cuidadoras Caracas</title>
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F1EEEA;--surf:#FBFAF8;--ind:#5A4AA0;--indl:#EEEBF6;--indt:#463A82;--grn:#1E8449;--grnl:#E9F6EE;--red:#C0392B;--redl:#FBEDEA;--txt:#1C1A19;--txt2:#6B6560;--line:#E7E2DB;--line2:#E2DCD4;--app-max:580px}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px}
+.app{max-width:var(--app-max);margin:0 auto;min-height:100vh;padding-bottom:32px}
+.hdr{background:var(--ind);color:#fff;padding:16px 18px}
+.hdr a{color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9}
+.hero{font-size:14px;margin-top:8px;opacity:.95}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;margin:14px 16px;padding:18px}
+.card h2{font-size:17px;font-weight:800;margin-bottom:10px}
+.meta{font-size:14px;color:var(--txt2);line-height:1.55}
+.sect-t{font-size:12px;font-weight:800;color:var(--indt);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.04em}
+.task{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between}
+.task.warn{background:var(--redl);border-color:#f3d3cc}
+.task.done{opacity:.7}
+.task-t{flex:1;font-size:14px}
+.task-t small{display:block;color:var(--txt2);font-size:12px;margin-top:2px}
+.task button{border:none;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:800;cursor:pointer;background:var(--ind);color:#fff;font-family:inherit;white-space:nowrap}
+.radios{display:flex;gap:8px;margin:8px 0}
+.radio{flex:1;border:1.5px solid var(--line2);border-radius:10px;padding:12px;text-align:center;font-weight:700;font-size:14px;cursor:pointer}
+.radio.on{border-color:var(--ind);background:var(--indl);color:var(--indt)}
+.chk{display:flex;align-items:center;gap:8px;margin:10px 0;font-size:14px}
+.chk input{width:18px;height:18px}
+.field{margin:10px 0}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:4px}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--line2);border-radius:10px;padding:11px;font-size:16px;font-family:inherit}
+.field textarea{min-height:64px}
+.btn{width:100%;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;background:var(--grn);color:#fff;font-family:inherit;margin-top:8px}
+.btn:disabled{opacity:.5}
+.banner{background:var(--grnl);border:1px solid #b8dfc4;border-radius:12px;padding:12px;font-size:13px;font-weight:700;color:var(--grn);margin-bottom:12px}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:opacity .2s;z-index:99}
+.toast.show{opacity:1}
+.login-prompt{text-align:center;padding:32px 20px}
+.login-prompt a{display:inline-block;margin-top:12px;padding:14px 24px;background:var(--ind);color:#fff;text-decoration:none;border-radius:12px;font-weight:800}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hdr">
+    <a href="jornadas" id="back">← Jornadas</a>
+    <div class="hero" id="hero" hidden></div>
+  </header>
+  <div id="content"><div class="card" style="text-align:center;color:var(--txt2)">Cargando…</div></div>
+</div>
+<div class="toast" id="toast"></div>
+<script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
+<script src="vol.js?v=20260706"></script>
+<script>
+const jid=new URLSearchParams(location.search).get('id');
+if(!jid){document.getElementById('content').innerHTML='<div class="card">Falta id de jornada.</div>';throw 0}
+
+let jornada=null,insc=null,tasks=[],rsvp='confirmada',needRide=false,offerRide=false,cupos=2;
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
+function fmtDate(d){if(!d)return'';const p=d.split('-');const mes=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];return parseInt(p[2],10)+' '+mes[parseInt(p[1],10)-1]+' '+p[0]}
+function fmtTime(t){return t?t.slice(0,5):''}
+
+function loginPrompt(){
+  document.getElementById('content').innerHTML=`
+    <div class="login-prompt">
+      <p>Entra con tu usuario y cédula para confirmar asistencia.</p>
+      <a href="entrar?return=${encodeURIComponent('jornada?id='+jid)}">Entrar como voluntaria</a>
+    </div>`;
+}
+
+async function load(){
+  const{data:jd}=await CC_VOL.db.rpc('jornada_publica',{p_jornada_id:jid});
+  if(!jd?.ok||!jd.jornada){
+    document.getElementById('content').innerHTML='<div class="card">Jornada no encontrada o no publicada.</div>';
+    return;
+  }
+  jornada=jd.jornada;
+  document.title=jornada.titulo+' — Cuidadoras';
+
+  const vol=CC_VOL.getSession();
+  if(vol){
+    document.getElementById('hero').hidden=false;
+    document.getElementById('hero').textContent=`Hola, ${vol.nombre} 👋 · N° ${vol.numero_voluntaria}`;
+    const c=CC_VOL.credParams();
+    const{data:mi}=await CC_VOL.db.rpc('mi_inscripcion_jornada',{...c,p_jornada_id:jid});
+    insc=mi?.inscripcion||null;
+    if(insc){
+      rsvp=insc.estado==='no_puede'?'no_puede':'confirmada';
+      needRide=!!insc.necesita_transporte;
+      offerRide=!!insc.ofrece_transporte;
+      cupos=insc.cupos_ofrecidos||2;
+    }
+  }
+  const{data:tk}=await CC_VOL.db.rpc('tareas_jornada_publicas',{p_jornada_id:jid});
+  tasks=Array.isArray(tk)?tk:[];
+  render();
+}
+
+function render(){
+  const j=jornada;
+  const vol=CC_VOL.getSession();
+  const closed=!['abierta','llena'].includes(j.estado);
+  let html=`<div class="card"><h2>${esc(j.titulo)}</h2>
+    <div class="meta">
+      🗓 ${fmtDate(j.fecha)}<br>
+      ${j.hora_encuentro?`⏰ Encuentro ${fmtTime(j.hora_encuentro)}${j.punto_encuentro?' — '+esc(j.punto_encuentro):''}<br>`:''}
+      ${j.hora_salida?`🚐 Salida ${fmtTime(j.hora_salida)}<br>`:''}
+      ${j.hora_regreso_aprox?`🏠 Regreso ~${fmtTime(j.hora_regreso_aprox)}<br>`:''}
+      📍 ${esc(j.sitio_nombre||'')} ${j.sitio_zona?'('+esc(j.sitio_zona)+')':''}
+    </div>`;
+  if(j.descripcion)html+=`<div class="sect-t">Misión</div><p class="meta">${esc(j.descripcion)}</p>`;
+  if(j.vestimenta)html+=`<p class="meta">👕 ${esc(j.vestimenta)}</p>`;
+  if(j.llevar)html+=`<p class="meta">🎒 ${esc(j.llevar)}</p>`;
+  html+='</div>';
+
+  if(tasks.length){
+    html+='<div class="card"><h2>Tareas</h2><p class="meta" style="margin-bottom:10px">Apúntate a lo que puedas hacer:</p>';
+    html+=tasks.map(t=>{
+      const mine=vol&&t.voluntario_id===vol.id;
+      const taken=t.voluntario_id&&!mine;
+      const cls=t.estado==='sin_dueno'&&!taken?'warn':taken||t.estado==='asignada'?'done':'';
+      let btn='';
+      if(vol&&!closed&&!taken&&(t.estado==='sin_dueno'||mine))
+        btn=`<button type="button" data-task="${t.id}">${mine?'✓ Tuya':'Yo me encargo'}</button>`;
+      const label=taken?`✅ ${esc(t.asignada_nombre||'Asignada')}`:(t.estado==='sin_dueno'?'⚠️ Sin dueña':'');
+      return`<div class="task ${cls}"><div class="task-t"><b>${esc(t.titulo)}</b>${t.descripcion?`<small>${esc(t.descripcion)}</small>`:''}${label?`<small>${label}</small>`:''}</div>${btn}</div>`;
+    }).join('');
+    html+='</div>';
+  }
+
+  if(!vol){
+    html+=`<div class="card" style="text-align:center"><p class="meta" style="margin-bottom:12px">Entra para confirmar y apuntarte a tareas.</p>
+      <a href="entrar?return=${encodeURIComponent('jornada?id='+jid)}" style="display:inline-block;padding:14px 20px;background:var(--ind);color:#fff;text-decoration:none;border-radius:12px;font-weight:800">Entrar como voluntaria</a></div>`;
+    document.getElementById('content').innerHTML=html;
+    bindTasks();
+    return;
+  }
+  if(closed){
+    html+=`<div class="card"><p class="meta">Esta jornada ya no acepta confirmaciones.</p></div>`;
+    document.getElementById('content').innerHTML=html;
+    bindTasks();
+    return;
+  }
+
+  html+=`<div class="card"><h2>Tu asistencia</h2>`;
+  if(insc?.respondido_at)html+=`<div class="banner">Ya respondiste. Puedes cambiar tu respuesta.</div>`;
+  html+=`<div class="radios" id="rsvp-r">
+    <div class="radio${rsvp==='confirmada'?' on':''}" data-v="confirmada">✅ Voy</div>
+    <div class="radio${rsvp==='no_puede'?' on':''}" data-v="no_puede">No puedo</div>
+  </div>
+  <label class="chk"><input type="checkbox" id="need" ${needRide?'checked':''}> Necesito transporte</label>
+  <label class="chk"><input type="checkbox" id="offer" ${offerRide?'checked':''}> Puedo llevar personas</label>
+  <div class="field" id="cupos-w" style="display:${offerRide?'block':'none'}"><label>Cupos en mi vehículo</label>
+    <select id="cupos">${[1,2,3,4,5,6].map(n=>`<option value="${n}"${n===cupos?' selected':''}>${n}</option>`).join('')}</select>
+  </div>
+  <div class="field"><label>Notas (opcional)</label><textarea id="notas">${esc(insc?.notas||'')}</textarea></div>
+  <button type="button" class="btn" id="btn-save">Guardar respuesta</button></div>`;
+
+  document.getElementById('content').innerHTML=html;
+  bindRsvp();
+  bindTasks();
+}
+
+function bindRsvp(){
+  document.querySelectorAll('#rsvp-r .radio').forEach(el=>{
+    el.onclick=()=>{rsvp=el.dataset.v;document.querySelectorAll('#rsvp-r .radio').forEach(x=>x.classList.toggle('on',x===el))};
+  });
+  const offer=document.getElementById('offer');
+  if(offer)offer.onchange=()=>{offerRide=offer.checked;document.getElementById('cupos-w').style.display=offerRide?'block':'none'};
+  const need=document.getElementById('need');
+  if(need)need.onchange=()=>{needRide=need.checked};
+  document.getElementById('btn-save')?.addEventListener('click',saveRsvp);
+}
+
+function bindTasks(){
+  document.querySelectorAll('[data-task]').forEach(btn=>{
+    btn.onclick=async()=>{
+      if(!CC_VOL.getSession()){loginPrompt();return}
+      const c=CC_VOL.credParams();
+      const{data}=await CC_VOL.db.rpc('tomar_tarea_jornada',{...c,p_tarea_id:btn.dataset.task});
+      if(!data?.ok){toast(data?.error||'No se pudo');return}
+      toast('¡Te apuntaste a la tarea!');
+      load();
+    };
+  });
+}
+
+async function saveRsvp(){
+  const c=CC_VOL.credParams();
+  if(!c)return;
+  offerRide=document.getElementById('offer')?.checked||false;
+  needRide=document.getElementById('need')?.checked||false;
+  cupos=parseInt(document.getElementById('cupos')?.value,10)||2;
+  const btn=document.getElementById('btn-save');
+  btn.disabled=true;
+  const{data,error}=await CC_VOL.db.rpc('guardar_inscripcion_jornada',{
+    ...c,p_jornada_id:jid,p_estado:rsvp,
+    p_necesita_transporte:needRide,p_ofrece_transporte:offerRide,
+    p_cupos_ofrecidos:cupos,p_notas:document.getElementById('notas').value.trim()
+  });
+  btn.disabled=false;
+  if(error||!data?.ok){toast(error?.message||data?.error||'Error');return}
+  toast(rsvp==='confirmada'?'¡Quedaste confirmada! 💜':'Respuesta guardada');
+  load();
+}
+
+load();
+</script>
+</body>
+</html>

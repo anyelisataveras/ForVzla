@@ -302,7 +302,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     <div class="more-row">
       <button class="more-btn" onclick="goScreen('acopio')">📦 Centros de acopio</button>
       <button class="more-btn" onclick="goScreen('ofrecer')">🎁 Donar a un centro</button>
-      <a class="more-btn" href="cuidadoras-caracas.html">👩‍👧 Cuidadoras Caracas</a>
+      <a class="more-btn" href="cuidadoras-caracas/">👩‍👧 Cuidadoras Caracas</a>
       <a class="more-btn" href="rescatistas.html">🚒 Soy rescatista <span class="more-badge" id="stat-rescate" hidden></span></a>
       <a class="more-btn guau" id="guau-more-link" href="https://guau.app/refugios-ve?utm_source=forvzla&utm_medium=more_options" target="_blank" rel="noopener" onclick="trackGuauLink('more_options')">🐾 Ayudar a refugios de mascotas</a>
     </div>
@@ -604,7 +604,7 @@ function reportLooksRefugio(){const text=[document.getElementById('r-desc').valu
   return REFUGIO_KW.test(text);}
 function syncRefugioTip(){const el=document.getElementById('refugio-guau-tip');if(el)el.style.display=reportLooksRefugio()?'block':'none';}
 function initGuauLinks(){document.querySelectorAll('#guau-more-link,#guau-info-link,#guau-report-tip-link').forEach(a=>{
-  if(a&&!a.dataset.guauInit){a.href=guauRefugioUrl({medium:a.id==='guau-more-link'?'more_options':a.id==='guau-info-link'?'info_modal':'report_tip'});a.dataset.guauInit='1';});}
+  if(a&&!a.dataset.guauInit){a.href=guauRefugioUrl({medium:a.id==='guau-more-link'?'more_options':a.id==='guau-info-link'?'info_modal':'report_tip'});a.dataset.guauInit='1';}});}
 const TIPOS=[{t:'Rescate',e:'🚒'},{t:'Agua potable',e:'💧'},{t:'Alimentos',e:'🍎'},{t:'Medicamentos',e:'💊'},{t:'Médicos / paramédicos',e:'🏥'},{t:'Refugio / carpas',e:'⛺'},{t:'Sangre / donantes',e:'🩸'},{t:'Transporte',e:'🚛'},{t:'Herramientas / Equipos',e:'🔧'}];
 const TIPOS_O=[{t:'Agua embotellada',e:'💧'},{t:'Alimentos no perecederos',e:'🍎'},{t:'Medicamentos',e:'💊'},{t:'Transporte (vehículo)',e:'🚛'},{t:'Personal médico',e:'🏥'},{t:'Equipos de rescate',e:'🚒'},{t:'Herramientas / Equipos',e:'🔧'},{t:'Refugio / espacio físico',e:'⛺'},{t:'Donación económica',e:'💵'}];
 const HERRAM=['Guantes','Tapabocas','Palas','Sequetas','Disco de corte','Motosierra','Cascos','Linternas','Tobos','Esmeriles'];

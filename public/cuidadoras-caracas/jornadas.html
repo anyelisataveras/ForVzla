@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#5A4AA0">
+<title>Jornadas — Cuidadoras Caracas</title>
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F1EEEA;--ind:#5A4AA0;--indl:#EEEBF6;--grn:#1E8449;--grnl:#E9F6EE;--ora:#E67E22;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--app-max:580px}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px}
+.app{max-width:var(--app-max);margin:0 auto;min-height:100vh;padding-bottom:24px}
+.hdr{background:var(--ind);color:#fff;padding:16px 18px}
+.hdr a{color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9}
+.hdr h1{font-size:20px;font-weight:800;margin-top:8px}
+.jcard{display:block;background:#fff;border:1px solid var(--line);border-radius:16px;margin:12px 16px;padding:16px;text-decoration:none;color:inherit}
+.jcard b{font-size:16px;display:block;margin-bottom:4px}
+.jmeta{font-size:13px;color:var(--txt2);line-height:1.45}
+.badge{font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;display:inline-block;margin-top:8px}
+.badge.open{background:var(--grnl);color:var(--grn)}
+.badge.full{background:#FEF9E7;color:var(--ora)}
+.badge.done{background:#eee;color:var(--txt3)}
+.empty{text-align:center;padding:48px 20px;color:var(--txt2);line-height:1.5}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hdr">
+    <a href="mi-cuenta">← Mi cuenta</a>
+    <h1>Próximas jornadas</h1>
+  </header>
+  <div id="list"><div class="empty">Cargando…</div></div>
+</div>
+<script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
+<script src="vol.js?v=20260706"></script>
+<script>
+if(!CC_VOL.requireSession('jornadas'))throw 0;
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+function fmtDate(d){if(!d)return'';const p=d.split('-');return parseInt(p[2],10)+'/'+parseInt(p[1],10)+'/'+p[0]}
+function fmtTime(t){if(!t)return'';return t.slice(0,5)}
+function estadoBadge(e){
+  if(e==='abierta')return'<span class="badge open">Abierta</span>';
+  if(e==='llena')return'<span class="badge full">Cupo lleno</span>';
+  if(e==='realizada')return'<span class="badge done">Realizada</span>';
+  return'';
+}
+async function load(){
+  const{data,error}=await CC_VOL.db.rpc('jornadas_publicas',{p_grupo:CC_VOL.GRUPO});
+  const el=document.getElementById('list');
+  if(error){el.innerHTML=`<div class="empty">${esc(error.message)}</div>`;return}
+  const rows=Array.isArray(data)?data:[];
+  const upcoming=rows.filter(j=>j.estado!=='realizada'||j.fecha>=new Date().toISOString().slice(0,10));
+  if(!upcoming.length){el.innerHTML='<div class="empty">No hay jornadas publicadas aún.<br>Vuelve pronto 💜</div>';return}
+  el.innerHTML=upcoming.map(j=>`
+    <a class="jcard" href="jornada?id=${j.id}">
+      <b>${esc(j.titulo)}</b>
+      <div class="jmeta">🗓 ${fmtDate(j.fecha)}${j.hora_salida?' · '+fmtTime(j.hora_salida):''}<br>
+      📍 ${esc(j.sitio_nombre||j.sitio_zona||'Por confirmar')}</div>
+      ${estadoBadge(j.estado)}
+    </a>`).join('');
+}
+load();
+</script>
+</body>
+</html>

@@ -18,6 +18,21 @@ const FILES = [
   '20250705230000_voluntarios_grupos.sql',
   '20250705230100_voluntarios_seq_fix.sql',
   '20250705230200_registrar_voluntario_rpc.sql',
+  '20250706150000_brigadas_cuidadoras.sql',
+  '20250706160000_sitios_jornadas_seed.sql',
+  '20250706170000_moderadores_grupo_rls.sql',
+  '20250706180000_inscripciones_tareas_voluntario.sql',
+  '20250706190000_grupos_voluntarios_entity.sql',
+  '20250706200000_invitar_moderador_grupo.sql',
+  '20250706200100_moderadores_cuidadoras_caracas.sql',
+  '20250706210000_grupo_administradores_coordinadores.sql',
+  '20250706220000_fix_jornadas_grants.sql',
+  '20250706223000_fix_autenticar_voluntario.sql',
+  '20250706230000_asignar_brigadas_por_fit.sql',
+  '20250706231000_fix_asignar_brigadas_backfill.sql',
+  '20250706232000_brigadas_mod_write_grants.sql',
+  '20250706233000_necesidades_jornada.sql',
+  '20250706233100_fix_items_inventario_activo.sql',
 ];
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');

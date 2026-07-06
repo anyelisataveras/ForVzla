@@ -140,6 +140,7 @@ const server = http.createServer(async (req, res) => {
       asistencia_zona: payload.asistencia_zona || null,
       medio_transporte: payload.medio_transporte || null,
       observaciones_logistica: payload.observaciones_logistica || null,
+      brigadas: Array.isArray(payload.brigadas) ? payload.brigadas : [],
     };
     const { data, error } = await svc.from('voluntarios').insert(row).select('numero_voluntaria, id').single();
     if (error) {

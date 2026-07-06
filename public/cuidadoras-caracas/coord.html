@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#5A4AA0">
+<meta name="robots" content="noindex,nofollow">
+<title>Coordinación — Cuidadoras Caracas</title>
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
+<script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#F1EEEA;--surf:#FBFAF8;--ind:#5A4AA0;--indh:#4A3C88;--indl:#EEEBF6;--indt:#463A82;--grn:#1E8449;--grnl:#E9F6EE;--red:#C0392B;--redl:#FBEDEA;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--r:12px;--side:220px}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px}
+#login-screen{max-width:480px;margin:0 auto;padding:24px 16px;min-height:100vh}
+.login-hdr{background:var(--ind);color:#fff;margin:-24px -16px 20px;padding:20px 16px}
+.login-hdr a{color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9}
+.login-hdr h1{font-size:20px;font-weight:800;margin-top:10px}
+.fld{margin-bottom:12px}.fld label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:5px}
+.fld input{width:100%;border:1px solid var(--line2);border-radius:10px;padding:12px;font-size:16px;font-family:inherit}
+.btn{border:none;border-radius:var(--r);padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;width:100%}
+.btn-p{background:var(--ind);color:#fff}.btn-p:active{background:var(--indh)}
+.btn-s{background:#fff;border:1px solid var(--line2);color:var(--txt2)}
+.btn-g{background:var(--grn);color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.err{color:var(--red);font-size:13px;font-weight:700;margin-top:12px;display:none}
+.err.show{display:block}
+#app{display:none;min-height:100vh}
+.top{background:var(--ind);color:#fff;padding:max(12px,env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:0;z-index:20}
+.top-brand{min-width:0}
+.top h1{font-size:17px;font-weight:800;line-height:1.25}
+.top p{font-size:12px;opacity:.9;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-out{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.35);color:#fff;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
+.shell{display:flex;min-height:calc(100vh - 56px)}
+.side{width:var(--side);background:#fff;border-right:1px solid var(--line);padding:12px 8px;flex-shrink:0;display:none}
+.side button{display:flex;align-items:center;gap:8px;width:100%;text-align:left;border:none;background:none;padding:12px 14px;border-radius:10px;font-size:14px;font-weight:700;color:var(--txt2);cursor:pointer;font-family:inherit;margin-bottom:4px}
+.side button.on{background:var(--indl);color:var(--indt)}
+.main{flex:1;padding:16px 16px 88px;min-width:0}
+.page-hdr{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}
+.page-title{font-size:22px;font-weight:800;color:var(--txt);line-height:1.2}
+.page-actions{display:flex;gap:8px;flex-shrink:0}
+.btn-sm{width:auto;padding:10px 14px;font-size:13px;margin:0}
+.panel{display:none}.panel.on{display:block}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px}
+.stat b{display:block;font-size:22px;font-weight:800;color:var(--ind)}
+.stat span{font-size:12px;color:var(--txt2)}
+.quick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.quick .btn{width:auto;flex:1;min-width:140px;padding:12px;font-size:13px}
+.toolbar{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.search input{width:100%;border:1px solid var(--line2);border-radius:10px;padding:12px;font-size:16px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:11px;font-weight:700;padding:7px 12px;border-radius:999px;border:1px solid var(--line2);background:#fff;cursor:pointer;font-family:inherit;color:var(--txt2)}
+.chip.on{background:var(--indl);border-color:var(--ind);color:var(--indt)}
+.count{font-size:13px;color:var(--txt2);margin-bottom:10px}
+.vcard{background:#fff;border:1px solid var(--line);border-left:4px solid var(--grn);border-radius:14px;padding:14px;margin-bottom:10px}
+.vcard.warn{border-left-color:var(--red)}
+.vcard.off{opacity:.55;border-left-color:var(--txt3)}
+.vcard-h{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;margin-bottom:6px}
+.vcard-h b{font-size:15px}
+.vcard-meta{font-size:12px;color:var(--txt2);line-height:1.45}
+.badge{font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;background:var(--indl);color:var(--indt);display:inline-block;white-space:nowrap}
+.badge-ok{background:var(--grnl);color:var(--grn)}
+.badge-warn{background:var(--redl);color:var(--red)}
+.badge-off{background:#eee;color:var(--txt3)}
+.btags{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.btag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:8px;background:var(--surf);border:1px solid var(--line)}
+.vcard-actions{display:flex;gap:8px;margin-top:10px}
+.vcard-actions .btn{width:auto;flex:1;padding:10px;font-size:13px;margin:0}
+.vcard-actions .btn-s{flex:0 1 auto;min-width:0}
+.empty,.coming{text-align:center;padding:40px 16px;color:var(--txt2);line-height:1.5}
+.coming{text-align:left;padding:20px 0}
+.coming h3{font-size:16px;font-weight:800;color:var(--txt);margin-bottom:6px}
+.brig-row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px}
+.brig-row b{font-size:14px}
+.brig-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 2px 10px rgba(0,0,0,.03);border-left:4px solid var(--brig-fg,#5A4AA0)}
+.brig-card-top{display:flex;gap:12px;align-items:flex-start}
+.brig-card-ico{width:44px;height:44px;border-radius:12px;background:var(--brig-bg,#EEEBF6);color:var(--brig-fg,#463A82);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.brig-card-body{flex:1;min-width:0}
+.brig-card-h{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px}
+.brig-card-h b{font-size:15px;line-height:1.3}
+.brig-badge{background:var(--brig-bg,#EEEBF6);color:var(--brig-fg,#463A82)}
+.brig-mision{font-size:12px;color:var(--txt2);line-height:1.45;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.brig-meta{font-size:11px;color:var(--txt3);line-height:1.4;margin-bottom:8px}
+.brig-bar{height:4px;background:var(--surf);border-radius:999px;overflow:hidden}
+.brig-bar i{display:block;height:100%;background:var(--brig-fg,#5A4AA0);border-radius:999px;opacity:.55}
+.brig-card-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.brig-card-actions .btn{width:auto;flex:1;min-width:100px;padding:9px 10px;font-size:12px;margin:0}
+.brig-m-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.brig-m-row:last-child{border-bottom:none}
+.brig-m-sub{font-size:11px;color:var(--txt2);margin-top:2px}
+.brig-slug{font-size:11px;color:var(--txt3);font-family:ui-monospace,monospace;margin-bottom:10px}
+.sitio-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.sitio-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.sitio-h b{font-size:15px;line-height:1.35}
+.sitio-sub{font-size:12px;color:var(--txt3);margin-top:2px;line-height:1.45}
+.sitio-warn{background:var(--redl);color:var(--red);font-size:12px;font-weight:700;border-radius:8px;padding:7px 10px;margin:10px 0;line-height:1.4}
+.cob-pills{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.cob-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;display:inline-block}
+.cob-pill.ok{background:var(--grnl);color:#15603A}
+.cob-pill.low{background:var(--redl);color:var(--red)}
+.sitio-foot{font-size:12px;color:var(--txt2);line-height:1.5}
+.sitio-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.sitio-actions .btn{width:auto;flex:0 1 auto;padding:9px 14px;font-size:12px;margin:0}
+.export-box{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+.export-box p{font-size:13px;color:var(--txt2);margin-bottom:12px;line-height:1.45}
+.export-opt{display:flex;align-items:center;gap:11px;padding:11px 6px;font-size:14px;cursor:pointer;border-bottom:1px solid var(--bg);font-weight:500}
+.export-opt.on{font-weight:700;color:var(--indt)}
+.export-opt input{accent-color:var(--ind);width:18px;height:18px;flex-shrink:0}
+.export-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+.export-preview-lbl{font-size:11px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin:4px 2px 8px}
+.export-preview{background:#0b141a;color:#e9edef;border-radius:14px;padding:16px;font-size:13px;line-height:1.55;white-space:pre-wrap;min-height:80px;margin-bottom:12px;max-height:280px;overflow:auto}
+.bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:30}
+.bottom button{flex:1;border:none;background:none;padding:8px 4px;font-size:10px;font-weight:700;color:var(--txt3);cursor:pointer;font-family:inherit}
+.bottom button.on{color:var(--ind)}
+.bottom .ico{display:block;font-size:20px;margin-bottom:2px}
+.sheet{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;background:var(--bg)}
+.sheet[hidden]{display:none}
+.sheet-hdr{background:var(--ind);color:#fff;padding:12px 16px;display:flex;align-items:center;gap:10px}
+.sheet-hdr button{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px}
+.sheet-hdr h2{font-size:16px;font-weight:800;flex:1}
+.sheet-body{flex:1;overflow:auto;padding:14px 16px 90px}
+.sect{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.sect-t{font-size:13px;font-weight:800;color:var(--indt);margin-bottom:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:480px){.grid2{grid-template-columns:1fr}}
+.field{margin-bottom:10px}
+.field label{display:block;font-size:11px;font-weight:700;color:var(--txt2);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line2);border-radius:10px;padding:11px;font-size:16px;font-family:inherit}
+.field textarea{min-height:64px;resize:vertical}
+.brig-pick{display:flex;flex-direction:column;gap:8px}
+.brig-opt{border:1.5px solid var(--line2);border-radius:10px;padding:10px;cursor:pointer;font-size:13px}
+.brig-opt.on{border-color:var(--ind);background:var(--indl)}
+.toggle{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:700}
+.sheet-foot{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:flex;gap:10px}
+.sheet-foot .btn{flex:1}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:99}
+.bottom .fab{flex:0 0 56px;background:var(--ind);color:#fff;border-radius:50%;font-size:24px;margin-top:-20px;box-shadow:0 4px 12px rgba(90,74,160,.35)}
+.prox-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.toast.show{opacity:1}
+.iti{width:100%}
+@media(min-width:821px){
+  .side{display:block}
+  .bottom{display:none}
+  .main{padding:20px 24px 24px}
+  .shell{max-width:1100px;margin:0 auto;width:100%}
+}
+
+/* Jornadas UI alignment */
+.j-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+.j-head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.j-head>div:first-child{min-width:0;flex:1}
+.j-title{font-size:15px;font-weight:800;line-height:1.35}
+.j-sub{font-size:12px;color:var(--txt2);margin-top:3px}
+.j-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.j-actions .btn{width:auto;flex:0 0 auto;padding:9px 12px;font-size:12px}
+.badge-state{font-size:12px;font-weight:800;color:var(--grn);display:inline-flex;align-items:center;gap:6px;flex-shrink:0}
+.badge-state::before{content:'';width:9px;height:9px;border-radius:50%;background:#1DBB2F;display:inline-block;box-shadow:0 0 0 3px #EAF9EC}
+.btn-j-close{background:#E9F6EE;border:1px solid #C7E9D3;color:#1E8449}
+.btn-j-view{background:var(--indl);border:1px solid #d9d3ef;color:var(--indt)}
+.drawer{justify-content:flex-end;background:rgba(0,0,0,.34)}
+.drawer .sheet-hdr{background:#fff;color:var(--txt);border-top-left-radius:18px;border-top-right-radius:18px;padding-top:8px}
+.drawer .sheet-hdr button{color:var(--txt3)}
+.drawer .sheet-body,.drawer .sheet-foot{background:#fff;max-width:780px;width:100%;margin:0 auto}
+.drawer .sheet-hdr{max-width:780px;width:100%;margin:0 auto}
+.drawer .sheet-hdr::before{content:'';width:36px;height:4px;border-radius:999px;background:#ddd;position:absolute;left:50%;transform:translateX(-50%);margin-top:-2px}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
+.kpi b{display:block;font-size:26px;color:var(--ind)}
+.kpi span{font-size:12px;color:var(--txt2)}
+.jf-brig-row{display:flex;flex-wrap:wrap;gap:8px}
+.jf-brig-pill{width:36px;height:36px;border-radius:10px;border:1px solid var(--line2);display:flex;align-items:center;justify-content:center;cursor:pointer;background:#fff;font-size:18px}
+.jf-brig-pill.on{border-color:var(--ind);background:var(--indl)}
+.task-box{border:1px solid var(--line);border-radius:12px;padding:10px;background:#fff}
+.task-row{display:flex;justify-content:space-between;gap:8px;padding:8px;border-radius:8px;margin-top:6px}
+.task-row.warn{background:#FBEDEA}
+.task-row.ok{background:#E9F6EE}
+.task-row .st{font-size:11px;font-weight:800}
+.task-row.warn .st{color:var(--red)}
+.task-row.ok .st{color:var(--grn)}
+.j-share{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.j-share-lbl{font-size:10px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.j-link-row{display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-bottom:10px}
+.j-link{display:block;width:100%;font-size:12px;color:var(--indt);background:var(--surf);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;line-height:1.4;word-break:break-word;overflow-wrap:anywhere}
+.j-link-row>.btn{width:100%;flex:none;margin:0}
+.j-wa-preview{font-size:12px;color:var(--txt2);background:var(--surf);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;line-height:1.45;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;margin-bottom:8px;max-height:120px;overflow:auto}
+.j-share-actions{display:flex;gap:8px;flex-wrap:wrap}
+.j-share-actions .btn{width:auto;flex:0 1 auto;padding:8px 12px;font-size:12px;margin:0}
+.mat-row{display:grid;grid-template-columns:1fr 52px 52px auto 32px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.mat-row:last-child{border-bottom:none}
+.mat-row input[type="text"],.mat-row input[type="number"]{width:100%;border:1px solid var(--line2);border-radius:8px;padding:8px;font-size:14px;font-family:inherit}
+.mat-row input[type="number"]{text-align:center;padding:8px 4px}
+.mat-est{font-size:10px;font-weight:800;padding:3px 7px;border-radius:999px;white-space:nowrap}
+.mat-est.pend{background:#FEF9E7;color:#B7950B}
+.mat-est.parcial{background:var(--indl);color:var(--indt)}
+.mat-est.cub{background:var(--grnl);color:var(--grn)}
+.hist-row{padding:12px 0;border-bottom:1px solid var(--line)}
+.hist-row:last-child{border-bottom:none}
+.hist-h{font-size:14px;font-weight:800;line-height:1.35}
+.hist-meta{font-size:12px;color:var(--txt2);margin-top:4px;line-height:1.45}
+.mat-row-add{border-bottom:none;padding-top:10px;margin-top:4px;border-top:1px dashed var(--line)}
+.mat-row-add input[type="text"]::placeholder{color:var(--txt3)}
+.task-add-row{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+.task-add-row input{flex:1;border:1px solid var(--line2);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit}
+.task-add-row .btn{margin:0;width:auto;padding:10px 14px;flex-shrink:0}
+@media(max-width:480px){.mat-row{grid-template-columns:1fr 48px 48px auto 32px}}
+@media(min-width:640px){
+  .j-link-row{flex-direction:row;align-items:flex-start}
+  .j-link{flex:1;min-width:0;width:auto}
+  .j-link-row>.btn{width:auto;flex-shrink:0}
+}
+
+@media(prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<div id="login-screen">
+  <div class="login-hdr">
+    <a href="./">← Cuidadoras Caracas</a>
+    <h1>👩‍👧 Coordinación</h1>
+  </div>
+  <p style="font-size:14px;color:var(--txt2);margin-bottom:16px;line-height:1.5">Solo coordinadoras autorizadas. Usa el correo y contraseña que te dio el equipo.</p>
+  <div class="fld"><label for="login-email">Correo</label><input type="email" id="login-email" autocomplete="email" inputmode="email"></div>
+  <div class="fld"><label for="login-password">Contraseña</label><input type="password" id="login-password" autocomplete="current-password"></div>
+  <button type="button" class="btn btn-p" id="btn-login">Entrar</button>
+  <p class="err" id="login-err"></p>
+</div>
+
+<div id="app">
+  <header class="top">
+    <div class="top-brand">
+      <h1>👩‍👧 Coordinación</h1>
+      <p id="hdr-user">Cuidadoras Caracas</p>
+    </div>
+    <button type="button" class="top-out" id="btn-logout">Salir</button>
+  </header>
+  <div class="shell">
+    <nav class="side" id="side-nav">
+      <button type="button" data-tab="inicio" class="on">🏠 Inicio</button>
+      <button type="button" data-tab="voluntarias">👩 Voluntarias</button>
+      <button type="button" data-tab="brigadas">🎯 Brigadas</button>
+      <button type="button" data-tab="jornadas">🗓 Jornadas</button>
+      <button type="button" data-tab="sitios">📍 Sitios</button>
+      <button type="button" data-tab="exportar">📤 Exportar</button>
+      <button type="button" data-tab="equipo" id="nav-equipo" hidden>⚙️ Equipo</button>
+    </nav>
+    <main class="main">
+      <header class="page-hdr" id="page-hdr">
+        <h2 class="page-title" id="page-title">Inicio</h2>
+        <div class="page-actions" id="page-actions"></div>
+      </header>
+      <section class="panel on" id="panel-inicio">
+        <div id="prox-jornada" class="prox-card"></div>
+        <div class="stat-grid" id="stats"></div>
+        <div class="quick">
+          <button type="button" class="btn btn-p" id="btn-new-jornada">+ Nueva jornada</button>
+          <button type="button" class="btn btn-p" id="btn-copy-reg">📋 Link registro</button>
+          <button type="button" class="btn btn-s" id="btn-asignar-fit">Asignar brigadas por perfil</button>
+          <button type="button" class="btn btn-s" id="btn-incompletas">Ver sin registro completo</button>
+        </div>
+      </section>
+      <section class="panel" id="panel-voluntarias">
+        <div class="toolbar">
+          <div class="search"><input type="search" id="q" placeholder="🔍 Buscar nombre, cédula, teléfono…" autocomplete="off"></div>
+          <div class="chips" id="filters">
+            <button type="button" class="chip on" data-f="todas">Todas</button>
+            <button type="button" class="chip" data-f="vehiculo">Con vehículo</button>
+            <button type="button" class="chip" data-f="incompleto">Sin registro completo</button>
+            <button type="button" class="chip" data-f="sin_brigadas">Sin brigadas</button>
+            <button type="button" class="chip" data-f="ccs">Zona: Ccs</button>
+            <button type="button" class="chip" data-f="guaira">La Guaira</button>
+          </div>
+        </div>
+        <p class="count" id="v-count"></p>
+        <div id="v-list"></div>
+      </section>
+      <section class="panel" id="panel-brigadas">
+        <div class="quick" style="margin-bottom:12px">
+          <button type="button" class="btn btn-p btn-sm" id="btn-asignar-fit-brig">Asignar brigadas por perfil</button>
+        </div>
+        <p class="count" id="brig-count">Cargando brigadas…</p>
+        <div id="brig-list"></div>
+      </section>
+      <section class="panel" id="panel-jornadas">
+        <div class="chips" id="j-filters" style="margin-bottom:12px">
+          <button type="button" class="chip on" data-jf="proximas">Próximas</button>
+          <button type="button" class="chip" data-jf="pasadas">Pasadas</button>
+          <button type="button" class="chip" data-jf="borradores">Borradores</button>
+        </div>
+        <div id="j-list"></div>
+      </section>
+      <section class="panel" id="panel-sitios">
+        <div id="sitios-list"></div>
+      </section>
+      <section class="panel" id="panel-exportar">
+        <div class="export-box">
+          <h3 style="font-size:15px;font-weight:800;margin-bottom:12px">Exportar para WhatsApp</h3>
+          <div id="export-opts"></div>
+          <div class="export-actions">
+            <button type="button" class="btn btn-p btn-sm" id="btn-export-gen">Generar texto</button>
+            <button type="button" class="btn btn-s btn-sm" id="btn-export-csv">Descargar CSV</button>
+          </div>
+        </div>
+        <div class="export-preview-lbl">Vista previa</div>
+        <div class="export-preview" id="export-preview">Elige una plantilla y pulsa «Generar texto».</div>
+        <button type="button" class="btn btn-s" id="btn-export-copy" style="width:100%;margin-bottom:16px">📋 Copiar</button>
+      </section>
+      <section class="panel" id="panel-equipo">
+        <p class="count">Administradores y coordinadoras del grupo. Solo las administradoras pueden asignar coordinadoras desde voluntarias registradas.</p>
+        <div id="staff-list"></div>
+        <div class="export-box" style="margin-top:16px">
+          <h3 style="font-size:15px;font-weight:800;margin-bottom:8px">Asignar coordinadora</h3>
+          <p>Elige una voluntaria del censo. Si no tiene Gmail en el registro, escribe su correo.</p>
+          <div class="field"><label>Voluntaria</label>
+            <select id="coord-pick-vol"><option value="">— Elegir —</option></select>
+          </div>
+          <div class="field"><label>Correo (si no tiene Gmail)</label>
+            <input type="email" id="coord-pick-email" placeholder="opcional@correo.com" autocomplete="off">
+          </div>
+          <button type="button" class="btn btn-p btn-sm" id="btn-asignar-coord">Asignar coordinadora</button>
+        </div>
+      </section>
+    </main>
+  </div>
+  <nav class="bottom" id="bottom-nav">
+    <button type="button" data-tab="inicio" class="on"><span class="ico">🏠</span>Inicio</button>
+    <button type="button" data-tab="voluntarias"><span class="ico">👩</span>Volunt.</button>
+    <button type="button" class="fab" id="fab-jornada" aria-label="Nueva jornada">+</button>
+    <button type="button" data-tab="jornadas"><span class="ico">🗓</span>Jornadas</button>
+    <button type="button" data-tab="mas" id="btn-mas"><span class="ico">☰</span>Más</button>
+  </nav>
+</div>
+
+<div class="sheet" id="mas-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="mas-close" aria-label="Cerrar">←</button>
+    <h2>Más opciones</h2>
+  </header>
+  <div class="sheet-body">
+    <button type="button" class="btn btn-s" data-tab="brigadas" style="margin-bottom:8px">🎯 Brigadas</button>
+    <button type="button" class="btn btn-s" data-tab="sitios" style="margin-bottom:8px">📍 Sitios</button>
+    <button type="button" class="btn btn-s" data-tab="exportar" style="margin-bottom:8px">📤 Exportar</button>
+    <button type="button" class="btn btn-s" data-tab="equipo" id="mas-equipo" hidden>⚙️ Equipo</button>
+  </div>
+</div>
+
+<div class="sheet drawer" id="brig-edit-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="brig-edit-close" aria-label="Cerrar">←</button>
+    <h2 id="brig-e-title">Editar brigada</h2>
+  </header>
+  <div class="sheet-body">
+    <div class="sect">
+      <div class="brig-slug" id="brig-e-slug"></div>
+      <div class="field"><label>Nombre *</label><input id="brig-e-nombre"></div>
+      <div class="field"><label>Misión *</label><textarea id="brig-e-mision" rows="2"></textarea></div>
+      <div class="field"><label>Acciones típicas</label><textarea id="brig-e-acciones" rows="3"></textarea></div>
+      <div class="field"><label>Requisitos sugeridos</label><textarea id="brig-e-req" rows="2"></textarea></div>
+      <div class="grid2">
+        <div class="field"><label>Icono (emoji)</label><input id="brig-e-icono" maxlength="4" placeholder="🍲"></div>
+        <div class="field"><label>Coordinadora de brigada</label>
+          <select id="brig-e-coord"><option value="">— Sin coordinadora —</option></select>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--txt2);line-height:1.45;margin-top:4px">La coordinadora publica tareas en jornadas. Elige una voluntaria de la brigada o del censo.</p>
+    </div>
+  </div>
+  <footer class="sheet-foot">
+    <button type="button" class="btn btn-s" id="brig-e-cancel">Cancelar</button>
+    <button type="button" class="btn btn-g" id="brig-e-save">Guardar</button>
+  </footer>
+</div>
+
+<div class="sheet drawer" id="brig-members-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="brig-m-close" aria-label="Cerrar">←</button>
+    <h2 id="brig-m-title">Miembros</h2>
+  </header>
+  <div class="sheet-body">
+    <p class="count" id="brig-m-count"></p>
+    <div id="brig-m-list"></div>
+    <button type="button" class="btn btn-s" id="brig-m-vol" style="width:100%;margin-top:12px">Ver en listado de voluntarias</button>
+  </div>
+</div>
+
+<div class="sheet" id="edit-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="edit-close" aria-label="Cerrar">←</button>
+    <h2 id="edit-title">Editar voluntaria</h2>
+  </header>
+  <div class="sheet-body">
+    <div class="sect"><div class="sect-t">A. Datos personales</div>
+      <div class="grid2">
+        <div class="field"><label>Nombre *</label><input id="e-nombre"></div>
+        <div class="field"><label>Apellido *</label><input id="e-apellido"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Edad</label><input id="e-edad" type="number" min="18" max="99" inputmode="numeric"></div>
+        <div class="field"><label>Estado civil</label><input id="e-estado"></div>
+      </div>
+      <div class="field"><label>Cédula / ID *</label><input id="e-dni"></div>
+      <div class="field"><label>Teléfono *</label><input id="e-tel" type="tel"></div>
+      <div class="grid2">
+        <div class="field"><label>País</label><input id="e-pais"></div>
+        <div class="field"><label>Estado</label><input id="e-prov"></div>
+      </div>
+      <div class="field"><label>Ciudad</label><input id="e-ciudad"></div>
+      <div class="field"><label>Dirección</label><textarea id="e-dir"></textarea></div>
+    </div>
+    <div class="sect"><div class="sect-t">B. Profesión y logística</div>
+      <div class="grid2">
+        <div class="field"><label>Red social</label>
+          <select id="e-redp"><option value="">—</option><option>Instagram</option><option>X</option><option>Gmail</option></select>
+        </div>
+        <div class="field"><label>Usuario</label><input id="e-redu"></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Profesión</label><input id="e-prof"></div>
+        <div class="field"><label>Oficio</label><input id="e-oficio"></div>
+      </div>
+      <div class="field"><label>Disponibilidad</label><input id="e-disp"></div>
+      <div class="field"><label>¿Hijos?</label><input id="e-hijos"></div>
+      <div class="field"><label>Zona asistencia</label>
+        <select id="e-zona"><option value="">—</option><option>Caracas</option><option>La Guaira</option><option>Ccs o La Guaira</option></select>
+      </div>
+      <div class="field"><label>Transporte</label>
+        <select id="e-trans"><option value="">—</option><option value="sin_transporte">Sin transporte</option><option value="carro">Carro</option><option value="camioneta">Camioneta</option><option value="moto">Moto</option></select>
+      </div>
+      <div class="field"><label>Obs. logística</label><textarea id="e-obs"></textarea></div>
+      <div class="field"><label>Tareas / comentarios</label><textarea id="e-tareas"></textarea></div>
+      <div class="field"><label>Fortalezas</label><textarea id="e-fort"></textarea></div>
+    </div>
+    <div class="sect"><div class="sect-t">C. Brigadas y notas</div>
+      <p style="font-size:12px;color:var(--txt2);margin-bottom:8px;line-height:1.45">Sugerencia según profesión, oficio y fortalezas. La voluntaria puede cambiarlas después.</p>
+      <button type="button" class="btn btn-s btn-sm" id="btn-sugerir-brig" style="margin-bottom:10px">Sugerir por perfil</button>
+      <div class="brig-pick" id="e-brig"></div>
+      <div class="field"><label>Notas internas (solo coord.)</label><textarea id="e-notas" placeholder="Ej: pide permiso los martes"></textarea></div>
+      <label class="toggle"><input type="checkbox" id="e-activa" checked> Voluntaria activa</label>
+    </div>
+  </div>
+  <footer class="sheet-foot">
+    <button type="button" class="btn btn-s" id="edit-cancel">Cancelar</button>
+    <button type="button" class="btn btn-g" id="edit-save">Guardar</button>
+  </footer>
+</div>
+
+<div class="sheet drawer" id="sitio-form-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="sf-close" aria-label="Cerrar">←</button>
+    <h2 id="sf-title">Nuevo sitio</h2>
+  </header>
+  <div class="sheet-body">
+    <div class="field"><label>Nombre del lugar *</label><input id="sf-nombre" placeholder="Campamento La California"></div>
+    <div class="field"><label>Cómo les gusta que lo llamen</label><input id="sf-alias" placeholder="Opcional"></div>
+    <div class="grid2">
+      <div class="field"><label>Zona *</label><input id="sf-zona" placeholder="Caracas, La Guaira…"></div>
+      <div class="field"><label>Personas afectadas</label><input id="sf-personas" type="number" min="0" inputmode="numeric"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Niños (total)</label><input id="sf-ninos" type="number" min="0" inputmode="numeric"></div>
+      <div class="field"><label>Dirección / referencia</label><input id="sf-direccion"></div>
+    </div>
+    <div class="sect"><div class="sect-t">Contacto (solo coordinadoras)</div>
+      <div class="grid2">
+        <div class="field"><label>Nombre</label><input id="sf-contacto-nombre"></div>
+        <div class="field"><label>Teléfono</label><input id="sf-contacto-tel" type="tel"></div>
+      </div>
+    </div>
+    <div class="sect"><div class="sect-t">Permiso de entrada</div>
+      <label class="toggle" style="margin-bottom:8px"><input type="checkbox" id="sf-permiso"> Permiso verificado</label>
+      <div class="field"><label>Verificado por</label><input id="sf-permiso-por" placeholder="Jeudy"></div>
+    </div>
+    <div class="sect"><div class="sect-t">Cobertura actual</div>
+      <div class="grid2">
+        <div class="field"><label>Comida</label><select id="sf-comida"><option value="ninguna">Ninguna</option><option value="baja">Baja</option><option value="ok">OK</option><option value="sobra">Sobra</option></select></div>
+        <div class="field"><label>Medicinas</label><select id="sf-medicinas"><option value="ninguna">Ninguna</option><option value="baja">Baja</option><option value="ok">OK</option><option value="sobra">Sobra</option></select></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Cotillón</label><select id="sf-cotillon"><option value="ninguna">Ninguna</option><option value="baja">Baja</option><option value="ok">OK</option><option value="sobra">Sobra</option></select></div>
+        <div class="field"><label>Recreación</label><select id="sf-recreacion"><option value="ninguna">Ninguna</option><option value="baja">Baja</option><option value="ok">OK</option><option value="sobra">Sobra</option></select></div>
+      </div>
+      <label class="toggle" style="margin-top:8px"><input type="checkbox" id="sf-duplicada"> Otro equipo ya cubrió la ayuda principal</label>
+    </div>
+    <div class="field"><label>Notas</label><textarea id="sf-notas" placeholder="Contexto logístico, restricciones…"></textarea></div>
+    <label class="toggle" id="sf-activo-wrap" hidden><input type="checkbox" id="sf-activo" checked> Sitio activo</label>
+  </div>
+  <footer class="sheet-foot">
+    <button type="button" class="btn btn-s" id="sf-cancel">Cancelar</button>
+    <button type="button" class="btn btn-p" id="sf-save">Guardar sitio</button>
+  </footer>
+</div>
+
+<div class="sheet drawer" id="jornada-form-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="jf-close" aria-label="Cerrar">←</button>
+    <h2 id="jf-title">Nueva jornada</h2>
+  </header>
+  <div class="sheet-body">
+    <div class="field"><label>Título *</label><input id="jf-titulo"></div>
+    <div class="grid2">
+      <div class="field"><label>Fecha *</label><input id="jf-fecha" type="date"></div>
+      <div class="field"><label>Estado</label>
+        <select id="jf-estado"><option value="borrador">Borrador</option><option value="abierta">Abierta</option><option value="llena">Llena</option><option value="realizada">Realizada</option><option value="cancelada">Cancelada</option></select>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Encuentro</label><input id="jf-enc" type="time"></div>
+      <div class="field"><label>Salida</label><input id="jf-sal" type="time"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Regreso aprox.</label><input id="jf-reg" type="time"></div>
+      <div class="field"><label>Punto encuentro</label><input id="jf-punto" placeholder="Plaza Venezuela"></div>
+    </div>
+    <div class="field"><label>Sitio</label><select id="jf-sitio"></select></div>
+    <div class="field"><label>Descripción / misión</label><textarea id="jf-desc"></textarea></div>
+    <div class="field"><label>Brigadas</label><div class="brig-pick" id="jf-brig"></div></div>
+    <div class="grid2">
+      <div class="field"><label>Vestimenta</label><input id="jf-vest"></div>
+      <div class="field"><label>Llevar</label><input id="jf-llevar"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Meta voluntarias</label><input id="jf-meta-v" type="number" min="0"></div>
+      <div class="field"><label>Meta vehículos</label><input id="jf-meta-c" type="number" min="0"></div>
+    </div>
+    <div class="sect-t">Tareas</div>
+    <div id="jf-tareas"></div>
+    <div class="sect-t" style="margin-top:14px">Materiales / necesidades</div>
+    <p style="font-size:12px;color:var(--txt2);margin-bottom:8px;line-height:1.45">Qué hay que conseguir para la salida (kits, juguetes, pintura…).</p>
+    <datalist id="jf-mat-datalist"></datalist>
+    <div id="jf-materiales"><p style="font-size:12px;color:var(--txt3)">Guarda la jornada para agregar materiales.</p></div>
+  </div>
+  <footer class="sheet-foot">
+    <button type="button" class="btn btn-s" id="jf-cancel">Cancelar</button>
+    <button type="button" class="btn btn-p" id="jf-save">Guardar</button>
+    <button type="button" class="btn btn-g" id="jf-save-wa">Guardar y copiar link</button>
+  </footer>
+</div>
+
+<div class="sheet drawer" id="vol-hist-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="vh-close" aria-label="Cerrar">←</button>
+    <h2 id="vh-title">Historial de jornadas</h2>
+  </header>
+  <div class="sheet-body">
+    <p class="count" id="vh-summary"></p>
+    <div id="vh-list"></div>
+  </div>
+</div>
+
+<div class="sheet drawer" id="jornada-detail-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="jd-close" aria-label="Cerrar">←</button>
+    <h2 id="jd-title">Jornada</h2>
+  </header>
+  <div class="sheet-body">
+    <div class="chips" id="jd-tabs" style="margin-bottom:12px"></div>
+    <div id="jd-body"></div>
+  </div>
+</div>
+
+
+<div class="sheet drawer" id="jornada-close-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="jc-close" aria-label="Cerrar">←</button>
+    <h2 id="jc-title">Cerrar jornada</h2>
+  </header>
+  <div class="sheet-body">
+    <div class="sect">
+      <div class="sect-t">Asistencia real</div>
+      <p style="font-size:13px;color:var(--txt2);margin-bottom:10px">Marca quién sí asistió. Las demás confirmadas quedarán como no asistieron.</p>
+      <div id="jc-attendees"></div>
+    </div>
+    <div class="sect">
+      <div class="sect-t">Actualizar sitio</div>
+      <label class="toggle" style="margin-bottom:10px"><input type="checkbox" id="jc-update-site" checked> Actualizar cobertura del sitio vinculado</label>
+      <div class="grid2">
+        <div class="field"><label>Comida</label><select id="jc-comida"><option value="ninguna">Ninguna</option><option value="baja">Baja</option><option value="ok">OK</option><option value="sobra">Sobra</option></select></div>
+        <div class="field"><label>Medicinas</label><select id="jc-medicinas"><option value="ninguna">Ninguna</option><option value="baja">Baja</option><option value="ok">OK</option><option value="sobra">Sobra</option></select></div>
+      </div>
+      <div class="grid2">
+        <div class="field"><label>Cotillón</label><select id="jc-cotillon"><option value="ninguna">Ninguna</option><option value="baja">Baja</option><option value="ok">OK</option><option value="sobra">Sobra</option></select></div>
+        <div class="field"><label>Recreación</label><select id="jc-recreacion"><option value="ninguna">Ninguna</option><option value="baja">Baja</option><option value="ok">OK</option><option value="sobra">Sobra</option></select></div>
+      </div>
+      <label class="toggle"><input type="checkbox" id="jc-duplicada"> El sitio ya tenía ayuda suficiente / duplicada</label>
+    </div>
+  </div>
+  <footer class="sheet-foot">
+    <button type="button" class="btn btn-s" id="jc-cancel">Cancelar</button>
+    <button type="button" class="btn btn-g" id="jc-save">Marcar realizada</button>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="coord-jornadas.js?v=20260706j"></script>
+<script src="coord-brigadas.js?v=20260706a"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+<script>
+const GRUPO=window.CC_GRUPO_SLUG||'cuidadoras_caracas';
+const SB_URL='https://ebsgvamzaegjgpjkpick.supabase.co';
+const SB_KEY='sb_publishable_vg8SSOkKpgvwOSyi2k-aVg_lslrQsBA';
+const REG_URL=location.origin+location.pathname.replace(/\/coord\/?$/,'')+'/registro';
+
+const db=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSessionInUrl:false}});
+
+let session=null,authSeq=0,vols=[],brigCat=[],sitiosList=[],filter='todas',editId=null,sitioEditId=null,editBrig=new Set(),itiEdit=null,currentTab='inicio',esAdminGrupo=false,myRol='',creatingVol=false,exportSel=0,exportPreview='';
+
+const PAGE_TITLES={inicio:'Inicio',voluntarias:'Voluntarias',brigadas:'Brigadas',jornadas:'Jornadas',sitios:'Sitios',exportar:'Exportar',equipo:'Equipo'};
+
+function updatePageHdr(tab){
+  currentTab=tab;
+  const title=PAGE_TITLES[tab]||'';
+  document.getElementById('page-title').textContent=title;
+  const actions=document.getElementById('page-actions');
+  if(tab==='voluntarias'){
+    actions.innerHTML='<button type="button" class="btn btn-p btn-sm" id="btn-add-vol">+ Agregar</button>';
+    document.getElementById('btn-add-vol').onclick=()=>openCreateVoluntaria();
+  }else if(tab==='jornadas'){
+    actions.innerHTML='<button type="button" class="btn btn-p btn-sm" id="btn-page-jornada">+ Nueva</button>';
+    document.getElementById('btn-page-jornada').onclick=()=>window.CC_JORN?.openJornadaForm(null);
+  }else if(tab==='sitios'){
+    actions.innerHTML='<button type="button" class="btn btn-p btn-sm" id="btn-add-sitio">+ Agregar sitio</button>';
+    document.getElementById('btn-add-sitio').onclick=()=>openSitioForm(null);
+  }else actions.innerHTML='';
+  try{history.replaceState(null,'',tab==='inicio'?location.pathname:location.pathname+'?tab='+tab);}catch(_){}
+}
+
+async function updateHeaderUser(user){
+  const el=document.getElementById('hdr-user');
+  let nombre=user.user_metadata?.nombre||'';
+  myRol='';
+  const{data}=await db.from('moderadores_grupo').select('nombre,rol').eq('grupo',GRUPO).eq('activo',true).eq('email',user.email.toLowerCase()).maybeSingle();
+  if(data?.nombre)nombre=data.nombre;
+  if(data?.rol)myRol=data.rol;
+  if(!nombre)nombre=user.email.split('@')[0];
+  const rolLabel=myRol==='administrador'?'administradora':'coordinadora';
+  el.textContent=`Cuidadoras Caracas · ${nombre} (${rolLabel})`;
+  const{data:adm}=await db.rpc('puede_administrar_grupo',{p_grupo:GRUPO});
+  esAdminGrupo=adm===true;
+  document.getElementById('nav-equipo').hidden=!esAdminGrupo;
+  document.getElementById('mas-equipo').hidden=!esAdminGrupo;
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
+function showErr(el,msg){el.textContent=msg;el.classList.add('show')}
+function hideErr(el){el.classList.remove('show')}
+
+function hasVehiculo(v){return['carro','camioneta','moto'].includes(v.medio_transporte)}
+function isIncomplete(v){
+  return!String(v.telefono||'').trim()||!String(v.red_social_usuario||'').trim()||!String(v.asistencia_zona||'').trim()||!v.brigadas?.length
+}
+function matchZona(v,z){
+  const a=(v.asistencia_zona||'').toLowerCase();
+  if(z==='ccs')return a.includes('caracas')||a.includes('ccs');
+  if(z==='guaira')return a.includes('guaira');
+  return true
+}
+function matchFilter(v){
+  if(filter==='vehiculo')return hasVehiculo(v);
+  if(filter==='incompleto')return isIncomplete(v);
+  if(filter==='sin_brigadas')return!v.brigadas?.length;
+  if(filter.startsWith('brigada:'))return(v.brigadas||[]).includes(filter.slice(8));
+  if(filter==='ccs'||filter==='guaira')return matchZona(v,filter);
+  return true
+}
+function matchQ(v,q){
+  if(!q)return true;
+  const blob=[v.nombre,v.apellido,v.id_dni,v.telefono,String(v.numero_voluntaria)].join(' ').toLowerCase();
+  return blob.includes(q)
+}
+
+async function checkAccess(){
+  const{data,error}=await db.rpc('puede_acceder_coord',{p_grupo:GRUPO});
+  if(error){
+    const{data:d2}=await db.rpc('is_moderador_grupo',{p_grupo:GRUPO});
+    if(d2===true)return{ok:true};
+    return{ok:false,detail:error.message};
+  }
+  return{ok:data===true,detail:'No tienes permiso de coordinadora para este grupo.'};
+}
+
+async function onSession(s){
+  const seq=++authSeq;
+  session=s;
+  const errEl=document.getElementById('login-err');
+  if(!s?.user){document.getElementById('login-screen').style.display='block';document.getElementById('app').style.display='none';return}
+  const{ok,detail}=await checkAccess();
+  if(seq!==authSeq)return;
+  if(!ok){
+    await db.auth.signOut();
+    showErr(errEl,detail);
+    document.getElementById('login-screen').style.display='block';
+    document.getElementById('app').style.display='none';
+    return;
+  }
+  hideErr(errEl);
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  await updateHeaderUser(s.user);
+  await loadBrigadas();
+  await loadVoluntarias();
+  if (window.CC_JORN) await CC_JORN.onCoordReady();
+  const startTab=new URLSearchParams(location.search).get('tab');
+  if(startTab&&PAGE_TITLES[startTab])showTab(startTab);
+  else updatePageHdr('inicio');
+}
+
+async function login(){
+  const email=document.getElementById('login-email').value.trim().toLowerCase();
+  const pw=document.getElementById('login-password').value;
+  const errEl=document.getElementById('login-err');
+  hideErr(errEl);
+  if(!email||!pw){showErr(errEl,'Correo y contraseña');return}
+  const btn=document.getElementById('btn-login');
+  btn.disabled=true;btn.textContent='Entrando…';
+  const{data,error}=await db.auth.signInWithPassword({email,password:pw});
+  btn.disabled=false;btn.textContent='Entrar';
+  if(error){showErr(errEl,error.message==='Invalid login credentials'?'Correo o contraseña incorrectos':error.message);return}
+  await onSession(data.session);
+}
+
+document.getElementById('btn-login').onclick=login;
+document.getElementById('btn-logout').onclick=async()=>{await db.auth.signOut();toast('Sesión cerrada')};
+['login-email','login-password'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')login()});
+});
+db.auth.onAuthStateChange((_e,s)=>{void onSession(s)});
+
+function showTab(name){
+  if(name==='mas'){
+    document.getElementById('mas-sheet').hidden=false;
+    return;
+  }
+  document.getElementById('mas-sheet').hidden=true;
+  document.querySelectorAll('[data-tab]').forEach(b=>{
+    if(b.closest('#side-nav')||b.closest('#bottom-nav'))b.classList.toggle('on',b.dataset.tab===name);
+  });
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='panel-'+name));
+  updatePageHdr(name);
+  if(name==='voluntarias')renderList();
+  if(name==='brigadas')window.CC_BRIG?.renderBrigadas();
+  if(name==='sitios')renderSitios();
+  if(name==='exportar')renderExportOpts();
+  if(name==='equipo'&&esAdminGrupo)renderEquipo();
+  if(window.CC_JORN)CC_JORN.onShowTab(name);
+}
+document.getElementById('side-nav').onclick=e=>{const b=e.target.closest('button[data-tab]');if(b)showTab(b.dataset.tab)};
+document.getElementById('bottom-nav').onclick=e=>{
+  const b=e.target.closest('button[data-tab]');
+  if(b)showTab(b.dataset.tab);
+};
+document.getElementById('mas-close').onclick=()=>{document.getElementById('mas-sheet').hidden=true};
+document.querySelector('#mas-sheet .sheet-body').onclick=e=>{
+  const b=e.target.closest('[data-tab]');
+  if(!b)return;
+  document.getElementById('mas-sheet').hidden=true;
+  showTab(b.dataset.tab);
+};
+document.getElementById('btn-incompletas').onclick=()=>{
+  filter='incompleto';
+  document.querySelectorAll('#filters .chip').forEach(c=>c.classList.toggle('on',c.dataset.f==='incompleto'));
+  showTab('voluntarias');
+};
+
+async function asignarBrigadasPorFit(){
+  const sin=vols.filter(v=>v.activa!==false&&!v.brigadas?.length).length;
+  if(!sin){
+    const ok=confirm('Todas las voluntarias activas ya tienen brigadas.\n\n¿Reasignar a todas según perfil? (sobrescribe las actuales)');
+    if(!ok)return;
+  }else{
+    const ok=confirm(`Asignar brigadas por perfil a ${sin} voluntaria(s) sin brigadas.\n\nUsa profesión, oficio y fortalezas. Ellas pueden cambiarlas después en Mi cuenta.\n\n¿Continuar?`);
+    if(!ok)return;
+  }
+  const soloSin=sin>0;
+  const btnIds=['btn-asignar-fit','btn-asignar-fit-brig'];
+  btnIds.forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=true});
+  const{data,error}=await db.rpc('asignar_brigadas_por_fit_grupo',{p_grupo:GRUPO,p_solo_sin_brigadas:soloSin,p_max_por_voluntaria:2});
+  btnIds.forEach(id=>{const b=document.getElementById(id);if(b)b.disabled=false});
+  if(error){toast(error.message);return}
+  if(!data?.ok){toast(data?.error||'Error');return}
+  await loadVoluntarias();
+  window.CC_BRIG?.renderBrigadas();
+  toast(`Listo: ${data.asignadas} asignada(s)${data.omitidas?`, ${data.omitidas} omitida(s)`:''}`);
+}
+document.getElementById('btn-asignar-fit').onclick=asignarBrigadasPorFit;
+document.getElementById('btn-asignar-fit-brig').onclick=asignarBrigadasPorFit;
+
+document.getElementById('btn-copy-reg').onclick=async()=>{
+  try{await navigator.clipboard.writeText(REG_URL);toast('Link copiado')}
+  catch{prompt('Copia este link:',REG_URL)}
+};
+
+async function loadBrigadas(){
+  if(window.CC_BRIG){
+    await CC_BRIG.loadBrigadasFull();
+    brigCat=CC_BRIG.getBrigCat();
+  }
+}
+
+async function loadVoluntarias(){
+  const el=document.getElementById('v-list');
+  el.innerHTML='<div class="empty">Cargando…</div>';
+  const{data,error}=await db.from('voluntarios').select('*').eq('grupo',GRUPO).order('numero_voluntaria');
+  if(error){el.innerHTML=`<div class="empty">${esc(error.message)}</div>`;return}
+  vols=data||[];
+  renderStats();
+  renderList();
+  if(currentTab==='brigadas')window.CC_BRIG?.renderBrigadas();
+}
+
+function renderStats(){
+  const total=vols.length;
+  const veh=vols.filter(hasVehiculo).length;
+  const inc=vols.filter(isIncomplete).length;
+  const sinBrig=vols.filter(v=>v.activa!==false&&!v.brigadas?.length).length;
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><b>${total}</b><span>voluntarias</span></div>
+    <div class="stat"><b>${veh}</b><span>con vehículo</span></div>
+    <div class="stat"><b>${sinBrig}</b><span>sin brigadas</span></div>
+    <div class="stat"><b>${inc}</b><span>ficha incompleta</span></div>`;
+}
+
+function statusBadge(v){
+  const warn=isIncomplete(v);
+  if(v.activa===false)return'<span class="badge badge-off">Inactiva</span>';
+  if(warn)return'<span class="badge badge-warn">Incompleta</span>';
+  return'<span class="badge badge-ok">Activa</span>';
+}
+
+async function renderSitios(){
+  const el=document.getElementById('sitios-list');
+  el.innerHTML='<div class="empty">Cargando…</div>';
+  const{data,error}=await db.from('sitios').select(`
+    id,nombre,alias,zona,direccion,personas_afectadas,ninos_total,ninas,ninos_varones,neodivergentes,
+    permiso_verificado,permiso_por,cobertura_comida,cobertura_medicinas,cobertura_cotillon,cobertura_recreacion,
+    ultima_visita_at,notas,ayuda_duplicada,activo
+  `).eq('grupo',GRUPO).order('nombre');
+  if(error){el.innerHTML=`<div class="empty">${esc(error.message)}</div>`;return}
+  sitiosList=data||[];
+  const rows=sitiosList.filter(s=>s.activo!==false);
+  if(!rows.length){el.innerHTML='<div class="coming"><h3>Sin sitios</h3><p>Agrega el primer sitio con el botón de arriba.</p></div>';return}
+  el.innerHTML=rows.map(s=>{
+    const ninos=s.ninos_total??s.ninas??s.ninos_varones??null;
+    const personas=s.personas_afectadas??null;
+    const sub=[esc(s.zona||'—')];
+    if(personas!=null)sub.push(`~${personas} personas`);
+    if(ninos!=null)sub.push(`~${ninos} niños`);
+    const cob=[
+      cobPill('Comida',s.cobertura_comida),
+      cobPill('Meds',s.cobertura_medicinas),
+      cobPill('Cotillón',s.cobertura_cotillon),
+      cobPill('Recreación',s.cobertura_recreacion),
+    ].join('');
+    const permiso=s.permiso_verificado?`Permiso ✓${s.permiso_por?` (${esc(s.permiso_por)})`:''}`:'Permiso pendiente';
+    return `<article class="sitio-card">
+      <div class="sitio-h">
+        <div><b>${esc(s.nombre)}</b><div class="sitio-sub">${sub.join(' · ')}</div></div>
+        <span class="badge badge-ok">Activo</span>
+      </div>
+      ${s.ayuda_duplicada?'<div class="sitio-warn">⚠️ Otro equipo ya cubrió la ayuda principal — evitar repetir visita</div>':''}
+      <div class="cob-pills">${cob}</div>
+      <div class="sitio-foot">📅 Última visita: ${fmtSitioVisita(s.ultima_visita_at)} · ${permiso}</div>
+      <div class="sitio-actions">
+        <button type="button" class="btn btn-s" data-sitio-edit="${s.id}">Editar</button>
+        <button type="button" class="btn btn-s" data-sitio-jornada="${s.id}">Nueva jornada aquí</button>
+      </div>
+    </article>`;
+  }).join('');
+  el.querySelectorAll('[data-sitio-edit]').forEach(b=>b.onclick=()=>openSitioForm(b.dataset.sitioEdit));
+  el.querySelectorAll('[data-sitio-jornada]').forEach(b=>b.onclick=()=>nuevaJornadaEnSitio(b.dataset.sitioJornada));
+}
+
+function cobPill(label,val){
+  const v=val||'ninguna';
+  const cls=(v==='ok'||v==='sobra')?'ok':'low';
+  return `<span class="cob-pill ${cls}">${esc(label)}: ${esc(v)}</span>`;
+}
+function fmtSitioVisita(ts){
+  if(!ts)return'—';
+  const d=new Date(ts);
+  if(Number.isNaN(d.getTime()))return'—';
+  const mes=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return `${d.getDate()} ${mes[d.getMonth()]} ${d.getFullYear()}`;
+}
+function openSitioForm(id){
+  sitioEditId=id||null;
+  const s=id?sitiosList.find(x=>x.id===id):null;
+  document.getElementById('sf-title').textContent=s?'Editar sitio':'Nuevo sitio';
+  document.getElementById('sf-nombre').value=s?.nombre||'';
+  document.getElementById('sf-alias').value=s?.alias||'';
+  document.getElementById('sf-zona').value=s?.zona||'';
+  document.getElementById('sf-personas').value=s?.personas_afectadas??'';
+  document.getElementById('sf-ninos').value=s?.ninos_total??'';
+  document.getElementById('sf-direccion').value=s?.direccion||'';
+  document.getElementById('sf-contacto-nombre').value=s?.contacto_nombre||'';
+  document.getElementById('sf-contacto-tel').value=s?.contacto_telefono||'';
+  document.getElementById('sf-permiso').checked=!!s?.permiso_verificado;
+  document.getElementById('sf-permiso-por').value=s?.permiso_por||'';
+  document.getElementById('sf-comida').value=s?.cobertura_comida||'ninguna';
+  document.getElementById('sf-medicinas').value=s?.cobertura_medicinas||'ninguna';
+  document.getElementById('sf-cotillon').value=s?.cobertura_cotillon||'ninguna';
+  document.getElementById('sf-recreacion').value=s?.cobertura_recreacion||'ninguna';
+  document.getElementById('sf-duplicada').checked=!!s?.ayuda_duplicada;
+  document.getElementById('sf-notas').value=s?.notas||'';
+  const activoWrap=document.getElementById('sf-activo-wrap');
+  activoWrap.hidden=!s;
+  if(s)document.getElementById('sf-activo').checked=s.activo!==false;
+  document.getElementById('sitio-form-sheet').hidden=false;
+}
+async function saveSitio(){
+  const nombre=document.getElementById('sf-nombre').value.trim();
+  const zona=document.getElementById('sf-zona').value.trim();
+  if(!nombre||!zona){toast('Nombre y zona son obligatorios');return}
+  const payload={
+    grupo:GRUPO,
+    nombre,
+    alias:document.getElementById('sf-alias').value.trim()||null,
+    zona,
+    direccion:document.getElementById('sf-direccion').value.trim()||null,
+    personas_afectadas:parseInt(document.getElementById('sf-personas').value,10)||null,
+    ninos_total:parseInt(document.getElementById('sf-ninos').value,10)||null,
+    contacto_nombre:document.getElementById('sf-contacto-nombre').value.trim()||null,
+    contacto_telefono:document.getElementById('sf-contacto-tel').value.trim()||null,
+    permiso_verificado:document.getElementById('sf-permiso').checked,
+    permiso_por:document.getElementById('sf-permiso-por').value.trim()||null,
+    cobertura_comida:document.getElementById('sf-comida').value,
+    cobertura_medicinas:document.getElementById('sf-medicinas').value,
+    cobertura_cotillon:document.getElementById('sf-cotillon').value,
+    cobertura_recreacion:document.getElementById('sf-recreacion').value,
+    ayuda_duplicada:document.getElementById('sf-duplicada').checked,
+    notas:document.getElementById('sf-notas').value.trim()||null,
+  };
+  if(sitioEditId){
+    payload.activo=document.getElementById('sf-activo').checked;
+    const{error}=await db.from('sitios').update(payload).eq('id',sitioEditId);
+    if(error){toast(error.message);return}
+  }else{
+    const{error}=await db.from('sitios').insert(payload);
+    if(error){toast(error.message);return}
+  }
+  document.getElementById('sitio-form-sheet').hidden=true;
+  toast('Sitio guardado');
+  await renderSitios();
+  if(window.CC_JORN)await CC_JORN.reloadSitios?.();
+}
+function nuevaJornadaEnSitio(sitioId){
+  showTab('jornadas');
+  window.CC_JORN?.openJornadaForm(null,sitioId);
+}
+document.getElementById('sf-close').onclick=()=>{document.getElementById('sitio-form-sheet').hidden=true};
+document.getElementById('sf-cancel').onclick=()=>{document.getElementById('sitio-form-sheet').hidden=true};
+document.getElementById('sf-save').onclick=saveSitio;
+
+function filteredVols(){
+  const q=document.getElementById('q')?.value?.trim().toLowerCase()||'';
+  return vols.filter(v=>matchFilter(v)&&matchQ(v,q));
+}
+
+const EXPORT_OPTS=[
+  {id:'proxima',label:'Resumen próxima jornada'},
+  {id:'confirmadas',label:'Lista confirmadas con teléfonos'},
+  {id:'transporte',label:'Solo transporte'},
+  {id:'sin_dueno',label:'Tareas sin dueño'},
+  {id:'materiales',label:'Checklist materiales próxima jornada'},
+  {id:'incompletas',label:'Voluntarias sin registro completo'},
+  {id:'censo',label:'Censo completo (CSV — solo moderadoras)'},
+];
+
+function renderExportOpts(){
+  const el=document.getElementById('export-opts');
+  if(!el)return;
+  el.innerHTML=EXPORT_OPTS.map((o,i)=>`
+    <label class="export-opt${exportSel===i?' on':''}">
+      <input type="radio" name="export-type" value="${i}"${exportSel===i?' checked':''}>
+      ${esc(o.label)}
+    </label>`).join('');
+  el.querySelectorAll('.export-opt').forEach((lab,i)=>{
+    lab.onclick=()=>{exportSel=i;renderExportOpts();};
+  });
+  if(EXPORT_OPTS[exportSel]?.id!=='censo')void generateExport();
+}
+
+function proxJornada(){
+  return window.CC_JORN?.getProximaJornada?.()||null;
+}
+
+async function buildExportText(type){
+  const j=proxJornada();
+  if(type==='proxima'){
+    if(!j)return'No hay jornada próxima publicada.';
+    const wa=window.CC_JORN?.getWaText?.(j.id);
+    if(wa)return wa;
+    return `${j.titulo} — ${j.fecha}`;
+  }
+  if(type==='confirmadas'){
+    if(!j)return'No hay jornada próxima.';
+    const{data}=await db.from('inscripciones').select('estado,necesita_transporte,ofrece_transporte,voluntarios(numero_voluntaria,nombre,apellido,telefono,medio_transporte)').eq('jornada_id',j.id).eq('estado','confirmada');
+    const rows=(data||[]).filter(i=>i.voluntarios);
+    if(!rows.length)return`CHICAS — ${j.titulo}\nAún no hay confirmadas.`;
+    const lines=rows.map((i,idx)=>{
+      const v=i.voluntarios;
+      const ride=i.necesita_transporte?'necesita ride':(i.ofrece_transporte?'tiene ride':'—');
+      return `${idx+1}. ${v.nombre} · ${v.telefono||'sin tel'} · ${ride}`;
+    });
+    return `CHICAS — ${j.titulo}\nConfirmadas (${rows.length}):\n${lines.join('\n')}\n\nConfirma aquí 👉 ${location.origin}${location.pathname.replace(/\/coord\/?$/,'')}/jornada?id=${j.id}`;
+  }
+  if(type==='transporte'){
+    if(!j)return'No hay jornada próxima.';
+    const{data:insc}=await db.from('inscripciones').select('*,voluntarios(numero_voluntaria,nombre,telefono)').eq('jornada_id',j.id).eq('estado','confirmada');
+    const rows=insc||[];
+    const need=rows.filter(i=>i.necesita_transporte);
+    const offer=rows.filter(i=>i.ofrece_transporte);
+    const cupos=offer.reduce((s,i)=>s+(i.cupos_ofrecidos||0),0);
+    let txt=`TRANSPORTE — ${j.titulo}\n`;
+    txt+=`Necesitan ride (${need.length}):\n`;
+    txt+=need.length?need.map(i=>`• ${i.voluntarios?.nombre} · ${i.voluntarios?.telefono||'—'}`).join('\n'):'— ninguna';
+    txt+=`\n\nCon vehículo (${offer.length}, ${cupos} cupos):\n`;
+    txt+=offer.length?offer.map(i=>`• ${i.voluntarios?.nombre} · ${i.cupos_ofrecidos||0} cupos · ${i.voluntarios?.telefono||'—'}`).join('\n'):'— ninguna';
+    txt+=cupos>=need.length&&need.length?'\n\n✓ Cupos cubren la demanda':(need.length?'\n\n⚠️ Faltan cupos':'');
+    return txt;
+  }
+  if(type==='sin_dueno'){
+    if(!j)return'No hay jornada próxima.';
+    const{data:tareas}=await db.from('tareas_jornada').select('titulo,brigada_slug').eq('jornada_id',j.id).is('voluntario_id',null);
+    if(!tareas?.length)return`Para ${j.titulo}: todas las tareas tienen dueña 🎉`;
+    const base=location.origin+location.pathname.replace(/\/coord\/?$/,'');
+    return `Chicas — para ${j.titulo} falta:\n${tareas.map(t=>'• '+t.titulo).join('\n')}\n\n¿Quién se apunta? 👉 ${base}/jornada?id=${j.id}`;
+  }
+  if(type==='materiales'){
+    if(!j)return'No hay jornada próxima.';
+    return window.CC_JORN?.getMaterialesExport?.(j.id)||'Sin materiales.';
+  }
+  if(type==='incompletas'){
+    const inc=filteredVols().filter(isIncomplete);
+    if(!inc.length)return'Todas las voluntarias del filtro actual tienen registro completo ✅';
+  const base=location.origin+location.pathname.replace(/\/coord\/?$/,'');
+    return `Faltan datos de:\n${inc.map(v=>`• #${v.numero_voluntaria} ${v.nombre} ${v.apellido}`).join('\n')}\n\nComplétalo aquí 👉 ${base}/coord`;
+  }
+  return'';
+}
+
+async function generateExport(){
+  const opt=EXPORT_OPTS[exportSel];
+  if(opt.id==='censo'){exportCsv();return}
+  const el=document.getElementById('export-preview');
+  el.textContent='Generando…';
+  exportPreview=await buildExportText(opt.id);
+  el.textContent=exportPreview||'(vacío)';
+}
+
+function exportCsv(){
+  const rows=filteredVols();
+  const cols=[['numero','nombre','apellido','cedula','telefono','zona','transporte','brigadas','activa']];
+  rows.forEach(v=>cols.push([
+    v.numero_voluntaria,v.nombre,v.apellido,v.id_dni,v.telefono,
+    v.asistencia_zona||'',v.medio_transporte||'',(v.brigadas||[]).join(';'),v.activa===false?'no':'si'
+  ]));
+  const csv=cols.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download='cuidadoras-voluntarias.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast(`CSV descargado (${rows.length} filas)`);
+}
+
+function copyExport(){
+  if(!exportPreview){toast('Genera el texto primero');return}
+  navigator.clipboard.writeText(exportPreview).then(()=>toast('Copiado')).catch(()=>prompt('Copia:',exportPreview));
+}
+
+document.getElementById('btn-export-gen').onclick=generateExport;
+document.getElementById('btn-export-csv').onclick=()=>{
+  if(EXPORT_OPTS[exportSel]?.id==='censo')exportCsv();
+  else{exportSel=5;renderExportOpts();exportCsv();}
+};
+document.getElementById('btn-export-copy').onclick=copyExport;
+
+async function renderEquipo(){
+  if(!esAdminGrupo)return;
+  const el=document.getElementById('staff-list');
+  el.innerHTML='<div class="empty">Cargando…</div>';
+  const{data,error}=await db.rpc('listar_staff_grupo',{p_grupo:GRUPO});
+  if(error){el.innerHTML=`<div class="empty">${esc(error.message)}</div>`;return}
+  const rows=data||[];
+  if(!rows.length){el.innerHTML='<div class="coming"><h3>Sin equipo</h3><p>Asigna coordinadoras desde voluntarias abajo.</p></div>';}
+  else el.innerHTML=rows.map(s=>`
+    <article class="vcard">
+      <div class="vcard-h"><b>${esc(s.nombre||s.email)}</b>
+        <span class="badge${s.rol==='administrador'?'':' badge-ok'}">${s.rol==='administrador'?'Administradora':'Coordinadora'}</span></div>
+      <div class="vcard-meta">${esc(s.email)}${s.voluntario_numero?`<br>Voluntaria #${s.voluntario_numero} · ${esc(s.voluntario_nombre||'')}`:''}</div>
+      ${s.rol==='coordinador'?`<div class="vcard-actions"><button type="button" class="btn btn-s" data-revoke="${esc(s.email)}">Quitar acceso</button></div>`:''}
+    </article>`).join('');
+  el.querySelectorAll('[data-revoke]').forEach(b=>b.onclick=async()=>{
+    if(!confirm('¿Quitar acceso de coordinadora?'))return;
+    const{error:e}=await db.rpc('revocar_staff_grupo',{p_grupo:GRUPO,p_email:b.dataset.revoke});
+    if(e){toast(e.message);return}
+    toast('Acceso revocado');
+    renderEquipo();
+  });
+  const sel=document.getElementById('coord-pick-vol');
+  const staffVol=new Set(rows.filter(s=>s.voluntario_id).map(s=>s.voluntario_id));
+  sel.innerHTML='<option value="">— Elegir voluntaria —</option>'+vols.filter(v=>v.activa!==false&&!staffVol.has(v.id)).map(v=>
+    `<option value="${v.id}">#${v.numero_voluntaria} · ${esc(v.nombre)} ${esc(v.apellido)}</option>`).join('');
+}
+
+document.getElementById('btn-asignar-coord').onclick=async()=>{
+  const vid=document.getElementById('coord-pick-vol').value;
+  const email=document.getElementById('coord-pick-email').value.trim();
+  if(!vid){toast('Elige una voluntaria');return}
+  const btn=document.getElementById('btn-asignar-coord');
+  btn.disabled=true;
+  const{data,error}=await db.rpc('asignar_coordinador_grupo',{p_grupo:GRUPO,p_voluntario_id:vid,p_email:email||null});
+  btn.disabled=false;
+  if(error){toast(error.message);return}
+  const msg=`Coordinadora asignada.\nCorreo: ${data.email}\nContraseña: ${data.password}`;
+  try{await navigator.clipboard.writeText(`Correo: ${data.email}\nContraseña: ${data.password}`);toast('Credenciales copiadas')}
+  catch{prompt('Copia para enviar:',msg)}
+  document.getElementById('coord-pick-email').value='';
+  renderEquipo();
+};
+
+function renderList(){
+  const q=document.getElementById('q').value.trim().toLowerCase();
+  const rows=vols.filter(v=>matchFilter(v)&&matchQ(v,q));
+  let countTxt=`${rows.length} de ${vols.length} voluntarias`;
+  if(filter.startsWith('brigada:')){
+    const slug=filter.slice(8);
+    const b=brigCat.find(x=>x.slug===slug);
+    countTxt+=` · ${b?b.nombre.replace(/^Brigada de\s*/i,''):slug}`;
+  }
+  document.getElementById('v-count').textContent=countTxt;
+  const el=document.getElementById('v-list');
+  if(!rows.length){el.innerHTML='<div class="empty">Nadie coincide con la búsqueda.</div>';return}
+  el.innerHTML=rows.map(v=>{
+    const warn=isIncomplete(v);
+    const cls=[warn?'warn':'',v.activa===false?'off':''].filter(Boolean).join(' ');
+    const veh=hasVehiculo(v);
+    const trans=v.medio_transporte?({carro:'Carro',camioneta:'Camioneta',moto:'Moto',sin_transporte:'Sin transporte'}[v.medio_transporte]||v.medio_transporte):'Sin transporte';
+    const tags=(v.brigadas||[]).map(s=>{
+      const b=brigCat.find(x=>x.slug===s);
+      const label=b?.nombre?.replace(/^[^:]+:\s*/,'')||s;
+      return`<span class="btag">${esc(b?.icono||'')} ${esc(label)}</span>`;
+    }).join('');
+    const nombre=`#${v.numero_voluntaria} · ${esc(v.nombre)} ${esc(v.apellido)}${veh?' 🚗':''}`;
+    return`<article class="vcard ${cls}">
+      <div class="vcard-h"><b>${nombre}</b>${statusBadge(v)}</div>
+      <div class="vcard-meta">${esc(v.id_dni)} · ${esc(v.telefono)}<br>${esc(v.asistencia_zona||'Sin zona')} · ${esc(trans)}</div>
+      <div class="btags">${tags||'<span class="btag">Sin brigadas</span>'}</div>
+      <div class="vcard-actions">
+        <button type="button" class="btn btn-p" data-edit="${v.id}">Editar</button>
+        <button type="button" class="btn btn-s" data-hist="${v.id}">Ver historial</button>
+        ${v.activa===false
+          ? `<button type="button" class="btn btn-s" data-react="${v.id}">Reactivar</button>`
+          : `<button type="button" class="btn btn-s" data-deact="${v.id}">Desactivar</button>`}
+      </div>
+    </article>`;
+  }).join('');
+  el.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>openEdit(b.dataset.edit));
+  el.querySelectorAll('[data-hist]').forEach(b=>b.onclick=()=>openVolHistorial(b.dataset.hist));
+  el.querySelectorAll('[data-deact]').forEach(b=>b.onclick=()=>setVoluntariaActiva(b.dataset.deact,false));
+  el.querySelectorAll('[data-react]').forEach(b=>b.onclick=()=>setVoluntariaActiva(b.dataset.react,true));
+}
+
+document.getElementById('vh-close').onclick=()=>{document.getElementById('vol-hist-sheet').hidden=true};
+
+function fmtDateHist(d){
+  if(!d)return'';
+  const p=d.split('-');
+  const mes=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  return parseInt(p[2],10)+' '+mes[parseInt(p[1],10)-1]+' '+p[0];
+}
+
+async function openVolHistorial(vid){
+  const v=vols.find(x=>x.id===vid);
+  if(!v)return;
+  document.getElementById('vh-title').textContent=`Historial · #${v.numero_voluntaria} ${v.nombre}`;
+  const el=document.getElementById('vh-list');
+  const sum=document.getElementById('vh-summary');
+  el.innerHTML='<div class="empty">Cargando…</div>';
+  document.getElementById('vol-hist-sheet').hidden=false;
+  const{data,error}=await db.from('inscripciones').select('estado,necesita_transporte,ofrece_transporte,cupos_ofrecidos,notas,respondido_at,created_at,jornadas(id,titulo,fecha,estado,sitios(nombre,zona))').eq('voluntario_id',vid).order('created_at',{ascending:false});
+  if(error){el.innerHTML=`<div class="empty">${esc(error.message)}</div>`;return}
+  const rows=data||[];
+  const stats={confirmada:0,asistio:0,no_puede:0,no_asistio:0,pendiente:0};
+  rows.forEach(r=>{if(stats[r.estado]!=null)stats[r.estado]++});
+  sum.textContent=rows.length?`${rows.length} jornada(s) · ${stats.asistio} asistió · ${stats.confirmada} confirmada(s) · ${stats.no_puede} no pudo`:'Sin inscripciones a jornadas todavía.';
+  if(!rows.length){el.innerHTML='<div class="empty">Aún no se ha apuntado a ninguna jornada.</div>';return}
+  const estLabel={confirmada:'Confirmada',no_puede:'No pudo ir',asistio:'Asistió',no_asistio:'No asistió',pendiente:'Pendiente'};
+  const estClass={confirmada:'badge-ok',asistio:'badge-ok',no_puede:'badge-off',no_asistio:'badge-warn',pendiente:'badge-warn'};
+  el.innerHTML=rows.map(r=>{
+    const j=r.jornadas;
+    const fecha=j?.fecha?fmtDateHist(j.fecha):'—';
+    const lugar=j?.sitios?.nombre||j?.sitios?.zona||'—';
+    const trans=r.necesita_transporte?' · necesita ride':(r.ofrece_transporte?` · ofrece ${r.cupos_ofrecidos||0} cupo(s)`:'');
+    return`<div class="hist-row">
+      <div class="hist-h">${esc(j?.titulo||'Jornada')} <span class="badge ${estClass[r.estado]||''}">${estLabel[r.estado]||r.estado}</span></div>
+      <div class="hist-meta">🗓 ${fecha} · 📍 ${esc(lugar)}${j?.estado?` · ${esc(j.estado)}`:''}${trans}${r.notas?`<br>📝 ${esc(r.notas)}`:''}</div>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('q').oninput=()=>renderList();
+document.getElementById('filters').onclick=e=>{
+  const b=e.target.closest('.chip');if(!b)return;
+  filter=b.dataset.f;
+  document.querySelectorAll('#filters .chip').forEach(c=>c.classList.toggle('on',c===b));
+  renderList();
+};
+
+
+function openCreateVoluntaria(){
+  creatingVol=true;
+  editId=null;
+  editBrig=new Set();
+  document.getElementById('edit-title').textContent='Nueva voluntaria';
+  ['e-nombre','e-apellido','e-edad','e-estado','e-dni','e-tel','e-pais','e-prov','e-ciudad','e-dir','e-redp','e-redu','e-prof','e-oficio','e-disp','e-hijos','e-zona','e-trans','e-obs','e-tareas','e-fort','e-notas'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  document.getElementById('e-activa').checked=true;
+  renderEditBrig();
+  const tel=document.getElementById('e-tel');
+  if(itiEdit)itiEdit.destroy();
+  if(window.intlTelInput)itiEdit=intlTelInput(tel,{initialCountry:'ve'});
+  document.getElementById('edit-sheet').hidden=false;
+}
+
+function openEdit(id){
+  const v=vols.find(x=>x.id===id);if(!v)return;
+  creatingVol=false;
+  editId=id;
+  editBrig=new Set(v.brigadas||[]);
+  document.getElementById('edit-title').textContent=`Editar · #${v.numero_voluntaria} ${v.nombre}`;
+  document.getElementById('e-nombre').value=v.nombre||'';
+  document.getElementById('e-apellido').value=v.apellido||'';
+  document.getElementById('e-edad').value=v.edad||'';
+  document.getElementById('e-estado').value=v.estado_civil||'';
+  document.getElementById('e-dni').value=v.id_dni||'';
+  document.getElementById('e-tel').value=v.telefono||'';
+  document.getElementById('e-pais').value=v.pais||'';
+  document.getElementById('e-prov').value=v.estado_provincia||'';
+  document.getElementById('e-ciudad').value=v.ciudad||'';
+  document.getElementById('e-dir').value=v.direccion||'';
+  document.getElementById('e-redp').value=v.red_social_plataforma||'';
+  document.getElementById('e-redu').value=v.red_social_usuario||'';
+  document.getElementById('e-prof').value=v.profesion||'';
+  document.getElementById('e-oficio').value=v.oficio||'';
+  document.getElementById('e-disp').value=v.disponibilidad||'';
+  document.getElementById('e-hijos').value=v.tiene_hijos||'';
+  document.getElementById('e-zona').value=v.asistencia_zona||'';
+  document.getElementById('e-trans').value=v.medio_transporte||'';
+  document.getElementById('e-obs').value=v.observaciones_logistica||'';
+  document.getElementById('e-tareas').value=v.tareas||'';
+  document.getElementById('e-fort').value=v.fortalezas||'';
+  document.getElementById('e-notas').value=v.notas_internas||'';
+  document.getElementById('e-activa').checked=v.activa!==false;
+  renderEditBrig();
+  const tel=document.getElementById('e-tel');
+  if(itiEdit)itiEdit.destroy();
+  if(window.intlTelInput)itiEdit=intlTelInput(tel,{initialCountry:'ve'});
+  else if(v.telefono)tel.value=v.telefono;
+  document.getElementById('edit-sheet').hidden=false;
+}
+
+function renderEditBrig(){
+  document.getElementById('e-brig').innerHTML=brigCat.map(b=>{
+    const on=editBrig.has(b.slug);
+    return`<div class="brig-opt${on?' on':''}" data-slug="${b.slug}">${b.icono||'•'} ${esc(b.nombre)}</div>`;
+  }).join('')||'<p style="font-size:13px;color:var(--txt2)">Sin brigadas en catálogo.</p>';
+  document.getElementById('e-brig').querySelectorAll('.brig-opt').forEach(el=>{
+    el.onclick=()=>{const s=el.dataset.slug;if(editBrig.has(s))editBrig.delete(s);else editBrig.add(s);renderEditBrig()};
+  });
+}
+
+function closeEdit(){document.getElementById('edit-sheet').hidden=true;editId=null;creatingVol=false}
+document.getElementById('edit-close').onclick=closeEdit;
+document.getElementById('edit-cancel').onclick=closeEdit;
+
+document.getElementById('btn-sugerir-brig').onclick=async()=>{
+  if(creatingVol||!editId){toast('Guarda primero la voluntaria');return}
+  const btn=document.getElementById('btn-sugerir-brig');
+  btn.disabled=true;
+  const{data,error}=await db.rpc('sugerir_brigadas_voluntario',{p_voluntario_id:editId,p_max:2});
+  btn.disabled=false;
+  if(error){toast(error.message);return}
+  if(!data?.ok){toast(data?.error||'Sin sugerencia');return}
+  editBrig=new Set(data.brigadas||[]);
+  renderEditBrig();
+  const n=(data.brigadas||[]).length;
+  toast(n?`Sugeridas ${n} brigada(s)`:'Sin match — revisa perfil');
+};
+
+async function setVoluntariaActiva(id, activa){
+  const v=vols.find(x=>x.id===id); if(!v)return;
+  const accion=activa?'reactivar':'desactivar';
+  const ok=confirm(`¿Seguro que quieres ${accion} a ${v.nombre} ${v.apellido}?`);
+  if(!ok)return;
+  const {error}=await db.from('voluntarios').update({activa}).eq('id',id);
+  if(error){toast(error.message);return}
+  toast(activa?'Voluntaria reactivada':'Voluntaria desactivada');
+  await loadVoluntarias();
+}
+
+document.getElementById('edit-save').onclick=async()=>{
+  const nombre=document.getElementById('e-nombre').value.trim();
+  const apellido=document.getElementById('e-apellido').value.trim();
+  const id_dni=document.getElementById('e-dni').value.trim();
+  const telEl=document.getElementById('e-tel');
+  const telefono=itiEdit&&itiEdit.isValidNumber()?itiEdit.getNumber():telEl.value.trim();
+  if(!nombre||!apellido||!id_dni||!telefono){toast('Completa nombre, cédula y teléfono');return}
+  const dup=vols.find(v=>v.id!==editId&&v.id_dni===id_dni);
+  if(dup){toast('Esa cédula ya está en otra voluntaria');return}
+  const btn=document.getElementById('edit-save');
+  btn.disabled=true;
+  const payload={
+    nombre,apellido,id_dni,telefono,
+    edad:parseInt(document.getElementById('e-edad').value,10)||null,
+    estado_civil:document.getElementById('e-estado').value.trim()||null,
+    pais:document.getElementById('e-pais').value.trim()||null,
+    estado_provincia:document.getElementById('e-prov').value.trim()||null,
+    ciudad:document.getElementById('e-ciudad').value.trim()||null,
+    direccion:document.getElementById('e-dir').value.trim()||null,
+    red_social_plataforma:document.getElementById('e-redp').value||null,
+    red_social_usuario:document.getElementById('e-redu').value.trim()||null,
+    profesion:document.getElementById('e-prof').value.trim()||null,
+    oficio:document.getElementById('e-oficio').value.trim()||null,
+    disponibilidad:document.getElementById('e-disp').value.trim()||null,
+    tiene_hijos:document.getElementById('e-hijos').value.trim()||null,
+    asistencia_zona:document.getElementById('e-zona').value||null,
+    medio_transporte:document.getElementById('e-trans').value||null,
+    observaciones_logistica:document.getElementById('e-obs').value.trim()||null,
+    tareas:document.getElementById('e-tareas').value.trim()||null,
+    fortalezas:document.getElementById('e-fort').value.trim()||null,
+    notas_internas:document.getElementById('e-notas').value.trim()||null,
+    brigadas:[...editBrig],
+    activa:document.getElementById('e-activa').checked,
+  };
+
+  if(creatingVol){
+    const { data, error } = await db.rpc('registrar_voluntario', {
+      p_payload: {
+        grupo: GRUPO,
+        ...payload,
+        declaracion_jurada: true,
+        hijos: []
+      }
+    });
+    btn.disabled=false;
+    if(error){toast(error.message);return}
+    toast('Voluntaria creada #' + (data?.numero_voluntaria || ''));
+    closeEdit();
+    await loadVoluntarias();
+    return;
+  }
+
+  if(!editId){btn.disabled=false;toast('Selecciona una voluntaria');return}
+  const{error}=await db.from('voluntarios').update(payload).eq('id',editId);
+  btn.disabled=false;
+  if(error){toast(error.message);return}
+  toast('Guardado');
+  closeEdit();
+  await loadVoluntarias();
+};
+</script>
+</body>
+</html>

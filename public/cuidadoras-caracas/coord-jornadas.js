@@ -1,0 +1,683 @@
+/* Panel coordinadoras — jornadas (Sprint 1). Requiere GRUPO, db, esc, toast, brigCat, session del scope coord. */
+(function () {
+  let jornadas = [], sitios = [], jTab = 'proximas', jBrigFilter = '', jDetailId = null, jEditId = null, jEditTareas = [], jEditMateriales = [], inventarioCat = [], jCloseId = null, jCloseRows = [], jStats = {};
+
+  const COBERTURAS = ['ninguna', 'baja', 'ok', 'sobra'];
+
+  const BASE = location.origin + location.pathname.replace(/\/coord\/?$/, '');
+
+  function fmtDate(d) {
+    if (!d) return '';
+    const p = d.split('-');
+    const mes = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    return parseInt(p[2], 10) + ' ' + mes[parseInt(p[1], 10) - 1];
+  }
+  function fmtTime(t) { return t ? String(t).slice(0, 5) : ''; }
+  function fmtDateCard(d){
+    if(!d) return '';
+    const dt=new Date(d+'T00:00:00');
+    const ds=['Dom','Lun','Mar','Mie','Jue','Vie','Sab'];
+    const ms=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    return `${ds[dt.getDay()]} ${dt.getDate()} ${ms[dt.getMonth()]}`;
+  }
+
+  function jornadaLink(j) {
+    return `${BASE}/jornada?id=${j.id}`;
+  }
+
+  function waJornadaText(j) {
+    const lugar = j.sitios?.nombre || j.sitio_nombre || j.titulo;
+    const lines = [
+      `🗓 *${j.titulo}*`,
+      `📅 ${fmtDate(j.fecha)}${j.hora_salida ? ' · salida ' + fmtTime(j.hora_salida) : ''}`,
+      j.punto_encuentro ? `📍 Encuentro: ${j.punto_encuentro}${j.hora_encuentro ? ' ' + fmtTime(j.hora_encuentro) : ''}` : '',
+      `📍 ${lugar}`,
+      j.descripcion ? `\n${j.descripcion}` : '',
+      `\nConfirma aquí 👉 ${BASE}/jornada?id=${j.id}`,
+    ];
+    return lines.filter(Boolean).join('\n');
+  }
+
+  async function loadInventarioCat() {
+    const { data } = await db.from('items_inventario').select('nombre').eq('grupo', GRUPO).eq('activa', true).order('orden');
+    inventarioCat = (data || []).map((x) => x.nombre);
+    const dl = document.getElementById('jf-mat-datalist');
+    if (dl) dl.innerHTML = inventarioCat.map((n) => `<option value="${esc(n)}"></option>`).join('');
+  }
+
+  function matEstado(nec, cons) {
+    const n = Math.max(1, nec || 1);
+    const c = Math.max(0, cons || 0);
+    if (c >= n) return 'cubierta';
+    if (c > 0) return 'parcial';
+    return 'pendiente';
+  }
+
+  function matEstadoLabel(e) {
+    return { pendiente: 'Pendiente', parcial: 'Parcial', cubierta: 'Cubierta' }[e] || e;
+  }
+
+  function matEstadoClass(e) {
+    return { pendiente: 'pend', parcial: 'parcial', cub: 'cub', cubierta: 'cub' }[e] || 'pend';
+  }
+
+  async function loadJornadaMateriales(jornadaId) {
+    const { data, error } = await db.from('necesidades_jornada').select('*').eq('jornada_id', jornadaId).order('orden').order('created_at');
+    if (error && typeof toast === 'function') toast('Materiales: ' + error.message);
+    jEditMateriales = data || [];
+    renderJfMateriales(jornadaId);
+  }
+
+  function renderJfMateriales(jornadaId) {
+    const box = document.getElementById('jf-materiales');
+    if (!box) return;
+    if (!jornadaId) {
+      box.innerHTML = '<p style="font-size:12px;color:var(--txt3)">Guarda la jornada para agregar materiales.</p>';
+      return;
+    }
+    const rows = jEditMateriales.map((m) => {
+      const est = matEstado(m.cantidad_necesaria, m.cantidad_conseguida);
+      return `<div class="mat-row" data-mat-id="${m.id}">
+        <input type="text" value="${esc(m.item_nombre)}" data-mat-nombre placeholder="Ítem" list="jf-mat-datalist">
+        <input type="number" min="1" max="9999" value="${m.cantidad_necesaria}" data-mat-nec title="Necesaria">
+        <input type="number" min="0" max="9999" value="${m.cantidad_conseguida}" data-mat-cons title="Conseguida">
+        <span class="mat-est ${matEstadoClass(est)}">${matEstadoLabel(est)}</span>
+        <button type="button" class="btn btn-s" data-mat-del style="padding:4px 6px;width:32px;min-width:32px;font-size:14px;margin:0" title="Quitar">×</button>
+      </div>`;
+    }).join('');
+    const addRow = `<div class="mat-row mat-row-add">
+      <input type="text" id="jm-new-nombre" list="jf-mat-datalist" placeholder="Nuevo ítem…" autocomplete="off">
+      <input type="number" id="jm-new-nec" min="1" max="9999" value="1" title="Cantidad necesaria" inputmode="numeric">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <button type="button" class="btn btn-p" id="jm-add-save" style="margin:0;padding:6px 8px;width:32px;min-width:32px;font-size:16px" title="Agregar ítem">+</button>
+    </div>`;
+    box.innerHTML = `<div class="task-box">
+      <div style="margin-bottom:6px"><span style="font-size:11px;color:var(--txt3)">Ítem · Nec. · Cons.</span></div>
+      ${rows || ''}
+      ${addRow}
+    </div>`;
+    bindJfMaterialAdd(jornadaId);
+    box.querySelectorAll('.mat-row:not(.mat-row-add)').forEach((row) => bindMatRow(row, jornadaId));
+  }
+
+  function bindMatRow(row, jornadaId) {
+    const id = row.dataset.matId;
+    const save = async () => {
+      const nombre = row.querySelector('[data-mat-nombre]')?.value?.trim();
+      const nec = parseInt(row.querySelector('[data-mat-nec]')?.value, 10) || 1;
+      const cons = parseInt(row.querySelector('[data-mat-cons]')?.value, 10) || 0;
+      if (!nombre) return;
+      const estado = matEstado(nec, cons);
+      const { error } = await db.from('necesidades_jornada').update({
+        item_nombre: nombre,
+        cantidad_necesaria: nec,
+        cantidad_conseguida: cons,
+        estado,
+      }).eq('id', id);
+      if (error) { toast(error.message); return; }
+      const estEl = row.querySelector('.mat-est');
+      if (estEl) {
+        estEl.className = `mat-est ${matEstadoClass(estado)}`;
+        estEl.textContent = matEstadoLabel(estado);
+      }
+    };
+    row.querySelectorAll('input').forEach((inp) => {
+      inp.addEventListener('change', save);
+      inp.addEventListener('blur', save);
+    });
+    row.querySelector('[data-mat-del]')?.addEventListener('click', async () => {
+      const btn = row.querySelector('[data-mat-del]');
+      if (btn?.dataset.confirm !== '1') {
+        btn.dataset.confirm = '1';
+        btn.textContent = '✓';
+        btn.title = 'Toca otra vez para quitar';
+        setTimeout(() => { if (btn.isConnected) { btn.dataset.confirm = ''; btn.textContent = '×'; btn.title = 'Quitar'; } }, 4000);
+        return;
+      }
+      const { error } = await db.from('necesidades_jornada').delete().eq('id', id);
+      if (error) { toast(error.message); return; }
+      toast('Ítem quitado');
+      loadJornadaMateriales(jornadaId);
+    });
+  }
+
+  function bindJfMaterialAdd(jornadaId) {
+    const nombreInp = document.getElementById('jm-new-nombre');
+    const necInp = document.getElementById('jm-new-nec');
+    const btn = document.getElementById('jm-add-save');
+    if (!nombreInp || !necInp || !btn) return;
+    const save = async () => {
+      const nombre = nombreInp.value.trim();
+      const nec = parseInt(necInp.value, 10) || 1;
+      if (!nombre) { toast('Escribe el ítem'); nombreInp.focus(); return; }
+      btn.disabled = true;
+      const { error } = await db.from('necesidades_jornada').insert({
+        jornada_id: jornadaId,
+        item_nombre: nombre,
+        cantidad_necesaria: Math.max(1, nec),
+        cantidad_conseguida: 0,
+        estado: 'pendiente',
+        orden: jEditMateriales.length,
+      });
+      btn.disabled = false;
+      if (error) { toast(error.message); return; }
+      toast('Ítem agregado');
+      loadJornadaMateriales(jornadaId);
+    };
+    btn.onclick = save;
+    nombreInp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } };
+    necInp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } };
+  }
+
+  function materialesWaText(j, items) {
+    const lines = (items || []).map((m) => {
+      const est = matEstado(m.cantidad_necesaria, m.cantidad_conseguida);
+      const mark = est === 'cubierta' ? '✅' : est === 'parcial' ? '🟡' : '⬜';
+      return `${mark} ${m.item_nombre}: ${m.cantidad_conseguida}/${m.cantidad_necesaria}`;
+    });
+    return ['📦 Materiales — ' + j.titulo, '', ...lines].join('\n');
+  }
+
+  async function loadSitios() {
+    const { data, error } = await db.from('sitios').select('id,nombre,zona').eq('grupo', GRUPO).eq('activo', true).order('nombre');
+    sitios = data || [];
+    if (error && typeof toast === 'function') toast('Sitios: ' + error.message);
+  }
+
+  async function loadJStats(ids){
+    jStats = {};
+    if(!ids.length) return;
+    const { data: insc } = await db.from('inscripciones').select('jornada_id,estado,necesita_transporte,ofrece_transporte,cupos_ofrecidos').in('jornada_id', ids);
+    const { data: tasks } = await db.from('tareas_jornada').select('jornada_id,voluntario_id').in('jornada_id', ids);
+    ids.forEach(id=>jStats[id]={confirmadas:0,pidenRide:0,cupos:0,sinDueno:0});
+    (insc||[]).forEach(i=>{
+      const m=jStats[i.jornada_id]|| (jStats[i.jornada_id]={confirmadas:0,pidenRide:0,cupos:0,sinDueno:0});
+      if(i.estado==='confirmada'||i.estado==='asistio') m.confirmadas++;
+      if((i.estado==='confirmada'||i.estado==='asistio')&&i.necesita_transporte) m.pidenRide++;
+      if((i.estado==='confirmada'||i.estado==='asistio')&&i.ofrece_transporte) m.cupos += (i.cupos_ofrecidos||0);
+    });
+    (tasks||[]).forEach(t=>{ if(!t.voluntario_id) (jStats[t.jornada_id]||(jStats[t.jornada_id]={confirmadas:0,pidenRide:0,cupos:0,sinDueno:0})).sinDueno++; });
+  }
+
+  async function loadJornadas() {
+    const el = document.getElementById('j-list');
+    if (el) el.innerHTML = '<div class="empty">Cargando…</div>';
+    let data, error;
+    ({ data, error } = await db.rpc('listar_jornadas_coord', { p_grupo: GRUPO }));
+    if (error) {
+      ({ data, error } = await db.from('jornadas').select('*').eq('grupo', GRUPO).order('fecha', { ascending: false }));
+    }
+    if (error) { if (el) el.innerHTML = `<div class="empty">Error: ${esc(error.message)}</div>`; return; }
+    const rows = data || [];
+    if (!rows.length) {
+      if (el) el.innerHTML = '<div class="empty">No hay jornadas todavía. Usa <b>+ Nueva</b> o pide al equipo que corra el seed en Supabase.</div>';
+      jornadas = [];
+      renderProximaJornada();
+      return;
+    }
+    jornadas = rows.map(j => ({
+      ...j,
+      sitio_nombre: j.sitio_nombre || j.sitios?.nombre,
+      sitio_zona: j.sitio_zona || j.sitios?.zona,
+    }));
+    await loadJStats(jornadas.map(j=>j.id));
+    renderJornadaList();
+    renderProximaJornada();
+  }
+
+  function filterJornadas() {
+    const today = new Date().toISOString().slice(0, 10);
+    let rows;
+    if (jTab === 'borradores') rows = jornadas.filter(j => j.estado === 'borrador');
+    else if (jTab === 'pasadas') rows = jornadas.filter(j => j.fecha < today || j.estado === 'realizada' || j.estado === 'cancelada');
+    else rows = jornadas.filter(j => j.fecha >= today && !['realizada', 'cancelada', 'borrador'].includes(j.estado));
+    if (jBrigFilter) rows = rows.filter(j => (j.brigadas || []).includes(jBrigFilter));
+    return rows;
+  }
+
+  function renderJornadaList() {
+    const el = document.getElementById('j-list');
+    if (!el) return;
+    const rows = filterJornadas();
+    if (!rows.length) { el.innerHTML = '<div class="empty">No hay jornadas en esta pestaña.</div>'; return; }
+    el.innerHTML = rows.map(j => {
+      const st=jStats[j.id]||{confirmadas:0,pidenRide:0,cupos:0,sinDueno:0};
+      const metaVol = j.meta_voluntarias ? `${st.confirmadas} / ${j.meta_voluntarias} voluntarias` : `${st.confirmadas} voluntarias`;
+      const trans = st.cupos>=st.pidenRide ? '✓ transporte' : '⚠ falta transporte';
+      const chips=(j.brigadas||[]).slice(0,3).map(s=>`<span class="btag">${esc((brigCat.find(b=>b.slug===s)?.icono)||'•')} ${esc((brigCat.find(b=>b.slug===s)?.nombre||s).replace(/^Brigada de\s*/i,''))}</span>`).join('');
+      const link=jornadaLink(j);
+      const wa=waJornadaText(j);
+      const showShare=['abierta','llena','borrador'].includes(j.estado);
+      return `<article class="j-card">
+        <div class="j-head"><div>
+          <div class="j-title">${fmtDateCard(j.fecha)} · ${fmtTime(j.hora_salida)||'--:--'} · ${esc(j.sitio_nombre || j.sitio_zona || 'Sin sitio')}</div>
+          <div class="j-sub">${metaVol} · ${trans}${st.sinDueno?` · ⚠ ${st.sinDueno} tareas sin dueño`:''}</div>
+          <div class="btags">${chips}</div>
+        </div>
+        <span class="badge-state">${j.estado==='abierta'?'Abierta':esc(j.estado)}</span></div>
+        ${showShare?`<div class="j-share">
+          <div class="j-share-lbl">Link de inscripción</div>
+          <div class="j-link-row">
+            <div class="j-link">${esc(link)}</div>
+            <button type="button" class="btn btn-s" data-jlink="${j.id}">Copiar</button>
+          </div>
+          <div class="j-share-lbl">Mensaje para WhatsApp</div>
+          <div class="j-wa-preview">${esc(wa)}</div>
+          <div class="j-share-actions">
+            <button type="button" class="btn btn-p" data-jwa="${j.id}">📋 Copiar mensaje</button>
+          </div>
+        </div>`:''}
+        <div class="j-actions">
+          <button type="button" class="btn btn-j-view" data-jview="${j.id}">Ver detalle</button>
+          <button type="button" class="btn btn-s" data-jedit="${j.id}">Editar</button>
+          ${['abierta','llena'].includes(j.estado)?`<button type="button" class="btn btn-j-close" data-jclose="${j.id}">Cerrar jornada</button>`:''}
+        </div>
+      </article>`;
+    }).join('');
+    el.querySelectorAll('[data-jview]').forEach(b => b.onclick = () => openJornadaDetail(b.dataset.jview));
+    el.querySelectorAll('[data-jedit]').forEach(b => b.onclick = () => openJornadaForm(b.dataset.jedit));
+    el.querySelectorAll('[data-jclose]').forEach(b => b.onclick = () => openJornadaClose(b.dataset.jclose));
+    el.querySelectorAll('[data-jwa]').forEach(b => b.onclick = () => copyWa(b.dataset.jwa));
+    el.querySelectorAll('[data-jlink]').forEach(b => b.onclick = () => copyLink(b.dataset.jlink));
+  }
+
+  async function renderProximaJornada() {
+    const el = document.getElementById('prox-jornada');
+    if (!el) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const prox = jornadas.filter(j => j.fecha >= today && ['abierta', 'llena'].includes(j.estado)).sort((a, b) => a.fecha.localeCompare(b.fecha))[0];
+    if (!prox) { el.innerHTML = '<p style="font-size:13px;color:var(--txt2)">No hay jornada próxima publicada.</p>'; return; }
+    const { data: res } = await db.rpc('resumen_transporte_jornada', { p_jornada_id: prox.id });
+    const r = res || { confirmadas: 0, necesitan: 0, cupos: 0 };
+    const alerta = r.cupos < r.necesitan;
+    el.innerHTML = `
+      <div style="font-size:12px;font-weight:800;color:var(--indt);margin-bottom:8px">PRÓXIMA JORNADA</div>
+      <b style="font-size:16px">${esc(prox.titulo)}</b>
+      <div class="vcard-meta" style="margin:6px 0 12px">${fmtDate(prox.fecha)} · ${esc(prox.sitio_nombre || '')} · ${fmtTime(prox.hora_salida)}</div>
+      <div class="stat-grid" style="margin-bottom:12px">
+        <div class="stat"><b>${r.confirmadas}</b><span>confirmadas</span></div>
+        <div class="stat"><b>${r.necesitan}</b><span>sin ride</span></div>
+        <div class="stat"><b>${r.cupos}</b><span>cupos</span></div>
+        <div class="stat" style="${alerta ? 'border-color:var(--red)' : ''}"><b>${alerta ? '⚠️' : '✓'}</b><span>${alerta ? 'falta ride' : 'ride OK'}</span></div>
+      </div>
+      <div class="vcard-actions">
+        <button type="button" class="btn btn-p" data-jview="${prox.id}">Ver detalle</button>
+        <button type="button" class="btn btn-s" data-jwa="${prox.id}">Copiar WA</button>
+      </div>`;
+    el.querySelectorAll('[data-jview]').forEach(b => b.onclick = () => openJornadaDetail(b.dataset.jview));
+    el.querySelectorAll('[data-jwa]').forEach(b => b.onclick = () => copyWa(b.dataset.jwa));
+  }
+
+  async function copyLink(id) {
+    const j = jornadas.find(x => x.id === id);
+    if (!j) return;
+    const url = jornadaLink(j);
+    try { await navigator.clipboard.writeText(url); toast('Link copiado'); }
+    catch { prompt('Copia el link:', url); }
+  }
+
+  async function copyWa(id) {
+    const j = jornadas.find(x => x.id === id);
+    if (!j) return;
+    const text = waJornadaText(j);
+    try { await navigator.clipboard.writeText(text); toast('Copiado para WhatsApp'); }
+    catch { prompt('Copia:', text); }
+  }
+
+  function openJornadaForm(id, prefillSitioId) {
+    jEditId = id || null;
+    jEditTareas = [];
+    const j = id ? jornadas.find(x => x.id === id) : null;
+    const sitioSel = j?.sitio_id || prefillSitioId || '';
+    document.getElementById('jf-title').textContent = j ? 'Editar jornada' : 'Nueva jornada';
+    document.getElementById('jf-titulo').value = j?.titulo || '';
+    document.getElementById('jf-fecha').value = j?.fecha || '';
+    document.getElementById('jf-enc').value = j?.hora_encuentro?.slice(0, 5) || '';
+    document.getElementById('jf-sal').value = j?.hora_salida?.slice(0, 5) || '';
+    document.getElementById('jf-reg').value = j?.hora_regreso_aprox?.slice(0, 5) || '';
+    document.getElementById('jf-punto').value = j?.punto_encuentro || '';
+    document.getElementById('jf-desc').value = j?.descripcion || '';
+    document.getElementById('jf-vest').value = j?.vestimenta || '';
+    document.getElementById('jf-llevar').value = j?.llevar || '';
+    document.getElementById('jf-meta-v').value = j?.meta_voluntarias || '';
+    document.getElementById('jf-meta-c').value = j?.meta_vehiculos || '';
+    document.getElementById('jf-estado').value = j?.estado || (prefillSitioId ? 'abierta' : 'borrador');
+    document.getElementById('jf-sitio').innerHTML = '<option value="">— Sin sitio —</option>' + sitios.map(s =>
+      `<option value="${s.id}"${sitioSel === s.id ? ' selected' : ''}>${esc(s.nombre)}</option>`).join('');
+    if (prefillSitioId && !j) {
+      const st = sitios.find(s => s.id === prefillSitioId);
+      if (st) document.getElementById('jf-titulo').value = `Jornada — ${st.nombre}`;
+    }
+    renderJfBrig(j?.brigadas || []);
+    if (j) loadJornadaTareas(j.id);
+    else { document.getElementById('jf-tareas').innerHTML = '<p style="font-size:12px;color:var(--txt2)">Guarda la jornada y luego agrega tareas.</p>'; }
+    if (j) loadJornadaMateriales(j.id);
+    else renderJfMateriales(null);
+    document.getElementById('jornada-form-sheet').hidden = false;
+  }
+
+  function renderJfBrig(selected) {
+    const sel = new Set(selected);
+    document.getElementById('jf-brig').innerHTML = `<div class="jf-brig-row">${brigCat.map(b => `<button type="button" class="jf-brig-pill${sel.has(b.slug)?' on':''}" data-slug="${b.slug}" title="${esc(b.nombre)}">${esc(b.icono||'•')}</button>`).join('')}</div>`;
+    document.getElementById('jf-brig').querySelectorAll('.jf-brig-pill').forEach(el => {
+      el.onclick = () => { el.classList.toggle('on'); };
+    });
+  }
+
+  function getJfBrigadas() {
+    return [...document.querySelectorAll('#jf-brig .jf-brig-pill.on')].map(el => el.dataset.slug);
+  }
+
+  async function loadJornadaTareas(jornadaId) {
+    const { data } = await db.from('tareas_jornada').select('*,voluntarios(nombre)').eq('jornada_id', jornadaId).order('created_at');
+    jEditTareas = data || [];
+    const box = document.getElementById('jf-tareas');
+    const rows = jEditTareas.map(t=>{
+      const sin=!t.voluntario_id;
+      return `<div class="task-row ${sin?'warn':'ok'}"><div>${esc(t.titulo)}${t.brigada_slug?` · ${esc((brigCat.find(b=>b.slug===t.brigada_slug)?.nombre||t.brigada_slug).replace(/^Brigada de\s*/i,''))}`:''}${t.cupos?` · ${t.cupos}`:''}</div><span class="st">${sin?'sin dueño':'asignada'}</span></div>`;
+    }).join('') || '<p style="font-size:12px;color:var(--txt2)">Sin tareas aún.</p>';
+    box.innerHTML = `<div class="task-box">
+      <b style="font-size:13px;display:block;margin-bottom:6px">Tareas de la jornada</b>
+      ${rows}
+      <div class="task-add-row">
+        <input id="jt-new-titulo" placeholder="Nueva tarea (ej: Preparar lonches)" autocomplete="off">
+        <button type="button" class="btn btn-p" id="jt-add-save">Agregar</button>
+      </div>
+    </div>`;
+    bindJfTareaAdd(jornadaId);
+  }
+
+  function bindJfTareaAdd(jornadaId) {
+    const inp = document.getElementById('jt-new-titulo');
+    const btn = document.getElementById('jt-add-save');
+    if (!inp || !btn) return;
+    const save = async () => {
+      const titulo = inp.value.trim();
+      if (!titulo) { toast('Escribe un título'); inp.focus(); return; }
+      btn.disabled = true;
+      const { error } = await db.from('tareas_jornada').insert({
+        jornada_id: jornadaId,
+        titulo,
+        brigada_slug: getJfBrigadas()[0] || null,
+        cupos: 1,
+        creada_por: session?.user?.email,
+      });
+      btn.disabled = false;
+      if (error) { toast(error.message); return; }
+      toast('Tarea agregada');
+      loadJornadaTareas(jornadaId);
+    };
+    btn.onclick = save;
+    inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } };
+  }
+
+  async function saveJornada(doCopyWa) {
+    const titulo = document.getElementById('jf-titulo').value.trim();
+    const fecha = document.getElementById('jf-fecha').value;
+    if (!titulo || !fecha) { toast('Título y fecha obligatorios'); return; }
+    const payload = {
+      grupo: GRUPO, titulo, fecha,
+      hora_encuentro: document.getElementById('jf-enc').value || null,
+      hora_salida: document.getElementById('jf-sal').value || null,
+      hora_regreso_aprox: document.getElementById('jf-reg').value || null,
+      punto_encuentro: document.getElementById('jf-punto').value.trim() || null,
+      descripcion: document.getElementById('jf-desc').value.trim() || null,
+      vestimenta: document.getElementById('jf-vest').value.trim() || null,
+      llevar: document.getElementById('jf-llevar').value.trim() || null,
+      meta_voluntarias: parseInt(document.getElementById('jf-meta-v').value, 10) || null,
+      meta_vehiculos: parseInt(document.getElementById('jf-meta-c').value, 10) || null,
+      estado: document.getElementById('jf-estado').value,
+      sitio_id: document.getElementById('jf-sitio').value || null,
+      brigadas: getJfBrigadas(),
+      creada_por: session?.user?.email,
+    };
+    let saved;
+    if (jEditId) {
+      const { data, error } = await db.from('jornadas').update(payload).eq('id', jEditId).select('*,sitios(nombre,zona)').single();
+      if (error) { toast(error.message); return; }
+      saved = { ...data, sitio_nombre: data.sitios?.nombre };
+    } else {
+      const { data, error } = await db.from('jornadas').insert(payload).select('*,sitios(nombre,zona)').single();
+      if (error) { toast(error.message); return; }
+      saved = { ...data, sitio_nombre: data.sitios?.nombre };
+      jEditId = saved.id;
+    }
+    toast('Jornada guardada');
+    document.getElementById('jornada-form-sheet').hidden = true;
+    await loadJornadas();
+    if (doCopyWa && saved.estado === 'abierta') copyWa(saved.id);
+  }
+
+  let jDetailTab = 'resumen';
+
+  async function openJornadaDetail(id) {
+    jDetailId = id;
+    jDetailTab = 'resumen';
+    document.getElementById('jornada-detail-sheet').hidden = false;
+    await renderJornadaDetail();
+  }
+
+  async function renderJornadaDetail() {
+    const j = jornadas.find(x => x.id === jDetailId);
+    if (!j) return;
+    document.getElementById('jd-title').textContent = j.titulo;
+    const tabs = ['resumen', 'confirmadas', 'transporte', 'tareas', 'materiales'];
+    document.getElementById('jd-tabs').innerHTML = tabs.map(t =>
+      `<button type="button" class="chip${jDetailTab === t ? ' on' : ''}" data-jdt="${t}">${{ resumen: 'Resumen', confirmadas: 'Confirmadas', transporte: 'Transporte', tareas: 'Tareas', materiales: 'Materiales' }[t]}</button>`).join('');
+    document.getElementById('jd-tabs').querySelectorAll('[data-jdt]').forEach(b => {
+      b.onclick = () => { jDetailTab = b.dataset.jdt; renderJornadaDetail(); };
+    });
+
+    const body = document.getElementById('jd-body');
+    if (jDetailTab === 'resumen') {
+      const st=jStats[j.id]||{confirmadas:0,pidenRide:0,cupos:0,sinDueno:0};
+      body.innerHTML = `
+        <div class="meta"><b>${fmtDateCard(j.fecha)} · ${esc(j.sitio_nombre || '')}</b><br>${st.confirmadas} confirmadas · meta ${j.meta_voluntarias||'—'} ${st.sinDueno?` · ⚠️ ${st.sinDueno} tareas sin dueño`:''}</div>
+        <div class="kpi-grid">
+          <div class="kpi"><b>${st.confirmadas}</b><span>confirmadas</span></div>
+          <div class="kpi"><b>${st.pidenRide}</b><span>piden ride</span></div>
+          <div class="kpi"><b>${st.sinDueno}</b><span>tareas s/dueño</span></div>
+        </div>
+        <div class="sect" style="margin:8px 0">
+          <div class="vcard-meta">📍 ${esc(j.sitio_nombre || j.sitio_zona || '—')} · Salida ${fmtTime(j.hora_salida)||'—'}${j.punto_encuentro?` (encuentro ${esc(j.punto_encuentro)} ${fmtTime(j.hora_encuentro)||''})`:''}</div>
+          <div class="vcard-meta" style="margin-top:4px">👕 ${esc(j.vestimenta||'—')} · 🎒 ${esc(j.llevar||'—')}</div>
+        </div>
+        <div class="vcard-actions" style="margin-top:12px">
+          <button type="button" class="btn btn-s" onclick="document.getElementById('jornada-detail-sheet').hidden=true">Cerrar</button>
+          ${['abierta','llena'].includes(j.estado)?`<button type="button" class="btn btn-g" onclick="CC_JORN.openJornadaClose('${j.id}')">Cerrar jornada</button>`:''}
+        </div>`;
+      return;
+    }
+
+    const { data: insc } = await db.from('inscripciones').select('*,voluntarios(numero_voluntaria,nombre,apellido,telefono,medio_transporte)').eq('jornada_id', jDetailId);
+    const rows = insc || [];
+
+    if (jDetailTab === 'confirmadas') {
+      const conf = rows.filter(i => i.estado === 'confirmada');
+      body.innerHTML = conf.length ? conf.map(i => `
+        <div class="vcard"><b>#${i.voluntarios?.numero_voluntaria} ${esc(i.voluntarios?.nombre)} ${esc(i.voluntarios?.apellido)}</b>
+        <div class="vcard-meta">${esc(i.voluntarios?.telefono)} · ${i.necesita_transporte ? '🙋 necesita ride' : ''} ${i.ofrece_transporte ? '🚗 ' + i.cupos_ofrecidos + ' cupos' : ''}</div></div>`).join('') : '<div class="empty">Nadie confirmada aún.</div>';
+      return;
+    }
+
+    if (jDetailTab === 'transporte') {
+      const need = rows.filter(i => i.estado === 'confirmada' && i.necesita_transporte);
+      const offer = rows.filter(i => i.estado === 'confirmada' && i.ofrece_transporte);
+      const cupos = offer.reduce((s, i) => s + (i.cupos_ofrecidos || 0), 0);
+      let html = `<p class="count">Necesitan: ${need.length} · Cupos: ${cupos}${cupos < need.length ? ' <b style="color:var(--red)">⚠️ Falta ride</b>' : ''}</p>`;
+      html += '<div class="sect-t">Sin transporte</div>' + (need.map(i =>
+        `<div class="vcard-meta" style="margin-bottom:8px"><a href="tel:${i.voluntarios?.telefono}">${esc(i.voluntarios?.nombre)}</a> · ${esc(i.voluntarios?.telefono)}</div>`).join('') || '<p class="meta">—</p>');
+      html += '<div class="sect-t">Con vehículo</div>' + (offer.map(i =>
+        `<div class="vcard-meta" style="margin-bottom:8px">${esc(i.voluntarios?.nombre)} · ${i.cupos_ofrecidos} cupos · <a href="tel:${i.voluntarios?.telefono}">${esc(i.voluntarios?.telefono)}</a></div>`).join('') || '<p class="meta">—</p>');
+      html += `<button type="button" class="btn btn-s" style="margin-top:12px" id="btn-copy-trans">📋 Copiar lista transporte</button>`;
+      body.innerHTML = html;
+      document.getElementById('btn-copy-trans')?.addEventListener('click', () => {
+        const txt = ['🚗 TRANSPORTE — ' + j.titulo, '',
+          '*Necesitan ride:*', ...need.map(i => `• ${i.voluntarios?.nombre} ${i.voluntarios?.telefono}`),
+          '', '*Ofrecen cupos:*', ...offer.map(i => `• ${i.voluntarios?.nombre} (${i.cupos_ofrecidos} cupos) ${i.voluntarios?.telefono}`),
+        ].join('\n');
+        navigator.clipboard.writeText(txt).then(() => toast('Lista copiada')).catch(() => prompt('Copia:', txt));
+      });
+      return;
+    }
+
+    if (jDetailTab === 'materiales') {
+      const { data: mats } = await db.from('necesidades_jornada').select('*').eq('jornada_id', jDetailId).order('orden').order('created_at');
+      const items = mats || [];
+      let html = `<div class="sect"><div class="sect-t">Vestimenta y llevar</div>
+        <div class="vcard-meta">👕 ${esc(j.vestimenta || '—')}</div>
+        <div class="vcard-meta" style="margin-top:4px">🎒 ${esc(j.llevar || '—')}</div></div>`;
+      html += '<div class="sect" style="margin-top:10px"><div class="sect-t">Checklist de materiales</div>';
+      if (!items.length) {
+        html += '<p class="meta">Sin ítems. Agrégalos al editar la jornada.</p>';
+      } else {
+        html += items.map((m) => {
+          const est = matEstado(m.cantidad_necesaria, m.cantidad_conseguida);
+          return `<div class="vcard${est !== 'cubierta' ? ' warn' : ''}" style="margin-top:8px">
+            <b>${esc(m.item_nombre)}</b>
+            <div class="vcard-meta">${m.cantidad_conseguida} / ${m.cantidad_necesaria} · <span class="mat-est ${matEstadoClass(est)}">${matEstadoLabel(est)}</span></div>
+            ${m.donante_notas ? `<div class="vcard-meta">📝 ${esc(m.donante_notas)}</div>` : ''}
+          </div>`;
+        }).join('');
+      }
+      html += `<button type="button" class="btn btn-s" style="margin-top:12px" id="btn-copy-mats">📋 Copiar checklist</button></div>`;
+      body.innerHTML = html;
+      document.getElementById('btn-copy-mats')?.addEventListener('click', () => {
+        const txt = materialesWaText(j, items);
+        navigator.clipboard.writeText(txt).then(() => toast('Checklist copiado')).catch(() => prompt('Copia:', txt));
+      });
+      return;
+    }
+
+    if (jDetailTab === 'tareas') {
+      const { data: tareas } = await db.from('tareas_jornada').select('*,voluntarios(nombre)').eq('jornada_id', jDetailId);
+      body.innerHTML = (tareas || []).map(t => {
+        const sin = !t.voluntario_id;
+        return `<div class="vcard${sin ? ' warn' : ''}"><b>${esc(t.titulo)}</b>
+          <div class="vcard-meta">${sin ? '⚠️ Sin dueña' : '✅ ' + esc(t.voluntarios?.nombre)}</div>
+          ${sin ? `<button type="button" class="btn btn-s" style="margin-top:8px" data-wa-task="${t.id}">📋 Aviso WA</button>` : ''}</div>`;
+      }).join('') || '<div class="empty">Sin tareas. Agrégalas al editar la jornada.</div>';
+      body.querySelectorAll('[data-wa-task]').forEach(btn => {
+        const t = (tareas || []).find(x => x.id === btn.dataset.waTask);
+        btn.onclick = () => {
+          const msg = `⚠️ ¿Quién se apunta?\n*${t.titulo}* — jornada del ${fmtDate(j.fecha)}\n👉 ${BASE}/jornada?id=${j.id}`;
+          navigator.clipboard.writeText(msg).then(() => toast('Aviso copiado')).catch(() => prompt('Copia:', msg));
+        };
+      });
+    }
+  }
+
+
+  async function openJornadaClose(id) {
+    jCloseId = id;
+    const j = jornadas.find(x => x.id === id);
+    if (!j) return;
+    document.getElementById('jc-title').textContent = 'Cerrar · ' + j.titulo;
+    const { data: insc } = await db.from('inscripciones').select('id,estado,voluntarios(numero_voluntaria,nombre,apellido)').eq('jornada_id', id).order('created_at');
+    jCloseRows = (insc || []).filter(i => ['confirmada', 'asistio', 'no_asistio'].includes(i.estado));
+    document.getElementById('jc-attendees').innerHTML = jCloseRows.length ? jCloseRows.map(i => `
+      <label class="toggle" style="margin-bottom:8px;justify-content:flex-start">
+        <input type="checkbox" data-jc-insc="${i.id}" ${i.estado !== 'no_asistio' ? 'checked' : ''}>
+        #${i.voluntarios?.numero_voluntaria || '—'} ${esc(i.voluntarios?.nombre)} ${esc(i.voluntarios?.apellido || '')}
+      </label>`).join('') : '<p class="meta">No hay confirmadas para marcar asistencia.</p>';
+    document.getElementById('jc-update-site').checked = !!j.sitio_id;
+    document.getElementById('jc-duplicada').checked = false;
+    for (const k of ['comida','medicinas','cotillon','recreacion']) document.getElementById('jc-' + k).value = 'ninguna';
+    document.getElementById('jornada-close-sheet').hidden = false;
+  }
+
+  async function saveJornadaClose() {
+    const j = jornadas.find(x => x.id === jCloseId);
+    if (!j) return;
+    const checks = [...document.querySelectorAll('[data-jc-insc]')];
+    for (const el of checks) {
+      const estado = el.checked ? 'asistio' : 'no_asistio';
+      const { error } = await db.from('inscripciones').update({ estado }).eq('id', el.dataset.jcInsc);
+      if (error) { toast(error.message); return; }
+    }
+    const { error: e1 } = await db.from('jornadas').update({ estado: 'realizada' }).eq('id', j.id);
+    if (e1) { toast(e1.message); return; }
+
+    if (j.sitio_id && document.getElementById('jc-update-site').checked) {
+      const payload = {
+        cobertura_comida: document.getElementById('jc-comida').value,
+        cobertura_medicinas: document.getElementById('jc-medicinas').value,
+        cobertura_cotillon: document.getElementById('jc-cotillon').value,
+        cobertura_recreacion: document.getElementById('jc-recreacion').value,
+        ayuda_duplicada: document.getElementById('jc-duplicada').checked,
+        ultima_visita_at: new Date().toISOString(),
+      };
+      const { error: e2 } = await db.from('sitios').update(payload).eq('id', j.sitio_id);
+      if (e2) { toast(e2.message); return; }
+    }
+
+    document.getElementById('jornada-close-sheet').hidden = true;
+    toast('Jornada cerrada');
+    await loadJornadas();
+    if (jDetailId === j.id) await renderJornadaDetail();
+  }
+
+  function initJornadasUi() {
+    document.getElementById('j-filters')?.addEventListener('click', e => {
+      const b = e.target.closest('.chip');
+      if (!b) return;
+      jTab = b.dataset.jf;
+      document.querySelectorAll('#j-filters .chip').forEach(c => c.classList.toggle('on', c === b));
+      renderJornadaList();
+    });
+    document.getElementById('btn-new-jornada')?.addEventListener('click', () => openJornadaForm(null));
+    document.getElementById('fab-jornada')?.addEventListener('click', () => openJornadaForm(null));
+    document.getElementById('jf-close')?.addEventListener('click', () => { document.getElementById('jornada-form-sheet').hidden = true; });
+    document.getElementById('jf-cancel')?.addEventListener('click', () => { document.getElementById('jornada-form-sheet').hidden = true; });
+    document.getElementById('jf-save')?.addEventListener('click', () => saveJornada(false));
+    document.getElementById('jf-save-wa')?.addEventListener('click', () => saveJornada(true));
+    document.getElementById('jd-close')?.addEventListener('click', () => { document.getElementById('jornada-detail-sheet').hidden = true; });
+    document.getElementById('jc-close')?.addEventListener('click', () => { document.getElementById('jornada-close-sheet').hidden = true; });
+    document.getElementById('jc-cancel')?.addEventListener('click', () => { document.getElementById('jornada-close-sheet').hidden = true; });
+    document.getElementById('jc-save')?.addEventListener('click', saveJornadaClose);
+  }
+
+  async function onCoordReady() {
+    initJornadasUi();
+    await loadInventarioCat();
+    await loadSitios();
+    await loadJornadas();
+  }
+
+  function onShowTab(name) {
+    if (name === 'jornadas') loadJornadas();
+  }
+
+  function getProximaJornada() {
+    const today = new Date().toISOString().slice(0, 10);
+    return jornadas.filter(j => j.fecha >= today && ['abierta', 'llena'].includes(j.estado))
+      .sort((a, b) => a.fecha.localeCompare(b.fecha))[0] || null;
+  }
+
+  function getWaText(id) {
+    const j = jornadas.find(x => x.id === id);
+    return j ? waJornadaText(j) : '';
+  }
+
+  async function reloadSitios() {
+    await loadSitios();
+  }
+
+  function setBrigadaFilter(slug) {
+    jBrigFilter = slug || '';
+    jTab = 'proximas';
+    document.querySelectorAll('#j-filters .chip').forEach(c => c.classList.toggle('on', c.dataset.jf === 'proximas'));
+    renderJornadaList();
+  }
+
+  async function getMaterialesExport(jId) {
+    const j = jornadas.find((x) => x.id === jId);
+    if (!j) return '';
+    const { data } = await db.from('necesidades_jornada').select('*').eq('jornada_id', jId).order('orden');
+    if (!data?.length) return `Para ${j.titulo}: sin checklist de materiales.`;
+    return materialesWaText(j, data);
+  }
+
+  window.CC_JORN = { onCoordReady, onShowTab, openJornadaForm, openJornadaClose, copyWa, loadJornadas, reloadSitios, getProximaJornada, getWaText, setBrigadaFilter, getMaterialesExport };
+})();

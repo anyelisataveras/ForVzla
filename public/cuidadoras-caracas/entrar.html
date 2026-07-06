@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#5A4AA0">
+<title>Entrar — Cuidadoras Caracas</title>
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F1EEEA;--ind:#5A4AA0;--indh:#4A3C88;--indl:#EEEBF6;--red:#C0392B;--redl:#FBEDEA;--txt:#1C1A19;--txt2:#6B6560;--line2:#E2DCD4;--app-max:580px}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px}
+.app{max-width:var(--app-max);margin:0 auto;min-height:100vh}
+.hdr{background:var(--ind);color:#fff;padding:16px 18px}
+.hdr a{color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9}
+.card{background:#fff;border:1px solid #E7E2DB;border-radius:18px;margin:16px;padding:20px 18px}
+.card h2{font-size:20px;font-weight:800;margin-bottom:6px}
+.sub{font-size:13px;color:var(--txt2);margin-bottom:16px;line-height:1.45}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:5px}
+.field input,.field select{width:100%;border:1px solid var(--line2);border-radius:10px;padding:12px;font-size:16px;font-family:inherit}
+.btn{width:100%;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;background:var(--ind);color:#fff;font-family:inherit}
+.btn:active{background:var(--indh)}.btn:disabled{opacity:.5}
+.err{background:var(--redl);color:var(--red);border-radius:10px;padding:10px;font-size:13px;font-weight:700;margin-bottom:12px;display:none}
+.err.show{display:block}
+.foot{text-align:center;margin-top:16px;font-size:14px}.foot a{color:var(--ind);font-weight:700}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hdr"><a href="./">← Cuidadoras Caracas</a></header>
+  <div class="card">
+    <h2>💜 Ya soy voluntaria</h2>
+    <p class="sub">Usa la misma red social y cédula del registro.</p>
+    <div class="err" id="err"></div>
+    <div class="field"><label for="plat">Red social</label>
+      <select id="plat"><option value="">Selecciona…</option><option>Instagram</option><option>X</option><option>Gmail</option></select>
+    </div>
+    <div class="field"><label for="user">Tu usuario / correo</label>
+      <input id="user" placeholder="@usuario" autocomplete="username">
+    </div>
+    <div class="field"><label for="ced4">Últimos 4 dígitos de tu cédula</label>
+      <input id="ced4" inputmode="numeric" maxlength="4" placeholder="8922" autocomplete="off">
+    </div>
+    <button type="button" class="btn" id="btn-go">Entrar</button>
+    <p class="foot">¿Primera vez? <a href="registro">Regístrate aquí</a></p>
+  </div>
+</div>
+<script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
+<script src="vol.js?v=20260706"></script>
+<script>
+const ret=new URLSearchParams(location.search).get('return')||'mi-cuenta';
+function resolveReturn(path){
+  if(!path||path==='mi-cuenta')return CC_VOL.basePath()+'mi-cuenta';
+  if(path.startsWith('http'))return path;
+  if(path.startsWith('/'))return path;
+  return CC_VOL.basePath()+path.replace(/^\//,'');
+}
+if(CC_VOL.getSession())location.replace(resolveReturn(ret));
+function showErr(m){const e=document.getElementById('err');e.textContent=m;e.classList.add('show')}
+async function entrar(){
+  const plat=document.getElementById('plat').value;
+  const user=document.getElementById('user').value.trim();
+  const ced4=document.getElementById('ced4').value.replace(/\D/g,'').slice(-4);
+  if(!plat||!user||ced4.length!==4){showErr('Completa red social, usuario y 4 dígitos.');return}
+  const btn=document.getElementById('btn-go');
+  btn.disabled=true;btn.textContent='Entrando…';
+  const r=await CC_VOL.autenticar(plat,user,ced4);
+  btn.disabled=false;btn.textContent='Entrar';
+  if(!r.ok){showErr(r.error);return}
+  location.href=resolveReturn(ret);
+}
+document.getElementById('btn-go').onclick=entrar;
+['user','ced4'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')entrar()}));
+</script>
+</body>
+</html>

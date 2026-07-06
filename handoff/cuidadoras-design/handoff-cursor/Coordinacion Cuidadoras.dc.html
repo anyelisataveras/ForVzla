@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{min-height:100%;background:#F1EEEA}
+  @keyframes toastin{from{opacity:0;transform:translate(-50%,10px)}to{opacity:1;transform:translate(-50%,0)}}
+  @keyframes sheetin{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:#5A4AA0 !important;box-shadow:0 0 0 3px #EEEBF6 !important}
+  ::selection{background:#EEEBF6}
+  @media(max-width:820px){.mod-sidebar{display:none !important}.mod-bottomnav{display:flex !important}}
+</style>
+</helmet>
+<div style="min-height:100vh;background:#F1EEEA;color:#1C1A19;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.45">
+
+  <!-- ============ LANDING ============ -->
+  <sc-if value="{{ rLanding }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:580px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;background:#F1EEEA">
+    <header style="background:#5A4AA0;color:#fff;padding:18px 20px 22px">
+      <a onClick="{{ noop }}" style="color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px;margin-bottom:12px;cursor:pointer">← Ayuda Venezuela</a>
+      <h1 style="font-size:24px;font-weight:800;line-height:1.15">👩‍👧 Cuidadoras Caracas</h1>
+      <p style="font-size:14px;opacity:.9;margin-top:6px">Madres voluntarias · Caracas y La Guaira</p>
+    </header>
+    <div style="padding:22px 16px;display:flex;flex-direction:column;gap:14px;flex:1">
+      <p style="font-size:15px;color:#6B6560;text-align:center;margin:2px 0 6px;text-wrap:pretty">Este es el espacio del grupo. ¿Qué quieres hacer hoy?</p>
+      <button onClick="{{ irRegistro }}" style="display:flex;align-items:center;gap:14px;text-align:left;background:#fff;border:1px solid #E7E2DB;border-radius:18px;padding:18px 18px;cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(0,0,0,.04)">
+        <span style="font-size:28px;flex-shrink:0">🙋</span>
+        <span><span style="display:block;font-size:17px;font-weight:800;color:#1C1A19">Quiero ser voluntaria</span><span style="display:block;font-size:13px;color:#6B6560;margin-top:2px">Regístrate en el grupo — toma 3 minutos</span></span>
+      </button>
+      <button onClick="{{ irVLogin }}" style="display:flex;align-items:center;gap:14px;text-align:left;background:#5A4AA0;border:none;border-radius:18px;padding:18px 18px;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(90,74,160,.28)">
+        <span style="font-size:28px;flex-shrink:0">💜</span>
+        <span><span style="display:block;font-size:17px;font-weight:800;color:#fff">Ya soy voluntaria — entrar</span><span style="display:block;font-size:13px;color:#fff;opacity:.85;margin-top:2px">Ver jornadas, confirmar y apuntarte a tareas</span></span>
+      </button>
+      <button onClick="{{ irMLogin }}" style="display:flex;align-items:center;gap:14px;text-align:left;background:#fff;border:1px solid #E7E2DB;border-radius:18px;padding:18px 18px;cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(0,0,0,.04)">
+        <span style="font-size:28px;flex-shrink:0">⚙️</span>
+        <span><span style="display:block;font-size:17px;font-weight:800;color:#1C1A19">Soy coordinadora</span><span style="display:block;font-size:13px;color:#6B6560;margin-top:2px">Censo, jornadas, transporte y exportar</span></span>
+      </button>
+
+      <div style="background:#FBFAF8;border:1px solid #E7E2DB;border-radius:16px;padding:16px;margin-top:6px">
+        <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px">Cómo nos organizamos</div>
+        <div style="display:flex;flex-direction:column;gap:9px">
+          <div style="display:flex;gap:10px;font-size:13.5px;color:#6B6560;line-height:1.4"><span style="flex-shrink:0">💠</span><span><b style="color:#1C1A19">Brigada</b> — dónde colaboras siempre (te apuntas una vez)</span></div>
+          <div style="display:flex;gap:10px;font-size:13.5px;color:#6B6560;line-height:1.4"><span style="flex-shrink:0">🗓</span><span><b style="color:#1C1A19">Jornada</b> — una salida con fecha, lugar y misión</span></div>
+          <div style="display:flex;gap:10px;font-size:13.5px;color:#6B6560;line-height:1.4"><span style="flex-shrink:0">✅</span><span><b style="color:#1C1A19">Tarea</b> — algo concreto que haces en una jornada</span></div>
+        </div>
+      </div>
+    </div>
+    <footer style="padding:16px 20px 26px;text-align:center">
+      <div style="font-size:14px;color:#6B6560;font-style:italic;line-height:1.5">"Llevamos amor — ayudemos a los niños a ser niños"</div>
+    </footer>
+  </div>
+  </sc-if>
+
+  <!-- ============ LOGIN VOLUNTARIA ============ -->
+  <sc-if value="{{ rVLogin }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:580px;margin:0 auto;min-height:100vh;background:#F1EEEA">
+    <header style="background:#5A4AA0;color:#fff;padding:16px 18px">
+      <a onClick="{{ irLanding }}" style="color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px;cursor:pointer">← Volver</a>
+    </header>
+    <div style="padding:24px 16px">
+      <div style="background:#fff;border:1px solid #E7E2DB;border-radius:18px;padding:22px 18px;box-shadow:0 2px 12px rgba(0,0,0,.04)">
+        <h1 style="font-size:22px;font-weight:800;margin-bottom:4px">💜 Ya soy voluntaria</h1>
+        <p style="font-size:13.5px;color:#6B6560;margin-bottom:20px">Entra con lo que pusiste al registrarte.</p>
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:12px;font-weight:700;color:#6B6560;margin-bottom:6px">Red social que usaste al registrarte</label>
+          <select value="{{ loginRed }}" onChange="{{ setLoginRed }}" style="width:100%;border:1px solid #E2DCD4;border-radius:10px;padding:12px 13px;font-size:16px;font-family:inherit;background:#fff;color:#1C1A19">
+            <option>Instagram</option><option>X</option><option>Gmail</option>
+          </select>
+        </div>
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:12px;font-weight:700;color:#6B6560;margin-bottom:6px">Tu usuario / correo</label>
+          <input value="{{ loginUser }}" onChange="{{ setLoginUser }}" placeholder="@yrma_cuida" style="width:100%;border:1px solid #E2DCD4;border-radius:10px;padding:12px 13px;font-size:16px;font-family:inherit;background:#fff;color:#1C1A19">
+        </div>
+        <div style="margin-bottom:18px">
+          <label style="display:block;font-size:12px;font-weight:700;color:#6B6560;margin-bottom:6px">Últimos 4 dígitos de tu cédula</label>
+          <input value="{{ loginPin }}" onChange="{{ setLoginPin }}" inputmode="numeric" maxlength="4" placeholder="••••" style="width:100%;border:1px solid #E2DCD4;border-radius:10px;padding:12px 13px;font-size:16px;font-family:inherit;background:#fff;color:#1C1A19;letter-spacing:.3em">
+        </div>
+        <button onClick="{{ doVLogin }}" style="width:100%;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff">Entrar</button>
+        <p style="text-align:center;font-size:13.5px;color:#6B6560;margin-top:16px">¿Primera vez? <a onClick="{{ irRegistro }}" style="color:#5A4AA0;font-weight:700;cursor:pointer">Regístrate aquí</a></p>
+      </div>
+      <p style="text-align:center;font-size:12.5px;color:#9A938B;margin-top:16px;line-height:1.5">Ej.: Gmail · yrma@gmail.com · clave 8922<br>Prueba tocando "Entrar" con o sin datos.</p>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ MI CUENTA ============ -->
+  <sc-if value="{{ rVCuenta }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:580px;margin:0 auto;min-height:100vh;background:#F1EEEA">
+    <header style="background:#5A4AA0;color:#fff;padding:16px 18px">
+      <a onClick="{{ irLanding }}" style="color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer">← Ayuda Venezuela</a>
+      <h1 style="font-size:22px;font-weight:800">Hola, Yrma 👋</h1>
+      <p style="font-size:13px;opacity:.88;margin-top:3px">Voluntaria N° 4</p>
+    </header>
+    <div style="padding:18px 16px 40px">
+      <div style="background:#fff;border:1px solid #E7E2DB;border-radius:18px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.04);margin-bottom:16px">
+        <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px">Mis brigadas</div>
+        <p style="font-size:13px;color:#6B6560;margin-bottom:14px;line-height:1.45">Elegiste dónde quieres colaborar. Puedes cambiar cuando quieras.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ misBrigadas }}" as="b" hint-placeholder-count="7">
+            <button onClick="{{ b.toggle }}" style="{{ b.chipStyle }}">{{ b.label }}</button>
+          </sc-for>
+        </div>
+        <p style="font-size:12px;color:#9A938B;margin-top:12px;line-height:1.45">Toca una brigada para apuntarte o salir. No te bloqueamos si no cumples los requisitos — <a onClick="{{ verRequisitos }}" style="color:#5A4AA0;font-weight:700;cursor:pointer">ver requisitos ℹ️</a></p>
+      </div>
+
+      <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin:4px 4px 12px">Próximas jornadas</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ jornadasAbiertas }}" as="j" hint-placeholder-count="2">
+          <div style="background:#fff;border:1px solid #E7E2DB;border-radius:18px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.04)">
+            <div style="font-size:13px;font-weight:800;color:#5A4AA0">🗓 {{ j.fechaCorta }} · {{ j.hora }}</div>
+            <div style="font-size:16px;font-weight:700;margin:4px 0 8px">{{ j.lugar }}</div>
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px">
+              <sc-for list="{{ j.brigObjs }}" as="b" hint-placeholder-count="2"><span style="{{ b.chip }}">{{ b.icono }} {{ b.corto }}</span></sc-for>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+              <span style="font-size:13px;color:#6B6560">{{ j.badge.dot }} {{ j.badge.label }} · {{ j.confirmadas }} confirmadas</span>
+              <button onClick="{{ j.abrir }}" style="border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;background:#EEEBF6;color:#463A82;white-space:nowrap">Ver y confirmar →</button>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:20px">
+        <button onClick="{{ irVJornadas }}" style="width:100%;border:1px solid #E2DCD4;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1C1A19">Ver todas las jornadas</button>
+        <button onClick="{{ irLanding }}" style="width:100%;border:none;border-radius:12px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;background:transparent;color:#9A938B">Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ LISTA JORNADAS (voluntaria) ============ -->
+  <sc-if value="{{ rVJornadas }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:580px;margin:0 auto;min-height:100vh;background:#F1EEEA">
+    <header style="background:#5A4AA0;color:#fff;padding:16px 18px">
+      <a onClick="{{ backFromJornadas }}" style="color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer">← Volver</a>
+      <h1 style="font-size:22px;font-weight:800">👩‍👧 Cuidadoras Caracas</h1>
+      <p style="font-size:13px;opacity:.88;margin-top:3px">Próximas jornadas en Caracas y La Guaira</p>
+    </header>
+    <div style="padding:18px 16px 40px;display:flex;flex-direction:column;gap:12px">
+      <sc-for list="{{ jornadasTodas }}" as="j" hint-placeholder-count="3">
+        <div style="{{ j.cardStyle }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+            <div style="font-size:13px;font-weight:800;color:#5A4AA0">🗓 {{ j.fechaCorta }} · {{ j.hora }}</div>
+            <span style="{{ j.badge.pill }}">{{ j.badge.dot }} {{ j.badge.label }}</span>
+          </div>
+          <div style="font-size:16px;font-weight:700;margin:5px 0 8px">{{ j.lugar }}</div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+            <sc-for list="{{ j.brigObjs }}" as="b" hint-placeholder-count="2"><span style="{{ b.chip }}">{{ b.icono }} {{ b.corto }}</span></sc-for>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+            <span style="font-size:12.5px;color:#6B6560">{{ j.confirmadas }} confirmadas</span>
+            <button onClick="{{ j.abrir }}" style="{{ j.btnStyle }}">{{ j.btnLabel }}</button>
+          </div>
+        </div>
+      </sc-for>
+      <p style="text-align:center;font-size:12.5px;color:#9A938B;margin-top:8px;line-height:1.5">¿Primera vez? <a onClick="{{ irRegistro }}" style="color:#5A4AA0;font-weight:700;cursor:pointer">Regístrate</a></p>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ DETALLE JORNADA + RSVP (voluntaria) ============ -->
+  <sc-if value="{{ rVJornada }}" hint-placeholder-val="{{ true }}">
+  <div style="max-width:580px;margin:0 auto;min-height:100vh;background:#F1EEEA">
+    <header style="background:#5A4AA0;color:#fff;padding:16px 18px">
+      <a onClick="{{ backToCuenta }}" style="color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer">← Mis jornadas</a>
+      <h1 style="font-size:20px;font-weight:800">Hola, Yrma 👋</h1>
+      <p style="font-size:13px;opacity:.88;margin-top:2px">Voluntaria N° 4</p>
+    </header>
+    <div style="padding:18px 16px 48px">
+      <div style="background:#fff;border:1px solid #E7E2DB;border-radius:18px;padding:20px 18px;box-shadow:0 2px 12px rgba(0,0,0,.04);margin-bottom:16px">
+        <div style="font-size:12px;font-weight:800;color:#5A4AA0;text-transform:uppercase;letter-spacing:.04em">{{ det.fechaCorta }}</div>
+        <h2 style="font-size:20px;font-weight:800;margin:5px 0 4px;line-height:1.2">{{ det.titulo }}</h2>
+        <div style="font-size:14px;color:#6B6560;margin-bottom:14px">📍 {{ det.lugar }}</div>
+        <div style="display:flex;flex-direction:column;gap:8px;font-size:14px;color:#1C1A19;background:#FBFAF8;border:1px solid #E7E2DB;border-radius:12px;padding:14px">
+          <div>⏰ <b>Encuentro</b> {{ det.encuentro }}</div>
+          <div>🚐 <b>Salida</b> {{ det.salida }}</div>
+          <div>🏠 <b>Regreso</b> {{ det.regreso }}</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #E7E2DB;border-radius:18px;padding:20px 18px;box-shadow:0 2px 12px rgba(0,0,0,.04);margin-bottom:16px">
+        <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px">Misión</div>
+        <p style="font-size:15px;color:#1C1A19;line-height:1.55;margin-bottom:14px;text-wrap:pretty">{{ det.mision }}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+          <sc-for list="{{ det.brigObjs }}" as="b" hint-placeholder-count="2"><span style="{{ b.chip }}">{{ b.icono }} {{ b.corto }}</span></sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:14px;color:#6B6560">
+          <div>👕 <b style="color:#1C1A19">Vestimenta:</b> {{ det.vestimenta }}</div>
+          <div>🎒 <b style="color:#1C1A19">Llevar:</b> {{ det.llevar }}</div>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #E7E2DB;border-radius:18px;padding:20px 18px;box-shadow:0 2px 12px rgba(0,0,0,.04);margin-bottom:16px">
+        <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px">Tareas de esta jornada</div>
+        <p style="font-size:13px;color:#6B6560;margin-bottom:14px">Apúntate a lo que puedas hacer 💪</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ det.tareas }}" as="t" hint-placeholder-count="4">
+            <div style="{{ t.rowStyle }}">
+              <div style="display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0">
+                <span style="font-size:18px;flex-shrink:0">{{ t.ico }}</span>
+                <div style="min-width:0">
+                  <div style="font-size:14.5px;font-weight:700;line-height:1.3">{{ t.titulo }}</div>
+                  <div style="font-size:12px;color:#6B6560;margin-top:2px">{{ t.sub }}</div>
+                </div>
+              </div>
+              <button onClick="{{ t.action }}" style="{{ t.btnStyle }}">{{ t.btnLabel }}</button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #E7E2DB;border-radius:18px;padding:20px 18px;box-shadow:0 2px 12px rgba(0,0,0,.04)">
+        <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin-bottom:14px">Tu asistencia</div>
+        <div style="display:flex;gap:10px;margin-bottom:16px">
+          <button onClick="{{ setVoy }}" style="{{ voyStyle }}">✅ Voy</button>
+          <button onClick="{{ setNoVoy }}" style="{{ noVoyStyle }}">No puedo esta vez</button>
+        </div>
+        <label onClick="{{ toggleNecesita }}" style="{{ necesitaStyle }}"><span style="{{ chkNecesita }}">{{ ckN }}</span> Necesito transporte</label>
+        <label onClick="{{ toggleOfrece }}" style="{{ ofreceStyle }}"><span style="{{ chkOfrece }}">{{ ckO }}</span> Puedo llevar personas en mi vehículo</label>
+        <sc-if value="{{ ofrece }}" hint-placeholder-val="{{ false }}">
+          <div style="margin:4px 0 12px;padding-left:4px">
+            <label style="font-size:12px;font-weight:700;color:#6B6560;margin-right:8px">Cupos disponibles</label>
+            <select value="{{ cupos }}" onChange="{{ setCupos }}" style="border:1px solid #E2DCD4;border-radius:10px;padding:8px 10px;font-size:15px;font-family:inherit;background:#fff"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+          </div>
+        </sc-if>
+        <div style="margin:6px 0 16px">
+          <label style="display:block;font-size:12px;font-weight:700;color:#6B6560;margin-bottom:6px">Notas (opcional)</label>
+          <textarea value="{{ rsvpNotas }}" onChange="{{ setNotas }}" placeholder="Ej: llego tarde, me incorporo en ruta" style="width:100%;border:1px solid #E2DCD4;border-radius:10px;padding:11px 13px;font-size:16px;font-family:inherit;min-height:64px;resize:vertical;background:#fff;color:#1C1A19"></textarea>
+        </div>
+        <button onClick="{{ guardarRSVP }}" style="{{ guardarStyle }}">{{ guardarLabel }}</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ REGISTRO (placeholder ya existe) ============ -->
+  <sc-if value="{{ rRegistro }}" hint-placeholder-val="{{ false }}">
+  <div style="max-width:580px;margin:0 auto;min-height:100vh;background:#F1EEEA">
+    <header style="background:#5A4AA0;color:#fff;padding:16px 18px">
+      <a onClick="{{ irLanding }}" style="color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px;cursor:pointer">← Volver</a>
+    </header>
+    <div style="padding:40px 22px;text-align:center">
+      <div style="font-size:48px;margin-bottom:12px">📝</div>
+      <h1 style="font-size:22px;font-weight:800;margin-bottom:10px">Formulario de registro</h1>
+      <p style="font-size:14.5px;color:#6B6560;line-height:1.6;max-width:380px;margin:0 auto 22px;text-wrap:pretty">El formulario de 3 pasos (datos, entorno, colaborar) ya está desplegado en <b>/cuidadoras-caracas/registro</b>. Aquí solo agregamos el multi-select de brigadas al final del paso 3.</p>
+      <button onClick="{{ irLanding }}" style="border:1px solid #E2DCD4;border-radius:12px;padding:13px 22px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1C1A19">Volver a la landing</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ LOGIN MODERADORA ============ -->
+  <sc-if value="{{ rMLogin }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;background:#F1EEEA;display:flex;flex-direction:column">
+    <div style="max-width:440px;width:100%;margin:0 auto;padding:0 16px">
+      <header style="background:#5A4AA0;color:#fff;padding:16px 18px;border-radius:0 0 18px 18px;margin-bottom:24px">
+        <a onClick="{{ irLanding }}" style="color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer">← Volver</a>
+        <h1 style="font-size:20px;font-weight:800">👩‍👧 Coordinación</h1>
+        <p style="font-size:13px;opacity:.88;margin-top:2px">Cuidadoras Caracas</p>
+      </header>
+      <div style="background:#fff;border:1px solid #E7E2DB;border-radius:18px;padding:22px 18px;box-shadow:0 2px 12px rgba(0,0,0,.04)">
+        <h2 style="font-size:18px;font-weight:800;margin-bottom:4px">Entrar al panel</h2>
+        <p style="font-size:13px;color:#6B6560;margin-bottom:18px;line-height:1.5">Solo para coordinadoras autorizadas.</p>
+        <div style="margin-bottom:14px">
+          <label style="display:block;font-size:12px;font-weight:700;color:#6B6560;margin-bottom:6px">Correo</label>
+          <input placeholder="dari@forvzla.org" inputmode="email" style="width:100%;border:1px solid #E2DCD4;border-radius:10px;padding:12px 13px;font-size:16px;font-family:inherit;background:#fff;color:#1C1A19">
+        </div>
+        <div style="margin-bottom:18px">
+          <label style="display:block;font-size:12px;font-weight:700;color:#6B6560;margin-bottom:6px">Contraseña</label>
+          <input type="password" style="width:100%;border:1px solid #E2DCD4;border-radius:10px;padding:12px 13px;font-size:16px;font-family:inherit;background:#fff;color:#1C1A19">
+        </div>
+        <button onClick="{{ doMLogin }}" style="width:100%;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff">Entrar</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ PANEL MODERADORA ============ -->
+  <sc-if value="{{ rMPanel }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;background:#F1EEEA">
+    <!-- top bar -->
+    <header style="background:#5A4AA0;color:#fff;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:30">
+      <div style="min-width:0"><div style="font-size:16px;font-weight:800;line-height:1.15">👩‍👧 Coordinación</div><div style="font-size:12.5px;opacity:.85;margin-top:2px">Cuidadoras Caracas · Dari (moderadora)</div></div>
+      <button onClick="{{ irLanding }}" style="border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit">Salir</button>
+    </header>
+
+    <div style="max-width:1040px;margin:0 auto;display:flex;align-items:flex-start">
+      <!-- sidebar (desktop) -->
+      <nav style="flex-shrink:0;width:210px;padding:20px 12px;position:sticky;top:64px" class="mod-sidebar">
+        <sc-for list="{{ modNav }}" as="n" hint-placeholder-count="6"><button onClick="{{ n.go }}" style="{{ n.style }}"><span style="font-size:16px">{{ n.icon }}</span> {{ n.label }}</button></sc-for>
+      </nav>
+
+      <!-- content -->
+      <main style="flex:1;min-width:0;padding:20px 16px 96px">
+
+        <!-- TAB INICIO -->
+        <sc-if value="{{ tabInicio }}" hint-placeholder-val="{{ true }}">
+          <h2 style="font-size:20px;font-weight:800;margin-bottom:16px">Inicio</h2>
+          <div style="background:#fff;border:1px solid #E7E2DB;border-radius:18px;padding:20px 18px;box-shadow:0 2px 12px rgba(0,0,0,.04);margin-bottom:16px">
+            <div style="font-size:11px;font-weight:800;color:#9A938B;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Próxima jornada</div>
+            <div style="font-size:17px;font-weight:800">Martes 7 jul · Catia La Mar · 9:00 AM</div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0">
+              <div style="text-align:center;background:#FBFAF8;border:1px solid #E7E2DB;border-radius:12px;padding:12px 6px"><div style="font-size:24px;font-weight:800;color:#5A4AA0">9</div><div style="font-size:11px;color:#6B6560;margin-top:2px">confirmadas</div></div>
+              <div style="text-align:center;background:#FBFAF8;border:1px solid #E7E2DB;border-radius:12px;padding:12px 6px"><div style="font-size:24px;font-weight:800;color:#5A4AA0">3</div><div style="font-size:11px;color:#6B6560;margin-top:2px">piden ride</div></div>
+              <div style="text-align:center;background:#FBFAF8;border:1px solid #E7E2DB;border-radius:12px;padding:12px 6px"><div style="font-size:24px;font-weight:800;color:#5A4AA0">4</div><div style="font-size:11px;color:#6B6560;margin-top:2px">cupos auto</div></div>
+              <div style="text-align:center;background:#E9F6EE;border:1px solid #cfe9d8;border-radius:12px;padding:12px 6px"><div style="font-size:22px;font-weight:800;color:#15603A">✓</div><div style="font-size:11px;color:#15603A;margin-top:2px">transporte ok</div></div>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button onClick="{{ abrirModJornada }}" style="flex:1;min-width:130px;border:none;border-radius:11px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff">Ver detalle</button>
+              <button onClick="{{ copiarWA }}" style="flex:1;min-width:130px;border:1px solid #E2DCD4;border-radius:11px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1C1A19">📋 Copiar para WhatsApp</button>
+            </div>
+          </div>
+
+          <div style="font-size:11px;font-weight:800;color:#9A938B;text-transform:uppercase;letter-spacing:.05em;margin:4px 2px 10px">Acciones rápidas</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+            <button onClick="{{ abrirNuevaJornada }}" style="text-align:left;background:#fff;border:1px solid #E7E2DB;border-radius:14px;padding:15px;cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(0,0,0,.04)"><div style="font-size:22px">➕</div><div style="font-size:14px;font-weight:800;margin-top:6px">Nueva jornada</div></button>
+            <button onClick="{{ verSinRegistro }}" style="text-align:left;background:#fff;border:1px solid #E7E2DB;border-radius:14px;padding:15px;cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(0,0,0,.04)"><div style="font-size:22px">🔴</div><div style="font-size:14px;font-weight:800;margin-top:6px">Registro incompleto</div></button>
+            <button onClick="{{ abrirNuevoSitio }}" style="text-align:left;background:#fff;border:1px solid #E7E2DB;border-radius:14px;padding:15px;cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(0,0,0,.04)"><div style="font-size:22px">📍</div><div style="font-size:14px;font-weight:800;margin-top:6px">Agregar sitio</div></button>
+            <button onClick="{{ copiarLinkRegistro }}" style="text-align:left;background:#fff;border:1px solid #E7E2DB;border-radius:14px;padding:15px;cursor:pointer;font-family:inherit;box-shadow:0 2px 12px rgba(0,0,0,.04)"><div style="font-size:22px">🔗</div><div style="font-size:14px;font-weight:800;margin-top:6px">Link de registro</div></button>
+          </div>
+
+          <div style="background:#FBFAF8;border:1px solid #E7E2DB;border-radius:14px;padding:16px;font-size:14px;color:#6B6560;line-height:1.6">
+            <b style="color:#1C1A19">87</b> voluntarias registradas · <b style="color:#1C1A19">12</b> con vehículo · <b style="color:#C0392B">4</b> pendientes de completar registro
+          </div>
+        </sc-if>
+
+        <!-- TAB VOLUNTARIAS -->
+        <sc-if value="{{ tabVoluntarias }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+            <h2 style="font-size:20px;font-weight:800">Voluntarias</h2>
+            <button onClick="{{ abrirNuevaVol }}" style="border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff">+ Agregar</button>
+          </div>
+          <input placeholder="🔍 Buscar nombre, cédula, tel…" style="width:100%;border:1px solid #E2DCD4;border-radius:10px;padding:12px 13px;font-size:15px;font-family:inherit;background:#fff;margin-bottom:10px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+            <sc-for list="{{ volFiltros }}" as="f" hint-placeholder-count="4"><button onClick="{{ f.click }}" style="{{ f.style }}">{{ f.label }}</button></sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ volList }}" as="v" hint-placeholder-count="6">
+              <div style="{{ v.cardStyle }}">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                  <div style="min-width:0">
+                    <div style="font-size:15px;font-weight:800">{{ v.titulo }} {{ v.carIcon }}</div>
+                    <div style="font-size:13px;color:#6B6560;margin-top:2px">{{ v.linea2 }}</div>
+                    <div style="font-size:13px;color:#6B6560">{{ v.linea3 }}</div>
+                  </div>
+                  <span style="{{ v.estadoPill }}">{{ v.estadoLabel }}</span>
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0">
+                  <sc-for list="{{ v.brigObjs }}" as="b" hint-placeholder-count="2"><span style="{{ b.chip }}">{{ b.icono }} {{ b.corto }}</span></sc-for>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button onClick="{{ v.editar }}" style="border:1px solid #E2DCD4;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1C1A19">Editar</button>
+                  <button onClick="{{ v.historial }}" style="border:1px solid #E2DCD4;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;background:#fff;color:#6B6560">Ver historial</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- TAB BRIGADAS -->
+        <sc-if value="{{ tabBrigadas }}" hint-placeholder-val="{{ false }}">
+          <h2 style="font-size:20px;font-weight:800;margin-bottom:16px">Brigadas del grupo</h2>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ brigList }}" as="b" hint-placeholder-count="7">
+              <div style="background:#fff;border:1px solid #E7E2DB;border-left:4px solid {{ b.fg }};border-radius:14px;padding:15px;box-shadow:0 2px 12px rgba(0,0,0,.04)">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                  <div><div style="font-size:15.5px;font-weight:800">{{ b.icono }} {{ b.nombre }}</div>
+                    <div style="font-size:13px;color:#6B6560;margin-top:4px">{{ b.coordLine }}</div>
+                    <div style="font-size:13px;color:#9A938B;margin-top:2px">{{ b.stats }}</div>
+                  </div>
+                  <button onClick="{{ b.action }}" style="{{ b.btnStyle }}">{{ b.btnLabel }}</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- TAB JORNADAS -->
+        <sc-if value="{{ tabJornadas }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+            <h2 style="font-size:20px;font-weight:800">Jornadas</h2>
+            <button onClick="{{ abrirNuevaJornada }}" style="border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff">+ Nueva jornada</button>
+          </div>
+          <div style="display:flex;gap:8px;margin-bottom:16px">
+            <sc-for list="{{ jorTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.click }}" style="{{ t.style }}">{{ t.label }}</button></sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ modJorList }}" as="j" hint-placeholder-count="3">
+              <div style="background:#fff;border:1px solid #E7E2DB;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.04)">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                  <div style="font-size:15px;font-weight:800">{{ j.fechaCorta }} · {{ j.hora }} · {{ j.lugarCorto }}</div>
+                  <span style="{{ j.badge.pill }}">{{ j.badge.dot }} {{ j.badge.label }}</span>
+                </div>
+                <div style="font-size:13px;color:#6B6560;margin:6px 0 4px">{{ j.progreso }} {{ j.transAlert }}</div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px">
+                  <sc-for list="{{ j.brigObjs }}" as="b" hint-placeholder-count="2"><span style="{{ b.chip }}">{{ b.icono }} {{ b.corto }}</span></sc-for>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <button onClick="{{ j.abrirMod }}" style="border:none;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;background:#EEEBF6;color:#463A82">Ver detalle</button>
+                  <button onClick="{{ abrirNuevaJornada }}" style="border:1px solid #E2DCD4;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;background:#fff;color:#6B6560">Editar</button>
+                  <button onClick="{{ j.cerrar }}" style="{{ j.cerrarStyle }}">{{ j.cerrarLabel }}</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- TAB SITIOS -->
+        <sc-if value="{{ tabSitios }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+            <h2 style="font-size:20px;font-weight:800">Sitios</h2>
+            <button onClick="{{ abrirNuevoSitio }}" style="border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff">+ Agregar sitio</button>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <sc-for list="{{ sitioList }}" as="s" hint-placeholder-count="3">
+              <div style="background:#fff;border:1px solid #E7E2DB;border-radius:14px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.04)">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+                  <div><div style="font-size:15.5px;font-weight:800">{{ s.nombre }}</div><div style="font-size:12.5px;color:#9A938B;margin-top:1px">{{ s.zona }} · ~{{ s.personas }} personas · ~{{ s.ninos }} niños</div></div>
+                  <span style="{{ s.activoPill }}">{{ s.activoLabel }}</span>
+                </div>
+                <sc-if value="{{ s.duplicada }}" hint-placeholder-val="{{ false }}"><div style="background:#FBEDEA;color:#C0392B;font-size:12px;font-weight:700;border-radius:8px;padding:7px 10px;margin:10px 0">⚠️ Otro equipo ya cubrió la ayuda principal — evitar repetir visita</div></sc-if>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0">
+                  <sc-for list="{{ s.coberturas }}" as="c" hint-placeholder-count="4"><span style="{{ c.style }}">{{ c.label }}</span></sc-for>
+                </div>
+                <div style="font-size:12.5px;color:#6B6560;line-height:1.5">📅 Última visita: {{ s.ultima }} · {{ s.permisoLabel }}</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+                  <button onClick="{{ abrirNuevoSitio }}" style="border:1px solid #E2DCD4;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1C1A19">Editar</button>
+                  <button onClick="{{ abrirNuevaJornada }}" style="border:1px solid #E2DCD4;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;background:#fff;color:#6B6560">Nueva jornada aquí</button>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <!-- TAB EXPORTAR -->
+        <sc-if value="{{ tabExportar }}" hint-placeholder-val="{{ false }}">
+          <h2 style="font-size:20px;font-weight:800;margin-bottom:16px">Exportar para WhatsApp</h2>
+          <div style="background:#fff;border:1px solid #E7E2DB;border-radius:16px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.04);margin-bottom:16px">
+            <div style="display:flex;flex-direction:column;gap:2px">
+              <sc-for list="{{ exportOpts }}" as="o" hint-placeholder-count="6"><label onClick="{{ o.pick }}" style="{{ o.style }}"><span style="{{ o.radio }}"></span> {{ o.label }}</label></sc-for>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+              <button onClick="{{ generarExport }}" style="flex:1;min-width:130px;border:none;border-radius:11px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff">Generar texto</button>
+              <button onClick="{{ descargarCSV }}" style="flex:1;min-width:130px;border:1px solid #E2DCD4;border-radius:11px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1C1A19">Descargar CSV</button>
+            </div>
+          </div>
+          <div style="font-size:11px;font-weight:800;color:#9A938B;text-transform:uppercase;letter-spacing:.05em;margin:4px 2px 8px">Vista previa</div>
+          <div style="background:#0b141a;color:#e9edef;border-radius:14px;padding:16px;font-size:13.5px;line-height:1.6;white-space:pre-wrap;font-family:inherit">{{ exportPreview }}</div>
+          <button onClick="{{ copiarExport }}" style="width:100%;border:1px solid #E2DCD4;border-radius:11px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1C1A19;margin-top:12px">📋 Copiar</button>
+        </sc-if>
+
+      </main>
+    </div>
+
+    <!-- bottom nav (mobile only) -->
+    <nav class="mod-bottomnav" style="position:fixed;bottom:0;left:0;right:0;z-index:40;background:#fff;border-top:1px solid #E7E2DB;display:none;align-items:stretch;justify-content:space-around;padding:6px 4px 8px">
+      <sc-for list="{{ bottomNav }}" as="n" hint-placeholder-count="5"><button onClick="{{ n.go }}" style="{{ n.style }}"><span style="font-size:20px">{{ n.icon }}</span><span style="font-size:10px;font-weight:700">{{ n.label }}</span></button></sc-for>
+    </nav>
+
+    <!-- "Más" sheet (mobile) -->
+    <sc-if value="{{ masOpen }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ cerrarMas }}" style="position:fixed;inset:0;z-index:45;background:rgba(28,26,25,.4);display:flex;align-items:flex-end;justify-content:center">
+      <div onClick="{{ noop }}" style="width:100%;max-width:580px;background:#fff;border-radius:20px 20px 0 0;padding:14px 14px 26px;animation:sheetin .2s ease;box-shadow:0 -6px 30px rgba(0,0,0,.16)">
+        <div style="width:38px;height:4px;border-radius:2px;background:#E2DCD4;margin:0 auto 14px"></div>
+        <div style="font-size:11px;font-weight:800;color:#9A938B;text-transform:uppercase;letter-spacing:.05em;padding:0 8px 6px">Más secciones</div>
+        <sc-for list="{{ masItems }}" as="m" hint-placeholder-count="3"><button onClick="{{ m.go }}" style="{{ m.style }}"><span style="font-size:20px">{{ m.icon }}</span> {{ m.label }}</button></sc-for>
+      </div>
+    </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <!-- ============ DESIGN SYSTEM ============ -->
+  <sc-if value="{{ rDS }}" hint-placeholder-val="{{ false }}">
+  <div style="min-height:100vh;background:#F1EEEA">
+    <header style="background:#5A4AA0;color:#fff;padding:16px 18px">
+      <a onClick="{{ irLanding }}" style="color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px;margin-bottom:8px;cursor:pointer">← Volver</a>
+      <h1 style="font-size:22px;font-weight:800">Sistema de diseño</h1>
+      <p style="font-size:13px;opacity:.88;margin-top:2px">Cuidadoras Caracas · heredado del registro</p>
+    </header>
+    <div style="max-width:900px;margin:0 auto;padding:22px 16px 60px;display:flex;flex-direction:column;gap:24px">
+
+      <section>
+        <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px">Colores</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px">
+          <sc-for list="{{ dsColors }}" as="c" hint-placeholder-count="10">
+            <div style="background:#fff;border:1px solid #E7E2DB;border-radius:12px;overflow:hidden">
+              <div style="height:52px;background:{{ c.hex }}"></div>
+              <div style="padding:8px 10px"><div style="font-size:12.5px;font-weight:800">{{ c.name }}</div><div style="font-size:11px;color:#9A938B;font-family:ui-monospace,monospace">{{ c.hex }}</div></div>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+
+      <section>
+        <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px">Chips de brigada</div>
+        <div style="background:#fff;border:1px solid #E7E2DB;border-radius:14px;padding:16px;display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ dsBrigadas }}" as="b" hint-placeholder-count="7"><span style="{{ b.chip }}">{{ b.icono }} {{ b.corto }}</span></sc-for>
+        </div>
+      </section>
+
+      <section>
+        <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px">Badges de estado</div>
+        <div style="background:#fff;border:1px solid #E7E2DB;border-radius:14px;padding:16px;display:flex;flex-wrap:wrap;gap:8px">
+          <sc-for list="{{ dsBadges }}" as="b" hint-placeholder-count="5"><span style="{{ b.pill }}">{{ b.dot }} {{ b.label }}</span></sc-for>
+          <span style="display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:999px;background:#FBEDEA;color:#C0392B">⚠️ Sin dueño</span>
+        </div>
+      </section>
+
+      <section>
+        <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px">Botones</div>
+        <div style="background:#fff;border:1px solid #E7E2DB;border-radius:14px;padding:16px;display:flex;flex-wrap:wrap;gap:10px">
+          <button style="border:none;border-radius:12px;padding:13px 20px;font-size:14px;font-weight:800;font-family:inherit;background:#5A4AA0;color:#fff">Primario</button>
+          <button style="border:none;border-radius:12px;padding:13px 20px;font-size:14px;font-weight:800;font-family:inherit;background:#1E8449;color:#fff">Voy (éxito)</button>
+          <button style="border:1px solid #E2DCD4;border-radius:12px;padding:13px 20px;font-size:14px;font-weight:800;font-family:inherit;background:#fff;color:#1C1A19">Secundario</button>
+          <button style="border:1px solid #C0392B;border-radius:12px;padding:13px 20px;font-size:14px;font-weight:800;font-family:inherit;background:#fff;color:#C0392B">Eliminar</button>
+        </div>
+      </section>
+
+      <section>
+        <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px">Tipografía</div>
+        <div style="background:#fff;border:1px solid #E7E2DB;border-radius:14px;padding:20px">
+          <div style="font-size:24px;font-weight:800">Título H1 · 24/800</div>
+          <div style="font-size:20px;font-weight:800;margin-top:8px">Título de sección · 20/800</div>
+          <div style="font-size:16px;margin-top:8px">Texto base · 16px — evita zoom en iOS</div>
+          <div style="font-size:13px;color:#6B6560;margin-top:8px">Secundario · 13px · #6B6560</div>
+          <div style="font-size:11px;color:#9A938B;margin-top:8px;font-family:ui-monospace,monospace">system font stack · -apple-system, Segoe UI, system-ui</div>
+        </div>
+      </section>
+
+      <section>
+        <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px">TaskRow — estado sin dueño</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:12px;padding:12px;background:#FBEDEA;border:1px solid #f3d3cc">
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">⚠️</span><div><div style="font-size:14.5px;font-weight:700">Preparar lonches</div><div style="font-size:12px;color:#6B6560">Logística · Sin dueño</div></div></div>
+            <button style="border:none;background:#5A4AA0;color:#fff;border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:800;font-family:inherit">Yo me encargo</button>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:12px;padding:12px;background:#E9F6EE;border:1px solid #cfe9d8">
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:18px">✅</span><div><div style="font-size:14.5px;font-weight:700">Pinta caritas</div><div style="font-size:12px;color:#6B6560">Recreación · Kelly</div></div></div>
+            <span style="font-size:12.5px;font-weight:700;color:#9A938B">Cubierta</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ MOD OVERLAYS (editar vol / crear jornada / crear sitio / detalle jornada mod) ============ -->
+  <sc-if value="{{ overlayEditVol }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ cerrarOverlay }}" style="position:fixed;inset:0;z-index:90;background:rgba(28,26,25,.45);display:flex;align-items:flex-end;justify-content:center">
+    <div onClick="{{ noop }}" style="width:100%;max-width:560px;background:#F1EEEA;border-radius:20px 20px 0 0;max-height:92vh;display:flex;flex-direction:column;animation:sheetin .22s ease">
+      <div style="padding:16px 18px;border-bottom:1px solid #E7E2DB;background:#fff;border-radius:20px 20px 0 0">
+        <div style="width:38px;height:4px;border-radius:2px;background:#E2DCD4;margin:0 auto 12px"></div>
+        <div style="font-size:16px;font-weight:800">Editar · {{ editVolTitulo }}</div>
+      </div>
+      <div style="overflow:auto;padding:16px 18px;display:flex;flex-direction:column;gap:14px">
+        <div style="background:#fff;border:1px solid #E7E2DB;border-radius:14px;padding:16px">
+          <div style="font-size:12px;font-weight:800;color:#463A82;margin-bottom:12px">A · Datos personales</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Nombre</label><input value="{{ editVolNombre }}" onChange="{{ noop }}" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:10px;font-size:15px;font-family:inherit;background:#fff"></div>
+            <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Cédula</label><input value="{{ editVolCedula }}" onChange="{{ noop }}" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:10px;font-size:15px;font-family:inherit;background:#fff"></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+            <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Teléfono</label><input value="{{ editVolTel }}" onChange="{{ noop }}" placeholder="0414-…" style="{{ editVolTelStyle }}"></div>
+            <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Zona</label><input value="{{ editVolZona }}" onChange="{{ noop }}" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:10px;font-size:15px;font-family:inherit;background:#fff"></div>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #E7E2DB;border-radius:14px;padding:16px">
+          <div style="font-size:12px;font-weight:800;color:#463A82;margin-bottom:12px">C · Brigadas y notas</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+            <sc-for list="{{ editVolBrigadas }}" as="b" hint-placeholder-count="7"><span style="{{ b.chip }}">{{ b.icono }} {{ b.corto }}{{ b.check }}</span></sc-for>
+          </div>
+          <label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Notas internas (solo moderadoras)</label>
+          <textarea placeholder="Ej: pide permiso en el trabajo los martes" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:10px;font-size:15px;font-family:inherit;min-height:56px;resize:vertical;background:#fff"></textarea>
+          <label style="display:flex;align-items:center;gap:10px;margin-top:12px;font-size:14px;font-weight:600;cursor:pointer"><span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:#5A4AA0;color:#fff;font-size:14px">✓</span> Activa</label>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;padding:14px 18px;border-top:1px solid #E7E2DB;background:#fff">
+        <button onClick="{{ cerrarOverlay }}" style="flex:1;border:1px solid #E2DCD4;border-radius:11px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#6B6560">Cancelar</button>
+        <button onClick="{{ guardarOverlay }}" style="flex:2;border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff">Guardar cambios</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ overlayJornada }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ cerrarOverlay }}" style="position:fixed;inset:0;z-index:90;background:rgba(28,26,25,.45);display:flex;align-items:flex-end;justify-content:center">
+    <div onClick="{{ noop }}" style="width:100%;max-width:560px;background:#F1EEEA;border-radius:20px 20px 0 0;max-height:92vh;display:flex;flex-direction:column;animation:sheetin .22s ease">
+      <div style="padding:16px 18px;border-bottom:1px solid #E7E2DB;background:#fff;border-radius:20px 20px 0 0">
+        <div style="width:38px;height:4px;border-radius:2px;background:#E2DCD4;margin:0 auto 12px"></div>
+        <div style="font-size:16px;font-weight:800">Nueva jornada</div>
+      </div>
+      <div style="overflow:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+        <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Título *</label><input placeholder="Jornada recreación — Catia La Mar" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:11px;font-size:15px;font-family:inherit;background:#fff"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Fecha *</label><input type="date" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:11px;font-size:15px;font-family:inherit;background:#fff"></div>
+          <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Hora salida *</label><input type="time" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:11px;font-size:15px;font-family:inherit;background:#fff"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Punto encuentro</label><input placeholder="Plaza Venezuela" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:11px;font-size:15px;font-family:inherit;background:#fff"></div>
+          <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Hora encuentro</label><input type="time" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:11px;font-size:15px;font-family:inherit;background:#fff"></div>
+        </div>
+        <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:6px">Brigadas necesarias *</label>
+          <div style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{ formBrigadas }}" as="b" hint-placeholder-count="7"><button onClick="{{ b.toggle }}" style="{{ b.style }}">{{ b.icono }}</button></sc-for></div>
+        </div>
+        <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Descripción / misión</label><textarea placeholder="Llevamos recreación a los niños…" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:11px;font-size:15px;font-family:inherit;min-height:64px;resize:vertical;background:#fff"></textarea></div>
+        <div style="background:#fff;border:1px solid #E7E2DB;border-radius:12px;padding:14px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px"><div style="font-size:12px;font-weight:800;color:#463A82">Tareas de la jornada</div><button onClick="{{ noop }}" style="border:1px solid #E2DCD4;border-radius:8px;padding:6px 10px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff">+ Agregar</button></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#FBEDEA;border:1px solid #f3d3cc;border-radius:9px;padding:9px 11px"><span style="font-size:13px;font-weight:700">Preparar lonches · Logística · 1</span><span style="font-size:11px;font-weight:800;color:#C0392B">sin dueño</span></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;background:#E9F6EE;border:1px solid #cfe9d8;border-radius:9px;padding:9px 11px"><span style="font-size:13px;font-weight:700">Pinta caritas · Recreación · Kelly</span><span style="font-size:11px;font-weight:800;color:#15603A">asignada</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;padding:14px 18px;border-top:1px solid #E7E2DB;background:#fff;flex-wrap:wrap">
+        <button onClick="{{ cerrarOverlay }}" style="flex:1;min-width:110px;border:1px solid #E2DCD4;border-radius:11px;padding:13px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#6B6560">Cancelar</button>
+        <button onClick="{{ guardarJornadaLink }}" style="flex:2;min-width:150px;border:none;border-radius:11px;padding:13px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff">Guardar y copiar link</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ overlaySitio }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ cerrarOverlay }}" style="position:fixed;inset:0;z-index:90;background:rgba(28,26,25,.45);display:flex;align-items:flex-end;justify-content:center">
+    <div onClick="{{ noop }}" style="width:100%;max-width:560px;background:#F1EEEA;border-radius:20px 20px 0 0;max-height:92vh;display:flex;flex-direction:column;animation:sheetin .22s ease">
+      <div style="padding:16px 18px;border-bottom:1px solid #E7E2DB;background:#fff;border-radius:20px 20px 0 0">
+        <div style="width:38px;height:4px;border-radius:2px;background:#E2DCD4;margin:0 auto 12px"></div>
+        <div style="font-size:16px;font-weight:800">Nuevo sitio</div>
+      </div>
+      <div style="overflow:auto;padding:16px 18px;display:flex;flex-direction:column;gap:12px">
+        <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Nombre del lugar *</label><input placeholder="Campamento La California" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:11px;font-size:15px;font-family:inherit;background:#fff"></div>
+        <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Cómo les gusta que lo llamen</label><input placeholder="Campamento (no refugio)" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:11px;font-size:15px;font-family:inherit;background:#fff"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Zona *</label><input placeholder="Caracas" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:11px;font-size:15px;font-family:inherit;background:#fff"></div>
+          <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Personas afectadas</label><input type="number" placeholder="45" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:11px;font-size:15px;font-family:inherit;background:#fff"></div>
+        </div>
+        <div style="background:#fff;border:1px solid #E7E2DB;border-radius:12px;padding:14px">
+          <div style="font-size:12px;font-weight:800;color:#463A82;margin-bottom:10px">Cobertura actual</div>
+          <sc-for list="{{ sitioCoberturaForm }}" as="c" hint-placeholder-count="4">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px"><label style="font-size:13px;font-weight:600;color:#1C1A19">{{ c.label }}</label><select style="border:1px solid #E2DCD4;border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit;background:#fff"><option>ninguna</option><option>baja</option><option>ok</option><option>sobra</option></select></div>
+          </sc-for>
+        </div>
+        <label style="display:flex;align-items:flex-start;gap:10px;font-size:13.5px;color:#6B6560;line-height:1.4;background:#FBEDEA;border:1px solid #f3d3cc;border-radius:10px;padding:12px"><span style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:5px;border:1.5px solid #C0392B;flex-shrink:0"></span> Otro equipo ya cubrió la ayuda principal (marcar para no repetir visita)</label>
+        <div><label style="display:block;font-size:11px;font-weight:700;color:#6B6560;margin-bottom:4px">Notas</label><textarea placeholder="Ya reciben comida de otra fundación los martes" style="width:100%;border:1px solid #E2DCD4;border-radius:9px;padding:11px;font-size:15px;font-family:inherit;min-height:56px;resize:vertical;background:#fff"></textarea></div>
+      </div>
+      <div style="display:flex;gap:10px;padding:14px 18px;border-top:1px solid #E7E2DB;background:#fff">
+        <button onClick="{{ cerrarOverlay }}" style="flex:1;border:1px solid #E2DCD4;border-radius:11px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#6B6560">Cancelar</button>
+        <button onClick="{{ guardarOverlay }}" style="flex:2;border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff">Guardar sitio</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ overlayModJornada }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ cerrarOverlay }}" style="position:fixed;inset:0;z-index:90;background:rgba(28,26,25,.45);display:flex;align-items:flex-end;justify-content:center">
+    <div onClick="{{ noop }}" style="width:100%;max-width:600px;background:#F1EEEA;border-radius:20px 20px 0 0;max-height:92vh;display:flex;flex-direction:column;animation:sheetin .22s ease">
+      <div style="padding:16px 18px 0;background:#fff;border-radius:20px 20px 0 0">
+        <div style="width:38px;height:4px;border-radius:2px;background:#E2DCD4;margin:0 auto 12px"></div>
+        <div style="font-size:16px;font-weight:800">Martes 7 jul · Catia La Mar</div>
+        <div style="font-size:12.5px;color:#6B6560;margin:2px 0 12px">9 confirmadas · meta 10 · ⚠️ 2 tareas sin dueño</div>
+        <div style="display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid #E7E2DB">
+          <sc-for list="{{ mjTabs }}" as="t" hint-placeholder-count="5"><button onClick="{{ t.click }}" style="{{ t.style }}">{{ t.label }}</button></sc-for>
+        </div>
+      </div>
+      <div style="overflow:auto;padding:16px 18px 20px">
+        <!-- Resumen -->
+        <sc-if value="{{ mjResumen }}" hint-placeholder-val="{{ true }}">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">
+            <div style="text-align:center;background:#fff;border:1px solid #E7E2DB;border-radius:12px;padding:14px 6px"><div style="font-size:22px;font-weight:800;color:#5A4AA0">9</div><div style="font-size:11px;color:#6B6560">confirmadas</div></div>
+            <div style="text-align:center;background:#fff;border:1px solid #E7E2DB;border-radius:12px;padding:14px 6px"><div style="font-size:22px;font-weight:800;color:#5A4AA0">3</div><div style="font-size:11px;color:#6B6560">piden ride</div></div>
+            <div style="text-align:center;background:#fff;border:1px solid #E7E2DB;border-radius:12px;padding:14px 6px"><div style="font-size:22px;font-weight:800;color:#C0392B">2</div><div style="font-size:11px;color:#6B6560">tareas s/dueño</div></div>
+          </div>
+          <div style="background:#fff;border:1px solid #E7E2DB;border-radius:12px;padding:14px;font-size:14px;line-height:1.6;color:#6B6560">📍 Catia La Mar, La Guaira · Salida 9:00 AM (encuentro Plaza Venezuela 8:30)<br>👕 Franela negra, jeans, gomas · 🎒 Carnet, agua</div>
+        </sc-if>
+        <!-- Confirmadas -->
+        <sc-if value="{{ mjConfirmadas }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ confirmadas }}" as="c" hint-placeholder-count="3">
+              <div style="background:#fff;border:1px solid #E7E2DB;border-radius:11px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px">
+                <div style="min-width:0"><div style="font-size:14px;font-weight:700">{{ c.nombre }} {{ c.estadoIco }}</div><div style="font-size:12px;color:#6B6560">{{ c.detalle }}</div></div>
+                <span style="{{ c.transPill }}">{{ c.transLabel }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <!-- Transporte -->
+        <sc-if value="{{ mjTransporte }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#E9F6EE;border:1px solid #cfe9d8;border-radius:12px;padding:14px;margin-bottom:14px"><div style="font-size:14px;font-weight:800;color:#15603A">✓ Transporte cubierto (sobra 1 cupo)</div><div style="font-size:13px;color:#6B6560;margin-top:2px">Necesitan ride: 3 · Cupos disponibles: 4</div></div>
+          <div style="font-size:11px;font-weight:800;color:#9A938B;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Sin transporte (3)</div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:14px">
+            <div style="background:#fff;border:1px solid #E7E2DB;border-radius:10px;padding:11px 13px;font-size:13.5px">Yessica · 0412-3334455</div>
+            <div style="background:#fff;border:1px solid #E7E2DB;border-radius:10px;padding:11px 13px;font-size:13.5px">Natascha · 0426-6677889</div>
+            <div style="background:#fff;border:1px solid #E7E2DB;border-radius:10px;padding:11px 13px;font-size:13.5px">Claudia · 0414-9990011</div>
+          </div>
+          <div style="font-size:11px;font-weight:800;color:#9A938B;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Con vehículo (2)</div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:16px">
+            <div style="background:#fff;border:1px solid #E7E2DB;border-radius:10px;padding:11px 13px;font-size:13.5px">🚗 Arlet · Carro · 2 cupos</div>
+            <div style="background:#fff;border:1px solid #E7E2DB;border-radius:10px;padding:11px 13px;font-size:13.5px">🚐 Daniela · Camioneta · 3 cupos</div>
+          </div>
+          <button onClick="{{ copiarWA }}" style="width:100%;border:1px solid #E2DCD4;border-radius:11px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1C1A19">📋 Copiar lista transporte para WhatsApp</button>
+        </sc-if>
+        <!-- Tareas -->
+        <sc-if value="{{ mjTareas }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:13px;font-weight:800;color:#C0392B;margin-bottom:12px">⚠️ 2 tareas sin dueño</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <sc-for list="{{ modTareas }}" as="t" hint-placeholder-count="4">
+              <div style="{{ t.rowStyle }}">
+                <div style="min-width:0"><div style="font-size:14px;font-weight:700">{{ t.titulo }}</div><div style="font-size:12px;color:#6B6560">{{ t.sub }}</div></div>
+                <button onClick="{{ t.action }}" style="{{ t.btnStyle }}">{{ t.btnLabel }}</button>
+              </div>
+            </sc-for>
+          </div>
+          <button onClick="{{ noop }}" style="width:100%;border:1px solid #E2DCD4;border-radius:11px;padding:12px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1C1A19;margin-top:12px">+ Agregar tarea</button>
+        </sc-if>
+        <!-- Materiales -->
+        <sc-if value="{{ mjMateriales }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ materiales }}" as="m" hint-placeholder-count="2">
+              <div style="background:#fff;border:1px solid #E7E2DB;border-radius:11px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px"><div><div style="font-size:14px;font-weight:700">{{ m.nombre }}</div><div style="font-size:12px;color:#6B6560">{{ m.progreso }}</div></div><span style="{{ m.pill }}">{{ m.estado }}</span></div>
+            </sc-for>
+          </div>
+          <button onClick="{{ noop }}" style="width:100%;border:1px solid #E2DCD4;border-radius:11px;padding:12px;font-size:13.5px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1C1A19;margin-top:12px">+ Agregar ítem</button>
+        </sc-if>
+      </div>
+      <div style="padding:12px 18px;border-top:1px solid #E7E2DB;background:#fff;display:flex;gap:10px">
+        <button onClick="{{ cerrarOverlay }}" style="flex:1;border:1px solid #E2DCD4;border-radius:11px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#6B6560">Cerrar</button>
+        <button onClick="{{ cerrarJornada }}" style="flex:1;border:none;border-radius:11px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;background:#1E8449;color:#fff">Cerrar jornada</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ BRIGADA INFO OVERLAY ============ -->
+  <sc-if value="{{ brigInfo }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ cerrarBrigInfo }}" style="position:fixed;inset:0;z-index:80;background:rgba(28,26,25,.45);display:flex;align-items:flex-end;justify-content:center">
+    <div style="width:100%;max-width:580px;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 30px;animation:sheetin .22s ease">
+      <div style="width:38px;height:4px;border-radius:2px;background:#E2DCD4;margin:0 auto 16px"></div>
+      <div style="font-size:12px;font-weight:800;color:#463A82;text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px">Requisitos sugeridos (informativos)</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ brigadasInfo }}" as="b" hint-placeholder-count="7">
+          <div style="display:flex;gap:12px;align-items:flex-start">
+            <span style="{{ b.badge }}">{{ b.icono }}</span>
+            <div><div style="font-size:14.5px;font-weight:700">{{ b.nombre }}</div><div style="font-size:13px;color:#6B6560;margin-top:2px;line-height:1.4">{{ b.req }}</div></div>
+          </div>
+        </sc-for>
+      </div>
+      <p style="font-size:12.5px;color:#9A938B;margin-top:16px;line-height:1.5">Los requisitos son una guía, no un filtro. Si quieres ayudar en algo, apúntate — el grupo te acompaña.</p>
+      <button onClick="{{ cerrarBrigInfo }}" style="width:100%;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff;margin-top:16px">Entendido</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ TOAST ============ -->
+  <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:#1C1A19;color:#fff;padding:13px 20px;border-radius:999px;font-size:14px;font-weight:700;z-index:120;box-shadow:0 8px 28px rgba(0,0,0,.28);animation:toastin .22s ease;max-width:90vw;text-align:center">{{ toast }}</div>
+  </sc-if>
+
+  <!-- ============ PROTOTYPE NAV ============ -->
+  <button onClick="{{ toggleNav }}" style="position:fixed;bottom:22px;right:22px;z-index:130;border:none;border-radius:999px;padding:12px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;background:#1C1A19;color:#fff;box-shadow:0 6px 20px rgba(0,0,0,.3);display:flex;align-items:center;gap:8px">☰ Pantallas</button>
+  <sc-if value="{{ navOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ toggleNav }}" style="position:fixed;inset:0;z-index:129;background:rgba(28,26,25,.4)">
+    <div onClick="{{ noop }}" style="position:absolute;bottom:76px;right:22px;width:270px;max-width:calc(100vw - 44px);background:#fff;border-radius:16px;padding:12px;box-shadow:0 12px 40px rgba(0,0,0,.28);max-height:70vh;overflow:auto">
+      <div style="font-size:11px;font-weight:800;color:#9A938B;text-transform:uppercase;letter-spacing:.05em;padding:6px 8px">Voluntaria</div>
+      <sc-for list="{{ navVol }}" as="n" hint-placeholder-count="5"><button onClick="{{ n.go }}" style="{{ n.style }}">{{ n.label }}</button></sc-for>
+      <div style="font-size:11px;font-weight:800;color:#9A938B;text-transform:uppercase;letter-spacing:.05em;padding:10px 8px 6px">Moderadora</div>
+      <sc-for list="{{ navMod }}" as="n" hint-placeholder-count="7"><button onClick="{{ n.go }}" style="{{ n.style }}">{{ n.label }}</button></sc-for>
+      <div style="font-size:11px;font-weight:800;color:#9A938B;text-transform:uppercase;letter-spacing:.05em;padding:10px 8px 6px">Sistema</div>
+      <sc-for list="{{ navSys }}" as="n" hint-placeholder-count="1"><button onClick="{{ n.go }}" style="{{ n.style }}">{{ n.label }}</button></sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;430&quot;,&quot;height&quot;:&quot;860&quot;}}">
+class Component extends DCLogic {
+  state = {
+    route: 'landing',
+    navOpen: false,
+    toast: '',
+    // voluntaria
+    misBrigadas: { recreacion: true, contencion: true, logistica_alimentos: true },
+    brigInfo: false,
+    loginRed: 'Instagram', loginUser: '', loginPin: '',
+    // rsvp
+    asistencia: '', necesita: false, ofrece: false, cupos: '2', rsvpNotas: '', tareasTomadas: {}, rsvpGuardado: false,
+    // moderadora
+    modTab: 'inicio', mjTab: 'resumen', overlay: null,
+    jorTab: 'proximas', volFiltro: 'todas', exportSel: 0, masOpen: false,
+    formBrig: { recreacion: true, contencion: true },
+    modTareasTomadas: {},
+  };
+
+  BRIG = [
+    { slug:'logistica_alimentos', nombre:'Logística de Alimentos', corto:'Logística', icono:'🍲', bg:'#D6EAF8', fg:'#1A5276', mision:'Preparar y distribuir comidas', req:'Experiencia en cocina deseable', miembros:12 },
+    { slug:'salud_medicamentos', nombre:'Salud y Medicamentos', corto:'Salud', icono:'💊', bg:'#D5F5E3', fg:'#186A3B', mision:'Atención médica segura', req:'Profesión de salud o experiencia deseable', miembros:6 },
+    { slug:'clasificacion_donaciones', nombre:'Clasificación de Donaciones', corto:'Donaciones', icono:'📦', bg:'#FCF3CF', fg:'#7D6608', mision:'Inventario de ropa y kits', req:'Ninguno', miembros:9 },
+    { slug:'saneamiento', nombre:'Saneamiento y Mantenimiento', corto:'Saneamiento', icono:'🧹', bg:'#FAE5D3', fg:'#A04000', mision:'Espacios habitables', req:'Ninguno', miembros:5 },
+    { slug:'recreacion', nombre:'Atención Directa y Recreación', corto:'Recreación', icono:'⚽', bg:'#FADBD8', fg:'#922B21', mision:'Juegos, deporte, cultura', req:'Experiencia con niños deseable', miembros:28 },
+    { slug:'contencion', nombre:'Contención Emocional y Resguardo', corto:'Contención', icono:'💜', bg:'#E8DAEF', fg:'#6C3483', mision:'Apoyo psicoafectivo', req:'Formación psico/sociales deseable', miembros:14 },
+    { slug:'social', nombre:'Brigada Social', corto:'Social', icono:'🤝', bg:'#D1F2EB', fg:'#117A65', mision:'Casos vulnerables, enlace', req:'Ninguno', miembros:7 },
+  ];
+
+  COORD = { logistica_alimentos: 'Cyndi (#2)' };
+
+  JOR = [
+    { id:'j1', titulo:'Jornada recreación — Catia La Mar', lugar:'Catia La Mar, La Guaira', fechaCorta:'Mar 7 jul', fechaLarga:'Martes 7 de julio de 2026', hora:'9:00 AM', encuentro:'8:30 AM — Plaza Venezuela', salida:'9:00 AM hacia Catia La Mar', regreso:'~2:00 PM', mision:'Llevamos recreación a los niños: pinta caritas, cuentos y dinámicas. La idea es brindar un respiro a las mamás mientras jugamos con los chamos.', brigadas:['recreacion','contencion'], vestimenta:'Franela negra, jeans, gomas', llevar:'Carnet, agua', metaVol:10, metaVeh:2, estado:'abierta', confirmadas:9 },
+    { id:'j2', titulo:'Jornada alimentos — La California', lugar:'La California, Caracas', fechaCorta:'Jue 9 jul', fechaLarga:'Jueves 9 de julio de 2026', hora:'8:00 AM', encuentro:'7:30 AM — Metro La California', salida:'8:00 AM', regreso:'~1:00 PM', mision:'Preparar y repartir almuerzos calientes.', brigadas:['logistica_alimentos'], vestimenta:'Ropa cómoda, delantal', llevar:'Carnet, gorra', metaVol:8, metaVeh:2, estado:'abierta', confirmadas:5 },
+    { id:'j3', titulo:'Jornada donaciones — Petare', lugar:'Petare, Caracas', fechaCorta:'Sáb 28 jun', fechaLarga:'Sábado 28 de junio de 2026', hora:'9:00 AM', encuentro:'8:30 AM', salida:'9:00 AM', regreso:'~12:00 PM', mision:'Clasificación de ropa donada.', brigadas:['clasificacion_donaciones'], vestimenta:'Ropa cómoda', llevar:'Carnet', metaVol:6, metaVeh:1, estado:'realizada', confirmadas:11 },
+    { id:'j4', titulo:'Jornada salud — Sector Las Mayas', lugar:'Las Mayas, Caracas', fechaCorta:'Sin fecha', fechaLarga:'Borrador', hora:'—', encuentro:'—', salida:'—', regreso:'—', mision:'Jornada médica preventiva (en planificación).', brigadas:['salud_medicamentos'], vestimenta:'—', llevar:'—', metaVol:6, metaVeh:2, estado:'borrador', confirmadas:0 },
+  ];
+
+  TAREAS = {
+    j1: [
+      { id:'t1', titulo:'Preparar lonches', desc:'Para 30 niños', brigada:'logistica_alimentos', cupos:1, dueno:null },
+      { id:'t2', titulo:'Pinta caritas', desc:'Materiales incluidos', brigada:'recreacion', cupos:1, dueno:'Kelly' },
+      { id:'t3', titulo:'Llevar kits emocionales', desc:'20 kits', brigada:'contencion', cupos:2, dueno:null },
+      { id:'t4', titulo:'Acompañar lectura', desc:'Cuentos para los más pequeños', brigada:'recreacion', cupos:1, dueno:null },
+    ],
+  };
+
+  VOL = [
+    { n:4, nombre:'Yrma la Cruz', cedula:'V-12.345.892', tel:'0414-1234567', zona:'Ccs o La Guaira', transporte:'sin_transporte', brigadas:['recreacion','contencion'], activa:true, rojo:false, red:'Instagram', usuario:'@yrma_cuida' },
+    { n:2, nombre:'Cyndi Rojas', cedula:'V-10.111.222', tel:'0414-2223344', zona:'Caracas', transporte:'carro', brigadas:['logistica_alimentos'], activa:true, rojo:false, red:'Gmail', usuario:'cyndi@gmail.com' },
+    { n:8, nombre:'Kelly Mendoza', cedula:'V-14.567.001', tel:'0424-5567788', zona:'La Guaira', transporte:'sin_transporte', brigadas:['recreacion'], activa:true, rojo:false, red:'Instagram', usuario:'@kelly_m' },
+    { n:11, nombre:'Martha Ojeda', cedula:'V-9.888.777', tel:'', zona:'Caracas', transporte:'sin_transporte', brigadas:['social'], activa:true, rojo:true, red:'X', usuario:'@martha_oj' },
+    { n:5, nombre:'Yessica Parra', cedula:'V-15.222.333', tel:'0412-3334455', zona:'Caracas', transporte:'sin_transporte', brigadas:['contencion'], activa:true, rojo:false, red:'Gmail', usuario:'yessica@gmail.com' },
+    { n:7, nombre:'Natascha Silva', cedula:'V-16.444.555', tel:'0426-6677889', zona:'La Guaira', transporte:'sin_transporte', brigadas:['recreacion'], activa:true, rojo:false, red:'Instagram', usuario:'@nata_silva' },
+    { n:9, nombre:'Claudia León', cedula:'V-13.777.888', tel:'0414-9990011', zona:'Ccs o La Guaira', transporte:'sin_transporte', brigadas:['salud_medicamentos'], activa:true, rojo:false, red:'Gmail', usuario:'claudia@gmail.com' },
+    { n:3, nombre:'Arlet Gómez', cedula:'V-11.333.444', tel:'0416-1112233', zona:'Caracas', transporte:'carro', brigadas:['logistica_alimentos','saneamiento'], activa:true, rojo:false, red:'Instagram', usuario:'@arlet_g' },
+    { n:6, nombre:'Daniela Ruiz', cedula:'V-12.999.000', tel:'0424-8889900', zona:'Caracas', transporte:'camioneta', brigadas:['clasificacion_donaciones'], activa:true, rojo:false, red:'X', usuario:'@dani_ruiz' },
+    { n:10, nombre:'Rosa Pérez', cedula:'V-8.777.666', tel:'0412-5556677', zona:'Caracas', transporte:'sin_transporte', brigadas:[], activa:false, rojo:false, red:'Gmail', usuario:'rosa@gmail.com' },
+  ];
+
+  SITIOS = [
+    { id:'s1', nombre:'Campamento La California', alias:'Prefieren llamarlo campamento (no refugio)', zona:'Caracas', personas:45, ninos:20, comida:'sobra', medicinas:'ok', cotillon:'baja', recreacion:'baja', ultima:'8 jul 2026', permiso:true, permisoPor:'Jeudy', duplicada:false, activo:true, notas:'Ya reciben comida de otra fundación los martes.' },
+    { id:'s2', nombre:'Refugio Catia La Mar', alias:'', zona:'La Guaira', personas:60, ninos:25, comida:'baja', medicinas:'baja', cotillon:'ninguna', recreacion:'ninguna', ultima:'—', permiso:false, permisoPor:'', duplicada:false, activo:true, notas:'Falta confirmar permiso de entrada.' },
+    { id:'s3', nombre:'Sector Las Mayas', alias:'', zona:'Caracas', personas:30, ninos:12, comida:'sobra', medicinas:'ok', cotillon:'ok', recreacion:'ok', ultima:'2 jul 2026', permiso:true, permisoPor:'Jeudy', duplicada:true, activo:true, notas:'Otra ONG ya cubre comida y recreación. Evitar repetir visita.' },
+  ];
+
+  // ---- helpers ----
+  brig(slug){ return this.BRIG.find(b=>b.slug===slug) || {corto:slug,icono:'•',bg:'#EEE',fg:'#555',nombre:slug,req:''}; }
+  chipStyle(b){ return `display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px;background:${b.bg};color:${b.fg};white-space:nowrap`; }
+  badgeFor(estado){
+    const map = {
+      abierta:{label:'Abierta',dot:'🟢',bg:'#E9F6EE',fg:'#15603A'},
+      llena:{label:'Cupo lleno',dot:'🟠',bg:'#FCF3CF',fg:'#7D6608'},
+      realizada:{label:'Realizada',dot:'✓',bg:'#EFEDEA',fg:'#6B6560'},
+      cancelada:{label:'Cancelada',dot:'✕',bg:'#FBEDEA',fg:'#C0392B'},
+      borrador:{label:'Borrador',dot:'✎',bg:'#EFEDEA',fg:'#6B6560'},
+    };
+    const m = map[estado] || map.abierta;
+    return { ...m, pill:`display:inline-flex;align-items:center;gap:4px;font-size:11.5px;font-weight:800;padding:3px 9px;border-radius:999px;background:${m.bg};color:${m.fg};white-space:nowrap` };
+  }
+  cobLabel(v){ const m={ninguna:'ninguna',baja:'baja',ok:'ok',sobra:'sobra'}; return m[v]||v; }
+  cobColor(v){ return (v==='ok'||v==='sobra') ? {bg:'#E9F6EE',fg:'#15603A'} : {bg:'#FBEDEA',fg:'#C0392B'}; }
+  transLabel(t){ return {sin_transporte:'Sin transporte',carro:'Carro',camioneta:'Camioneta',moto:'Moto'}[t]||'—'; }
+
+  flash(msg){ this.setState({toast:msg}); clearTimeout(this._t); this._t=setTimeout(()=>this.setState({toast:''}),2600); }
+  go(route){ this.setState({route, navOpen:false}); window.scrollTo(0,0); }
+
+  toggleBrigada(slug){ this.setState(s=>{ const m={...s.misBrigadas}; m[slug]=!m[slug]; return {misBrigadas:m}; }); }
+
+  renderVals(){
+    const s = this.state;
+    const r = s.route;
+    const jornadasVisibles = this.JOR.filter(j=>j.estado!=='borrador');
+    const jorExp = (j)=>{
+      const abierta = j.estado==='abierta';
+      const grayed = j.estado==='realizada' || j.estado==='cancelada';
+      return {
+      ...j,
+      brigObjs: j.brigadas.map(sl=>{ const b=this.brig(sl); return {icono:b.icono,corto:b.corto,chip:this.chipStyle(b)}; }),
+      badge: this.badgeFor(j.estado),
+      cardStyle: `background:#fff;border:1px solid #E7E2DB;border-radius:18px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,.04);${grayed?'opacity:.62':''}`,
+      btnStyle: abierta
+        ? 'border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff;white-space:nowrap'
+        : 'border:1px solid #E2DCD4;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;background:#fff;color:#6B6560;white-space:nowrap',
+      btnLabel: abierta ? 'Ver y confirmar →' : 'Ver detalle',
+      abrir: ()=>this.setState({route:'v-jornada', _jid:j.id, asistencia:'', necesita:false, ofrece:false, cupos:'2', rsvpNotas:'', tareasTomadas:{}, rsvpGuardado:false},()=>window.scrollTo(0,0)),
+      };
+    };
+
+    // detalle jornada actual (voluntaria) -> j1 por defecto
+    const detBase = this.JOR.find(j=>j.id===(s._jid||'j1')) || this.JOR[0];
+    const det = {
+      ...detBase,
+      brigObjs: detBase.brigadas.map(sl=>{ const b=this.brig(sl); return {icono:b.icono,corto:b.corto,chip:this.chipStyle(b)}; }),
+      tareas: (this.TAREAS[detBase.id]||[]).map(t=>{
+        const b=this.brig(t.brigada);
+        const tomada = s.tareasTomadas[t.id];
+        const asignadaOtro = t.dueno && !tomada;
+        const sinDueno = !t.dueno && !tomada;
+        let ico, sub, btnLabel, rowStyle, btnStyle, action;
+        rowStyle = 'display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:12px;padding:12px;';
+        if(tomada){ ico='✅'; sub=`${b.corto} · Tú te encargas`; btnLabel='Soltar'; rowStyle+='background:#E9F6EE;border:1px solid #cfe9d8'; btnStyle='border:1px solid #cfe9d8;background:#fff;color:#15603A;border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap'; action=()=>this.toggleTarea(t.id,false); }
+        else if(asignadaOtro){ ico='✅'; sub=`${b.corto} · ${t.dueno}`; btnLabel='Cubierta'; rowStyle+='background:#FBFAF8;border:1px solid #E7E2DB'; btnStyle='border:none;background:transparent;color:#9A938B;padding:9px 12px;font-size:12.5px;font-weight:700;font-family:inherit;white-space:nowrap;cursor:default'; action=()=>{}; }
+        else { ico='⚠️'; sub=`${b.corto}${t.cupos>1?' · '+t.cupos+' cupos':''} · Sin dueño`; btnLabel='Yo me encargo'; rowStyle+='background:#FBEDEA;border:1px solid #f3d3cc'; btnStyle='border:none;background:#5A4AA0;color:#fff;border-radius:10px;padding:9px 12px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap'; action=()=>this.toggleTarea(t.id,true); }
+        return { ...t, ico, sub, btnLabel, rowStyle, btnStyle, action };
+      }),
+    };
+
+    // brigadas de mi cuenta
+    const misBrigadas = this.BRIG.map(b=>{
+      const on = !!s.misBrigadas[b.slug];
+      return {
+        label: `${b.icono} ${b.corto}${on?' ✓':''}`,
+        toggle: ()=>this.toggleBrigada(b.slug),
+        chipStyle: on
+          ? `display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;padding:9px 13px;border-radius:999px;cursor:pointer;font-family:inherit;border:1.5px solid ${b.fg};background:${b.bg};color:${b.fg}`
+          : `display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:700;padding:9px 13px;border-radius:999px;cursor:pointer;font-family:inherit;border:1.5px solid #E2DCD4;background:#fff;color:#6B6560`,
+      };
+    });
+
+    // rsvp derived styles
+    const voy = s.asistencia==='voy';
+    const noVoy = s.asistencia==='no';
+    const btnBase = 'flex:1;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;';
+    const chkBase = 'display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;font-size:14px;flex-shrink:0;';
+    const rowChk = 'display:flex;align-items:center;gap:12px;padding:12px 4px;font-size:14.5px;cursor:pointer;font-weight:600;';
+
+    // nav items
+    const navItem = (label, route, active)=>({ label, go:()=>this.go(route),
+      style:`display:block;width:100%;text-align:left;border:none;border-radius:9px;padding:9px 10px;font-size:13.5px;font-weight:${active?'800':'600'};cursor:pointer;font-family:inherit;background:${active?'#EEEBF6':'transparent'};color:${active?'#463A82':'#1C1A19'}` });
+
+    // ===== MODERADORA =====
+    const setTab = (t)=>this.setState({modTab:t, overlay:null, masOpen:false},()=>window.scrollTo(0,0));
+    const MODNAV = [['inicio','Inicio','🏠'],['voluntarias','Voluntarias','👥'],['brigadas','Brigadas','💠'],['jornadas','Jornadas','🗓'],['sitios','Sitios','📍'],['exportar','Exportar','📤']];
+    const modNav = MODNAV.map(([k,label,icon])=>({ label, icon, go:()=>setTab(k),
+      style:`display:flex;align-items:center;gap:9px;width:100%;text-align:left;border:none;border-radius:10px;padding:11px 12px;font-size:14px;font-weight:${s.modTab===k?'800':'600'};cursor:pointer;font-family:inherit;margin-bottom:2px;background:${s.modTab===k?'#EEEBF6':'transparent'};color:${s.modTab===k?'#463A82':'#1C1A19'}` }));
+    const bnItem = (k,label,icon,act)=>({ label, icon, go:()=>setTab(k),
+      style:`flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border:none;background:transparent;cursor:pointer;font-family:inherit;padding:6px 2px;color:${act?'#5A4AA0':'#9A938B'}` });
+    const bottomNav = [ bnItem('inicio','Inicio','🏠',s.modTab==='inicio'), bnItem('voluntarias','Vol.','👥',s.modTab==='voluntarias'),
+      { label:'', icon:'➕', go:()=>this.setState({overlay:{type:'jornada'}}), style:'flex:0 0 auto;display:flex;align-items:center;justify-content:center;width:52px;height:52px;margin:-14px 4px 0;border:none;border-radius:50%;background:#5A4AA0;color:#fff;font-size:22px;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(90,74,160,.4)' },
+      bnItem('jornadas','Jorn.','🗓',s.modTab==='jornadas'),
+      { label:'Más', icon:'⋯', go:()=>this.setState(x=>({masOpen:!x.masOpen})),
+        style:`flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;border:none;background:transparent;cursor:pointer;font-family:inherit;padding:6px 2px;color:${(s.masOpen||['brigadas','sitios','exportar'].includes(s.modTab))?'#5A4AA0':'#9A938B'}` } ];
+    // "Más" sheet (mobile) — secciones que no caben en la barra
+    const masItems = [['brigadas','Brigadas','💠'],['sitios','Sitios','📍'],['exportar','Exportar','📤']].map(([k,label,icon])=>({ label, icon, go:()=>setTab(k), active:s.modTab===k,
+      style:`display:flex;align-items:center;gap:13px;width:100%;text-align:left;border:none;border-radius:12px;padding:14px 12px;font-size:15px;font-weight:${s.modTab===k?'800':'600'};cursor:pointer;font-family:inherit;background:${s.modTab===k?'#EEEBF6':'transparent'};color:${s.modTab===k?'#463A82':'#1C1A19'}` }));
+
+    // voluntarias list + filtros
+    const FILT = [['todas','Todas'],['vehiculo','Con vehículo'],['rojo','Sin registro completo'],['ccs','Zona: Ccs']];
+    const volFiltros = FILT.map(([k,label])=>({ label, click:()=>this.setState({volFiltro:k}),
+      style:`font-size:12px;font-weight:700;padding:7px 12px;border-radius:999px;cursor:pointer;font-family:inherit;border:1px solid ${s.volFiltro===k?'#5A4AA0':'#E2DCD4'};background:${s.volFiltro===k?'#EEEBF6':'#fff'};color:${s.volFiltro===k?'#463A82':'#6B6560'}` }));
+    let vols = this.VOL.slice();
+    if(s.volFiltro==='vehiculo') vols = vols.filter(v=>v.transporte!=='sin_transporte');
+    else if(s.volFiltro==='rojo') vols = vols.filter(v=>v.rojo);
+    else if(s.volFiltro==='ccs') vols = vols.filter(v=>/Caracas|Ccs/.test(v.zona));
+    const volList = vols.map(v=>({
+      titulo:`#${v.n} · ${v.nombre}`,
+      carIcon: v.transporte!=='sin_transporte'?'🚗':'',
+      linea2:`${v.cedula} · ${v.tel||'sin teléfono'}`,
+      linea3:`${v.zona} · ${this.transLabel(v.transporte)}`,
+      estadoLabel: v.activa?'Activa':'Inactiva',
+      estadoPill: v.activa?'font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:#E9F6EE;color:#15603A;white-space:nowrap':'font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:#EFEDEA;color:#9A938B;white-space:nowrap',
+      brigObjs: v.brigadas.map(sl=>{ const b=this.brig(sl); return {icono:b.icono,corto:b.corto,chip:this.chipStyle(b)}; }),
+      cardStyle:`background:#fff;border:1px solid #E7E2DB;${v.rojo?'border-left:4px solid #C0392B;':''}border-radius:14px;padding:15px;box-shadow:0 2px 12px rgba(0,0,0,.04);${v.activa?'':'opacity:.6'}`,
+      editar:()=>this.setState({overlay:{type:'editVol',vol:v}}),
+      historial:()=>this.flash('Historial de '+v.nombre.split(' ')[0]),
+    }));
+
+    // brigadas
+    const brigList = this.BRIG.map(b=>{ const coord=this.COORD[b.slug]; return {
+      ...b, coordLine: coord?`Coordinadora: ${coord}`:'Sin coordinadora asignada',
+      stats:`${b.miembros} voluntarias`,
+      btnLabel: coord?'Cambiar':'Asignar',
+      btnStyle: coord?'border:1px solid #E2DCD4;border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;background:#fff;color:#1C1A19;white-space:nowrap':'border:none;border-radius:9px;padding:8px 13px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;background:#5A4AA0;color:#fff;white-space:nowrap',
+      action:()=>this.flash(coord?'Cambiar coordinadora de '+b.corto:'Asignar coordinadora a '+b.corto),
+    }; });
+
+    // jornadas (moderadora)
+    const jorTabDefs = [['proximas','Próximas'],['pasadas','Pasadas'],['borradores','Borradores']];
+    const jorTabs = jorTabDefs.map(([k,label])=>({ label, click:()=>this.setState({jorTab:k}),
+      style:`font-size:13px;font-weight:800;padding:8px 14px;border-radius:999px;cursor:pointer;font-family:inherit;border:none;background:${s.jorTab===k?'#5A4AA0':'#fff'};color:${s.jorTab===k?'#fff':'#6B6560'};border:1px solid ${s.jorTab===k?'#5A4AA0':'#E2DCD4'}` }));
+    const jorFilter = { proximas:j=>j.estado==='abierta'||j.estado==='llena', pasadas:j=>j.estado==='realizada'||j.estado==='cancelada', borradores:j=>j.estado==='borrador' };
+    const modJorList = this.JOR.filter(jorFilter[s.jorTab]).map(j=>{
+      const b=this.badgeFor(j.estado); const realiz=j.estado==='realizada'||j.estado==='cancelada';
+      return { ...j, lugarCorto:j.lugar, badge:b,
+        progreso:`${j.confirmadas} / ${j.metaVol} voluntarias`,
+        transAlert: j.id==='j1'?'· ✓ transporte':'',
+        brigObjs:j.brigadas.map(sl=>{ const x=this.brig(sl); return {icono:x.icono,corto:x.corto,chip:this.chipStyle(x)}; }),
+        abrirMod:()=>this.setState({overlay:{type:'modJornada'},mjTab:'resumen'}),
+        cerrarLabel: realiz?'Realizada':'Cerrar jornada',
+        cerrarStyle: realiz?'border:1px solid #E2DCD4;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:700;font-family:inherit;background:#EFEDEA;color:#9A938B;cursor:default':'border:1px solid #cfe9d8;border-radius:9px;padding:9px 14px;font-size:12.5px;font-weight:800;cursor:pointer;font-family:inherit;background:#E9F6EE;color:#15603A',
+        cerrar: realiz?(()=>{}):(()=>this.setState({overlay:{type:'modJornada'},mjTab:'resumen'})),
+      };
+    });
+
+    // sitios
+    const cob=(label,v)=>{ const c=this.cobColor(v); return {label:`${label}: ${this.cobLabel(v)}`, style:`font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;background:${c.bg};color:${c.fg}`}; };
+    const sitioList = this.SITIOS.map(st=>({
+      ...st,
+      activoLabel: st.activo?'Activo':'Inactivo',
+      activoPill: st.activo?'font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:#E9F6EE;color:#15603A;white-space:nowrap':'font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:#EFEDEA;color:#9A938B;white-space:nowrap',
+      coberturas:[cob('Comida',st.comida),cob('Meds',st.medicinas),cob('Cotillón',st.cotillon),cob('Recreación',st.recreacion)],
+      permisoLabel: st.permiso?`Permiso ✓ (${st.permisoPor})`:'Permiso pendiente',
+    }));
+
+    // exportar
+    const EXPORT = ['Resumen próxima jornada','Lista confirmadas con teléfonos','Solo transporte','Tareas sin dueño','Voluntarias sin registro completo','Censo completo (CSV)'];
+    const exportOpts = EXPORT.map((label,i)=>({ label, pick:()=>this.setState({exportSel:i}),
+      style:`display:flex;align-items:center;gap:11px;padding:11px 6px;font-size:14px;cursor:pointer;font-weight:${s.exportSel===i?'700':'500'};border-bottom:1px solid #F1EEEA`,
+      radio:`display:inline-block;width:20px;height:20px;border-radius:50%;flex-shrink:0;border:2px solid ${s.exportSel===i?'#5A4AA0':'#E2DCD4'};background:${s.exportSel===i?'radial-gradient(#5A4AA0 42%,#fff 46%)':'#fff'}` }));
+    const PREV = [
+      'CHICAS — Martes 7 jul · La Guaira\nConfirmadas (9). Salida 9 AM desde Plaza Venezuela.\nConfirmen aquí 👉 forvzla.org/cc/jornada/j1',
+      'Confirmadas (9):\n1. Cyndi · 0414-2223344 · tiene ride\n2. Yrma · 0414-1234567 · necesita ride\n3. Kelly · 0424-5567788\n…',
+      'TRANSPORTE — Martes 7 jul\nNecesitan ride (3): Yessica, Natascha, Claudia\nCon vehículo (2): Arlet (2 cupos), Daniela (3 cupos)\n✓ Cubierto',
+      'Chicas — para el martes falta quién prepare los lonches y quién lleve los kits emocionales.\n¿Quién se apunta? 👉 forvzla.org/cc/jornada/j1',
+      'Faltan datos de: Martha Ojeda (sin teléfono).\nComplétalo aquí 👉 forvzla.org/cc/coord',
+      'Censo completo — 87 voluntarias.\nSe descargará como CSV (solo moderadoras).',
+    ];
+
+    // modJornada overlay
+    const MJ = [['resumen','Resumen'],['confirmadas','Confirmadas'],['transporte','Transporte'],['tareas','Tareas'],['materiales','Materiales']];
+    const mjTabs = MJ.map(([k,label])=>({ label, click:()=>this.setState({mjTab:k}),
+      style:`flex-shrink:0;padding:10px 12px;font-size:13px;font-weight:700;background:none;border:none;border-bottom:2px solid ${s.mjTab===k?'#5A4AA0':'transparent'};color:${s.mjTab===k?'#463A82':'#9A938B'};cursor:pointer;font-family:inherit;white-space:nowrap` }));
+    const confirmadas = [
+      { nombre:'#4 Yrma', estadoIco:'✅', detalle:'Recreación · 0414-1234567', transLabel:'Necesita ride', transPill:'font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:#FBEDEA;color:#C0392B;white-space:nowrap' },
+      { nombre:'#8 Kelly', estadoIco:'✅', detalle:'Recreación · 0424-5567788', transLabel:'—', transPill:'font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:#EFEDEA;color:#9A938B;white-space:nowrap' },
+      { nombre:'Martha', estadoIco:'❌', detalle:'No puede · Trabajo', transLabel:'—', transPill:'font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:#EFEDEA;color:#9A938B;white-space:nowrap' },
+    ];
+    const modTareas = (this.TAREAS.j1||[]).map(t=>{ const b=this.brig(t.brigada); const tomada=s.modTareasTomadas[t.id]; const sinD=!t.dueno&&!tomada;
+      return { titulo:t.titulo, sub:`${b.corto}${sinD?' · SIN DUEÑO':(t.dueno?' · '+t.dueno:' · Tú')}`,
+        rowStyle:`display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:12px;padding:12px;${sinD?'background:#FBEDEA;border:1px solid #f3d3cc':'background:#FBFAF8;border:1px solid #E7E2DB'}`,
+        btnLabel: sinD?'📋 Copiar aviso WA':'Reasignar',
+        btnStyle: sinD?'border:none;background:#5A4AA0;color:#fff;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap':'border:1px solid #E2DCD4;background:#fff;color:#6B6560;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap',
+        action: sinD?(()=>this.flash('Aviso copiado para WhatsApp 📋')):(()=>this.flash('Reasignar tarea')),
+      };
+    });
+    const materiales = [
+      { nombre:'Kits emocionales', progreso:'15 / 20 conseguidos', estado:'Parcial', pill:'font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:#FCF3CF;color:#7D6608' },
+      { nombre:'Pinta caritas', progreso:'0 / 1 conseguido', estado:'Pendiente', pill:'font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px;background:#FBEDEA;color:#C0392B' },
+    ];
+
+    // form brigadas (nueva jornada)
+    const formBrigadas = this.BRIG.map(b=>{ const on=!!s.formBrig[b.slug]; return {
+      icono:b.icono, toggle:()=>this.setState(x=>{ const m={...x.formBrig}; m[b.slug]=!m[b.slug]; return {formBrig:m}; }),
+      style:`width:44px;height:44px;border-radius:12px;font-size:20px;cursor:pointer;font-family:inherit;border:1.5px solid ${on?b.fg:'#E2DCD4'};background:${on?b.bg:'#fff'};${on?'':'filter:grayscale(.4);opacity:.7'}`,
+    }; });
+
+    // editVol overlay data
+    const ev = s.overlay && s.overlay.type==='editVol' ? s.overlay.vol : null;
+    const editVolBrigadas = this.BRIG.map(b=>{ const on = ev ? ev.brigadas.includes(b.slug) : false; return {
+      icono:b.icono, corto:b.corto, check: on?' ✓':'',
+      chip:`display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:700;padding:6px 11px;border-radius:999px;border:1.5px solid ${on?b.fg:'#E2DCD4'};background:${on?b.bg:'#fff'};color:${on?b.fg:'#9A938B'}`,
+    }; });
+    const sitioCoberturaForm = [{label:'Comida'},{label:'Medicinas'},{label:'Cotillón'},{label:'Recreación'}];
+
+    return {
+      // routes
+      rLanding: r==='landing', rVLogin: r==='v-login', rVCuenta: r==='v-cuenta', rVJornadas: r==='v-jornadas', rVJornada: r==='v-jornada', rRegistro: r==='registro',
+      rMLogin: r==='m-login', rMPanel: r==='m-panel', rDS: r==='ds',
+      // nav
+      navOpen: s.navOpen, toggleNav: ()=>this.setState(x=>({navOpen:!x.navOpen})), noop:(e)=>{ e&&e.stopPropagation&&e.stopPropagation(); },
+      irLanding:()=>this.go('landing'), irVLogin:()=>this.go('v-login'), irMLogin:()=>this.go('m-login'), irRegistro:()=>this.go('registro'),
+      irVJornadas:()=>this.go('v-jornadas'),
+      backFromJornadas:()=>this.go(s._fromCuenta?'v-cuenta':'landing'),
+      backToCuenta:()=>this.go('v-cuenta'),
+      toast: s.toast,
+      navVol: [ navItem('Landing (3 caminos)','landing',r==='landing'), navItem('Login voluntaria','v-login',r==='v-login'), navItem('Mi cuenta','v-cuenta',r==='v-cuenta'), navItem('Lista de jornadas','v-jornadas',r==='v-jornadas'), navItem('Detalle jornada + RSVP','v-jornada',r==='v-jornada') ],
+      navMod: [ navItem('Login moderadora','m-login',r==='m-login'), navItem('Panel (Inicio)','m-panel',r==='m-panel') ],
+      navSys: [ navItem('Design system','ds',r==='ds') ],
+      // login voluntaria
+      loginRed:s.loginRed, loginUser:s.loginUser, loginPin:s.loginPin,
+      setLoginRed:e=>this.setState({loginRed:e.target.value}), setLoginUser:e=>this.setState({loginUser:e.target.value}), setLoginPin:e=>this.setState({loginPin:e.target.value.slice(0,4)}),
+      doVLogin:()=>{ this.setState({route:'v-cuenta',_fromCuenta:true}); window.scrollTo(0,0); this.flash('¡Bienvenida, Yrma! 💜'); },
+      // mi cuenta
+      misBrigadas,
+      verRequisitos:()=>this.setState({brigInfo:true}),
+      jornadasAbiertas: jornadasVisibles.filter(j=>j.estado==='abierta').map(jorExp),
+      jornadasTodas: jornadasVisibles.map(jorExp),
+      // brig info overlay
+      brigInfo: s.brigInfo, cerrarBrigInfo:()=>this.setState({brigInfo:false}),
+      brigadasInfo: this.BRIG.map(b=>({ nombre:b.nombre, req:b.req, icono:b.icono, badge:`display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;font-size:18px;flex-shrink:0;background:${b.bg}` })),
+      // jornadas list extra styles
+      // (handled by jorExp + adding card/btn styles below)
+      // detalle
+      det,
+      // rsvp controls
+      asistencia:s.asistencia, ofrece:s.ofrece, cupos:s.cupos, rsvpNotas:s.rsvpNotas,
+      ckN: s.necesita?'✓':'', ckO: s.ofrece?'✓':'',
+      voyStyle: btnBase + (voy?'background:#1E8449;color:#fff;border:1.5px solid #1E8449':'background:#fff;color:#1C1A19;border:1.5px solid #E2DCD4'),
+      noVoyStyle: btnBase + (noVoy?'background:#FBEDEA;color:#C0392B;border:1.5px solid #C0392B':'background:#fff;color:#1C1A19;border:1.5px solid #E2DCD4'),
+      necesitaStyle: rowChk, ofreceStyle: rowChk,
+      chkNecesita: chkBase + (s.necesita?'background:#5A4AA0;color:#fff':'background:#fff;border:1.5px solid #E2DCD4;color:transparent'),
+      chkOfrece: chkBase + (s.ofrece?'background:#5A4AA0;color:#fff':'background:#fff;border:1.5px solid #E2DCD4;color:transparent'),
+      setVoy:()=>this.setState({asistencia:'voy'}), setNoVoy:()=>this.setState({asistencia:'no'}),
+      toggleNecesita:()=>this.setState(x=>({necesita:!x.necesita})), toggleOfrece:()=>this.setState(x=>({ofrece:!x.ofrece})),
+      setCupos:e=>this.setState({cupos:e.target.value}), setNotas:e=>this.setState({rsvpNotas:e.target.value}),
+      guardarStyle:'width:100%;border:none;border-radius:12px;padding:15px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;background:#1E8449;color:#fff',
+      guardarLabel: s.rsvpGuardado?'Actualizar respuesta':'Guardar respuesta',
+      guardarRSVP:()=>{ if(!s.asistencia){ this.flash('Elige si vas o no puedes'); return; } this.setState({rsvpGuardado:true}); this.flash(s.asistencia==='voy'?'Listo, quedaste confirmada para el martes 💜':'Anotado, gracias por avisar'); },
+
+      // ===== MODERADORA return =====
+      doMLogin:()=>{ this.go('m-panel'); this.flash('Bienvenida al panel 👩‍👧'); },
+      modNav, bottomNav, masItems, masOpen: s.masOpen, cerrarMas:()=>this.setState({masOpen:false}),
+      tabInicio: s.modTab==='inicio', tabVoluntarias: s.modTab==='voluntarias', tabBrigadas: s.modTab==='brigadas', tabJornadas: s.modTab==='jornadas', tabSitios: s.modTab==='sitios', tabExportar: s.modTab==='exportar',
+      abrirModJornada:()=>this.setState({overlay:{type:'modJornada'},mjTab:'resumen'}),
+      copiarWA:()=>this.flash('Texto copiado para WhatsApp 📋'),
+      abrirNuevaJornada:()=>this.setState({overlay:{type:'jornada'}}),
+      abrirNuevoSitio:()=>this.setState({overlay:{type:'sitio'}}),
+      abrirNuevaVol:()=>this.setState({overlay:{type:'editVol',vol:{n:'—',nombre:'Nueva voluntaria',cedula:'',tel:'',zona:'',brigadas:[]}}}),
+      verSinRegistro:()=>this.setState({modTab:'voluntarias',volFiltro:'rojo'}),
+      copiarLinkRegistro:()=>this.flash('Link de registro copiado 🔗'),
+      volFiltros, volList, brigList,
+      jorTabs, modJorList, sitioList,
+      exportOpts, exportPreview: PREV[s.exportSel], generarExport:()=>this.flash('Texto generado'), descargarCSV:()=>this.flash('Descargando CSV…'), copiarExport:()=>this.flash('Copiado 📋'),
+      // overlays
+      overlayEditVol: !!ev, overlayJornada: s.overlay&&s.overlay.type==='jornada', overlaySitio: s.overlay&&s.overlay.type==='sitio', overlayModJornada: s.overlay&&s.overlay.type==='modJornada',
+      cerrarOverlay:()=>this.setState({overlay:null}), guardarOverlay:()=>{ this.setState({overlay:null}); this.flash('Cambios guardados ✓'); },
+      guardarJornadaLink:()=>{ this.setState({overlay:null}); this.flash('Jornada guardada · link copiado 📋'); },
+      cerrarJornada:()=>{ this.setState({overlay:null}); this.flash('Jornada marcada como realizada'); },
+      editVolTitulo: ev?`#${ev.n} ${ev.nombre}`:'', editVolNombre: ev?ev.nombre:'', editVolCedula: ev?ev.cedula:'', editVolTel: ev?ev.tel:'', editVolZona: ev?ev.zona:'',
+      editVolTelStyle: `width:100%;border:1px solid ${ev&&!ev.tel?'#C0392B':'#E2DCD4'};border-radius:9px;padding:10px;font-size:15px;font-family:inherit;background:#fff`,
+      editVolBrigadas, formBrigadas, sitioCoberturaForm,
+      // modJornada tabs
+      mjTabs, mjResumen: s.mjTab==='resumen', mjConfirmadas: s.mjTab==='confirmadas', mjTransporte: s.mjTab==='transporte', mjTareas: s.mjTab==='tareas', mjMateriales: s.mjTab==='materiales',
+      confirmadas, modTareas, materiales,
+      // design system
+      dsColors: [ {name:'--bg',hex:'#F1EEEA'},{name:'--surf',hex:'#FBFAF8'},{name:'--ind',hex:'#5A4AA0'},{name:'--indh',hex:'#4A3C88'},{name:'--indl',hex:'#EEEBF6'},{name:'--grn',hex:'#1E8449'},{name:'--grnl',hex:'#E9F6EE'},{name:'--red',hex:'#C0392B'},{name:'--redl',hex:'#FBEDEA'},{name:'--txt',hex:'#1C1A19'},{name:'--txt2',hex:'#6B6560'},{name:'--line',hex:'#E7E2DB'} ],
+      dsBrigadas: this.BRIG.map(b=>({ icono:b.icono, corto:b.corto, chip:this.chipStyle(b) })),
+      dsBadges: ['abierta','llena','realizada','cancelada','borrador'].map(e=>this.badgeFor(e)),
+    };
+  }
+
+  toggleTarea(id, val){ this.setState(s=>{ const m={...s.tareasTomadas}; m[id]=val; return {tareasTomadas:m}; }); this.flash(val?'Te apuntaste a la tarea ✅':'Soltaste la tarea'); }
+}
+</script>
+</body>
+</html>

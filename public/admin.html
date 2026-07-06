@@ -126,6 +126,7 @@ details.sum summary::-webkit-details-marker{display:none}
       <button class="tab" data-tab="edificios" onclick="showTab('edificios')">🏚 Edificios</button>
       <button class="tab" data-tab="centros" onclick="showTab('centros')">📦 Centros</button>
       <button class="tab" data-tab="asesores" onclick="showTab('asesores')">💬 Asesores</button>
+      <button class="tab" data-tab="grupos" onclick="showTab('grupos')">👥 Grupos</button>
       <button class="tab" data-tab="voluntarios" onclick="showTab('voluntarios')">👩‍👧 Voluntarias</button>
       <button class="tab" data-tab="scraper" onclick="showTab('scraper')">⚙️ Scraper</button>
       <button class="tab" data-tab="equipo" onclick="showTab('equipo')">👥 Equipo</button>
@@ -264,14 +265,35 @@ details.sum summary::-webkit-details-marker{display:none}
       <div id="lista-asesores"></div>
     </div>
 
+    <div class="panel" id="panel-grupos">
+      <p style="font-size:13px;color:var(--g4);margin-bottom:12px;line-height:1.5">
+        Cada grupo agrupa voluntarias, brigadas, sitios y jornadas. Al crear un grupo, invita <b>administradoras</b> del grupo; ellas asignan <b>coordinadoras</b> desde voluntarias ya registradas.
+      </p>
+      <button class="btn btn-g" type="button" onclick="nuevoGrupoForm()">+ Nuevo grupo</button>
+      <div id="grupo-form" style="display:none;margin:14px 0;padding:14px;border:1px solid var(--g2);border-radius:var(--r);background:var(--g1)">
+        <h3 style="font-size:15px;margin-bottom:10px" id="grupo-form-title">Nuevo grupo</h3>
+        <div class="fld"><label>Slug (único, ej. cuidadoras_caracas)</label>
+          <input id="gf-slug" placeholder="mi_grupo" pattern="[a-z][a-z0-9_]*" autocomplete="off"></div>
+        <div class="fld"><label>Nombre visible</label><input id="gf-nombre" placeholder="Mi Grupo Voluntario"></div>
+        <div class="fld"><label>Ruta web (sin /)</label><input id="gf-ruta" placeholder="mi-grupo"></div>
+        <div class="fld"><label>Descripción</label><textarea id="gf-desc" rows="2"></textarea></div>
+        <label style="display:flex;align-items:center;gap:8px;font-size:14px;margin-bottom:10px">
+          <input type="checkbox" id="gf-activo" checked> Grupo activo
+        </label>
+        <div class="row">
+          <button class="btn btn-p" type="button" onclick="guardarGrupo()">Guardar</button>
+          <button class="btn btn-s" type="button" onclick="cancelarGrupoForm()">Cancelar</button>
+        </div>
+      </div>
+      <div id="lista-grupos"></div>
+    </div>
+
     <div class="panel" id="panel-voluntarios">
       <p style="font-size:13px;color:var(--g4);margin-bottom:12px;line-height:1.5">
         Registro de voluntarias por grupo. Datos privados — solo coordinadoras.
-        <a href="cuidadoras-caracas.html" target="_blank" rel="noopener" style="color:var(--blu);font-weight:700">Abrir formulario ↗</a>
+        <a href="cuidadoras-caracas/registro" target="_blank" rel="noopener" style="color:var(--blu);font-weight:700">Abrir formulario ↗</a>
       </p>
-      <div class="filter-chips" id="vol-grupo-filters">
-        <button class="on" data-g="cuidadoras_caracas" onclick="setVolGrupo(this)">Cuidadoras Caracas</button>
-      </div>
+      <div class="filter-chips" id="vol-grupo-filters"></div>
       <div class="centros-count" id="vol-count"></div>
       <div id="lista-voluntarios"></div>
     </div>
@@ -653,6 +675,7 @@ function openApp(label) {
   loadEdificios();
   loadCentros();
   loadAdmins();
+  loadGrupos().then(() => loadGruposVolFilters());
 }
 
 db.auth.onAuthStateChange((_e, s) => { void onSession(s); });
@@ -674,7 +697,8 @@ function showTab(name) {
   if (name === 'edificios') loadEdificios();
   if (name === 'centros') { closeCentroForm(); loadCentros(); }
   if (name === 'asesores') loadAsesores();
-  if (name === 'voluntarios') loadVoluntarios();
+  if (name === 'grupos') loadGrupos();
+  if (name === 'voluntarios') { loadGruposVolFilters(); loadVoluntarios(); }
   if (name === 'scraper') pollScraperStatus();
   if (name === 'equipo') loadAdmins();
 }
@@ -1755,6 +1779,119 @@ async function eliminarAsesor(id) {
 }
 
 let volGrupo = 'cuidadoras_caracas';
+let gruposVolCache = [];
+
+async function loadGrupos() {
+  const el = document.getElementById('lista-grupos');
+  if (!el) return;
+  el.innerHTML = '<div class="empty">Cargando...</div>';
+  const { data, error } = await db.from('grupos_voluntarios')
+    .select('slug,nombre,descripcion,ruta_web,activo,created_at')
+    .order('nombre');
+  if (error) { el.innerHTML = `<div class="empty">${esc(error.message)}</div>`; return; }
+  gruposVolCache = data || [];
+  if (!gruposVolCache.length) {
+    el.innerHTML = '<div class="empty">No hay grupos. Crea el primero arriba.</div>';
+    return;
+  }
+  el.innerHTML = gruposVolCache.map(g => {
+    const url = g.ruta_web ? `/${g.ruta_web}` : '—';
+    return `<div class="card" style="border-left-color:${g.activo ? 'var(--grn)' : 'var(--g4)'}">
+      <h3>${esc(g.nombre)} ${g.activo ? '' : '<span class="badge" style="background:#eee;color:var(--g4)">Inactivo</span>'}</h3>
+      <div class="meta"><code>${esc(g.slug)}</code> · <a href="${esc(url)}" target="_blank" rel="noopener">${esc(url)}</a></div>
+      ${g.descripcion ? `<div class="txt">${esc(g.descripcion)}</div>` : ''}
+      <div class="row" style="margin-top:8px">
+        ${g.ruta_web ? `<a class="btn btn-s" href="${esc(url)}/coord" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">Panel coord ↗</a>` : ''}
+        <button class="btn btn-s" type="button" onclick='invitarAdminGrupo(${JSON.stringify(g.slug)}, ${JSON.stringify(g.nombre)})'>+ Administradora</button>
+        <button class="btn btn-s" type="button" onclick='editarGrupo(${JSON.stringify(g.slug)})'>Editar</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function loadGruposVolFilters() {
+  const box = document.getElementById('vol-grupo-filters');
+  if (!box || !gruposVolCache.length) return;
+  if (!gruposVolCache.some(g => g.slug === volGrupo)) volGrupo = gruposVolCache[0]?.slug || volGrupo;
+  box.innerHTML = gruposVolCache.map(g =>
+    `<button type="button" class="${g.slug === volGrupo ? 'on' : ''}" data-g="${esc(g.slug)}" onclick="setVolGrupo(this)">${esc(g.nombre)}</button>`
+  ).join('');
+}
+
+let grupoEditSlug = null;
+
+function nuevoGrupoForm() {
+  grupoEditSlug = null;
+  document.getElementById('grupo-form-title').textContent = 'Nuevo grupo';
+  document.getElementById('gf-slug').value = '';
+  document.getElementById('gf-slug').disabled = false;
+  document.getElementById('gf-nombre').value = '';
+  document.getElementById('gf-ruta').value = '';
+  document.getElementById('gf-desc').value = '';
+  document.getElementById('gf-activo').checked = true;
+  document.getElementById('grupo-form').style.display = 'block';
+}
+
+function editarGrupo(slug) {
+  const g = gruposVolCache.find(x => x.slug === slug);
+  if (!g) return;
+  grupoEditSlug = slug;
+  document.getElementById('grupo-form-title').textContent = 'Editar grupo';
+  document.getElementById('gf-slug').value = g.slug;
+  document.getElementById('gf-slug').disabled = true;
+  document.getElementById('gf-nombre').value = g.nombre || '';
+  document.getElementById('gf-ruta').value = g.ruta_web || '';
+  document.getElementById('gf-desc').value = g.descripcion || '';
+  document.getElementById('gf-activo').checked = g.activo !== false;
+  document.getElementById('grupo-form').style.display = 'block';
+}
+
+function cancelarGrupoForm() {
+  document.getElementById('grupo-form').style.display = 'none';
+  grupoEditSlug = null;
+}
+
+async function guardarGrupo() {
+  const slug = document.getElementById('gf-slug').value.trim().toLowerCase();
+  const nombre = document.getElementById('gf-nombre').value.trim();
+  const ruta_web = document.getElementById('gf-ruta').value.trim().replace(/^\//, '');
+  const descripcion = document.getElementById('gf-desc').value.trim() || null;
+  const activo = document.getElementById('gf-activo').checked;
+  if (!slug || !/^[a-z][a-z0-9_]*$/.test(slug)) { toast('Slug inválido (minúsculas, números, _)'); return; }
+  if (!nombre) { toast('Falta nombre'); return; }
+  if (!ruta_web) { toast('Falta ruta web'); return; }
+  const payload = { slug, nombre, descripcion, ruta_web, activo };
+  let error;
+  if (grupoEditSlug) {
+    ({ error } = await db.from('grupos_voluntarios').update(payload).eq('slug', grupoEditSlug));
+  } else {
+    ({ error } = await db.from('grupos_voluntarios').insert(payload));
+  }
+  if (error) { toast(error.message); return; }
+  toast('Grupo guardado');
+  cancelarGrupoForm();
+  await loadGrupos();
+  loadGruposVolFilters();
+}
+
+async function invitarAdminGrupo(slug, nombreGrupo) {
+  const email = prompt(`Correo de la administradora de «${nombreGrupo}»:`);
+  if (!email || !email.trim()) return;
+  const nombre = prompt('Nombre (opcional):') || null;
+  const { data, error } = await db.rpc('invitar_administrador_grupo', {
+    p_grupo: slug,
+    p_email: email.trim(),
+    p_nombre: nombre,
+  });
+  if (error) { toast(error.message); return; }
+  const creds = `Grupo: ${nombreGrupo}\nCorreo: ${data.email}\nContraseña: ${data.password}`;
+  try {
+    await navigator.clipboard.writeText(creds);
+    toast('Administradora creada — credenciales copiadas');
+  } catch {
+    prompt('Copia y envía al equipo:', creds);
+  }
+}
 
 function setVolGrupo(btn) {
   document.querySelectorAll('#vol-grupo-filters button').forEach(b => b.classList.remove('on'));
@@ -1774,12 +1911,16 @@ function renderVoluntariaAdmin(v) {
   const log = v.asistencia_zona || v.medio_transporte
     ? `<div class="meta" style="margin-top:4px">${esc(v.asistencia_zona || '')} · ${volTransporteLabel(v.medio_transporte)}${v.observaciones_logistica ? ' · ' + esc(v.observaciones_logistica) : ''}</div>`
     : '';
+  const brig = (v.brigadas && v.brigadas.length)
+    ? `<div class="meta" style="margin-top:6px">${v.brigadas.map(s => `<span class="badge" style="margin:0 4px 4px 0">${esc(s.replace(/_/g,' '))}</span>`).join('')}</div>`
+    : '';
   return `<div class="card" style="border-left-color:#5A4AA0">
     <h3>#${v.numero_voluntaria || '—'} · ${esc(v.nombre)} ${esc(v.apellido)}</h3>
     <div class="meta">${esc(v.profesion || '—')} · ${esc(v.id_dni)} · ${esc(v.telefono)}</div>
     <div class="meta" style="margin-top:4px">${esc(loc)}</div>
     ${dir}
     ${log}
+    ${brig}
     ${v.tareas ? `<div class="txt" style="margin-top:6px"><b>Tareas:</b> ${esc(v.tareas)}</div>` : ''}
     ${v.fortalezas ? `<div class="txt"><b>Fortalezas:</b> ${esc(v.fortalezas)}</div>` : ''}
     <div class="row"><button class="btn btn-s" onclick="eliminarVoluntaria('${v.id}')">🗑 Eliminar</button></div>
@@ -1797,7 +1938,8 @@ async function loadVoluntarios() {
     .limit(200);
   if (error) { el.innerHTML = `<div class="empty">${esc(error.message)}</div>`; cnt.textContent = ''; return; }
   const rows = data || [];
-  cnt.textContent = `${rows.length} voluntaria${rows.length === 1 ? '' : 's'} en ${volGrupo.replace(/_/g, ' ')}`;
+  const gName = gruposVolCache.find(g => g.slug === volGrupo)?.nombre || volGrupo.replace(/_/g, ' ');
+  cnt.textContent = `${rows.length} voluntaria${rows.length === 1 ? '' : 's'} en ${gName}`;
   el.innerHTML = rows.map(renderVoluntariaAdmin).join('') || '<div class="empty">Nadie registrada aún. Comparte el formulario de Cuidadoras Caracas.</div>';
 }
 

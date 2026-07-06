@@ -5,8 +5,15 @@
   "framework": null,
   "rewrites": [
     { "source": "/rescatistas", "destination": "/rescatistas.html" },
-    { "source": "/cuidadoras-caracas", "destination": "/cuidadoras-caracas.html" },
-    { "source": "/voluntarios/cuidadoras-caracas", "destination": "/cuidadoras-caracas.html" },
+    { "source": "/cuidadoras-caracas/registro", "destination": "/cuidadoras-caracas/registro.html" },
+    { "source": "/cuidadoras-caracas/coord", "destination": "/cuidadoras-caracas/coord.html" },
+    { "source": "/cuidadoras-caracas/entrar", "destination": "/cuidadoras-caracas/entrar.html" },
+    { "source": "/cuidadoras-caracas/mi-cuenta", "destination": "/cuidadoras-caracas/mi-cuenta.html" },
+    { "source": "/cuidadoras-caracas/jornadas", "destination": "/cuidadoras-caracas/jornadas.html" },
+    { "source": "/cuidadoras-caracas/jornada/:id", "destination": "/cuidadoras-caracas/jornada.html?id=:id" },
+    { "source": "/cuidadoras-caracas", "destination": "/cuidadoras-caracas/index.html" },
+    { "source": "/voluntarios/cuidadoras-caracas", "destination": "/cuidadoras-caracas/index.html" },
+    { "source": "/cuidadoras-caracas.html", "destination": "/cuidadoras-caracas/index.html" },
     { "source": "/rescate", "destination": "/rescatistas.html" },
     { "source": "/((?!.*\\..*).*)", "destination": "/index.html" }
   ],
