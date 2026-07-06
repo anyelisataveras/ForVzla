@@ -54,7 +54,7 @@ async function load(){
   const upcoming=rows.filter(j=>j.estado!=='realizada'||j.fecha>=new Date().toISOString().slice(0,10));
   if(!upcoming.length){el.innerHTML='<div class="empty">No hay jornadas publicadas aún.<br>Vuelve pronto 💜</div>';return}
   el.innerHTML=upcoming.map(j=>`
-    <a class="jcard" href="jornada?id=${j.id}">
+    <a class="jcard" href="${CC_VOL.jornadaUrl(j.id)}">
       <b>${esc(j.titulo)}</b>
       <div class="jmeta">🗓 ${fmtDate(j.fecha)}${j.hora_salida?' · '+fmtTime(j.hora_salida):''}<br>
       📍 ${esc(j.sitio_nombre||j.sitio_zona||'Por confirmar')}</div>
