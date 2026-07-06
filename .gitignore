@@ -6,3 +6,8 @@ node_modules/
 *.log
 scraper/.env
 data/
+
+# Migraciones voluntarios (aplicar manualmente en Supabase SQL Editor)
+supabase/migrations/20250705230000_voluntarios_grupos.sql
+supabase/migrations/20250705230100_voluntarios_seq_fix.sql
+supabase/migrations/20250705230200_registrar_voluntario_rpc.sql
