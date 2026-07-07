@@ -220,6 +220,12 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .media-item .media-del{position:absolute;top:4px;right:4px;width:28px;height:28px;border:none;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:16px;line-height:1;cursor:pointer;z-index:2}
 .media-item .media-vid-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;background:rgba(0,0,0,.28);pointer-events:none}
 .media-pending{margin-top:8px;font-size:12px;color:var(--txt2);line-height:1.45}
+.jf-page{max-width:720px}
+.jf-page-title{font-size:18px;font-weight:800;margin:0 0 16px}
+.jf-back{display:inline-flex;align-items:center;gap:4px;font-size:14px;font-weight:700;color:var(--ind);background:none;border:none;padding:0;margin:0 0 12px;cursor:pointer}
+.jf-back:active{opacity:.85}
+.jf-page-foot{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px;padding-bottom:24px}
+.jf-page-foot .btn{flex:1;min-width:120px;margin:0}
 
 @media(prefers-reduced-motion:reduce){.toast{transition:none}}
 </style>
@@ -302,6 +308,49 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
           <button type="button" class="chip" data-jf="borradores">Borradores</button>
         </div>
         <div id="j-list"></div>
+      </section>
+      <section class="panel" id="panel-jornada-edit">
+        <div class="jf-page">
+          <button type="button" class="jf-back" id="jf-back">← Volver a jornadas</button>
+          <h2 class="jf-page-title" id="jf-title">Nueva jornada</h2>
+          <div class="field"><label>Título *</label><input id="jf-titulo"></div>
+          <div class="grid2">
+            <div class="field"><label>Fecha *</label><input id="jf-fecha" type="date"></div>
+            <div class="field"><label>Estado</label>
+              <select id="jf-estado"><option value="borrador">Borrador</option><option value="abierta">Abierta</option><option value="llena">Llena</option><option value="realizada">Realizada</option><option value="cancelada">Cancelada</option></select>
+            </div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Encuentro</label><input id="jf-enc" type="time"></div>
+            <div class="field"><label>Salida</label><input id="jf-sal" type="time"></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Regreso aprox.</label><input id="jf-reg" type="time"></div>
+            <div class="field"><label>Punto encuentro</label><input id="jf-punto" placeholder="Plaza Venezuela"></div>
+          </div>
+          <div class="field"><label>Sitio</label><select id="jf-sitio"></select></div>
+          <div class="field"><label>Descripción / misión</label><textarea id="jf-desc"></textarea></div>
+          <div class="field"><label>Brigadas</label><div class="brig-pick" id="jf-brig"></div></div>
+          <div class="grid2">
+            <div class="field"><label>Vestimenta</label><input id="jf-vest"></div>
+            <div class="field"><label>Llevar</label><input id="jf-llevar"></div>
+          </div>
+          <div class="grid2">
+            <div class="field"><label>Meta voluntarias</label><input id="jf-meta-v" type="number" min="0"></div>
+            <div class="field"><label>Meta vehículos</label><input id="jf-meta-c" type="number" min="0"></div>
+          </div>
+          <div class="sect-t">Tareas</div>
+          <div id="jf-tareas"></div>
+          <div class="sect-t" style="margin-top:14px">Materiales / necesidades</div>
+          <p style="font-size:12px;color:var(--txt2);margin-bottom:8px;line-height:1.45">Qué hay que conseguir para la salida (kits, juguetes, pintura…).</p>
+          <datalist id="jf-mat-datalist"></datalist>
+          <div id="jf-materiales"></div>
+          <div class="jf-page-foot">
+            <button type="button" class="btn btn-s" id="jf-cancel">Cancelar</button>
+            <button type="button" class="btn btn-p" id="jf-save">Guardar</button>
+            <button type="button" class="btn btn-g" id="jf-save-wa">Guardar y copiar link</button>
+          </div>
+        </div>
       </section>
       <section class="panel" id="panel-sitios">
         <div id="sitios-list"></div>
@@ -504,52 +553,6 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   </footer>
 </div>
 
-<div class="sheet drawer" id="jornada-form-sheet" hidden>
-  <header class="sheet-hdr">
-    <button type="button" id="jf-close" aria-label="Cerrar">←</button>
-    <h2 id="jf-title">Nueva jornada</h2>
-  </header>
-  <div class="sheet-body">
-    <div class="field"><label>Título *</label><input id="jf-titulo"></div>
-    <div class="grid2">
-      <div class="field"><label>Fecha *</label><input id="jf-fecha" type="date"></div>
-      <div class="field"><label>Estado</label>
-        <select id="jf-estado"><option value="borrador">Borrador</option><option value="abierta">Abierta</option><option value="llena">Llena</option><option value="realizada">Realizada</option><option value="cancelada">Cancelada</option></select>
-      </div>
-    </div>
-    <div class="grid2">
-      <div class="field"><label>Encuentro</label><input id="jf-enc" type="time"></div>
-      <div class="field"><label>Salida</label><input id="jf-sal" type="time"></div>
-    </div>
-    <div class="grid2">
-      <div class="field"><label>Regreso aprox.</label><input id="jf-reg" type="time"></div>
-      <div class="field"><label>Punto encuentro</label><input id="jf-punto" placeholder="Plaza Venezuela"></div>
-    </div>
-    <div class="field"><label>Sitio</label><select id="jf-sitio"></select></div>
-    <div class="field"><label>Descripción / misión</label><textarea id="jf-desc"></textarea></div>
-    <div class="field"><label>Brigadas</label><div class="brig-pick" id="jf-brig"></div></div>
-    <div class="grid2">
-      <div class="field"><label>Vestimenta</label><input id="jf-vest"></div>
-      <div class="field"><label>Llevar</label><input id="jf-llevar"></div>
-    </div>
-    <div class="grid2">
-      <div class="field"><label>Meta voluntarias</label><input id="jf-meta-v" type="number" min="0"></div>
-      <div class="field"><label>Meta vehículos</label><input id="jf-meta-c" type="number" min="0"></div>
-    </div>
-    <div class="sect-t">Tareas</div>
-    <div id="jf-tareas"></div>
-    <div class="sect-t" style="margin-top:14px">Materiales / necesidades</div>
-    <p style="font-size:12px;color:var(--txt2);margin-bottom:8px;line-height:1.45">Qué hay que conseguir para la salida (kits, juguetes, pintura…).</p>
-    <datalist id="jf-mat-datalist"></datalist>
-    <div id="jf-materiales"><p style="font-size:12px;color:var(--txt3)">Guarda la jornada para agregar materiales.</p></div>
-  </div>
-  <footer class="sheet-foot">
-    <button type="button" class="btn btn-s" id="jf-cancel">Cancelar</button>
-    <button type="button" class="btn btn-p" id="jf-save">Guardar</button>
-    <button type="button" class="btn btn-g" id="jf-save-wa">Guardar y copiar link</button>
-  </footer>
-</div>
-
 <div class="sheet drawer" id="vol-hist-sheet" hidden>
   <header class="sheet-hdr">
     <button type="button" id="vh-close" aria-label="Cerrar">←</button>
@@ -641,7 +644,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 <div class="toast" id="toast"></div>
 
-<script src="coord-jornadas.js?v=20260707o"></script>
+<script src="coord-jornadas.js?v=20260707p"></script>
 <script src="coord-brigadas.js?v=20260706a"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
@@ -789,6 +792,7 @@ function showTab(name){
     if(b.closest('#side-nav')||b.closest('#bottom-nav'))b.classList.toggle('on',b.dataset.tab===name);
   });
   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.id==='panel-'+name));
+  if(name!=='jornada-edit')document.getElementById('panel-jornada-edit')?.classList.remove('on');
   updatePageHdr(name);
   if(name==='voluntarias')renderList();
   if(name==='brigadas')window.CC_BRIG?.renderBrigadas();

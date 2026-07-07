@@ -328,6 +328,68 @@
     return lines.filter(Boolean).join('\n');
   }
 
+  function isDraftId(id) {
+    return String(id || '').startsWith('draft-');
+  }
+
+  function draftId() {
+    return 'draft-' + crypto.randomUUID();
+  }
+
+  function showJornadaEditPanel() {
+    document.querySelectorAll('.panel').forEach((p) => p.classList.remove('on'));
+    document.getElementById('panel-jornada-edit')?.classList.add('on');
+    const title = jEditId ? 'Editar jornada' : 'Nueva jornada';
+    const titleEl = document.getElementById('jf-title');
+    if (titleEl) titleEl.textContent = title;
+    const pageTitle = document.getElementById('page-title');
+    if (pageTitle) pageTitle.textContent = title;
+    const actions = document.getElementById('page-actions');
+    if (actions) actions.innerHTML = '';
+    document.querySelectorAll('[data-tab]').forEach((b) => {
+      if (b.closest('#side-nav') || b.closest('#bottom-nav')) b.classList.toggle('on', b.dataset.tab === 'jornadas');
+    });
+    window.scrollTo(0, 0);
+  }
+
+  function closeJornadaEditPanel() {
+    jEditId = null;
+    jEditTareas = [];
+    jEditMateriales = [];
+    if (typeof showTab === 'function') showTab('jornadas');
+    else {
+      document.getElementById('panel-jornada-edit')?.classList.remove('on');
+      document.getElementById('panel-jornadas')?.classList.add('on');
+    }
+  }
+
+  async function persistJfDrafts(jornadaId) {
+    for (const t of jEditTareas) {
+      const { error } = await db.from('tareas_jornada').insert({
+        jornada_id: jornadaId,
+        titulo: t.titulo,
+        brigada_slug: t.brigada_slug || getJfBrigadas()[0] || null,
+        cupos: t.cupos || 1,
+        creada_por: session?.user?.email,
+      });
+      if (error) { toast(error.message); return false; }
+    }
+    for (const m of jEditMateriales) {
+      const nec = m.cantidad_necesaria || 1;
+      const cons = m.cantidad_conseguida || 0;
+      const { error } = await db.from('necesidades_jornada').insert({
+        jornada_id: jornadaId,
+        item_nombre: m.item_nombre,
+        cantidad_necesaria: nec,
+        cantidad_conseguida: cons,
+        estado: m.estado || matEstado(nec, cons),
+        orden: m.orden ?? 0,
+      });
+      if (error) { toast(error.message); return false; }
+    }
+    return true;
+  }
+
   async function loadInventarioCat() {
     const { data } = await db.from('items_inventario').select('nombre').eq('grupo', GRUPO).eq('activa', true).order('orden');
     inventarioCat = (data || []).map((x) => x.nombre);
@@ -361,10 +423,6 @@
   function renderJfMateriales(jornadaId) {
     const box = document.getElementById('jf-materiales');
     if (!box) return;
-    if (!jornadaId) {
-      box.innerHTML = '<p style="font-size:12px;color:var(--txt3)">Guarda la jornada para agregar materiales.</p>';
-      return;
-    }
     const rows = jEditMateriales.map((m) => {
       const est = matEstado(m.cantidad_necesaria, m.cantidad_conseguida);
       return `<div class="mat-row" data-mat-id="${m.id}">
@@ -393,12 +451,30 @@
 
   function bindMatRow(row, jornadaId) {
     const id = row.dataset.matId;
+    const updateEstEl = (estado) => {
+      const estEl = row.querySelector('.mat-est');
+      if (estEl) {
+        estEl.className = `mat-est ${matEstadoClass(estado)}`;
+        estEl.textContent = matEstadoLabel(estado);
+      }
+    };
     const save = async () => {
       const nombre = row.querySelector('[data-mat-nombre]')?.value?.trim();
       const nec = parseInt(row.querySelector('[data-mat-nec]')?.value, 10) || 1;
       const cons = parseInt(row.querySelector('[data-mat-cons]')?.value, 10) || 0;
       if (!nombre) return;
       const estado = matEstado(nec, cons);
+      if (isDraftId(id)) {
+        const item = jEditMateriales.find((m) => m.id === id);
+        if (item) {
+          item.item_nombre = nombre;
+          item.cantidad_necesaria = nec;
+          item.cantidad_conseguida = cons;
+          item.estado = estado;
+        }
+        updateEstEl(estado);
+        return;
+      }
       const { error } = await db.from('necesidades_jornada').update({
         item_nombre: nombre,
         cantidad_necesaria: nec,
@@ -406,11 +482,7 @@
         estado,
       }).eq('id', id);
       if (error) { toast(error.message); return; }
-      const estEl = row.querySelector('.mat-est');
-      if (estEl) {
-        estEl.className = `mat-est ${matEstadoClass(estado)}`;
-        estEl.textContent = matEstadoLabel(estado);
-      }
+      updateEstEl(estado);
     };
     row.querySelectorAll('input').forEach((inp) => {
       inp.addEventListener('change', save);
@@ -423,6 +495,12 @@
         btn.textContent = '✓';
         btn.title = 'Toca otra vez para quitar';
         setTimeout(() => { if (btn.isConnected) { btn.dataset.confirm = ''; btn.textContent = '×'; btn.title = 'Quitar'; } }, 4000);
+        return;
+      }
+      if (isDraftId(id)) {
+        jEditMateriales = jEditMateriales.filter((m) => m.id !== id);
+        toast('Ítem quitado');
+        renderJfMateriales(jornadaId);
         return;
       }
       const { error } = await db.from('necesidades_jornada').delete().eq('id', id);
@@ -442,8 +520,23 @@
       const nec = parseInt(necInp.value, 10) || 1;
       if (!nombre) { toast('Escribe el ítem'); nombreInp.focus(); return; }
       btn.disabled = true;
-      const { error } = await db.from('necesidades_jornada').insert({
-        jornada_id: jornadaId,
+      if (jornadaId) {
+        const { error } = await db.from('necesidades_jornada').insert({
+          jornada_id: jornadaId,
+          item_nombre: nombre,
+          cantidad_necesaria: Math.max(1, nec),
+          cantidad_conseguida: 0,
+          estado: 'pendiente',
+          orden: jEditMateriales.length,
+        });
+        btn.disabled = false;
+        if (error) { toast(error.message); return; }
+        toast('Ítem agregado');
+        loadJornadaMateriales(jornadaId);
+        return;
+      }
+      jEditMateriales.push({
+        id: draftId(),
         item_nombre: nombre,
         cantidad_necesaria: Math.max(1, nec),
         cantidad_conseguida: 0,
@@ -451,9 +544,10 @@
         orden: jEditMateriales.length,
       });
       btn.disabled = false;
-      if (error) { toast(error.message); return; }
+      nombreInp.value = '';
+      necInp.value = '1';
       toast('Ítem agregado');
-      loadJornadaMateriales(jornadaId);
+      renderJfMateriales(null);
     };
     btn.onclick = save;
     nombreInp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } };
@@ -627,9 +721,9 @@
   function openJornadaForm(id, prefillSitioId) {
     jEditId = id || null;
     jEditTareas = [];
+    jEditMateriales = [];
     const j = id ? jornadas.find(x => x.id === id) : null;
     const sitioSel = j?.sitio_id || prefillSitioId || '';
-    document.getElementById('jf-title').textContent = j ? 'Editar jornada' : 'Nueva jornada';
     document.getElementById('jf-titulo').value = j?.titulo || '';
     document.getElementById('jf-fecha').value = j?.fecha || '';
     document.getElementById('jf-enc').value = j?.hora_encuentro?.slice(0, 5) || '';
@@ -649,11 +743,14 @@
       if (st) document.getElementById('jf-titulo').value = `Jornada — ${st.nombre}`;
     }
     renderJfBrig(j?.brigadas || []);
-    if (j) loadJornadaTareas(j.id);
-    else { document.getElementById('jf-tareas').innerHTML = '<p style="font-size:12px;color:var(--txt2)">Guarda la jornada y luego agrega tareas.</p>'; }
-    if (j) loadJornadaMateriales(j.id);
-    else renderJfMateriales(null);
-    document.getElementById('jornada-form-sheet').hidden = false;
+    if (j) {
+      loadJornadaTareas(j.id);
+      loadJornadaMateriales(j.id);
+    } else {
+      renderJfTareas(null);
+      renderJfMateriales(null);
+    }
+    showJornadaEditPanel();
   }
 
   function renderJfBrig(selected) {
@@ -671,10 +768,15 @@
   async function loadJornadaTareas(jornadaId) {
     const { data } = await db.from('tareas_jornada').select('*,voluntarios(nombre)').eq('jornada_id', jornadaId).order('created_at');
     jEditTareas = data || [];
+    renderJfTareas(jornadaId);
+  }
+
+  function renderJfTareas(jornadaId) {
     const box = document.getElementById('jf-tareas');
-    const rows = jEditTareas.map(t=>{
-      const sin=!t.voluntario_id;
-      return `<div class="task-row ${sin?'warn':'ok'}"><div>${esc(t.titulo)}${t.brigada_slug?` · ${esc((brigCat.find(b=>b.slug===t.brigada_slug)?.nombre||t.brigada_slug).replace(/^Brigada de\s*/i,''))}`:''}${t.cupos?` · ${t.cupos}`:''}</div><span class="st">${sin?'sin dueño':'asignada'}</span></div>`;
+    if (!box) return;
+    const rows = jEditTareas.map(t => {
+      const sin = !t.voluntario_id;
+      return `<div class="task-row ${sin ? 'warn' : 'ok'}"><div>${esc(t.titulo)}${t.brigada_slug ? ` · ${esc((brigCat.find(b => b.slug === t.brigada_slug)?.nombre || t.brigada_slug).replace(/^Brigada de\s*/i, ''))}` : ''}${t.cupos ? ` · ${t.cupos}` : ''}</div><span class="st">${sin ? 'sin dueño' : 'asignada'}</span></div>`;
     }).join('') || '<p style="font-size:12px;color:var(--txt2)">Sin tareas aún.</p>';
     box.innerHTML = `<div class="task-box">
       <b style="font-size:13px;display:block;margin-bottom:6px">Tareas de la jornada</b>
@@ -695,17 +797,31 @@
       const titulo = inp.value.trim();
       if (!titulo) { toast('Escribe un título'); inp.focus(); return; }
       btn.disabled = true;
-      const { error } = await db.from('tareas_jornada').insert({
-        jornada_id: jornadaId,
+      if (jornadaId) {
+        const { error } = await db.from('tareas_jornada').insert({
+          jornada_id: jornadaId,
+          titulo,
+          brigada_slug: getJfBrigadas()[0] || null,
+          cupos: 1,
+          creada_por: session?.user?.email,
+        });
+        btn.disabled = false;
+        if (error) { toast(error.message); return; }
+        toast('Tarea agregada');
+        loadJornadaTareas(jornadaId);
+        return;
+      }
+      jEditTareas.push({
+        id: draftId(),
         titulo,
         brigada_slug: getJfBrigadas()[0] || null,
         cupos: 1,
-        creada_por: session?.user?.email,
+        voluntario_id: null,
       });
       btn.disabled = false;
-      if (error) { toast(error.message); return; }
+      inp.value = '';
       toast('Tarea agregada');
-      loadJornadaTareas(jornadaId);
+      renderJfTareas(null);
     };
     btn.onclick = save;
     inp.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); save(); } };
@@ -715,6 +831,7 @@
     const titulo = document.getElementById('jf-titulo').value.trim();
     const fecha = document.getElementById('jf-fecha').value;
     if (!titulo || !fecha) { toast('Título y fecha obligatorios'); return; }
+    const wasNew = !jEditId;
     const payload = {
       grupo: GRUPO, titulo, fecha,
       hora_encuentro: document.getElementById('jf-enc').value || null,
@@ -742,8 +859,12 @@
       saved = { ...data, sitio_nombre: data.sitios?.nombre };
       jEditId = saved.id;
     }
+    if (wasNew && (jEditTareas.length || jEditMateriales.length)) {
+      const ok = await persistJfDrafts(saved.id);
+      if (!ok) return;
+    }
     toast('Jornada guardada');
-    document.getElementById('jornada-form-sheet').hidden = true;
+    closeJornadaEditPanel();
     await loadJornadas();
     if (doCopyWa && saved.estado === 'abierta') copyWa(saved.id);
   }
@@ -1093,8 +1214,8 @@
     document.getElementById('btn-new-jornada')?.addEventListener('click', () => openJornadaForm(null));
     document.getElementById('fab-jornada')?.addEventListener('click', () => openJornadaForm(null));
     document.getElementById('btn-jornada-media')?.addEventListener('click', () => openJornadaMedia());
-    document.getElementById('jf-close')?.addEventListener('click', () => { document.getElementById('jornada-form-sheet').hidden = true; });
-    document.getElementById('jf-cancel')?.addEventListener('click', () => { document.getElementById('jornada-form-sheet').hidden = true; });
+    document.getElementById('jf-back')?.addEventListener('click', closeJornadaEditPanel);
+    document.getElementById('jf-cancel')?.addEventListener('click', closeJornadaEditPanel);
     document.getElementById('jf-save')?.addEventListener('click', () => saveJornada(false));
     document.getElementById('jf-save-wa')?.addEventListener('click', () => saveJornada(true));
     document.getElementById('jd-close')?.addEventListener('click', () => { document.getElementById('jornada-detail-sheet').hidden = true; });
