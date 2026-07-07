@@ -51,6 +51,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .quick .btn{width:auto;flex:1;min-width:140px;padding:12px;font-size:13px}
 .toolbar{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
 .search input{width:100%;border:1px solid var(--line2);border-radius:10px;padding:12px;font-size:16px}
+.ja-results{max-height:min(52vh,420px);overflow:auto;-webkit-overflow-scrolling:touch}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-size:11px;font-weight:700;padding:7px 12px;border-radius:999px;border:1px solid var(--line2);background:#fff;cursor:pointer;font-family:inherit;color:var(--txt2)}
 .chip.on{background:var(--indl);border-color:var(--ind);color:var(--indt)}
@@ -561,6 +562,28 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 </div>
 
 
+<div class="sheet drawer" id="jornada-asignar-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="ja-close" aria-label="Cerrar">←</button>
+    <h2>Agregar voluntarias</h2>
+  </header>
+  <div class="sheet-body">
+    <p style="font-size:13px;color:var(--txt2);line-height:1.45;margin-bottom:12px">Inscribe manualmente a quien asistió o no pudo confirmar sola. En jornadas ya realizadas queda marcada como <b>asistió</b>.</p>
+    <div class="field"><label for="ja-jornada">Jornada</label>
+      <select id="ja-jornada"></select>
+    </div>
+    <div class="sect" style="margin-bottom:14px">
+      <div class="sect-t">En esta jornada (<span id="ja-insc-count">0</span>)</div>
+      <div id="ja-insc-list"></div>
+    </div>
+    <div class="sect-t" style="margin-bottom:8px">Agregar del censo</div>
+    <div class="search" style="margin-bottom:8px"><input type="search" id="ja-q" placeholder="🔍 Filtrar por nombre, cédula, # voluntaria…" autocomplete="off"></div>
+    <p class="count" id="ja-count"></p>
+    <div id="ja-results" class="ja-results"></div>
+  </div>
+</div>
+
+
 <div class="sheet drawer" id="jornada-close-sheet" hidden>
   <header class="sheet-hdr">
     <button type="button" id="jc-close" aria-label="Cerrar">←</button>
@@ -594,7 +617,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 <div class="toast" id="toast"></div>
 
-<script src="coord-jornadas.js?v=20260706j"></script>
+<script src="coord-jornadas.js?v=20260707j"></script>
 <script src="coord-brigadas.js?v=20260706a"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
@@ -619,7 +642,8 @@ function updatePageHdr(tab){
     actions.innerHTML='<button type="button" class="btn btn-p btn-sm" id="btn-add-vol">+ Agregar</button>';
     document.getElementById('btn-add-vol').onclick=()=>openCreateVoluntaria();
   }else if(tab==='jornadas'){
-    actions.innerHTML='<button type="button" class="btn btn-p btn-sm" id="btn-page-jornada">+ Nueva</button>';
+    actions.innerHTML='<button type="button" class="btn btn-s btn-sm" id="btn-page-asignar">+ Agregar voluntarias</button><button type="button" class="btn btn-p btn-sm" id="btn-page-jornada">+ Nueva</button>';
+    document.getElementById('btn-page-asignar').onclick=()=>window.CC_JORN?.openAsignarVoluntarias();
     document.getElementById('btn-page-jornada').onclick=()=>window.CC_JORN?.openJornadaForm(null);
   }else if(tab==='sitios'){
     actions.innerHTML='<button type="button" class="btn btn-p btn-sm" id="btn-add-sitio">+ Agregar sitio</button>';

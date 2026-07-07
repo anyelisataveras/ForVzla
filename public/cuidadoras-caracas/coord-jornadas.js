@@ -1,6 +1,7 @@
 /* Panel coordinadoras — jornadas (Sprint 1). Requiere GRUPO, db, esc, toast, brigCat, session del scope coord. */
 (function () {
   let jornadas = [], sitios = [], jTab = 'proximas', jBrigFilter = '', jDetailId = null, jEditId = null, jEditTareas = [], jEditMateriales = [], inventarioCat = [], jCloseId = null, jCloseRows = [], jStats = {};
+  let asignarJornadaId = null, asignarVoluntarias = [], asignarInscripciones = [];
 
   const COBERTURAS = ['ninguna', 'baja', 'ok', 'sobra'];
 
@@ -270,12 +271,14 @@
         </div>`:''}
         <div class="j-actions">
           <button type="button" class="btn btn-j-view" data-jview="${j.id}">Ver detalle</button>
+          ${['abierta','llena','realizada'].includes(j.estado)?`<button type="button" class="btn btn-p" data-jasign="${j.id}">+ Agregar voluntarias</button>`:''}
           <button type="button" class="btn btn-s" data-jedit="${j.id}">Editar</button>
           ${['abierta','llena'].includes(j.estado)?`<button type="button" class="btn btn-j-close" data-jclose="${j.id}">Cerrar jornada</button>`:''}
         </div>
       </article>`;
     }).join('');
     el.querySelectorAll('[data-jview]').forEach(b => b.onclick = () => openJornadaDetail(b.dataset.jview));
+    el.querySelectorAll('[data-jasign]').forEach(b => b.onclick = () => openAsignarVoluntarias(b.dataset.jasign));
     el.querySelectorAll('[data-jedit]').forEach(b => b.onclick = () => openJornadaForm(b.dataset.jedit));
     el.querySelectorAll('[data-jclose]').forEach(b => b.onclick = () => openJornadaClose(b.dataset.jclose));
     el.querySelectorAll('[data-jwa]').forEach(b => b.onclick = () => copyWa(b.dataset.jwa));
@@ -303,9 +306,11 @@
       </div>
       <div class="vcard-actions">
         <button type="button" class="btn btn-p" data-jview="${prox.id}">Ver detalle</button>
+        <button type="button" class="btn btn-p" data-jasign="${prox.id}">+ Agregar voluntarias</button>
         <button type="button" class="btn btn-s" data-jwa="${prox.id}">Copiar WA</button>
       </div>`;
     el.querySelectorAll('[data-jview]').forEach(b => b.onclick = () => openJornadaDetail(b.dataset.jview));
+    el.querySelectorAll('[data-jasign]').forEach(b => b.onclick = () => openAsignarVoluntarias(b.dataset.jasign));
     el.querySelectorAll('[data-jwa]').forEach(b => b.onclick = () => copyWa(b.dataset.jwa));
   }
 
@@ -485,6 +490,7 @@
         </div>
         <div class="vcard-actions" style="margin-top:12px">
           <button type="button" class="btn btn-s" onclick="document.getElementById('jornada-detail-sheet').hidden=true">Cerrar</button>
+          ${['abierta','llena','realizada'].includes(j.estado)?`<button type="button" class="btn btn-p" onclick="CC_JORN.openAsignarVoluntarias('${j.id}')">+ Agregar voluntarias</button>`:''}
           ${['abierta','llena'].includes(j.estado)?`<button type="button" class="btn btn-g" onclick="CC_JORN.openJornadaClose('${j.id}')">Cerrar jornada</button>`:''}
         </div>`;
       return;
@@ -494,10 +500,13 @@
     const rows = insc || [];
 
     if (jDetailTab === 'confirmadas') {
-      const conf = rows.filter(i => i.estado === 'confirmada');
-      body.innerHTML = conf.length ? conf.map(i => `
+      const conf = rows.filter(i => i.estado === 'confirmada' || i.estado === 'asistio');
+      body.innerHTML = (['abierta','llena','realizada'].includes(j.estado)
+        ? `<div class="vcard-actions" style="margin-bottom:12px"><button type="button" class="btn btn-p" id="jd-btn-asign">+ Agregar voluntarias</button></div>`
+        : '') + (conf.length ? conf.map(i => `
         <div class="vcard"><b>#${i.voluntarios?.numero_voluntaria} ${esc(i.voluntarios?.nombre)} ${esc(i.voluntarios?.apellido)}</b>
-        <div class="vcard-meta">${esc(i.voluntarios?.telefono)} · ${i.necesita_transporte ? '🙋 necesita ride' : ''} ${i.ofrece_transporte ? '🚗 ' + i.cupos_ofrecidos + ' cupos' : ''}</div></div>`).join('') : '<div class="empty">Nadie confirmada aún.</div>';
+        <div class="vcard-meta">${esc(i.voluntarios?.telefono)} · ${inscEstadoLabel(i.estado)} ${i.necesita_transporte ? '· 🙋 necesita ride' : ''} ${i.ofrece_transporte ? '· 🚗 ' + i.cupos_ofrecidos + ' cupos' : ''}</div></div>`).join('') : '<div class="empty">Nadie confirmada aún.</div>');
+      document.getElementById('jd-btn-asign')?.addEventListener('click', () => openAsignarVoluntarias(j.id));
       return;
     }
 
@@ -618,7 +627,175 @@
     if (jDetailId === j.id) await renderJornadaDetail();
   }
 
+  function inscEstadoLabel(e) {
+    return { confirmada: 'Confirmada', asistio: 'Asistió', no_asistio: 'No asistió', no_puede: 'No puede', pendiente: 'Pendiente' }[e] || e;
+  }
+
+  function jornadasAsignables() {
+    return jornadas.filter(j => ['abierta', 'llena', 'realizada'].includes(j.estado))
+      .sort((a, b) => {
+        const aOpen = ['abierta', 'llena'].includes(a.estado);
+        const bOpen = ['abierta', 'llena'].includes(b.estado);
+        if (aOpen !== bOpen) return aOpen ? -1 : 1;
+        return b.fecha.localeCompare(a.fecha) || String(b.hora_salida || '').localeCompare(a.hora_salida || '');
+      });
+  }
+
+  function matchVolQ(v, q) {
+    if (!q) return true;
+    const blob = [v.nombre, v.apellido, v.id_dni, v.telefono, String(v.numero_voluntaria)].join(' ').toLowerCase();
+    return blob.includes(q);
+  }
+
+  function inscritosVolIds() {
+    return new Set(asignarInscripciones.map(i => i.voluntario_id));
+  }
+
+  async function loadAsignarVoluntarias() {
+    const { data, error } = await db.from('voluntarios')
+      .select('id,numero_voluntaria,nombre,apellido,id_dni,telefono,activa')
+      .eq('grupo', GRUPO)
+      .eq('activa', true)
+      .order('numero_voluntaria');
+    if (error) { toast(error.message); return; }
+    asignarVoluntarias = data || [];
+  }
+
+  async function loadAsignarInscripciones(jId) {
+    if (!jId) { asignarInscripciones = []; return; }
+    const { data, error } = await db.from('inscripciones')
+      .select('id,voluntario_id,estado,necesita_transporte,ofrece_transporte,cupos_ofrecidos,voluntarios(numero_voluntaria,nombre,apellido,telefono)')
+      .eq('jornada_id', jId)
+      .order('created_at');
+    if (error) { toast(error.message); return; }
+    asignarInscripciones = data || [];
+  }
+
+  function renderAsignarJornadaSelect() {
+    const sel = document.getElementById('ja-jornada');
+    if (!sel) return;
+    const abiertas = jornadasAsignables();
+    if (!abiertas.length) {
+      sel.innerHTML = '<option value="">No hay jornadas disponibles</option>';
+      sel.disabled = true;
+      return;
+    }
+    sel.disabled = false;
+    sel.innerHTML = abiertas.map(j =>
+      `<option value="${j.id}"${j.id === asignarJornadaId ? ' selected' : ''}>${esc(fmtDateCard(j.fecha))} · ${esc(j.titulo)}${j.estado === 'realizada' ? ' (realizada)' : ''}</option>`).join('');
+  }
+
+  function renderAsignarInscList() {
+    const list = document.getElementById('ja-insc-list');
+    const count = document.getElementById('ja-insc-count');
+    if (!list) return;
+    if (count) count.textContent = String(asignarInscripciones.length);
+    if (!asignarInscripciones.length) {
+      list.innerHTML = '<p class="meta">Nadie inscrita aún.</p>';
+      return;
+    }
+    list.innerHTML = asignarInscripciones.map(i => `
+      <div class="vcard" style="margin-bottom:8px">
+        <b>#${i.voluntarios?.numero_voluntaria || '—'} ${esc(i.voluntarios?.nombre)} ${esc(i.voluntarios?.apellido || '')}</b>
+        <div class="vcard-meta">${inscEstadoLabel(i.estado)}${i.voluntarios?.telefono ? ' · ' + esc(i.voluntarios.telefono) : ''}</div>
+      </div>`).join('');
+  }
+
+  function renderAsignarResults() {
+    const q = (document.getElementById('ja-q')?.value || '').trim().toLowerCase();
+    const el = document.getElementById('ja-results');
+    const count = document.getElementById('ja-count');
+    if (!el) return;
+    if (!asignarJornadaId) {
+      el.innerHTML = '';
+      if (count) count.textContent = 'Elige una jornada.';
+      return;
+    }
+    const inscritos = inscritosVolIds();
+    const disponibles = asignarVoluntarias.filter(v => !inscritos.has(v.id));
+    const rows = disponibles.filter(v => matchVolQ(v, q));
+    if (count) {
+      count.textContent = q
+        ? (rows.length ? `${rows.length} coincidencia(s)` : 'Sin coincidencias')
+        : `${rows.length} voluntarias disponibles`;
+    }
+    if (!rows.length) {
+      el.innerHTML = `<div class="empty">${q ? 'Nadie coincide con ese filtro.' : 'Todas las voluntarias ya están en esta jornada.'}</div>`;
+      return;
+    }
+    el.innerHTML = rows.map(v => `
+      <div class="vcard" style="margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;gap:10px">
+        <div style="min-width:0">
+          <b>#${v.numero_voluntaria} ${esc(v.nombre)} ${esc(v.apellido)}</b>
+          <div class="vcard-meta">${esc(v.id_dni)}${v.telefono ? ' · ' + esc(v.telefono) : ''}</div>
+        </div>
+        <button type="button" class="btn btn-p btn-sm" data-ja-add="${v.id}" style="flex-shrink:0;margin:0">+ Agregar</button>
+      </div>`).join('');
+    el.querySelectorAll('[data-ja-add]').forEach(btn => {
+      btn.onclick = () => agregarVoluntariaJornada(btn.dataset.jaAdd, btn);
+    });
+  }
+
+  async function agregarVoluntariaJornada(volId, btn) {
+    if (!asignarJornadaId || !volId) return;
+    const j = jornadas.find(x => x.id === asignarJornadaId);
+    if (!j || !['abierta', 'llena', 'realizada'].includes(j.estado)) {
+      toast('Esta jornada no acepta inscripciones');
+      return;
+    }
+    const estadoInsc = j.estado === 'realizada' ? 'asistio' : 'confirmada';
+    if (btn) { btn.disabled = true; btn.textContent = '…'; }
+    const { error } = await db.from('inscripciones').upsert({
+      jornada_id: asignarJornadaId,
+      voluntario_id: volId,
+      estado: estadoInsc,
+      respondido_at: new Date().toISOString(),
+    }, { onConflict: 'jornada_id,voluntario_id' });
+    if (btn) { btn.disabled = false; btn.textContent = '+ Agregar'; }
+    if (error) { toast(error.message); return; }
+    const v = asignarVoluntarias.find(x => x.id === volId);
+    toast(estadoInsc === 'asistio'
+      ? `#${v?.numero_voluntaria || ''} ${v?.nombre || ''} marcada asistió`.trim()
+      : `#${v?.numero_voluntaria || ''} ${v?.nombre || ''} confirmada`.trim());
+    await loadAsignarInscripciones(asignarJornadaId);
+    await loadJStats(jornadas.map(x => x.id));
+    renderAsignarInscList();
+    renderAsignarResults();
+    if (jDetailId === asignarJornadaId) await renderJornadaDetail();
+  }
+
+  async function openAsignarVoluntarias(jornadaId) {
+    const asignables = jornadasAsignables();
+    if (!asignables.length) {
+      toast('No hay jornadas para inscribir');
+      return;
+    }
+    asignarJornadaId = jornadaId && asignables.some(j => j.id === jornadaId) ? jornadaId : asignables[0].id;
+    document.getElementById('jornada-asignar-sheet').hidden = false;
+    const q = document.getElementById('ja-q');
+    if (q) q.value = '';
+    await loadAsignarVoluntarias();
+    renderAsignarJornadaSelect();
+    await loadAsignarInscripciones(asignarJornadaId);
+    renderAsignarInscList();
+    renderAsignarResults();
+  }
+
+  function initAsignarUi() {
+    document.getElementById('ja-close')?.addEventListener('click', () => {
+      document.getElementById('jornada-asignar-sheet').hidden = true;
+    });
+    document.getElementById('ja-jornada')?.addEventListener('change', async (e) => {
+      asignarJornadaId = e.target.value || null;
+      await loadAsignarInscripciones(asignarJornadaId);
+      renderAsignarInscList();
+      renderAsignarResults();
+    });
+    document.getElementById('ja-q')?.addEventListener('input', () => renderAsignarResults());
+  }
+
   function initJornadasUi() {
+    initAsignarUi();
     document.getElementById('j-filters')?.addEventListener('click', e => {
       const b = e.target.closest('.chip');
       if (!b) return;
@@ -679,5 +856,5 @@
     return materialesWaText(j, data);
   }
 
-  window.CC_JORN = { onCoordReady, onShowTab, openJornadaForm, openJornadaClose, copyWa, loadJornadas, reloadSitios, getProximaJornada, getWaText, setBrigadaFilter, getMaterialesExport };
+  window.CC_JORN = { onCoordReady, onShowTab, openJornadaForm, openJornadaClose, openAsignarVoluntarias, copyWa, loadJornadas, reloadSitios, getProximaJornada, getWaText, setBrigadaFilter, getMaterialesExport };
 })();
