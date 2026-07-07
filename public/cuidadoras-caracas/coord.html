@@ -166,6 +166,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .drawer .sheet-hdr button{color:var(--txt3)}
 .drawer .sheet-body,.drawer .sheet-foot{background:#fff;max-width:780px;width:100%;margin:0 auto}
 .drawer .sheet-hdr{max-width:780px;width:100%;margin:0 auto}
+.drawer .sheet-hdr button.sheet-close-x{font-size:26px;line-height:1;font-weight:400}
 .drawer .sheet-hdr::before{content:'';width:36px;height:4px;border-radius:999px;background:#ddd;position:absolute;left:50%;transform:translateX(-50%);margin-top:-2px}
 .kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
 .kpi{border:1px solid var(--line);border-radius:10px;padding:10px;text-align:center}
@@ -183,12 +184,15 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .task-row.ok .st{color:var(--grn)}
 .j-share{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .j-share-lbl{font-size:10px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
-.j-link-row{display:flex;flex-direction:column;align-items:stretch;gap:8px;margin-bottom:10px}
-.j-link{display:block;width:100%;font-size:12px;color:var(--indt);background:var(--surf);border:1px solid var(--line2);border-radius:8px;padding:8px 10px;line-height:1.4;word-break:break-word;overflow-wrap:anywhere}
-.j-link-row>.btn{width:100%;flex:none;margin:0}
-.j-wa-preview{font-size:12px;color:var(--txt2);background:var(--surf);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;line-height:1.45;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;margin-bottom:8px;max-height:120px;overflow:auto}
-.j-share-actions{display:flex;gap:8px;flex-wrap:wrap}
-.j-share-actions .btn{width:auto;flex:0 1 auto;padding:8px 12px;font-size:12px;margin:0}
+.j-link-wrap{position:relative;margin-bottom:10px}
+.j-link{display:block;width:100%;font-size:12px;color:var(--indt);background:var(--surf);border:1px solid var(--line2);border-radius:8px;padding:8px 40px 8px 10px;line-height:1.4;word-break:break-word;overflow-wrap:anywhere}
+.j-copy-btn{position:absolute;top:8px;right:8px;width:32px;height:32px;border:1px solid var(--line2);border-radius:8px;background:#fff;color:var(--txt);font-size:15px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.j-copy-btn:active{opacity:.85}
+.j-wa-wrap{position:relative;margin-bottom:8px}
+.j-wa-preview{font-size:12px;color:var(--txt2);background:var(--surf);border:1px solid var(--line2);border-radius:10px;padding:10px 40px 10px 12px;line-height:1.45;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-height:120px;overflow:auto;margin-bottom:0}
+.jd-hdr{margin-bottom:4px}
+.jd-text{font-size:13px;line-height:1.55;color:var(--txt2);white-space:pre-wrap;word-break:break-word}
+#jd-body .j-share{border-top:none;padding-top:0;margin-top:0}
 .mat-row{display:grid;grid-template-columns:1fr 52px 52px auto 32px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
 .mat-row:last-child{border-bottom:none}
 .mat-row input[type="text"],.mat-row input[type="number"]{width:100%;border:1px solid var(--line2);border-radius:8px;padding:8px;font-size:14px;font-family:inherit}
@@ -207,11 +211,15 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .task-add-row input{flex:1;border:1px solid var(--line2);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit}
 .task-add-row .btn{margin:0;width:auto;padding:10px 14px;flex-shrink:0}
 @media(max-width:480px){.mat-row{grid-template-columns:1fr 48px 48px auto 32px}}
-@media(min-width:640px){
-  .j-link-row{flex-direction:row;align-items:flex-start}
-  .j-link{flex:1;min-width:0;width:auto}
-  .j-link-row>.btn{width:auto;flex-shrink:0}
-}
+.media-upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:2px dashed var(--line2);border-radius:12px;font-size:14px;font-weight:700;color:var(--ind);cursor:pointer;background:var(--g1);text-align:center}
+.media-upload-btn:active{opacity:.85}
+.media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+@media(min-width:640px){.media-grid{grid-template-columns:repeat(4,1fr)}}
+.media-item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#1a1a1a}
+.media-item img,.media-item video{width:100%;height:100%;object-fit:cover;display:block}
+.media-item .media-del{position:absolute;top:4px;right:4px;width:28px;height:28px;border:none;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:16px;line-height:1;cursor:pointer;z-index:2}
+.media-item .media-vid-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;background:rgba(0,0,0,.28);pointer-events:none}
+.media-pending{margin-top:8px;font-size:12px;color:var(--txt2);line-height:1.45}
 
 @media(prefers-reduced-motion:reduce){.toast{transition:none}}
 </style>
@@ -285,6 +293,9 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         <div id="brig-list"></div>
       </section>
       <section class="panel" id="panel-jornadas">
+        <div class="quick" style="margin-bottom:12px">
+          <button type="button" class="btn btn-s btn-sm" id="btn-jornada-media">📷 Subir fotos a jornada</button>
+        </div>
         <div class="chips" id="j-filters" style="margin-bottom:12px">
           <button type="button" class="chip on" data-jf="proximas">Próximas</button>
           <button type="button" class="chip" data-jf="pasadas">Pasadas</button>
@@ -552,7 +563,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 <div class="sheet drawer" id="jornada-detail-sheet" hidden>
   <header class="sheet-hdr">
-    <button type="button" id="jd-close" aria-label="Cerrar">←</button>
+    <button type="button" id="jd-close" class="sheet-close-x" aria-label="Cerrar panel" title="Cerrar">×</button>
     <h2 id="jd-title">Jornada</h2>
   </header>
   <div class="sheet-body">
@@ -583,6 +594,19 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   </div>
 </div>
 
+<div class="sheet drawer" id="jornada-media-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="jm-close" aria-label="Cerrar">←</button>
+    <h2>Fotos y videos</h2>
+  </header>
+  <div class="sheet-body">
+    <p style="font-size:13px;color:var(--txt2);margin-bottom:12px;line-height:1.45">Registro visual de cualquier jornada — antes, durante o después. Solo visible para coordinación.</p>
+    <div class="field"><label for="jm-jornada">Jornada</label>
+      <select id="jm-jornada"></select>
+    </div>
+    <div id="jm-body"></div>
+  </div>
+</div>
 
 <div class="sheet drawer" id="jornada-close-sheet" hidden>
   <header class="sheet-hdr">
@@ -617,7 +641,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 <div class="toast" id="toast"></div>
 
-<script src="coord-jornadas.js?v=20260707j"></script>
+<script src="coord-jornadas.js?v=20260707o"></script>
 <script src="coord-brigadas.js?v=20260706a"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
@@ -642,7 +666,8 @@ function updatePageHdr(tab){
     actions.innerHTML='<button type="button" class="btn btn-p btn-sm" id="btn-add-vol">+ Agregar</button>';
     document.getElementById('btn-add-vol').onclick=()=>openCreateVoluntaria();
   }else if(tab==='jornadas'){
-    actions.innerHTML='<button type="button" class="btn btn-s btn-sm" id="btn-page-asignar">+ Agregar voluntarias</button><button type="button" class="btn btn-p btn-sm" id="btn-page-jornada">+ Nueva</button>';
+    actions.innerHTML='<button type="button" class="btn btn-s btn-sm" id="btn-page-media">📷 Fotos</button><button type="button" class="btn btn-s btn-sm" id="btn-page-asignar">+ Voluntarias</button><button type="button" class="btn btn-p btn-sm" id="btn-page-jornada">+ Nueva</button>';
+    document.getElementById('btn-page-media').onclick=()=>window.CC_JORN?.openJornadaMedia();
     document.getElementById('btn-page-asignar').onclick=()=>window.CC_JORN?.openAsignarVoluntarias();
     document.getElementById('btn-page-jornada').onclick=()=>window.CC_JORN?.openJornadaForm(null);
   }else if(tab==='sitios'){

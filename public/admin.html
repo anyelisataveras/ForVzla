@@ -267,7 +267,7 @@ details.sum summary::-webkit-details-marker{display:none}
 
     <div class="panel" id="panel-grupos">
       <p style="font-size:13px;color:var(--g4);margin-bottom:12px;line-height:1.5">
-        Cada grupo agrupa voluntarias, brigadas, sitios y jornadas. Al crear un grupo, invita <b>administradoras</b> del grupo; ellas asignan <b>coordinadoras</b> desde voluntarias ya registradas.
+        Cada grupo agrupa voluntarias, brigadas, sitios y jornadas. Invita <b>administradoras</b> abajo en cada tarjeta; se genera contraseña temporal en pantalla (como en Equipo). Ellas asignan <b>coordinadoras</b> desde el panel de coordinación.
       </p>
       <button class="btn btn-g" type="button" onclick="nuevoGrupoForm()">+ Nuevo grupo</button>
       <div id="grupo-form" style="display:none;margin:14px 0;padding:14px;border:1px solid var(--g2);border-radius:var(--r);background:var(--g1)">
@@ -1781,6 +1781,30 @@ async function eliminarAsesor(id) {
 let volGrupo = 'cuidadoras_caracas';
 let gruposVolCache = [];
 
+function renderGrupoAdmins(slug, admins) {
+  if (!admins.length) {
+    return '<div class="meta" style="margin:6px 0 4px">Sin administradoras aún.</div>';
+  }
+  return admins.map(a => `
+    <div class="card" style="margin-top:8px;padding:10px;border-left-color:var(--navy)">
+      <b>${esc(a.nombre || a.email)}</b>
+      ${a.nombre ? `<div class="meta">${esc(a.email)}</div>` : ''}
+      ${a.activo === false ? '<span class="badge" style="background:#eee;color:var(--g4)">Inactiva</span>' : ''}
+      <button type="button" class="btn btn-s" style="margin-top:8px;font-size:12px"
+        onclick='resetearPwdAdminGrupo(${JSON.stringify(slug)}, ${JSON.stringify(a.email)}, ${JSON.stringify(a.nombre || '')})'>
+        🔑 Generar contraseña
+      </button>
+    </div>`).join('');
+}
+
+function toggleGrupoAdminForm(slug) {
+  const box = document.getElementById('grupo-invite-' + slug);
+  if (!box) return;
+  const open = box.hidden;
+  box.hidden = !open;
+  if (open) document.getElementById('gi-email-' + slug)?.focus();
+}
+
 async function loadGrupos() {
   const el = document.getElementById('lista-grupos');
   if (!el) return;
@@ -1794,16 +1818,33 @@ async function loadGrupos() {
     el.innerHTML = '<div class="empty">No hay grupos. Crea el primero arriba.</div>';
     return;
   }
+  const staffByGrupo = {};
+  await Promise.all(gruposVolCache.map(async g => {
+    const { data: staff, error: staffErr } = await db.rpc('listar_staff_grupo', { p_grupo: g.slug });
+    staffByGrupo[g.slug] = staffErr ? [] : (staff || []).filter(s => s.rol === 'administrador');
+  }));
   el.innerHTML = gruposVolCache.map(g => {
     const url = g.ruta_web ? `/${g.ruta_web}` : '—';
+    const admins = staffByGrupo[g.slug] || [];
+    const sid = esc(g.slug);
     return `<div class="card" style="border-left-color:${g.activo ? 'var(--grn)' : 'var(--g4)'}">
       <h3>${esc(g.nombre)} ${g.activo ? '' : '<span class="badge" style="background:#eee;color:var(--g4)">Inactivo</span>'}</h3>
       <div class="meta"><code>${esc(g.slug)}</code> · <a href="${esc(url)}" target="_blank" rel="noopener">${esc(url)}</a></div>
       ${g.descripcion ? `<div class="txt">${esc(g.descripcion)}</div>` : ''}
       <div class="row" style="margin-top:8px">
         ${g.ruta_web ? `<a class="btn btn-s" href="${esc(url)}/coord" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">Panel coord ↗</a>` : ''}
-        <button class="btn btn-s" type="button" onclick='invitarAdminGrupo(${JSON.stringify(g.slug)}, ${JSON.stringify(g.nombre)})'>+ Administradora</button>
+        <button class="btn btn-s" type="button" onclick='toggleGrupoAdminForm(${JSON.stringify(g.slug)})'>+ Administradora</button>
         <button class="btn btn-s" type="button" onclick='editarGrupo(${JSON.stringify(g.slug)})'>Editar</button>
+      </div>
+      <h4 style="font-size:13px;margin:14px 0 6px;color:var(--navy)">Administradoras del grupo</h4>
+      <div id="grupo-admins-${sid}">${renderGrupoAdmins(g.slug, admins)}</div>
+      <div id="grupo-invite-${sid}" hidden style="margin-top:10px;padding:12px;border:1px solid var(--g2);border-radius:var(--r);background:var(--g1)">
+        <div class="fld"><label>Correo *</label><input type="email" id="gi-email-${sid}" placeholder="admin@correo.com" autocomplete="off"></div>
+        <div class="fld"><label>Nombre</label><input type="text" id="gi-nombre-${sid}" placeholder="Opcional" autocomplete="off"></div>
+        <div class="row">
+          <button class="btn btn-p" type="button" onclick='invitarAdminGrupo(${JSON.stringify(g.slug)}, ${JSON.stringify(g.nombre)}, ${JSON.stringify(g.ruta_web || '')})'>✉️ Agregar administradora</button>
+          <button class="btn btn-s" type="button" onclick='toggleGrupoAdminForm(${JSON.stringify(g.slug)})'>Cancelar</button>
+        </div>
       </div>
     </div>`;
   }).join('');
@@ -1874,23 +1915,44 @@ async function guardarGrupo() {
   loadGruposVolFilters();
 }
 
-async function invitarAdminGrupo(slug, nombreGrupo) {
-  const email = prompt(`Correo de la administradora de «${nombreGrupo}»:`);
-  if (!email || !email.trim()) return;
-  const nombre = prompt('Nombre (opcional):') || null;
+function grupoCredOpts(slug, nombreGrupo, rutaWeb) {
+  const base = rutaWeb ? `${location.origin}/${rutaWeb}/coord` : location.origin;
+  return { grupo: slug, grupoNombre: nombreGrupo, grupoUrl: base };
+}
+
+async function invitarAdminGrupo(slug, nombreGrupo, rutaWeb) {
+  const emailEl = document.getElementById('gi-email-' + slug);
+  const nombreEl = document.getElementById('gi-nombre-' + slug);
+  const email = emailEl?.value.trim().toLowerCase();
+  const nombre = nombreEl?.value.trim() || null;
+  if (!email) { toast('Escribe el correo'); emailEl?.focus(); return; }
+
   const { data, error } = await db.rpc('invitar_administrador_grupo', {
     p_grupo: slug,
-    p_email: email.trim(),
+    p_email: email,
     p_nombre: nombre,
   });
   if (error) { toast(error.message); return; }
-  const creds = `Grupo: ${nombreGrupo}\nCorreo: ${data.email}\nContraseña: ${data.password}`;
-  try {
-    await navigator.clipboard.writeText(creds);
-    toast('Administradora creada — credenciales copiadas');
-  } catch {
-    prompt('Copia y envía al equipo:', creds);
-  }
+
+  if (emailEl) emailEl.value = '';
+  if (nombreEl) nombreEl.value = '';
+  toggleGrupoAdminForm(slug);
+  mostrarCredenciales(data.email, data.password, grupoCredOpts(slug, nombreGrupo, rutaWeb));
+  loadGrupos();
+}
+
+async function resetearPwdAdminGrupo(slug, email, nombre) {
+  const g = gruposVolCache.find(x => x.slug === slug);
+  const nombreGrupo = g?.nombre || slug;
+  const rutaWeb = g?.ruta_web || '';
+  if (!confirm('¿Generar una contraseña nueva para ' + email + '? La anterior dejará de funcionar.')) return;
+  const { data, error } = await db.rpc('invitar_administrador_grupo', {
+    p_grupo: slug,
+    p_email: email,
+    p_nombre: nombre || null,
+  });
+  if (error) { toast(error.message); return; }
+  mostrarCredenciales(data.email, data.password, { ...grupoCredOpts(slug, nombreGrupo, rutaWeb), reset: true });
 }
 
 function setVolGrupo(btn) {
@@ -2008,9 +2070,12 @@ async function loadAdmins() {
 
 let credencialesTxt = '';
 
-function textoCredenciales(email, password) {
-  const url = location.origin + location.pathname;
-  return `Acceso panel Ayuda Venezuela\nCorreo: ${email}\nContraseña: ${password}\n\nEntra aquí: ${url}`;
+function textoCredenciales(email, password, opts) {
+  const url = opts?.grupoUrl || (location.origin + location.pathname);
+  const titulo = opts?.grupoNombre
+    ? `Acceso panel ${opts.grupoNombre}`
+    : 'Acceso panel Ayuda Venezuela';
+  return `${titulo}\nCorreo: ${email}\nContraseña: ${password}\n\nEntra aquí: ${url}`;
 }
 
 function copiarTexto(txt, msg) {
@@ -2033,7 +2098,7 @@ function copiarYCerrarModalCred() {
 }
 
 function mostrarCredenciales(email, password, opts) {
-  credencialesTxt = textoCredenciales(email, password);
+  credencialesTxt = textoCredenciales(email, password, opts);
   document.getElementById('modal-cred-tit').textContent = opts?.reset ? 'Contraseña nueva' : 'Usuario listo';
   document.getElementById('modal-cred-email').textContent = email;
   document.getElementById('modal-cred-pwd').textContent = password;

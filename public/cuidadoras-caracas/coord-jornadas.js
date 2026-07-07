@@ -1,9 +1,298 @@
 /* Panel coordinadoras — jornadas (Sprint 1). Requiere GRUPO, db, esc, toast, brigCat, session del scope coord. */
 (function () {
-  let jornadas = [], sitios = [], jTab = 'proximas', jBrigFilter = '', jDetailId = null, jEditId = null, jEditTareas = [], jEditMateriales = [], inventarioCat = [], jCloseId = null, jCloseRows = [], jStats = {};
+  let jornadas = [], sitios = [], jTab = 'proximas', jBrigFilter = '', jDetailId = null, jEditId = null, jEditTareas = [], jEditMateriales = [], inventarioCat = [], jCloseId = null, jCloseRows = [], jStats = {}, jMediaCounts = {};
   let asignarJornadaId = null, asignarVoluntarias = [], asignarInscripciones = [];
 
   const COBERTURAS = ['ninguna', 'baja', 'ok', 'sobra'];
+  const MEDIA_BUCKET = 'jornada-media';
+  const MAX_FOTO_BYTES = 15 * 1024 * 1024;
+  const MAX_VIDEO_BYTES = 50 * 1024 * 1024;
+
+  function mediaTypeFromMime(mime) {
+    return String(mime || '').startsWith('video/') ? 'video' : 'foto';
+  }
+
+  function extFromMime(mime) {
+    const map = {
+      'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp',
+      'image/heic': 'heic', 'image/heif': 'heif',
+      'video/mp4': 'mp4', 'video/quicktime': 'mov', 'video/webm': 'webm',
+    };
+    return map[mime] || 'bin';
+  }
+
+  async function signedMediaUrl(path) {
+    const { data, error } = await db.storage.from(MEDIA_BUCKET).createSignedUrl(path, 3600);
+    if (error) return null;
+    return data.signedUrl;
+  }
+
+  async function uploadJornadaFiles(jornadaId, fileList) {
+    const files = [...fileList];
+    if (!files.length) return 0;
+    let ok = 0;
+    for (const file of files) {
+      const isVideo = file.type.startsWith('video/');
+      const max = isVideo ? MAX_VIDEO_BYTES : MAX_FOTO_BYTES;
+      if (file.size > max) {
+        toast(`${file.name}: muy grande (máx ${isVideo ? 50 : 15} MB)`);
+        continue;
+      }
+      if (!/^(image|video)\//.test(file.type)) {
+        toast(`${file.name}: tipo no permitido`);
+        continue;
+      }
+      const path = `${GRUPO}/${jornadaId}/${crypto.randomUUID()}.${extFromMime(file.type)}`;
+      const { error: upErr } = await db.storage.from(MEDIA_BUCKET).upload(path, file, {
+        contentType: file.type,
+        upsert: false,
+      });
+      if (upErr) { toast(upErr.message); continue; }
+      const { error: dbErr } = await db.from('jornada_media').insert({
+        jornada_id: jornadaId,
+        storage_path: path,
+        mime_type: file.type,
+        media_type: mediaTypeFromMime(file.type),
+        subido_por: session?.user?.email || null,
+      });
+      if (dbErr) {
+        await db.storage.from(MEDIA_BUCKET).remove([path]);
+        toast(dbErr.message);
+        continue;
+      }
+      ok++;
+    }
+    if (ok) toast(ok === 1 ? '1 archivo subido' : `${ok} archivos subidos`);
+    return ok;
+  }
+
+  async function loadJMediaCounts(ids) {
+    const next = {};
+    (ids || []).forEach((id) => { next[id] = 0; });
+    if (!ids?.length) { jMediaCounts = next; return; }
+    const { data } = await db.from('jornada_media').select('jornada_id').in('jornada_id', ids);
+    (data || []).forEach((m) => { next[m.jornada_id] = (next[m.jornada_id] || 0) + 1; });
+    jMediaCounts = next;
+  }
+
+  async function refreshMediaViews(jornadaId) {
+    await loadJMediaCounts(jornadas.map((j) => j.id));
+    renderJornadaList();
+    const sheet = document.getElementById('jornada-media-sheet');
+    if (sheet && !sheet.hidden && document.getElementById('jm-jornada')?.value === jornadaId) {
+      await renderMediaSheetBody();
+    }
+    if (jDetailId === jornadaId && jDetailTab === 'resumen') await renderJornadaDetail();
+  }
+
+  async function deleteJornadaMedia(item) {
+    if (!confirm('¿Quitar este archivo del registro?')) return;
+    const { error: stErr } = await db.storage.from(MEDIA_BUCKET).remove([item.storage_path]);
+    if (stErr) { toast(stErr.message); return; }
+    const { error } = await db.from('jornada_media').delete().eq('id', item.id);
+    if (error) { toast(error.message); return; }
+    toast('Archivo eliminado');
+    await refreshMediaViews(item.jornada_id);
+  }
+
+  function renderMediaGrid(items, urlsById, jornadaId) {
+    if (!items.length) return '<div class="empty">Aún no hay fotos ni videos.</div>';
+    return `<div class="media-grid">${items.map((m) => {
+      const url = urlsById[m.id];
+      if (!url) return '';
+      const del = `CC_JORN.deleteMediaItem('${m.id}')`;
+      if (m.media_type === 'video') {
+        return `<div class="media-item" data-media-id="${m.id}">
+          <video src="${esc(url)}" controls playsinline preload="metadata"></video>
+          <span class="media-vid-badge" aria-hidden="true">▶</span>
+          <button type="button" class="media-del" onclick="${del}" title="Quitar">×</button>
+        </div>`;
+      }
+      return `<div class="media-item" data-media-id="${m.id}">
+        <img src="${esc(url)}" alt="Registro jornada" loading="lazy">
+        <button type="button" class="media-del" onclick="${del}" title="Quitar">×</button>
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  let mediaCache = {};
+
+  async function renderMediaContent(jornadaId, containerEl, inputId) {
+    if (!containerEl) return;
+    containerEl.innerHTML = '<div class="empty">Cargando registro…</div>';
+    const { data: items, error } = await db.from('jornada_media')
+      .select('id,jornada_id,storage_path,mime_type,media_type,subido_por,created_at')
+      .eq('jornada_id', jornadaId)
+      .order('created_at', { ascending: false });
+    if (error) {
+      containerEl.innerHTML = `<div class="empty">${esc(error.message)}</div>`;
+      return;
+    }
+    const rows = items || [];
+    mediaCache = {};
+    rows.forEach((m) => { mediaCache[m.id] = m; });
+    const urlsById = {};
+    await Promise.all(rows.map(async (m) => {
+      urlsById[m.id] = await signedMediaUrl(m.storage_path);
+    }));
+    containerEl.innerHTML = `
+      <label class="media-upload-btn">
+        <input type="file" id="${inputId}" accept="image/*,video/*" multiple capture="environment" hidden>
+        📷 Subir fotos o videos
+      </label>
+      <p class="meta" style="margin-top:6px;margin-bottom:4px">Máx. 15 MB fotos · 50 MB videos</p>
+      <p class="count" style="margin-bottom:8px">${rows.length} archivo${rows.length === 1 ? '' : 's'}</p>
+      <div>${renderMediaGrid(rows, urlsById, jornadaId)}</div>`;
+    document.getElementById(inputId)?.addEventListener('change', async (e) => {
+      const input = e.target;
+      if (!input.files?.length) return;
+      input.disabled = true;
+      const n = await uploadJornadaFiles(jornadaId, input.files);
+      input.value = '';
+      input.disabled = false;
+      if (n) await refreshMediaViews(jornadaId);
+    });
+  }
+
+  function jornadaMediaLabel(j) {
+    const lugar = j.sitio_nombre || j.sitio_zona || j.titulo || 'Sin sitio';
+    return `${fmtDateCard(j.fecha)} · ${lugar}`;
+  }
+
+  function populateJornadaMediaSelect() {
+    const sel = document.getElementById('jm-jornada');
+    if (!sel) return;
+    const sorted = [...jornadas].sort((a, b) => b.fecha.localeCompare(a.fecha) || (b.hora_salida || '').localeCompare(a.hora_salida || ''));
+    sel.innerHTML = sorted.map((j) =>
+      `<option value="${j.id}">${esc(jornadaMediaLabel(j))} · ${esc(j.titulo || 'Jornada')} (${esc(j.estado)})</option>`
+    ).join('');
+  }
+
+  async function renderMediaSheetBody() {
+    const jornadaId = document.getElementById('jm-jornada')?.value;
+    const body = document.getElementById('jm-body');
+    if (!jornadaId || !body) return;
+    await renderMediaContent(jornadaId, body, 'jm-media-input');
+  }
+
+  async function openJornadaMedia(jornadaId) {
+    if (!jornadas.length) { toast('No hay jornadas'); return; }
+    populateJornadaMediaSelect();
+    const sel = document.getElementById('jm-jornada');
+    if (jornadaId && jornadas.some((j) => j.id === jornadaId)) sel.value = jornadaId;
+    else if (!sel.value) sel.value = jornadas[0].id;
+    document.getElementById('jornada-media-sheet').hidden = false;
+    await renderMediaSheetBody();
+  }
+
+  async function renderJornadaResumen(j, body) {
+    body.innerHTML = '<div class="empty">Cargando detalle…</div>';
+    const st = jStats[j.id] || { confirmadas: 0, pidenRide: 0, cupos: 0, sinDueno: 0 };
+    const link = jornadaLink(j);
+    const wa = waJornadaText(j);
+    const [{ data: mats }, { data: tareas }] = await Promise.all([
+      db.from('necesidades_jornada').select('*').eq('jornada_id', j.id).order('orden').order('created_at'),
+      db.from('tareas_jornada').select('id,titulo,voluntario_id,voluntarios(nombre)').eq('jornada_id', j.id),
+    ]);
+    const items = mats || [];
+    const taskRows = tareas || [];
+    const estadoLabel = { borrador: 'Borrador', abierta: 'Abierta', llena: 'Llena', realizada: 'Realizada', cancelada: 'Cancelada' }[j.estado] || j.estado;
+    const brigHtml = (j.brigadas || []).map((s) => {
+      const b = brigCat.find((x) => x.slug === s);
+      return `<span class="btag">${esc(b?.icono || '•')} ${esc((b?.nombre || s).replace(/^Brigada de\s*/i, ''))}</span>`;
+    }).join('') || '<span class="meta">—</span>';
+    const horarioLines = [
+      j.hora_encuentro ? `Encuentro ${fmtTime(j.hora_encuentro)}${j.punto_encuentro ? ' · ' + esc(j.punto_encuentro) : ''}` : (j.punto_encuentro ? `Encuentro: ${esc(j.punto_encuentro)}` : ''),
+      j.hora_salida ? `Salida ${fmtTime(j.hora_salida)}` : '',
+      j.hora_regreso_aprox ? `Regreso ~${fmtTime(j.hora_regreso_aprox)}` : '',
+    ].filter(Boolean).join('<br>') || '—';
+
+    body.innerHTML = `
+      <div class="jd-hdr">
+        <span class="badge-state">${esc(estadoLabel)}</span>
+        <div class="meta" style="margin-top:8px"><b>${fmtDateCard(j.fecha)}</b> · ${esc(j.sitio_nombre || j.sitio_zona || 'Sin sitio')}</div>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><b>${st.confirmadas}</b><span>confirmadas</span></div>
+        <div class="kpi"><b>${st.pidenRide}</b><span>piden ride</span></div>
+        <div class="kpi"><b>${st.sinDueno}</b><span>tareas s/dueño</span></div>
+      </div>
+      <div class="sect">
+        <div class="sect-t">Horario y lugar</div>
+        <div class="vcard-meta">📍 <b>${esc(j.sitio_nombre || '—')}</b>${j.sitio_zona ? ` · ${esc(j.sitio_zona)}` : ''}</div>
+        <div class="vcard-meta" style="margin-top:6px">${horarioLines}</div>
+      </div>
+      <div class="sect">
+        <div class="sect-t">Brigadas</div>
+        <div class="btags">${brigHtml}</div>
+      </div>
+      ${j.descripcion ? `<div class="sect"><div class="sect-t">Misión</div><div class="jd-text">${esc(j.descripcion)}</div></div>` : ''}
+      <div class="sect">
+        <div class="sect-t">Vestimenta y llevar</div>
+        <div class="vcard-meta">👕 ${esc(j.vestimenta || '—')}</div>
+        <div class="vcard-meta" style="margin-top:4px">🎒 ${esc(j.llevar || '—')}</div>
+      </div>
+      <div class="sect">
+        <div class="sect-t">Metas</div>
+        <div class="vcard-meta">👩 ${st.confirmadas} / ${j.meta_voluntarias || '—'} voluntarias · 🚗 meta ${j.meta_vehiculos || '—'} vehículos</div>
+      </div>
+      ${j.notas_internas ? `<div class="sect"><div class="sect-t">Notas internas</div><div class="jd-text">${esc(j.notas_internas)}</div></div>` : ''}
+      <div class="sect j-share">
+        <div class="sect-t">Compartir</div>
+        <div class="j-share-lbl">Link de inscripción</div>
+        <div class="j-link-wrap">
+          <div class="j-link">${esc(link)}</div>
+          <button type="button" class="j-copy-btn" data-jd-copy-link aria-label="Copiar link" title="Copiar link">📋</button>
+        </div>
+        <div class="j-share-lbl">Mensaje para WhatsApp</div>
+        <div class="j-wa-wrap">
+          <div class="j-wa-preview">${esc(wa)}</div>
+          <button type="button" class="j-copy-btn" data-jd-copy-wa aria-label="Copiar mensaje" title="Copiar mensaje">📋</button>
+        </div>
+      </div>
+      <div class="sect">
+        <div class="sect-t">Materiales (${items.length})</div>
+        ${items.length ? items.map((m) => {
+          const est = matEstado(m.cantidad_necesaria, m.cantidad_conseguida);
+          return `<div class="vcard${est !== 'cubierta' ? ' warn' : ''}" style="margin-top:8px">
+            <b>${esc(m.item_nombre)}</b>
+            <div class="vcard-meta">${m.cantidad_conseguida} / ${m.cantidad_necesaria} · <span class="mat-est ${matEstadoClass(est)}">${matEstadoLabel(est)}</span></div>
+          </div>`;
+        }).join('') : '<p class="meta">Sin ítems en el checklist.</p>'}
+      </div>
+      <div class="sect">
+        <div class="sect-t">Tareas (${taskRows.length})</div>
+        ${taskRows.length ? taskRows.map((t) => {
+          const sin = !t.voluntario_id;
+          return `<div class="vcard${sin ? ' warn' : ''}" style="margin-top:8px">
+            <b>${esc(t.titulo)}</b>
+            <div class="vcard-meta">${sin ? '⚠️ Sin dueña' : '✅ ' + esc(t.voluntarios?.nombre)}</div>
+          </div>`;
+        }).join('') : '<p class="meta">Sin tareas asignadas.</p>'}
+      </div>
+      <div class="sect">
+        <div class="sect-t">Fotos y videos</div>
+        <div id="jd-media-wrap"></div>
+      </div>
+      <div class="vcard-actions" style="margin-top:12px">
+        <button type="button" class="btn btn-s" data-jd-edit>Editar</button>
+        ${['abierta', 'llena', 'realizada'].includes(j.estado) ? `<button type="button" class="btn btn-p" data-jd-asign>+ Agregar voluntarias</button>` : ''}
+        ${['abierta', 'llena'].includes(j.estado) ? `<button type="button" class="btn btn-g" data-jd-close-j>Cerrar jornada</button>` : ''}
+      </div>`;
+
+    body.querySelector('[data-jd-copy-link]')?.addEventListener('click', () => copyLink(j.id));
+    body.querySelector('[data-jd-copy-wa]')?.addEventListener('click', () => copyWa(j.id));
+    body.querySelector('[data-jd-edit]')?.addEventListener('click', () => openJornadaForm(j.id));
+    body.querySelector('[data-jd-asign]')?.addEventListener('click', () => openAsignarVoluntarias(j.id));
+    body.querySelector('[data-jd-close-j]')?.addEventListener('click', () => openJornadaClose(j.id));
+    await renderMediaContent(j.id, document.getElementById('jd-media-wrap'), 'jd-media-input');
+  }
+
+  async function deleteMediaItem(id) {
+    const item = mediaCache[id];
+    if (!item) return;
+    await deleteJornadaMedia(item);
+  }
 
   const BASE = location.origin + location.pathname.replace(/\/coord\/?$/, '');
 
@@ -223,6 +512,7 @@
       sitio_zona: j.sitio_zona || j.sitios?.zona,
     }));
     await loadJStats(jornadas.map(j=>j.id));
+    await loadJMediaCounts(jornadas.map(j => j.id));
     renderJornadaList();
     renderProximaJornada();
   }
@@ -250,6 +540,8 @@
       const link=jornadaLink(j);
       const wa=waJornadaText(j);
       const showShare=['abierta','llena','borrador'].includes(j.estado);
+      const mediaN = jMediaCounts[j.id] || 0;
+      const mediaLbl = mediaN ? `📷 Fotos (${mediaN})` : '📷 Fotos';
       return `<article class="j-card">
         <div class="j-head"><div>
           <div class="j-title">${fmtDateCard(j.fecha)} · ${fmtTime(j.hora_salida)||'--:--'} · ${esc(j.sitio_nombre || j.sitio_zona || 'Sin sitio')}</div>
@@ -259,18 +551,19 @@
         <span class="badge-state">${j.estado==='abierta'?'Abierta':esc(j.estado)}</span></div>
         ${showShare?`<div class="j-share">
           <div class="j-share-lbl">Link de inscripción</div>
-          <div class="j-link-row">
+          <div class="j-link-wrap">
             <div class="j-link">${esc(link)}</div>
-            <button type="button" class="btn btn-s" data-jlink="${j.id}">Copiar</button>
+            <button type="button" class="j-copy-btn" data-jlink="${j.id}" aria-label="Copiar link" title="Copiar link">📋</button>
           </div>
           <div class="j-share-lbl">Mensaje para WhatsApp</div>
-          <div class="j-wa-preview">${esc(wa)}</div>
-          <div class="j-share-actions">
-            <button type="button" class="btn btn-p" data-jwa="${j.id}">📋 Copiar mensaje</button>
+          <div class="j-wa-wrap">
+            <div class="j-wa-preview">${esc(wa)}</div>
+            <button type="button" class="j-copy-btn" data-jwa="${j.id}" aria-label="Copiar mensaje" title="Copiar mensaje">📋</button>
           </div>
         </div>`:''}
         <div class="j-actions">
           <button type="button" class="btn btn-j-view" data-jview="${j.id}">Ver detalle</button>
+          <button type="button" class="btn btn-s" data-jmedia="${j.id}">${mediaLbl}</button>
           ${['abierta','llena','realizada'].includes(j.estado)?`<button type="button" class="btn btn-p" data-jasign="${j.id}">+ Agregar voluntarias</button>`:''}
           <button type="button" class="btn btn-s" data-jedit="${j.id}">Editar</button>
           ${['abierta','llena'].includes(j.estado)?`<button type="button" class="btn btn-j-close" data-jclose="${j.id}">Cerrar jornada</button>`:''}
@@ -278,6 +571,7 @@
       </article>`;
     }).join('');
     el.querySelectorAll('[data-jview]').forEach(b => b.onclick = () => openJornadaDetail(b.dataset.jview));
+    el.querySelectorAll('[data-jmedia]').forEach(b => b.onclick = () => openJornadaMedia(b.dataset.jmedia));
     el.querySelectorAll('[data-jasign]').forEach(b => b.onclick = () => openAsignarVoluntarias(b.dataset.jasign));
     el.querySelectorAll('[data-jedit]').forEach(b => b.onclick = () => openJornadaForm(b.dataset.jedit));
     el.querySelectorAll('[data-jclose]').forEach(b => b.onclick = () => openJornadaClose(b.dataset.jclose));
@@ -468,31 +762,16 @@
     if (!j) return;
     document.getElementById('jd-title').textContent = j.titulo;
     const tabs = ['resumen', 'confirmadas', 'transporte', 'tareas', 'materiales'];
+    const tabLabels = { resumen: 'Detalle', confirmadas: 'Confirmadas', transporte: 'Transporte', tareas: 'Tareas', materiales: 'Materiales' };
     document.getElementById('jd-tabs').innerHTML = tabs.map(t =>
-      `<button type="button" class="chip${jDetailTab === t ? ' on' : ''}" data-jdt="${t}">${{ resumen: 'Resumen', confirmadas: 'Confirmadas', transporte: 'Transporte', tareas: 'Tareas', materiales: 'Materiales' }[t]}</button>`).join('');
+      `<button type="button" class="chip${jDetailTab === t ? ' on' : ''}" data-jdt="${t}">${tabLabels[t]}</button>`).join('');
     document.getElementById('jd-tabs').querySelectorAll('[data-jdt]').forEach(b => {
       b.onclick = () => { jDetailTab = b.dataset.jdt; renderJornadaDetail(); };
     });
 
     const body = document.getElementById('jd-body');
     if (jDetailTab === 'resumen') {
-      const st=jStats[j.id]||{confirmadas:0,pidenRide:0,cupos:0,sinDueno:0};
-      body.innerHTML = `
-        <div class="meta"><b>${fmtDateCard(j.fecha)} · ${esc(j.sitio_nombre || '')}</b><br>${st.confirmadas} confirmadas · meta ${j.meta_voluntarias||'—'} ${st.sinDueno?` · ⚠️ ${st.sinDueno} tareas sin dueño`:''}</div>
-        <div class="kpi-grid">
-          <div class="kpi"><b>${st.confirmadas}</b><span>confirmadas</span></div>
-          <div class="kpi"><b>${st.pidenRide}</b><span>piden ride</span></div>
-          <div class="kpi"><b>${st.sinDueno}</b><span>tareas s/dueño</span></div>
-        </div>
-        <div class="sect" style="margin:8px 0">
-          <div class="vcard-meta">📍 ${esc(j.sitio_nombre || j.sitio_zona || '—')} · Salida ${fmtTime(j.hora_salida)||'—'}${j.punto_encuentro?` (encuentro ${esc(j.punto_encuentro)} ${fmtTime(j.hora_encuentro)||''})`:''}</div>
-          <div class="vcard-meta" style="margin-top:4px">👕 ${esc(j.vestimenta||'—')} · 🎒 ${esc(j.llevar||'—')}</div>
-        </div>
-        <div class="vcard-actions" style="margin-top:12px">
-          <button type="button" class="btn btn-s" onclick="document.getElementById('jornada-detail-sheet').hidden=true">Cerrar</button>
-          ${['abierta','llena','realizada'].includes(j.estado)?`<button type="button" class="btn btn-p" onclick="CC_JORN.openAsignarVoluntarias('${j.id}')">+ Agregar voluntarias</button>`:''}
-          ${['abierta','llena'].includes(j.estado)?`<button type="button" class="btn btn-g" onclick="CC_JORN.openJornadaClose('${j.id}')">Cerrar jornada</button>`:''}
-        </div>`;
+      await renderJornadaResumen(j, body);
       return;
     }
 
@@ -794,8 +1073,16 @@
     document.getElementById('ja-q')?.addEventListener('input', () => renderAsignarResults());
   }
 
+  function initMediaUi() {
+    document.getElementById('jm-close')?.addEventListener('click', () => {
+      document.getElementById('jornada-media-sheet').hidden = true;
+    });
+    document.getElementById('jm-jornada')?.addEventListener('change', () => renderMediaSheetBody());
+  }
+
   function initJornadasUi() {
     initAsignarUi();
+    initMediaUi();
     document.getElementById('j-filters')?.addEventListener('click', e => {
       const b = e.target.closest('.chip');
       if (!b) return;
@@ -805,6 +1092,7 @@
     });
     document.getElementById('btn-new-jornada')?.addEventListener('click', () => openJornadaForm(null));
     document.getElementById('fab-jornada')?.addEventListener('click', () => openJornadaForm(null));
+    document.getElementById('btn-jornada-media')?.addEventListener('click', () => openJornadaMedia());
     document.getElementById('jf-close')?.addEventListener('click', () => { document.getElementById('jornada-form-sheet').hidden = true; });
     document.getElementById('jf-cancel')?.addEventListener('click', () => { document.getElementById('jornada-form-sheet').hidden = true; });
     document.getElementById('jf-save')?.addEventListener('click', () => saveJornada(false));
@@ -856,5 +1144,5 @@
     return materialesWaText(j, data);
   }
 
-  window.CC_JORN = { onCoordReady, onShowTab, openJornadaForm, openJornadaClose, openAsignarVoluntarias, copyWa, loadJornadas, reloadSitios, getProximaJornada, getWaText, setBrigadaFilter, getMaterialesExport };
+  window.CC_JORN = { onCoordReady, onShowTab, openJornadaForm, openJornadaClose, openJornadaMedia, openAsignarVoluntarias, copyWa, loadJornadas, reloadSitios, getProximaJornada, getWaText, setBrigadaFilter, getMaterialesExport, deleteMediaItem };
 })();
