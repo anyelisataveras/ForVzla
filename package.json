@@ -15,6 +15,10 @@
     "import:centros:ve": "ONLY_VE=1 node scripts/import_centros_externos.js",
     "import:voluntarios:dry": "DRY_RUN=1 node scripts/import_voluntarios_maestro.js",
     "import:voluntarios": "node scripts/import_voluntarios_maestro.js",
+    "remigrar:voluntarias:dry": "DRY_RUN=1 node scripts/remigrar_voluntarias_csv.js",
+    "remigrar:voluntarias": "CONFIRM=1 node scripts/remigrar_voluntarias_csv.js",
+    "sync:voluntarias:excel:dry": "DRY_RUN=1 node scripts/sync_voluntarias_excel_logistica.js",
+    "sync:voluntarias:excel": "node scripts/sync_voluntarias_excel_logistica.js",
     "voluntarios:sql": "node scripts/apply_voluntarios_sql.js"
   },
   "workspaces": [

@@ -100,10 +100,54 @@
     return basePath() + 'jornada?id=' + encodeURIComponent(id);
   }
 
+  function todayIso() {
+    return new Date().toISOString().slice(0, 10);
+  }
+
+  function fmtJornadaDate(d) {
+    if (!d) return '';
+    const p = d.split('-');
+    const mes = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    return parseInt(p[2], 10) + ' ' + mes[parseInt(p[1], 10) - 1];
+  }
+
+  function fmtJornadaTime(t) {
+    return t ? t.slice(0, 5) : '';
+  }
+
+  function jornadaEstadoBadge(estado) {
+    if (estado === 'abierta') return '<span class="badge open">Abierta</span>';
+    if (estado === 'llena') return '<span class="badge full">Cupo lleno</span>';
+    if (estado === 'realizada') return '<span class="badge done">Realizada</span>';
+    return '';
+  }
+
+  function inscripcionBadge(estado) {
+    if (estado === 'confirmada') return '<span class="badge me">Confirmada</span>';
+    if (estado === 'no_puede') return '<span class="badge done">No puedo ir</span>';
+    if (estado === 'asistio') return '<span class="badge me">Asististe</span>';
+    if (estado === 'no_asistio') return '<span class="badge done">No asististe</span>';
+    return '';
+  }
+
+  function filterJornadas(rows, tab) {
+    const today = todayIso();
+    const proximas = rows
+      .filter((j) => j.fecha >= today && j.estado !== 'realizada')
+      .sort((a, b) => a.fecha.localeCompare(b.fecha) || String(a.hora_salida || '').localeCompare(b.hora_salida || ''));
+    const pasadas = rows
+      .filter((j) => j.fecha < today || j.estado === 'realizada')
+      .sort((a, b) => b.fecha.localeCompare(a.fecha) || String(b.hora_salida || '').localeCompare(a.hora_salida || ''));
+    if (tab === 'proximas') return proximas;
+    if (tab === 'pasadas') return pasadas;
+    return [...rows].sort((a, b) => b.fecha.localeCompare(a.fecha) || String(b.hora_salida || '').localeCompare(a.hora_salida || ''));
+  }
+
   restoreSession();
 
   global.CC_VOL = {
-    GRUPO, SB_URL, SB_KEY, db, basePath, jornadaUrl,
+    GRUPO, SB_URL, SB_KEY, db, basePath, jornadaUrl, todayIso,
+    fmtJornadaDate, fmtJornadaTime, jornadaEstadoBadge, inscripcionBadge, filterJornadas,
     setSession, clearSession, getSession, credParams, autenticar, requireSession,
   };
 })(window);

@@ -18,10 +18,13 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .hdr p{font-size:13px;opacity:.9;margin-top:4px}
 .card{background:#fff;border:1px solid var(--line);border-radius:18px;margin:16px;padding:18px}
 .card-t{font-size:13px;font-weight:800;color:var(--indt);margin-bottom:10px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;border:1.5px solid var(--line2);background:#fff;border-radius:10px;padding:10px 6px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;color:var(--txt2);text-align:center}
+.tab.on{border-color:var(--ind);background:var(--indl);color:var(--indt)}
 .brig{display:flex;flex-direction:column;gap:8px}
 .brig-item{border:1.5px solid var(--line2);border-radius:12px;padding:12px;cursor:pointer;font-size:14px}
 .brig-item.on{border-color:var(--ind);background:var(--indl)}
-.nav-links{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.nav-links{display:flex;flex-direction:column;gap:8px;margin-top:12px}
 .link{display:block;text-align:center;padding:14px;border-radius:12px;background:var(--ind);color:#fff;text-decoration:none;font-weight:800;font-size:15px}
 .link-s{background:#fff;border:1px solid var(--line2);color:var(--txt2)}
 .jlist{display:flex;flex-direction:column;gap:10px}
@@ -34,7 +37,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .badge.full{background:#FEF9E7;color:#E67E22}
 .badge.done{background:#eee;color:#9A938B}
 .badge.me{background:var(--indl);color:var(--indt)}
-.jempty{font-size:13px;color:var(--txt2);line-height:1.5;padding:8px 0}
+.jempty{font-size:13px;color:var(--txt2);line-height:1.5;padding:8px 0;text-align:center}
 .jcta{font-size:12px;font-weight:800;color:var(--ind)}
 .btn{border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;width:100%;background:var(--grn);color:#fff;font-family:inherit;margin-top:8px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:opacity .2s;z-index:99}
@@ -49,94 +52,115 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <p id="num"></p>
   </header>
   <div class="card">
+    <div class="card-t">Jornadas</div>
+    <div class="tabs" role="tablist" aria-label="Filtrar jornadas">
+      <button type="button" class="tab on" data-tab="proximas" role="tab" aria-selected="true">Próximas</button>
+      <button type="button" class="tab" data-tab="pasadas" role="tab" aria-selected="false">Pasadas</button>
+      <button type="button" class="tab" data-tab="todas" role="tab" aria-selected="false">Todas</button>
+    </div>
+    <div class="jlist" id="jornadas-list"><div class="jempty">Cargando jornadas…</div></div>
+  </div>
+  <div class="card">
     <div class="card-t">Mis brigadas</div>
     <p style="font-size:13px;color:var(--txt2);margin-bottom:12px;line-height:1.45">Elige dónde quieres colaborar. Si te asignaron una brigada, puedes cambiarla cuando quieras.</p>
     <div class="brig" id="brig"></div>
     <button type="button" class="btn" id="btn-save">Guardar brigadas</button>
-  </div>
-  <div class="card">
-    <div class="card-t">Próximas jornadas</div>
-    <div class="jlist" id="jornadas-list"><div class="jempty">Cargando jornadas…</div></div>
     <div class="nav-links">
-      <a class="link link-s" href="jornadas">Ver todas las jornadas</a>
       <button type="button" class="link link-s" id="btn-out" style="border:none;font-family:inherit;cursor:pointer">Cerrar sesión</button>
     </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
 <script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
-<script src="vol.js?v=20260706"></script>
+<script src="vol.js?v=20260707"></script>
 <script>
 if(!CC_VOL.requireSession('mi-cuenta'))throw 0;
 const vol=CC_VOL.getSession();
 const sel=new Set(vol.brigadas||[]);
 let brigCat=[];
+let jornadasAll=[];
+let jornadaTab='proximas';
+
 document.getElementById('hola').textContent='Hola, '+vol.nombre+' 👋';
 document.getElementById('num').textContent='Voluntaria N° '+vol.numero_voluntaria;
+
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
-function fmtDate(d){if(!d)return'';const p=d.split('-');const mes=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];return parseInt(p[2],10)+' '+mes[parseInt(p[1],10)-1]}
-function fmtTime(t){return t?t.slice(0,5):''}
-function estadoBadge(e){
-  if(e==='abierta')return'<span class="badge open">Abierta</span>';
-  if(e==='llena')return'<span class="badge full">Cupo lleno</span>';
-  if(e==='realizada')return'<span class="badge done">Realizada</span>';
-  return'';
+
+function emptyJornadasMsg(){
+  if(jornadaTab==='proximas')return'📅 No hay jornadas próximas.<br>El grupo te avisará por WhatsApp.';
+  if(jornadaTab==='pasadas')return'No hay jornadas pasadas en los últimos 30 días.';
+  return'No hay jornadas publicadas aún.';
 }
-function inscBadge(e){
-  if(e==='confirmada')return'<span class="badge me">Confirmada</span>';
-  if(e==='no_puede')return'<span class="badge done">No puedo ir</span>';
-  if(e==='asistio')return'<span class="badge me">Asististe</span>';
-  return'';
-}
-function renderJornadas(rows){
+
+function renderJornadas(){
   const el=document.getElementById('jornadas-list');
-  const today=new Date().toISOString().slice(0,10);
-  const upcoming=rows.filter(j=>j.estado!=='realizada'||j.fecha>=today);
-  if(!upcoming.length){
-    el.innerHTML='<div class="jempty">📅 No hay jornadas programadas por ahora.<br>El grupo te avisará por WhatsApp.</div>';
-    return;
-  }
-  el.innerHTML=upcoming.map(j=>`
-    <a class="jcard" href="${CC_VOL.jornadaUrl(j.id)}">
+  const rows=CC_VOL.filterJornadas(jornadasAll,jornadaTab);
+  if(!rows.length){el.innerHTML=`<div class="jempty">${emptyJornadasMsg()}</div>`;return}
+  const past=jornadaTab!=='proximas';
+  el.innerHTML=rows.map(j=>{
+    const cta=past||j.estado==='realizada'
+      ?'Ver resumen →'
+      :(j.inscEstado==='confirmada'?'Ver detalle →':'Ver y confirmar →');
+    return`<a class="jcard" href="${CC_VOL.jornadaUrl(j.id)}">
       <b>${esc(j.titulo)}</b>
-      <div class="jmeta">🗓 ${fmtDate(j.fecha)}${j.hora_salida?' · '+fmtTime(j.hora_salida):''}<br>
+      <div class="jmeta">🗓 ${CC_VOL.fmtJornadaDate(j.fecha)}${j.hora_salida?' · '+CC_VOL.fmtJornadaTime(j.hora_salida):''}<br>
       📍 ${esc(j.sitio_nombre||j.sitio_zona||'Por confirmar')}</div>
       <div class="jrow">
-        <div>${estadoBadge(j.estado)} ${inscBadge(j.inscEstado)}</div>
-        <span class="jcta">${j.inscEstado==='confirmada'?'Ver detalle →':'Ver y confirmar →'}</span>
+        <div>${CC_VOL.jornadaEstadoBadge(j.estado)} ${CC_VOL.inscripcionBadge(j.inscEstado)}</div>
+        <span class="jcta">${cta}</span>
       </div>
-    </a>`).join('');
+    </a>`;
+  }).join('');
 }
+
+function setJornadaTab(tab){
+  jornadaTab=tab;
+  document.querySelectorAll('.tab').forEach(btn=>{
+    const on=btn.dataset.tab===tab;
+    btn.classList.toggle('on',on);
+    btn.setAttribute('aria-selected',on?'true':'false');
+  });
+  renderJornadas();
+}
+
 async function loadJornadas(){
   const el=document.getElementById('jornadas-list');
   const cred=CC_VOL.credParams();
   const{data,error}=await CC_VOL.db.rpc('jornadas_publicas',{p_grupo:CC_VOL.GRUPO});
   if(error){el.innerHTML=`<div class="jempty">${esc(error.message)}</div>`;return}
   const rows=Array.isArray(data)?data:[];
-  if(!cred){renderJornadas(rows);return}
-  const withInsc=await Promise.all(rows.map(async j=>{
+  if(!cred){
+    jornadasAll=rows.map(j=>({...j,inscEstado:null}));
+    renderJornadas();
+    return;
+  }
+  jornadasAll=await Promise.all(rows.map(async j=>{
     const{data:ins}=await CC_VOL.db.rpc('mi_inscripcion_jornada',{...cred,p_jornada_id:j.id});
     return{...j,inscEstado:ins?.inscripcion?.estado||null};
   }));
-  renderJornadas(withInsc);
+  renderJornadas();
 }
-function render(){
+
+function renderBrigadas(){
   document.getElementById('brig').innerHTML=brigCat.map(b=>`
     <div class="brig-item${sel.has(b.slug)?' on':''}" data-s="${b.slug}">
       <b>${b.icono||'•'} ${esc(b.nombre)}</b>
       <div style="font-size:12px;color:var(--txt2);margin-top:4px">${esc(b.mision)}</div>
     </div>`).join('');
   document.querySelectorAll('.brig-item').forEach(el=>{
-    el.onclick=()=>{const s=el.dataset.s;if(sel.has(s))sel.delete(s);else sel.add(s);render()};
+    el.onclick=()=>{const s=el.dataset.s;if(sel.has(s))sel.delete(s);else sel.add(s);renderBrigadas()};
   });
 }
+
 async function init(){
+  document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>setJornadaTab(btn.dataset.tab));
   const{data}=await CC_VOL.db.from('brigadas').select('slug,nombre,mision,icono').eq('grupo',CC_VOL.GRUPO).eq('activa',true).order('orden');
   brigCat=data||[];
-  render();
+  renderBrigadas();
   loadJornadas();
 }
+
 document.getElementById('btn-save').onclick=async()=>{
   const c=CC_VOL.credParams();
   const{data,error}=await CC_VOL.db.rpc('actualizar_brigadas_voluntario',{...c,p_brigadas:[...sel]});

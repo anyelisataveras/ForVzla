@@ -9,19 +9,26 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#F1EEEA;--ind:#5A4AA0;--indl:#EEEBF6;--grn:#1E8449;--grnl:#E9F6EE;--ora:#E67E22;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--app-max:580px}
+:root{--bg:#F1EEEA;--ind:#5A4AA0;--indl:#EEEBF6;--indt:#463A82;--grn:#1E8449;--grnl:#E9F6EE;--ora:#E67E22;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--app-max:580px}
 html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px}
 .app{max-width:var(--app-max);margin:0 auto;min-height:100vh;padding-bottom:24px}
 .hdr{background:var(--ind);color:#fff;padding:16px 18px}
 .hdr a{color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9}
 .hdr h1{font-size:20px;font-weight:800;margin-top:8px}
-.jcard{display:block;background:#fff;border:1px solid var(--line);border-radius:16px;margin:12px 16px;padding:16px;text-decoration:none;color:inherit}
-.jcard b{font-size:16px;display:block;margin-bottom:4px}
+.tabs{display:flex;gap:8px;padding:16px 16px 0}
+.tab{flex:1;border:1.5px solid var(--line2);background:#fff;border-radius:10px;padding:10px 6px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;color:var(--txt2);text-align:center}
+.tab.on{border-color:var(--ind);background:var(--indl);color:var(--indt)}
+.jlist{padding:12px 16px 16px;display:flex;flex-direction:column;gap:10px}
+.jcard{display:block;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;text-decoration:none;color:inherit}
+.jcard b{font-size:16px;display:block;margin-bottom:4px;line-height:1.35}
 .jmeta{font-size:13px;color:var(--txt2);line-height:1.45}
-.badge{font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;display:inline-block;margin-top:8px}
+.jrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;display:inline-block}
 .badge.open{background:var(--grnl);color:var(--grn)}
 .badge.full{background:#FEF9E7;color:var(--ora)}
 .badge.done{background:#eee;color:var(--txt3)}
+.badge.me{background:var(--indl);color:var(--indt)}
+.jcta{font-size:12px;font-weight:800;color:var(--ind)}
 .empty{text-align:center;padding:48px 20px;color:var(--txt2);line-height:1.5}
 </style>
 </head>
@@ -29,38 +36,80 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 <div class="app">
   <header class="hdr">
     <a href="mi-cuenta">← Mi cuenta</a>
-    <h1>Próximas jornadas</h1>
+    <h1>Jornadas</h1>
   </header>
-  <div id="list"><div class="empty">Cargando…</div></div>
+  <div class="tabs" role="tablist" aria-label="Filtrar jornadas">
+    <button type="button" class="tab on" data-tab="proximas" role="tab" aria-selected="true">Próximas</button>
+    <button type="button" class="tab" data-tab="pasadas" role="tab" aria-selected="false">Pasadas</button>
+    <button type="button" class="tab" data-tab="todas" role="tab" aria-selected="false">Todas</button>
+  </div>
+  <div class="jlist" id="list"><div class="empty">Cargando…</div></div>
 </div>
 <script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
-<script src="vol.js?v=20260706"></script>
+<script src="vol.js?v=20260707"></script>
 <script>
 if(!CC_VOL.requireSession('jornadas'))throw 0;
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
-function fmtDate(d){if(!d)return'';const p=d.split('-');return parseInt(p[2],10)+'/'+parseInt(p[1],10)+'/'+p[0]}
-function fmtTime(t){if(!t)return'';return t.slice(0,5)}
-function estadoBadge(e){
-  if(e==='abierta')return'<span class="badge open">Abierta</span>';
-  if(e==='llena')return'<span class="badge full">Cupo lleno</span>';
-  if(e==='realizada')return'<span class="badge done">Realizada</span>';
-  return'';
+
+let jornadasAll=[];
+let jornadaTab='proximas';
+
+function emptyMsg(){
+  if(jornadaTab==='proximas')return'No hay jornadas próximas.<br>Vuelve pronto 💜';
+  if(jornadaTab==='pasadas')return'No hay jornadas pasadas en los últimos 30 días.';
+  return'No hay jornadas publicadas aún.';
 }
-async function load(){
-  const{data,error}=await CC_VOL.db.rpc('jornadas_publicas',{p_grupo:CC_VOL.GRUPO});
+
+function render(){
   const el=document.getElementById('list');
+  const rows=CC_VOL.filterJornadas(jornadasAll,jornadaTab);
+  if(!rows.length){el.innerHTML=`<div class="empty">${emptyMsg()}</div>`;return}
+  const past=jornadaTab!=='proximas';
+  el.innerHTML=rows.map(j=>{
+    const cta=past||j.estado==='realizada'
+      ?'Ver resumen →'
+      :(j.inscEstado==='confirmada'?'Ver detalle →':'Ver y confirmar →');
+    return`<a class="jcard" href="${CC_VOL.jornadaUrl(j.id)}">
+      <b>${esc(j.titulo)}</b>
+      <div class="jmeta">🗓 ${CC_VOL.fmtJornadaDate(j.fecha)}${j.hora_salida?' · '+CC_VOL.fmtJornadaTime(j.hora_salida):''}<br>
+      📍 ${esc(j.sitio_nombre||j.sitio_zona||'Por confirmar')}</div>
+      <div class="jrow">
+        <div>${CC_VOL.jornadaEstadoBadge(j.estado)} ${CC_VOL.inscripcionBadge(j.inscEstado)}</div>
+        <span class="jcta">${cta}</span>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+function setTab(tab){
+  jornadaTab=tab;
+  document.querySelectorAll('.tab').forEach(btn=>{
+    const on=btn.dataset.tab===tab;
+    btn.classList.toggle('on',on);
+    btn.setAttribute('aria-selected',on?'true':'false');
+  });
+  render();
+}
+
+async function load(){
+  const el=document.getElementById('list');
+  const cred=CC_VOL.credParams();
+  const{data,error}=await CC_VOL.db.rpc('jornadas_publicas',{p_grupo:CC_VOL.GRUPO});
   if(error){el.innerHTML=`<div class="empty">${esc(error.message)}</div>`;return}
   const rows=Array.isArray(data)?data:[];
-  const upcoming=rows.filter(j=>j.estado!=='realizada'||j.fecha>=new Date().toISOString().slice(0,10));
-  if(!upcoming.length){el.innerHTML='<div class="empty">No hay jornadas publicadas aún.<br>Vuelve pronto 💜</div>';return}
-  el.innerHTML=upcoming.map(j=>`
-    <a class="jcard" href="${CC_VOL.jornadaUrl(j.id)}">
-      <b>${esc(j.titulo)}</b>
-      <div class="jmeta">🗓 ${fmtDate(j.fecha)}${j.hora_salida?' · '+fmtTime(j.hora_salida):''}<br>
-      📍 ${esc(j.sitio_nombre||j.sitio_zona||'Por confirmar')}</div>
-      ${estadoBadge(j.estado)}
-    </a>`).join('');
+  if(!cred){
+    jornadasAll=rows.map(j=>({...j,inscEstado:null}));
+    render();
+    return;
+  }
+  jornadasAll=await Promise.all(rows.map(async j=>{
+    const{data:ins}=await CC_VOL.db.rpc('mi_inscripcion_jornada',{...cred,p_jornada_id:j.id});
+    return{...j,inscEstado:ins?.inscripcion?.estado||null};
+  }));
+  render();
 }
+
+document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));
 load();
 </script>
 </body>

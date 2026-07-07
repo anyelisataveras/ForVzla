@@ -58,8 +58,21 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .ok{text-align:center;padding:32px 12px}
 .ok-ico{font-size:48px;margin-bottom:12px}
 .ok h2{font-size:22px;font-weight:800;margin-bottom:8px}
-.ok p{color:var(--txt2);font-size:14px;line-height:1.5;margin-bottom:20px}
-.ok-num{font-size:28px;font-weight:800;color:var(--ind);margin:8px 0}
+.ok p{color:var(--txt2);font-size:14px;line-height:1.5;margin-bottom:12px}
+.ok-num{font-size:28px;font-weight:800;color:var(--ind);margin:8px 0 16px}
+.cred-box{background:var(--indl);border:1px solid var(--ind);border-radius:14px;padding:14px;margin:0 0 16px;text-align:left}
+.cred-box-t{font-size:13px;font-weight:800;color:var(--indt);margin-bottom:10px}
+.cred-hint{font-size:12px;color:var(--txt2);line-height:1.45;margin-bottom:12px}
+.cred-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid rgba(90,74,160,.12)}
+.cred-row:last-of-type{border-bottom:none}
+.cred-lbl{font-size:11px;font-weight:700;color:var(--txt2);margin-bottom:2px}
+.cred-val{font-size:15px;font-weight:800;color:var(--indt);word-break:break-all}
+.cred-copy{border:none;background:#fff;border:1px solid var(--line2);border-radius:8px;padding:7px 11px;font-size:11px;font-weight:800;cursor:pointer;color:var(--ind);flex-shrink:0;font-family:inherit}
+.cred-copy:active{background:var(--surf)}
+.cred-warn{background:var(--redl);color:var(--red);border-radius:10px;padding:10px 12px;font-size:12px;font-weight:700;line-height:1.45;margin-bottom:12px;text-align:left}
+.ok-actions{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+.ok-actions .btn{width:100%}
+.btn-ghost{background:#fff;border:1px solid var(--line2);color:var(--txt2)}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:opacity .2s;pointer-events:none;z-index:99}
 .toast.show{opacity:1}
 .iti{width:100%}
@@ -122,11 +135,12 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         <div class="stitle">Profesión y disponibilidad</div>
         <div class="ssub">Cómo contactarte y en qué puedes ayudar.</div>
         <div class="grid2">
-          <div class="field"><label for="redPlat">Red social</label>
-            <select id="redPlat"><option value="">—</option><option>Instagram</option><option>X</option><option>Gmail</option></select>
+          <div class="field"><label for="redPlat">Red social *</label>
+            <select id="redPlat" required><option value="">—</option><option>Instagram</option><option>X</option><option>Gmail</option></select>
           </div>
-          <div class="field"><label for="redUser">Usuario / correo</label><input id="redUser" placeholder="@usuario"></div>
+          <div class="field"><label for="redUser">Usuario / correo *</label><input id="redUser" required placeholder="@usuario"></div>
         </div>
+        <p style="font-size:12px;color:var(--txt3);margin:-4px 0 12px;line-height:1.4">Con esto entrarás al portal: tu usuario + los últimos 4 dígitos de tu cédula.</p>
         <div class="grid2">
           <div class="field"><label for="profesion">Profesión *</label><input id="profesion" required></div>
           <div class="field"><label for="oficio">Oficio</label><input id="oficio"></div>
@@ -199,15 +213,41 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <div class="card ok" id="ok" hidden>
     <div class="ok-ico">✅</div>
     <h2>¡Registro exitoso!</h2>
-    <p>Gracias por unirte a <b>Cuidadoras Caracas</b>. Te contactará la coordinadora del grupo.</p>
+    <p>Gracias por unirte a <b>Cuidadoras Caracas</b>.</p>
     <div class="ok-num" id="okNum"></div>
-    <button type="button" class="btn btn-next" onclick="location.reload()">Registrar otra voluntaria</button>
+    <div class="cred-box" id="credBox" hidden>
+      <div class="cred-box-t">🔑 Tus datos para entrar</div>
+      <p class="cred-hint">Guárdalos. Para volver a entrar usas tu <b>usuario de la red social</b> que registraste y los <b>últimos 4 dígitos</b> de tu cédula.</p>
+      <div class="cred-row">
+        <div><div class="cred-lbl">Red social</div><div class="cred-val" id="credPlat">—</div></div>
+        <button type="button" class="cred-copy" data-copy="credPlat">Copiar</button>
+      </div>
+      <div class="cred-row">
+        <div><div class="cred-lbl">Usuario / correo</div><div class="cred-val" id="credUser">—</div></div>
+        <button type="button" class="cred-copy" data-copy="credUser">Copiar</button>
+      </div>
+      <div class="cred-row">
+        <div><div class="cred-lbl">Últimos 4 dígitos de cédula</div><div class="cred-val" id="credCed4">—</div></div>
+        <button type="button" class="cred-copy" data-copy="credCed4">Copiar</button>
+      </div>
+      <div style="margin-top:12px">
+        <button type="button" class="cred-copy" id="btnCopyAll" style="width:100%">Copiar todo</button>
+      </div>
+    </div>
+    <div class="cred-warn" id="credWarn" hidden>
+      No indicaste red social en el registro. Pide a una coordinadora que la agregue para poder entrar al portal.
+    </div>
+    <div class="ok-actions">
+      <button type="button" class="btn btn-next" id="btnEntrar" hidden>Entrar a mi cuenta →</button>
+      <button type="button" class="btn btn-ghost" onclick="location.reload()">Registrar otra voluntaria</button>
+    </div>
   </div>
 </div>
 <div class="toast" id="toast"></div>
 
 <script src="../scraper-config.js"></script>
 <script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
+<script src="vol.js?v=20260707"></script>
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
 <script>
 const GRUPO=window.CC_GRUPO_SLUG||'cuidadoras_caracas';
@@ -218,6 +258,7 @@ const db=supabase.createClient(SB_URL,SB_KEY);
 let step=1,iti;
 const brigadasSel=new Set();
 let brigadasCatalogo=[];
+let registroOk=null;
 
 const BRIGADAS_FALLBACK=[
   {slug:'logistica_alimentos',nombre:'Brigada de Logística de Alimentos',mision:'Preparar, trasladar y distribuir comidas de forma organizada.',requisitos:'Experiencia en cocina deseable. No es obligatorio.',icono:'🍲',color_bg:'#D6EAF8',color_fg:'#1A5276'},
@@ -255,6 +296,77 @@ function renderBrigadas(){
   });
 }
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+
+function cedula4(idDni){
+  const digits=String(idDni||'').replace(/\D/g,'');
+  return digits.slice(-4);
+}
+
+function credTexto(plataforma,usuario,ced4){
+  return `Acceso Cuidadoras Caracas\nRed social: ${plataforma}\nUsuario: ${usuario}\nÚltimos 4 dígitos cédula: ${ced4}`;
+}
+
+async function copyText(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    flash('Copiado 📋');
+  }catch(e){
+    prompt('Copia esto:',text);
+  }
+}
+
+function showRegistroOk(result,payload){
+  const plat=(payload.red_social_plataforma||'').trim();
+  const user=(payload.red_social_usuario||'').trim();
+  const ced4=cedula4(payload.id_dni);
+  const puedeEntrar=plat&&user&&ced4.length===4&&result?.id;
+
+  registroOk={result,payload,plat,user,ced4,puedeEntrar};
+  document.getElementById('form-wrap').hidden=true;
+  document.getElementById('ok').hidden=false;
+  document.getElementById('okNum').textContent='Voluntaria N° '+(result?.numero_voluntaria??'—');
+
+  const credBox=document.getElementById('credBox');
+  const credWarn=document.getElementById('credWarn');
+  const btnEntrar=document.getElementById('btnEntrar');
+
+  if(puedeEntrar){
+    credBox.hidden=false;
+    credWarn.hidden=true;
+    document.getElementById('credPlat').textContent=plat;
+    document.getElementById('credUser').textContent=user;
+    document.getElementById('credCed4').textContent=ced4;
+    btnEntrar.hidden=false;
+  }else{
+    credBox.hidden=true;
+    credWarn.hidden=false;
+    btnEntrar.hidden=true;
+  }
+  flash('Registro guardado');
+}
+
+document.querySelectorAll('.cred-copy[data-copy]').forEach(btn=>{
+  btn.onclick=()=>{
+    const el=document.getElementById(btn.dataset.copy);
+    if(el)copyText(el.textContent.trim());
+  };
+});
+document.getElementById('btnCopyAll').onclick=()=>{
+  if(!registroOk?.puedeEntrar)return;
+  copyText(credTexto(registroOk.plat,registroOk.user,registroOk.ced4));
+};
+document.getElementById('btnEntrar').onclick=async()=>{
+  if(!registroOk?.puedeEntrar)return;
+  const btn=document.getElementById('btnEntrar');
+  btn.disabled=true;btn.textContent='Entrando…';
+  const r=await CC_VOL.autenticar(registroOk.plat,registroOk.user,registroOk.ced4);
+  if(!r.ok){
+    btn.disabled=false;btn.textContent='Entrar a mi cuenta →';
+    flash(r.error||'No se pudo entrar');
+    return;
+  }
+  location.href=CC_VOL.basePath()+'mi-cuenta';
+};
 
 loadBrigadas();
 const tel=document.getElementById('telefono');
@@ -302,6 +414,8 @@ function validateStep(n){
     if(!val('profesion','Indica tu profesión.'))return false;
     if(!document.getElementById('disponibilidad').value){showErr('Selecciona tu disponibilidad.');return false}
     if(!document.querySelector('input[name="hijos"]:checked')){showErr('Indica si tienes hijos.');return false}
+    if(!document.getElementById('redPlat').value){showErr('Selecciona tu red social — la usarás para entrar.');return false}
+    if(!val('redUser','Indica tu usuario o correo de la red social.'))return false
   }
   if(n===3){
     if(!document.getElementById('jurada').checked){showErr('Debes aceptar la declaración jurada.');return false}
@@ -401,10 +515,7 @@ document.getElementById('f').onsubmit=async e=>{
       if (!r.ok || !j.ok) throw new Error(j.msg || 'No se pudo registrar');
       result = j;
     }
-    document.getElementById('form-wrap').hidden=true;
-    document.getElementById('ok').hidden=false;
-    document.getElementById('okNum').textContent='Voluntaria N° '+(result?.numero_voluntaria ?? '—');
-    flash('Registro guardado');
+    showRegistroOk(result,payload);
   }catch(err){
     console.error(err);
     showErr(err.message||'No se pudo registrar. Intenta de nuevo.');
