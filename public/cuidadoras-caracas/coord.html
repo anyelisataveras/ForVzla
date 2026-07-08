@@ -259,6 +259,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       <button type="button" data-tab="jornadas">🗓 Jornadas</button>
       <button type="button" data-tab="sitios">📍 Sitios</button>
       <button type="button" data-tab="exportar">📤 Exportar</button>
+      <button type="button" data-tab="transparencia">💸 Transparencia</button>
       <button type="button" data-tab="equipo" id="nav-equipo" hidden>⚙️ Equipo</button>
     </nav>
     <main class="main">
@@ -368,6 +369,18 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         <div class="export-preview" id="export-preview">Elige una plantilla y pulsa «Generar texto».</div>
         <button type="button" class="btn btn-s" id="btn-export-copy" style="width:100%;margin-bottom:16px">📋 Copiar</button>
       </section>
+      <section class="panel" id="panel-transparencia">
+        <div class="quick" style="margin-bottom:12px">
+          <button type="button" class="btn btn-p btn-sm" id="btn-fin-new-don">+ Donación</button>
+          <button type="button" class="btn btn-g btn-sm" id="btn-fin-new-gas">+ Gasto</button>
+          <button type="button" class="btn btn-p btn-sm" id="btn-fin-refresh">Actualizar</button>
+        </div>
+        <div class="stat-grid" id="fin-stats"></div>
+        <div class="sect">
+          <div class="sect-t">Últimos movimientos</div>
+          <div id="fin-movs"></div>
+        </div>
+      </section>
       <section class="panel" id="panel-equipo">
         <p class="count">Administradores y coordinadoras del grupo. Solo las administradoras pueden asignar coordinadoras desde voluntarias registradas.</p>
         <div id="staff-list"></div>
@@ -403,6 +416,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <button type="button" class="btn btn-s" data-tab="brigadas" style="margin-bottom:8px">🎯 Brigadas</button>
     <button type="button" class="btn btn-s" data-tab="sitios" style="margin-bottom:8px">📍 Sitios</button>
     <button type="button" class="btn btn-s" data-tab="exportar" style="margin-bottom:8px">📤 Exportar</button>
+    <button type="button" class="btn btn-s" data-tab="transparencia" style="margin-bottom:8px">💸 Transparencia</button>
     <button type="button" class="btn btn-s" data-tab="equipo" id="mas-equipo" hidden>⚙️ Equipo</button>
   </div>
 </div>
@@ -642,10 +656,99 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   </footer>
 </div>
 
+<div class="sheet drawer" id="fin-don-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="fin-don-close" aria-label="Cerrar">←</button>
+    <h2>Nueva donación</h2>
+  </header>
+  <div class="sheet-body">
+    <p style="font-size:13px;color:var(--txt2);margin-bottom:12px;line-height:1.45">Registra rápido la donación. Los detalles opcionales se muestran según el tipo.</p>
+    <div class="grid2">
+      <div class="field"><label>Tipo</label>
+        <select id="fin-don-tipo">
+          <option value="monetaria">Monetaria</option>
+          <option value="comida">Comida</option>
+          <option value="ropa">Ropa</option>
+          <option value="medicinas">Medicinas</option>
+          <option value="higiene">Higiene</option>
+          <option value="insumos">Insumos</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Fecha</label><input id="fin-don-fecha" type="date"></div>
+    </div>
+    <div class="grid2" id="fin-don-monetaria-row">
+      <div class="field"><label>Monto</label><input id="fin-don-monto" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="field"><label>Moneda</label><input id="fin-don-moneda" maxlength="10" placeholder="USD / VES"></div>
+    </div>
+    <div class="grid2" id="fin-don-especie-row">
+      <div class="field"><label>Cantidad</label><input id="fin-don-cantidad" type="number" min="0" step="0.01" placeholder="Ej: 30"></div>
+      <div class="field"><label>Unidad</label><input id="fin-don-unidad" placeholder="kg, cajas, piezas..."></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Donante</label><input id="fin-don-donante" placeholder="Nombre o alias"></div>
+      <div class="field"><label>Contacto</label><input id="fin-don-contacto" placeholder="Teléfono o red"></div>
+    </div>
+    <div class="field"><label>Descripción *</label><textarea id="fin-don-desc" placeholder="Qué se recibió y para quién"></textarea></div>
+    <label class="media-upload-btn" style="margin-bottom:8px">
+      <input type="file" id="fin-don-soportes" accept="image/*,application/pdf" multiple hidden>
+      🧾 Adjuntar soporte(s) de donación
+    </label>
+    <p class="media-pending" id="fin-don-soportes-info">Sin soportes seleccionados.</p>
+  </div>
+  <footer class="sheet-foot">
+    <button type="button" class="btn btn-s" id="btn-fin-cancel-don">Cancelar</button>
+    <button type="button" class="btn btn-p" id="btn-fin-save-don">Guardar donación</button>
+  </footer>
+</div>
+
+<div class="sheet drawer" id="fin-gas-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="fin-gas-close" aria-label="Cerrar">←</button>
+    <h2>Nuevo gasto</h2>
+  </header>
+  <div class="sheet-body">
+    <p style="font-size:13px;color:var(--txt2);margin-bottom:12px;line-height:1.45">Registra el gasto con su respaldo. Puedes subir varios recibos.</p>
+    <div class="grid2">
+      <div class="field"><label>Categoría</label>
+        <select id="fin-gas-cat">
+          <option value="transporte">Transporte</option>
+          <option value="comida">Comida</option>
+          <option value="medicinas">Medicinas</option>
+          <option value="logistica">Logística</option>
+          <option value="materiales">Materiales</option>
+          <option value="servicios">Servicios</option>
+          <option value="otro">Otro</option>
+        </select>
+      </div>
+      <div class="field"><label>Fecha *</label><input id="fin-gas-fecha" type="date"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Monto *</label><input id="fin-gas-monto" type="number" min="0" step="0.01" placeholder="0.00"></div>
+      <div class="field"><label>Moneda</label><input id="fin-gas-moneda" maxlength="10" placeholder="USD / VES"></div>
+    </div>
+    <div class="grid2">
+      <div class="field"><label>Pagado por</label><input id="fin-gas-pagado" placeholder="Nombre"></div>
+      <div class="field"><label>Proveedor / comercio</label><input id="fin-gas-proveedor"></div>
+    </div>
+    <div class="field"><label>Descripción *</label><textarea id="fin-gas-desc" placeholder="Qué se compró y para qué"></textarea></div>
+    <label class="media-upload-btn" style="margin-bottom:8px">
+      <input type="file" id="fin-gas-recibos" accept="image/*,application/pdf" multiple hidden>
+      🧾 Adjuntar recibos (uno o varios)
+    </label>
+    <p class="media-pending" id="fin-gas-recibos-info">Sin recibos seleccionados.</p>
+  </div>
+  <footer class="sheet-foot">
+    <button type="button" class="btn btn-s" id="btn-fin-cancel-gas">Cancelar</button>
+    <button type="button" class="btn btn-g" id="btn-fin-save-gas">Guardar gasto</button>
+  </footer>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script src="coord-jornadas.js?v=20260707p"></script>
 <script src="coord-brigadas.js?v=20260706a"></script>
+<script src="coord-finanzas.js?v=20260708a"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
 <script>
@@ -658,7 +761,7 @@ const db=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSe
 
 let session=null,authSeq=0,vols=[],brigCat=[],sitiosList=[],filter='todas',editId=null,sitioEditId=null,editBrig=new Set(),itiEdit=null,currentTab='inicio',esAdminGrupo=false,myRol='',creatingVol=false,exportSel=0,exportPreview='';
 
-const PAGE_TITLES={inicio:'Inicio',voluntarias:'Voluntarias',brigadas:'Brigadas',jornadas:'Jornadas',sitios:'Sitios',exportar:'Exportar',equipo:'Equipo'};
+const PAGE_TITLES={inicio:'Inicio',voluntarias:'Voluntarias',brigadas:'Brigadas',jornadas:'Jornadas',sitios:'Sitios',exportar:'Exportar',transparencia:'Transparencia',equipo:'Equipo'};
 
 function updatePageHdr(tab){
   currentTab=tab;
@@ -676,6 +779,9 @@ function updatePageHdr(tab){
   }else if(tab==='sitios'){
     actions.innerHTML='<button type="button" class="btn btn-p btn-sm" id="btn-add-sitio">+ Agregar sitio</button>';
     document.getElementById('btn-add-sitio').onclick=()=>openSitioForm(null);
+  }else if(tab==='transparencia'){
+    actions.innerHTML='<button type="button" class="btn btn-s btn-sm" id="btn-fin-refresh-h">Actualizar</button>';
+    document.getElementById('btn-fin-refresh-h').onclick=()=>window.CC_FIN?.refresh();
   }else actions.innerHTML='';
   try{history.replaceState(null,'',tab==='inicio'?location.pathname:location.pathname+'?tab='+tab);}catch(_){}
 }
@@ -798,6 +904,7 @@ function showTab(name){
   if(name==='brigadas')window.CC_BRIG?.renderBrigadas();
   if(name==='sitios')renderSitios();
   if(name==='exportar')renderExportOpts();
+  if(name==='transparencia')window.CC_FIN?.refresh();
   if(name==='equipo'&&esAdminGrupo)renderEquipo();
   if(window.CC_JORN)CC_JORN.onShowTab(name);
 }
@@ -1020,6 +1127,8 @@ const EXPORT_OPTS=[
   {id:'sin_dueno',label:'Tareas sin dueño'},
   {id:'materiales',label:'Checklist materiales próxima jornada'},
   {id:'incompletas',label:'Voluntarias sin registro completo'},
+  {id:'transparencia_resumen',label:'Transparencia (texto para WhatsApp)'},
+  {id:'transparencia_csv',label:'Transparencia (CSV donaciones y gastos)'},
   {id:'censo',label:'Censo completo (CSV — solo moderadoras)'},
 ];
 
@@ -1034,7 +1143,7 @@ function renderExportOpts(){
   el.querySelectorAll('.export-opt').forEach((lab,i)=>{
     lab.onclick=()=>{exportSel=i;renderExportOpts();};
   });
-  if(EXPORT_OPTS[exportSel]?.id!=='censo')void generateExport();
+  if(!['censo','transparencia_csv'].includes(EXPORT_OPTS[exportSel]?.id))void generateExport();
 }
 
 function proxJornada(){
@@ -1093,19 +1202,80 @@ async function buildExportText(type){
   const base=location.origin+location.pathname.replace(/\/coord\/?$/,'');
     return `Faltan datos de:\n${inc.map(v=>`• #${v.numero_voluntaria} ${v.nombre} ${v.apellido}`).join('\n')}\n\nComplétalo aquí 👉 ${base}/coord`;
   }
+  if(type==='transparencia_resumen'){
+    const [{data:don},{data:gas}]=await Promise.all([
+      db.from('donaciones_grupo').select('fecha,tipo,monto,moneda,cantidad,unidad,descripcion').eq('grupo',GRUPO).order('fecha',{ascending:false}).limit(20),
+      db.from('gastos_grupo').select('fecha_gasto,categoria,monto,moneda,descripcion').eq('grupo',GRUPO).order('fecha_gasto',{ascending:false}).limit(20),
+    ]);
+    const donRows=don||[],gasRows=gas||[];
+    const sumBy=(rows,keyMonto,keyMoneda)=>rows.reduce((acc,r)=>{
+      const cur=String(r[keyMoneda]||'USD').toUpperCase();
+      acc[cur]=(acc[cur]||0)+Number(r[keyMonto]||0);
+      return acc;
+    },{});
+    const donSum=sumBy(donRows,'monto','moneda');
+    const gasSum=sumBy(gasRows,'monto','moneda');
+    const fmtTotals=obj=>Object.keys(obj).sort().map(k=>`${obj[k].toFixed(2)} ${k}`).join(' · ')||'0';
+    const ultDon=donRows.slice(0,5).map(d=>`• ${d.fecha}: ${d.tipo} — ${d.monto?`${Number(d.monto).toFixed(2)} ${String(d.moneda||'USD').toUpperCase()}`:(d.cantidad?`${d.cantidad} ${d.unidad||'unid.'}`:'sin monto')} · ${d.descripcion}`).join('\n');
+    const ultGas=gasRows.slice(0,5).map(g=>`• ${g.fecha_gasto}: ${g.categoria} — ${Number(g.monto||0).toFixed(2)} ${String(g.moneda||'USD').toUpperCase()} · ${g.descripcion}`).join('\n');
+    return `TRANSPARENCIA — ${GRUPO}
+Donaciones registradas: ${donRows.length}
+Total donaciones: ${fmtTotals(donSum)}
+Gastos registrados: ${gasRows.length}
+Total gastos: ${fmtTotals(gasSum)}
+
+Últimas donaciones:
+${ultDon||'—'}
+
+Últimos gastos:
+${ultGas||'—'}`;
+  }
   return'';
 }
 
 async function generateExport(){
   const opt=EXPORT_OPTS[exportSel];
-  if(opt.id==='censo'){exportCsv();return}
+  if(['censo','transparencia_csv'].includes(opt.id)){exportCsv(opt.id);return}
   const el=document.getElementById('export-preview');
   el.textContent='Generando…';
   exportPreview=await buildExportText(opt.id);
   el.textContent=exportPreview||'(vacío)';
 }
 
-function exportCsv(){
+async function exportCsv(type){
+  if(type==='transparencia_csv'){
+    const [{data:don},{data:gas}]=await Promise.all([
+      db.from('donaciones_grupo').select('fecha,tipo,monto,moneda,cantidad,unidad,donante_nombre,donante_contacto,descripcion,creado_por,created_at').eq('grupo',GRUPO).order('fecha',{ascending:false}),
+      db.from('gastos_grupo').select('id,fecha_gasto,categoria,monto,moneda,proveedor,pagado_por,descripcion,creado_por,created_at').eq('grupo',GRUPO).order('fecha_gasto',{ascending:false}),
+    ]);
+    const donRows=don||[];
+    const gasRows=gas||[];
+    const donRecMap={};
+    if(donRows.length){
+      const {data:drecs}=await db.from('donacion_soportes').select('donacion_id,id').in('donacion_id',donRows.map(d=>d.id));
+      (drecs||[]).forEach(r=>{donRecMap[r.donacion_id]=(donRecMap[r.donacion_id]||0)+1;});
+    }
+    const recMap={};
+    if(gasRows.length){
+      const {data:recs}=await db.from('gasto_recibos').select('gasto_id,id').in('gasto_id',gasRows.map(g=>g.id));
+      (recs||[]).forEach(r=>{recMap[r.gasto_id]=(recMap[r.gasto_id]||0)+1;});
+    }
+    const cols=[['tipo_movimiento','fecha','categoria_tipo','monto','moneda','cantidad','unidad','donante','contacto_donante','proveedor','pagado_por','descripcion','recibos_adjuntos','creado_por','creado_at']];
+    donRows.forEach(d=>cols.push([
+      'donacion',d.fecha,d.tipo,d.monto??'',String(d.moneda||'USD').toUpperCase(),d.cantidad??'',d.unidad||'',d.donante_nombre||'',d.donante_contacto||'','','',d.descripcion||'',donRecMap[d.id]||0,d.creado_por||'',d.created_at||''
+    ]));
+    gasRows.forEach(g=>cols.push([
+      'gasto',g.fecha_gasto,g.categoria,g.monto??'',String(g.moneda||'USD').toUpperCase(),'','','','',g.proveedor||'',g.pagado_por||'',g.descripcion||'',recMap[g.id]||0,g.creado_por||'',g.created_at||''
+    ]));
+    const csv=cols.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
+    a.download='cuidadoras-transparencia.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast(`CSV transparencia descargado (${cols.length-1} filas)`);
+    return;
+  }
   const rows=filteredVols();
   const cols=[['numero','nombre','apellido','cedula','telefono','zona','transporte','brigadas','activa']];
   rows.forEach(v=>cols.push([
@@ -1128,8 +1298,17 @@ function copyExport(){
 
 document.getElementById('btn-export-gen').onclick=generateExport;
 document.getElementById('btn-export-csv').onclick=()=>{
-  if(EXPORT_OPTS[exportSel]?.id==='censo')exportCsv();
-  else{exportSel=5;renderExportOpts();exportCsv();}
+  const cur=EXPORT_OPTS[exportSel]?.id;
+  if(['censo','transparencia_csv'].includes(cur)){exportCsv(cur);return}
+  if(cur==='transparencia_resumen'){
+    exportSel=EXPORT_OPTS.findIndex(o=>o.id==='transparencia_csv');
+    renderExportOpts();
+    exportCsv('transparencia_csv');
+    return;
+  }
+  exportSel=EXPORT_OPTS.findIndex(o=>o.id==='censo');
+  renderExportOpts();
+  exportCsv('censo');
 };
 document.getElementById('btn-export-copy').onclick=copyExport;
 
