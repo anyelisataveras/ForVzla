@@ -1098,7 +1098,44 @@
       <div class="vcard" style="margin-bottom:8px">
         <b>#${i.voluntarios?.numero_voluntaria || '—'} ${esc(i.voluntarios?.nombre)} ${esc(i.voluntarios?.apellido || '')}</b>
         <div class="vcard-meta">${inscEstadoLabel(i.estado)}${i.voluntarios?.telefono ? ' · ' + esc(i.voluntarios.telefono) : ''}</div>
+        <div class="vcard-actions" style="margin-top:8px">
+          ${i.estado !== 'no_asistio' ? `<button type="button" class="btn btn-s btn-sm" data-ja-no="${i.id}" style="margin:0">No asistió</button>` : ''}
+          <button type="button" class="btn btn-s btn-sm" data-ja-del="${i.id}" style="margin:0">Desinscribir</button>
+        </div>
       </div>`).join('');
+    list.querySelectorAll('[data-ja-no]').forEach((btn) => {
+      btn.onclick = () => marcarNoAsistioInscripcion(btn.dataset.jaNo);
+    });
+    list.querySelectorAll('[data-ja-del]').forEach((btn) => {
+      btn.onclick = () => desinscribirVoluntaria(btn.dataset.jaDel);
+    });
+  }
+
+  async function marcarNoAsistioInscripcion(inscripcionId) {
+    if (!inscripcionId || !asignarJornadaId) return;
+    const { error } = await db.from('inscripciones')
+      .update({ estado: 'no_asistio', respondido_at: new Date().toISOString() })
+      .eq('id', inscripcionId);
+    if (error) { toast(error.message); return; }
+    toast('Marcada como no asistió');
+    await loadAsignarInscripciones(asignarJornadaId);
+    await loadJStats(jornadas.map((x) => x.id));
+    renderAsignarInscList();
+    renderAsignarResults();
+    if (jDetailId === asignarJornadaId) await renderJornadaDetail();
+  }
+
+  async function desinscribirVoluntaria(inscripcionId) {
+    if (!inscripcionId || !asignarJornadaId) return;
+    if (!confirm('¿Desinscribir esta voluntaria de la jornada?')) return;
+    const { error } = await db.from('inscripciones').delete().eq('id', inscripcionId);
+    if (error) { toast(error.message); return; }
+    toast('Voluntaria desinscrita');
+    await loadAsignarInscripciones(asignarJornadaId);
+    await loadJStats(jornadas.map((x) => x.id));
+    renderAsignarInscList();
+    renderAsignarResults();
+    if (jDetailId === asignarJornadaId) await renderJornadaDetail();
   }
 
   function renderAsignarResults() {
