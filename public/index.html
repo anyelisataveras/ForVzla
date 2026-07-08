@@ -80,6 +80,9 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .ftitle{font-size:24px;font-weight:800;margin-top:6px}.fsub{font-size:14px;color:var(--txt2);margin-top:6px;margin-bottom:12px;line-height:1.5}
 .fstep{font-size:12px;font-weight:800;color:var(--red);text-transform:uppercase;letter-spacing:.05em;margin:22px 0 10px;display:flex;align-items:center;gap:7px}
 .fstep .n{background:var(--red);color:#fff;width:20px;height:20px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:12px}
+.requester-seg{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.requester-btn{flex:1;border:1.5px solid var(--line2);border-radius:12px;padding:12px 10px;background:#fff;color:var(--txt2);font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;min-width:110px}
+.requester-btn.on{background:var(--redl);border-color:var(--red);color:var(--redd)}
 .privacy-line{font-size:12px;color:var(--txt2);margin-top:8px;line-height:1.5;display:flex;gap:7px;align-items:flex-start}
 .geo-btn{background:var(--blul);color:var(--blut);border:1.5px dashed var(--blu);border-radius:13px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;width:100%;font-family:inherit}
 .geo-btn.ok{background:var(--grnl);color:var(--grnh);border:1.5px solid var(--grn)}
@@ -140,6 +143,18 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .fld input,.fld textarea,.fld select{width:100%;padding:14px 13px;border:1px solid var(--line2);border-radius:12px;font-size:16px;background:#fff;color:var(--txt);font-family:inherit;-webkit-appearance:none}
 .fld input:focus,.fld textarea:focus,.fld select:focus{outline:2px solid var(--red);outline-offset:1px}.fld textarea{height:74px;resize:none}.req{color:var(--red)}
 .fld-row{display:block}.fld-row .fld{margin-top:12px}
+.fld-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fld-hint{font-size:11px;color:var(--txt3);margin-top:6px;line-height:1.45}
+.site-fields{display:none;margin-top:8px}
+.site-fields.show{display:block}
+.site-type-chips{margin-top:8px}
+.site-type-chips .chip.on{background:var(--redl);border-color:var(--red);color:var(--redd)}
+.grupo-suggest{position:relative}
+.grupo-suggest-list{position:absolute;left:0;right:0;top:100%;z-index:40;background:#fff;border-radius:12px;margin-top:4px;box-shadow:0 4px 16px rgba(0,0,0,.12);border:1px solid var(--line2);max-height:220px;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.grupo-suggest-item{padding:9px 11px;font-size:13px;cursor:pointer;display:flex;justify-content:space-between;gap:8px}
+.grupo-suggest-item span{white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+.grupo-suggest-item small{font-size:11px;color:var(--txt3)}
+.grupo-suggest-item:hover{background:var(--blul)}
 .btn-primary{width:100%;background:var(--red);color:#fff;border:none;border-radius:14px;padding:17px;font-size:17px;font-weight:800;cursor:pointer;margin-top:22px;font-family:inherit}
 .btn-primary.grn{background:var(--grn)}.btn-primary:disabled{opacity:.5;cursor:not-allowed}
 .btn-primary:active:not(:disabled){background:var(--redh)}.btn-primary.grn:active:not(:disabled){background:var(--grnh)}
@@ -157,6 +172,20 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .seg{display:inline-flex;background:var(--line3);border-radius:10px;padding:3px}
 .seg button{cursor:pointer;border:none;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:800;background:none;color:#8A837B;font-family:inherit}
 .seg button.on{background:#fff;color:var(--txt);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.help-routes{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.help-route{width:100%;text-align:left;background:#fff;border:1.5px solid var(--line2);border-radius:14px;padding:13px 14px;cursor:pointer;font-family:inherit}
+.help-route.on{background:var(--grnl);border-color:var(--grn)}
+.help-route:active{transform:translateY(1px)}
+.help-route-title{display:block;font-size:15px;font-weight:800;color:var(--txt);line-height:1.25}
+.help-route-desc{display:block;font-size:13px;color:var(--txt2);margin-top:4px;line-height:1.4}
+.ayudar-step-ruta .fstep{color:var(--grn)}.ayudar-step-ruta .fstep .n{background:var(--grn)}
+.btn-ayudar-go{width:100%;background:var(--grn);color:#fff;border:none;border-radius:14px;padding:17px;font-size:17px;font-weight:800;cursor:pointer;margin-top:22px;font-family:inherit}
+.btn-ayudar-go:active{background:var(--grnh)}
+.aportar-summary{margin-top:14px;padding:12px 13px;background:#fff;border:1px solid var(--line2);border-radius:14px}
+.aportar-summary b{display:block;font-size:14px;line-height:1.3}
+.aportar-summary span{display:block;font-size:12px;color:var(--txt2);margin-top:4px;line-height:1.45}
+.donor-fields{display:none}
+.donor-fields.show{display:block}
 .donar-banner{margin-top:20px;padding:14px 16px;background:#fff;border:1px solid var(--line);border-radius:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .donar-banner p{font-size:13px;color:var(--txt2);line-height:1.4}
 .donar-link{background:none;border:none;color:var(--grn);font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
@@ -189,6 +218,32 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .acopio-filters{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
 .acopio-filters select{font-size:12px;font-weight:700;padding:7px 11px;border-radius:20px;border:1px solid var(--line2);background:#fff;color:var(--txt);font-family:inherit}
 .btn-donar-acopio{background:var(--grn);color:#fff}
+.need-card{background:#fff;border:1px solid #ECE7E1;border-left:4px solid var(--ora);border-radius:14px;padding:14px 15px;margin-bottom:0;display:block;width:100%}
+.need-card.need-urg{border-left-color:var(--red)}
+.need-card.need-cont{border-left-color:var(--ora)}
+.need-card.need-brig{border-left-color:var(--ind)}
+.need-card.done{opacity:.55}
+.need-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:5px}
+.need-top>div{min-width:0;flex:1}
+.need-name{font-size:15px;font-weight:800;line-height:1.25;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.need-meta{font-size:12px;color:var(--txt2);margin-top:2px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.need-tipo{font-size:14px;font-weight:700;margin-top:10px;color:#3A3530;line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cov-wrap{margin-top:10px}
+.cov-lbl{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:11px;color:var(--txt2);margin-bottom:4px}
+.cov-bar{height:8px;background:var(--line3);border-radius:999px;overflow:hidden}
+.cov-fill{height:100%;background:var(--grn);border-radius:999px;transition:width .3s ease}
+.trust-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.trust{font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;background:var(--line3);color:var(--txt2)}
+.trust.ok{background:var(--grnl);color:var(--grn)}
+.trust.new{background:var(--oral);color:var(--ora)}
+.need-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.need-actions .btn-ofrecer{flex:1;min-width:120px;background:var(--grn);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.need-actions .btn-detalle{flex:1;min-width:120px;background:#fff;border:1.5px solid var(--line2);color:var(--txt);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.need-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line2)}
+.need-detail.show{display:block}
+.need-detail-desc{font-size:13px;line-height:1.5;color:#3A3530}
+.need-detail .actions{margin-top:10px}
+.flow-hint{margin-top:14px;padding:10px 12px;border-radius:10px;background:var(--blul);font-size:12px;color:var(--blut);line-height:1.45}
 .centro-pick-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;max-height:min(42vh,320px);overflow-y:auto;-webkit-overflow-scrolling:touch}
 .centro-pick-item{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid var(--line2);border-radius:13px;padding:12px 13px;cursor:pointer;font-family:inherit}
 .centro-pick-item.on{background:var(--grnl);border-color:var(--grn)}
@@ -244,8 +299,12 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .edif-card-badge.dist{background:var(--line3);color:var(--txt2)}
 .edif-hint{font-size:12px;color:var(--txt2);margin-top:8px;line-height:1.45;text-align:center}
 .link-btn{background:none;border:none;color:var(--blu);font-size:12px;font-weight:700;cursor:pointer;padding:0;font-family:inherit;text-decoration:underline}
-#lista-ayudar,#lista-acopio,#lista-asesoria{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:12px;margin-top:14px;align-items:start}
-#lista-ayudar>.card,#lista-acopio>.card,#lista-asesoria>.card{margin-bottom:0}
+#lista-ayudar,#lista-grupo-needs{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+#lista-acopio,#lista-asesoria{display:grid;grid-template-columns:1fr;gap:12px;margin-top:14px;align-items:start}
+#lista-ayudar>.need-card,#lista-ayudar>.card,#lista-acopio>.card,#lista-asesoria>.card{margin-bottom:0}
+@media (min-width:960px){
+  #lista-acopio,#lista-asesoria{grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+}
 .info-btn:focus-visible,.hero-card:focus-visible,.more-btn:focus-visible,.home-guau:focus-visible,.back-btn:focus-visible,.chip:focus-visible,.gbtn:focus-visible,.ubtn:focus-visible,.geo-btn:focus-visible,.btn-primary:focus-visible,.fab:focus-visible,.edif-card:focus-visible,.loc-tabs button:focus-visible,.loc-change-btn:focus-visible,.link-btn:focus-visible{outline:2px solid var(--red);outline-offset:2px}
 .leaflet-popup-content .btn-guau-popup{display:inline-block;margin-top:8px;background:var(--guau)!important;color:#fff!important;border-radius:9px;padding:8px 12px;font-weight:800;font-size:12px;text-decoration:none}
 @media (min-width:640px){.app{box-shadow:0 0 0 1px var(--line),0 8px 32px rgba(0,0,0,.06)}.hdr h1{font-size:16px}.hdr p{font-size:12px}}
@@ -268,20 +327,20 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     <div class="home-intro">
       <div class="kicker">Red de ayuda vecino a vecino</div>
       <h1 class="home-h1">¿Necesitas ayuda o quieres ayudar?</h1>
-      <p class="home-p">Lo más valioso ahora es <b>pedir lo que necesitas</b> y <b>dar lo que puedes</b>. Elige tu camino.</p>
+      <p class="home-p">Ahora conectamos <b>personas, instituciones y grupos de voluntariado</b> con quien puede ayudar. Elige tu camino.</p>
       <button class="link-info" onclick="openInfo()">ⓘ ¿Qué es ForVzla?</button>
     </div>
     <div class="hero-row">
       <button class="hero-card hero-red" onclick="goScreen('reportar')">
         <span class="hero-ico">🆘</span>
         <span class="hero-t">Necesito ayuda</span>
-        <span class="hero-s">Publica tu SOS en un minuto. Quien esté cerca lo verá al instante.</span>
+        <span class="hero-s">Persona, institución o grupo de voluntariado. Publica lo que falta en minutos.</span>
         <span class="hero-cta">Pedir ahora <span style="font-size:17px">→</span></span>
       </button>
-      <button class="hero-card hero-grn" onclick="goScreen('ayudar')">
+      <button class="hero-card hero-grn" onclick="enterAyudar('ruta')">
         <span class="hero-ico">🤝</span>
         <span class="hero-t">Quiero ayudar</span>
-        <span class="hero-s">Dime qué puedes dar y verás quién lo necesita cerca de ti.</span>
+        <span class="hero-s">Dime qué puedes dar y verás personas, sitios o grupos cerca de ti.</span>
         <span class="hero-cta">Ver quién lo necesita <span style="font-size:17px">→</span></span>
       </button>
     </div>
@@ -315,7 +374,13 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
   <div class="fsec">
     <button class="back-btn" onclick="goScreen('home')">← Volver</button>
     <div class="ftitle">🆘 Necesito ayuda</div>
-    <div class="fsub">Tres pasos. Teléfono o enlace del post si no hay línea en el sitio.</div>
+    <div class="fsub">Persona, institución o grupo de voluntariado. Teléfono o enlace del post si no hay línea en el sitio.</div>
+    <div class="fstep"><span class="n">0</span> ¿Quién pide la ayuda?</div>
+    <div class="requester-seg" id="requester-seg">
+      <button type="button" class="requester-btn on" data-requester="persona" onclick="setRequesterType(this)">Persona / familia</button>
+      <button type="button" class="requester-btn" data-requester="sitio" onclick="setRequesterType(this)">Institución / sitio</button>
+      <button type="button" class="requester-btn" data-requester="grupo" onclick="setRequesterType(this)">Grupo de voluntariado</button>
+    </div>
     <div class="fstep"><span class="n">1</span> ¿Dónde estás?</div>
     <div class="loc-confirmed" id="loc-confirmed" style="display:none">
       <span class="loc-confirmed-text" id="loc-confirmed-text"></span>
@@ -354,6 +419,34 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
       <div class="privacy-line"><span>🔒</span><span>Solo se usa para mostrar tu pin en el mapa. Sin registro de cuenta. Usamos estadísticas anónimas para mejorar el servicio (nunca tu teléfono ni ubicación exacta).</span></div>
     </div>
     <input type="hidden" id="r-lat"><input type="hidden" id="r-lng"><input type="hidden" id="r-zona"><input type="hidden" id="r-dir"><input type="hidden" id="r-edif"><input type="hidden" id="r-edif-nombre">
+    <div class="site-fields" id="site-fields">
+      <div class="fstep"><span class="n">2</span> Identidad del sitio</div>
+      <div class="fld"><label>Nombre del sitio <span class="req">*</span></label><input type="text" id="r-sitio-nombre" placeholder="Ej: Refugio Los Naranjos"></div>
+      <div class="chips-lbl" style="margin-top:10px">Tipo de sitio</div>
+      <div class="chips site-type-chips" id="site-type-chips">
+        <button type="button" class="chip on" data-site-type="Hospital" onclick="pickSiteType(this)">Hospital</button>
+        <button type="button" class="chip" data-site-type="Refugio" onclick="pickSiteType(this)">Refugio</button>
+        <button type="button" class="chip" data-site-type="Acogida" onclick="pickSiteType(this)">Acogida</button>
+        <button type="button" class="chip" data-site-type="Comedor" onclick="pickSiteType(this)">Comedor</button>
+        <button type="button" class="chip" data-site-type="Otro" onclick="pickSiteType(this)">Otro</button>
+      </div>
+      <div class="fstep"><span class="n">3</span> ¿A cuántas personas atiende?</div>
+      <div class="fld-grid">
+        <div class="fld"><label>Personas atendidas</label><input type="number" id="r-sitio-personas" inputmode="numeric" placeholder="120"></div>
+        <div class="fld"><label>Niños y adolescentes</label><input type="number" id="r-sitio-ninos" inputmode="numeric" placeholder="45"></div>
+      </div>
+      <div class="fld-grid">
+        <div class="fld"><label>Niños bajo custodia</label><input type="number" id="r-sitio-ninos-custodia" inputmode="numeric" placeholder="18"></div>
+        <div class="fld"><label>Casos especiales</label><input type="text" id="r-sitio-casos" placeholder="Adultos mayores, discapacidad"></div>
+      </div>
+      <div class="fld-hint">Solo conteos agregados. No se piden nombres ni datos personales.</div>
+    </div>
+    <div class="site-fields" id="group-fields">
+      <div class="fstep"><span class="n">2</span> Identidad del grupo</div>
+      <div class="fld grupo-suggest"><label>Nombre del grupo <span class="req">*</span></label><input type="text" id="r-grupo-nombre" placeholder="Ej: Cuidadoras Caracas" oninput="onGrupoInput()" autocomplete="off"><div id="r-grupo-suggest" class="grupo-suggest-list" style="display:none"></div></div>
+      <div class="fld"><label>Coordinación o referencia</label><input type="text" id="r-grupo-ref" placeholder="Ej: jornada de Chacao, logística médica"></div>
+      <div class="fld-hint">Si el grupo ya existe, lo enlazaremos. Si no existe, podremos crearlo sin perder esta solicitud.</div>
+    </div>
     <div class="fstep"><span class="n">2</span> ¿Qué necesitas? <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--txt3)">— marca las que quieras</span></div>
     <div class="grid" id="tipo-grid"></div>
     <div class="subbox" id="sub-box">
@@ -383,8 +476,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
       Después de publicar, crea tu perfil en <a id="guau-report-tip-link" href="https://guau.app/refugios-ve?utm_source=forvzla&utm_medium=report_tip" target="_blank" rel="noopener" onclick="trackGuauLink('report_tip')">Guau</a> para recibir apadrinamientos y mostrar tus animalitos a quien quiera ayudar desde lejos.
     </div>
     <div class="fld-row">
-      <div class="fld"><label>Personas afectadas</label><input type="number" id="r-pers" inputmode="numeric" placeholder="10"></div>
-      <div class="fld"><label>Tu nombre</label><input type="text" id="r-nombre" placeholder="Opcional"></div>
+      <div class="fld"><label id="r-pers-label">Personas afectadas</label><input type="number" id="r-pers" inputmode="numeric" placeholder="10"></div>
+      <div class="fld"><label id="r-nombre-label">Nombre del contacto <span class="req" id="r-nombre-req">*</span></label><input type="text" id="r-nombre" placeholder="Ej: Carmen González"></div>
     </div>
     <button class="btn-primary" id="btn-r" onclick="checkAndSubmit()">Publicar SOS</button>
   </div>
@@ -393,41 +486,77 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 <!-- QUIERO AYUDAR -->
 <div class="view" id="view-ayudar">
   <div class="pad">
-    <button class="back-btn" onclick="goScreen('home')">← Volver</button>
-    <div class="sec-title">🤝 Quiero ayudar</div>
-    <p class="sec-sub">Elige <b>qué puedes dar</b> y contacta directo a quien lo pide cerca. Los colapsos de edificios están en <b>Mapa</b>.</p>
-    <div class="chips-lbl">¿Qué puedes dar?</div>
-    <div class="chips chips-help" id="help-chips">
-      <button class="chip on" data-t="" onclick="setChip(this)">Todo</button>
-      <button class="chip" data-t="Rescate" onclick="setChip(this)">🚒 Rescate</button>
-      <button class="chip" data-t="Agua" onclick="setChip(this)">💧 Agua</button>
-      <button class="chip" data-t="Alimentos" onclick="setChip(this)">🍎 Comida</button>
-      <button class="chip" data-t="Medicamentos" onclick="setChip(this)">💊 Medicinas</button>
-      <button class="chip" data-t="Refugio" onclick="setChip(this)">⛺ Refugio</button>
-      <button class="chip" data-t="Sangre" onclick="setChip(this)">🩸 Sangre</button>
-      <button class="chip" data-t="Herramientas" onclick="setChip(this)">🔧 Equipos</button>
-    </div>
-    <div class="ayudar-ctrl">
-      <button class="geo-btn geo-mini-btn" id="geo-ayudar-btn" onclick="locateForHelp()">📍 Ver lo más cercano</button>
-      <div class="seg">
-        <button id="tgl-lista" class="on" onclick="setAyudarView('lista')">Lista</button>
-        <button id="tgl-mapa" onclick="setAyudarView('mapa')">Mapa</button>
+    <button class="back-btn" id="ayudar-back-btn" onclick="ayudarBack()">← Volver</button>
+    <div id="ayudar-step-ruta" class="ayudar-step-ruta">
+      <div class="sec-title">🤝 Quiero ayudar</div>
+      <p class="sec-sub">Elige <b>cómo</b> quieres aportar y <b>qué</b> puedes dar.</p>
+      <div class="fstep"><span class="n">1</span> ¿A quién quieres ayudar?</div>
+      <div class="help-routes" id="help-routes">
+        <button type="button" class="help-route on" data-route="todas" onclick="pickHelpRoute(this)">
+          <span class="help-route-title">Solicitudes de ayuda</span>
+          <span class="help-route-desc">Necesidades de apoyo (comida, medicinas, transporte…). Sin rescates.</span>
+        </button>
+        <button type="button" class="help-route" data-route="grupo" onclick="pickHelpRoute(this)">
+          <span class="help-route-title">Ayudar a voluntarios</span>
+          <span class="help-route-desc">Donaciones abiertas a grupos de voluntariado.</span>
+        </button>
+        <button type="button" class="help-route" data-route="acopio" onclick="pickHelpRoute(this)">
+          <span class="help-route-title">A centros de acopio</span>
+          <span class="help-route-desc">Puntos activos para llevar donaciones y clasificar ayuda.</span>
+        </button>
       </div>
-    </div>
-    <div id="ayudar-lista-wrap">
-      <div id="lista-ayudar"><div class="spin-wrap"><div class="spinner"></div>Cargando...</div></div>
-    </div>
-    <div id="ayudar-mapa-wrap" style="display:none">
-      <div class="map-stage" style="margin-top:14px"><div class="map-hint">Pulsa un punto para ver el detalle y contactar.</div><div id="main-map"></div></div>
-      <div class="map-leg">
-        <span><i style="background:#C0392B"></i>Crítica / colapso</span>
-        <span><i style="background:#E67E22"></i>Urgente</span>
-        <span><i style="background:#1E8449"></i>Centro de acopio</span>
+      <div class="chips-lbl">¿Qué puedes dar?</div>
+      <div class="chips chips-help" id="help-chips">
+        <button class="chip on" data-t="" onclick="setChip(this)">Todo</button>
+        <button class="chip" data-t="medicinas" onclick="setChip(this)">💊 Medicinas</button>
+        <button class="chip" data-t="comida" onclick="setChip(this)">🍎 Comida</button>
+        <button class="chip" data-t="transporte" onclick="setChip(this)">🚛 Transporte</button>
+        <button class="chip" data-t="voluntariado" onclick="setChip(this)">🙋 Voluntariado</button>
+        <button class="chip" data-t="dinero" onclick="setChip(this)">💵 Dinero</button>
       </div>
+      <button type="button" class="btn-ayudar-go" id="btn-ayudar-go" onclick="continueAyudar()">Ver necesidades</button>
     </div>
-    <div class="donar-banner">
-      <p>¿Tienes mucho que donar (camión, lote grande)?</p>
-      <button class="donar-link" onclick="goScreen('ofrecer')">Llévalo a un centro →</button>
+    <div id="ayudar-step-grupos" style="display:none">
+      <div class="sec-title">Grupos de voluntariado</div>
+      <p class="sec-sub">Elige un grupo. Puedes apoyar una <b>necesidad abierta</b> o hacer una <b>donación general</b>.</p>
+      <div class="acopio-search"><input type="search" id="grupos-q" placeholder="Buscar grupo…" oninput="debounceGruposRender()"></div>
+      <div class="centro-pick-list" id="lista-grupos"><div class="spin-wrap"><div class="spinner"></div>Cargando...</div></div>
+    </div>
+    <div id="ayudar-step-grupo" style="display:none">
+      <div class="aportar-summary" id="grupo-summary">
+        <b id="grupo-summary-nombre">Grupo</b>
+        <span id="grupo-summary-desc"></span>
+      </div>
+      <div class="chips-lbl">Necesidades abiertas de este grupo</div>
+      <div id="lista-grupo-needs"><div class="empty" style="padding:16px">Sin necesidades publicadas ahora.</div></div>
+      <button type="button" class="btn-ayudar-go" style="margin-top:18px" onclick="openAporteGrupoGeneral()">Donar en general a este grupo</button>
+    </div>
+    <div id="ayudar-step-lista" style="display:none">
+      <div class="sec-title">Dónde ayudar ahora</div>
+      <p class="sec-sub">Ordenado por <b>urgencia</b>, <b>cercanía</b> y <b>lo que falta</b>.</p>
+      <div class="ayudar-ctrl">
+        <button class="geo-btn geo-mini-btn" id="geo-ayudar-btn" onclick="locateForHelp()">📍 Cerca de ti</button>
+        <div class="seg">
+          <button id="tgl-lista" class="on" onclick="setAyudarView('lista')">Lista</button>
+          <button id="tgl-mapa" onclick="setAyudarView('mapa')">Mapa</button>
+        </div>
+      </div>
+      <div id="ayudar-lista-wrap">
+        <div id="lista-ayudar"><div class="spin-wrap"><div class="spinner"></div>Cargando...</div></div>
+        <p class="flow-hint">«Ofrecer ayuda» registra tu aporte prometido. El contacto directo está en «Ver detalle».</p>
+      </div>
+      <div id="ayudar-mapa-wrap" style="display:none">
+        <div class="map-stage" style="margin-top:14px"><div class="map-hint">Pulsa un punto para ver el detalle y contactar.</div><div id="main-map"></div></div>
+        <div class="map-leg">
+          <span><i style="background:#C0392B"></i>Crítica / colapso</span>
+          <span><i style="background:#E67E22"></i>Urgente</span>
+          <span><i style="background:#1E8449"></i>Centro de acopio</span>
+        </div>
+      </div>
+      <div class="donar-banner">
+        <p>¿Tienes mucho que donar (camión, lote grande)?</p>
+        <button class="donar-link" onclick="goScreen('ofrecer')">Llévalo a un centro →</button>
+      </div>
     </div>
   </div>
 </div>
@@ -490,6 +619,70 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     <div class="fld"><label>📞 Teléfono <span class="req">*</span></label><input type="tel" id="o-tel" inputmode="tel" placeholder="+58 412 555 1234"></div>
     <div class="fld"><label>Nombre</label><input type="text" id="o-nombre" placeholder="Opcional"></div>
     <button class="btn-primary grn" id="btn-o" onclick="submitRecurso()">Publicar recurso</button>
+  </div>
+</div>
+
+<!-- DONAR EN GENERAL A GRUPO -->
+<div class="view" id="view-aportar-grupo">
+  <div id="toast-g" class="toast"></div>
+  <div class="fsec">
+    <button class="back-btn" onclick="ayudarBackFromAporteGrupo()">← Volver</button>
+    <div class="ftitle">🤝 Donar a un grupo</div>
+    <div class="fsub">Tu aporte queda como <b>prometido</b>. El grupo lo confirma cuando lo reciba.</div>
+    <div class="aportar-summary" id="aportar-grupo-summary">
+      <b id="aportar-grupo-nombre">Grupo</b>
+      <span id="aportar-grupo-meta">Donación general (sin necesidad específica)</span>
+    </div>
+    <div class="fstep"><span class="n">1</span> ¿Qué puedes aportar?</div>
+    <div class="chips chips-help" id="aporte-grupo-chips">
+      <button type="button" class="chip on" data-t="comida" onclick="pickAporteGrupoTipo(this)">🍎 Comida</button>
+      <button type="button" class="chip" data-t="medicinas" onclick="pickAporteGrupoTipo(this)">💊 Medicinas</button>
+      <button type="button" class="chip" data-t="transporte" onclick="pickAporteGrupoTipo(this)">🚛 Transporte</button>
+      <button type="button" class="chip" data-t="voluntariado" onclick="pickAporteGrupoTipo(this)">🙋 Voluntariado</button>
+      <button type="button" class="chip" data-t="dinero" onclick="pickAporteGrupoTipo(this)">💵 Dinero</button>
+      <button type="button" class="chip" data-t="insumos" onclick="pickAporteGrupoTipo(this)">🔧 Insumos</button>
+    </div>
+    <div class="fld"><label>¿Qué ofreces? <span class="req">*</span></label><input type="text" id="pg-qty" placeholder="Ej: 30 cajas de comida · juguetes · 200 USD"></div>
+    <div class="fld"><label>Detalle <span style="font-weight:400;color:var(--txt3)">— opcional</span></label><textarea id="pg-desc" placeholder="Ej: Puedo entregar mañana en la mañana"></textarea></div>
+    <div class="fld"><label>Nombre <span class="req">*</span></label><input type="text" id="pg-nombre" placeholder="Ej: Carmen González"></div>
+    <div class="fld"><label>📞 Teléfono o WhatsApp <span class="req">*</span></label><input type="tel" id="pg-contacto" inputmode="tel" placeholder="+58 412 555 1234"></div>
+    <button class="btn-primary grn" id="btn-pg" onclick="submitAporteGrupo()">Registrar aporte</button>
+  </div>
+</div>
+
+<!-- OFRECER AYUDA A NECESIDAD -->
+<div class="view" id="view-aportar">
+  <div id="toast-p" class="toast"></div>
+  <div class="fsec">
+    <button class="back-btn" onclick="aportarBack()">← Volver</button>
+    <div class="ftitle">🤝 Ofrecer ayuda</div>
+    <div class="fsub">Registra lo que vas a aportar para esta necesidad. Más adelante afinamos la confirmación de entrega.</div>
+    <div class="aportar-summary" id="aportar-summary">
+      <b id="aportar-summary-title">Necesidad seleccionada</b>
+      <span id="aportar-summary-meta"></span>
+    </div>
+    <div class="fstep"><span class="n">1</span> ¿Cuánto cubres de esta necesidad?</div>
+    <div class="requester-seg" id="coverage-seg">
+      <button type="button" class="requester-btn on" data-coverage="todo" onclick="setAporteCoverage(this)">Todo</button>
+      <button type="button" class="requester-btn" data-coverage="parcial" onclick="setAporteCoverage(this)">Parcial</button>
+    </div>
+    <div class="fld"><label id="p-qty-label">¿Qué vas a aportar? <span class="req">*</span></label><input type="text" id="p-qty" placeholder="Ej: cubro todo lo pedido · 50 cajas · 120 USD · 1 viaje"></div>
+    <div class="fld"><label>Unidad <span style="font-weight:400;color:var(--txt3)">— opcional</span></label><input type="text" id="p-unit" placeholder="Ej: cajas, USD, viaje, kg"></div>
+    <div class="fld"><label id="p-desc-label">Detalle <span style="font-weight:400;color:var(--txt3)">— opcional</span></label><textarea id="p-desc" placeholder="Ej: Puedo cubrir solo una parte hoy y otra mañana"></textarea></div>
+
+    <div class="fstep"><span class="n">2</span> ¿Cómo donas?</div>
+    <div class="requester-seg" id="donor-seg">
+      <button type="button" class="requester-btn on" data-donor="persona" onclick="setDonorType(this)">Persona</button>
+      <button type="button" class="requester-btn" data-donor="institucion" onclick="setDonorType(this)">Institución</button>
+      <button type="button" class="requester-btn" data-donor="grupo" onclick="setDonorType(this)">Grupo de voluntariado</button>
+    </div>
+    <div class="donor-fields" id="donor-group-fields">
+      <div class="fld grupo-suggest"><label>Nombre del grupo <span class="req">*</span></label><input type="text" id="p-grupo-nombre" placeholder="Ej: Cuidadoras Caracas" oninput="onAporteGrupoInput()" autocomplete="off"><div id="p-grupo-suggest" class="grupo-suggest-list" style="display:none"></div></div>
+      <div class="fld-hint">Si el grupo ya existe, lo enlazaremos. Si no existe, lo crearemos al registrar el aporte.</div>
+    </div>
+    <div class="fld"><label id="p-nombre-label">Nombre <span class="req">*</span></label><input type="text" id="p-nombre" placeholder="Ej: Carmen González"></div>
+    <div class="fld"><label>📞 Teléfono o WhatsApp <span class="req">*</span></label><input type="tel" id="p-contacto" inputmode="tel" placeholder="+58 412 555 1234"></div>
+    <button class="btn-primary grn" id="btn-p" onclick="submitAporte()">Registrar aporte</button>
   </div>
 </div>
 
@@ -610,6 +803,7 @@ const TIPOS_O=[{t:'Agua embotellada',e:'💧'},{t:'Alimentos no perecederos',e:'
 const HERRAM=['Guantes','Tapabocas','Palas','Sequetas','Disco de corte','Motosierra','Cascos','Linternas','Tobos','Esmeriles'];
 const SHORT={'Rescate':'Rescate','Agua potable':'Agua','Alimentos':'Comida','Medicamentos':'Medicinas','Médicos / paramédicos':'Médicos','Refugio / carpas':'Refugio','Sangre / donantes':'Sangre','Transporte':'Transporte','Herramientas / Equipos':'Equipos','Agua embotellada':'Agua','Alimentos no perecederos':'Comida','Transporte (vehículo)':'Vehículo','Personal médico':'Médicos','Equipos de rescate':'Rescate','Refugio / espacio físico':'Refugio','Donación económica':'Dinero'};
 const UL={critica:'🔴 Crítica',urgente:'🟠 Urgente',normal:'🟢 Normal'};const UE={critica:'r',urgente:'o',normal:'g'};
+let requesterType='persona',selSiteType='Hospital';
 function ei(t){const f=TIPOS.concat(TIPOS_O).find(x=>x.t===t);return f?f.e:'📌'}
 function ago(ts){const d=Math.floor((Date.now()-new Date(ts))/60000);if(d<1)return'Ahora';if(d<60)return d+'m';if(d<1440)return Math.floor(d/60)+'h';return Math.floor(d/1440)+'d'}
 function fmDist(m){if(m==null)return'';return m<1000?Math.round(m)+' m':(m/1000).toFixed(1)+' km'}
@@ -637,12 +831,39 @@ function needTitle(n){const tip=tipoText(n);
   return escHtml(tip);}
 function trapWarning(n){if(n.edificio_id)return true;
   const d=(n.descripcion||'').toLowerCase();return/atrapad|sigue atrapad|soterrad|debajo del|bajo (los |el )?escombros|entre los escombros|escombros|no pueden salir|no (lo|la) han sacado|desaparecid/.test(d);}
+const RESCATE_TRAP_RE=/atrapad|sigue atrapad|soterrad|debajo del|bajo (los |el )?escombros|entre los escombros|escombros|no pueden salir|siguen adentro|siguen dentro|no (lo|la) han sacado|derrumb|desaparecid|sin noticias de|no aparece|se busca a|b[uú]squeda de|rescate|maquinaria pesada/i;
+function isRescateNeed(n){return needTipos(n).some(t=>/rescate/i.test(t))||!!n.edificio_id||RESCATE_TRAP_RE.test((n.descripcion||''));}
 
 function buildGrid(elId,list,fn,cls=''){document.getElementById(elId).innerHTML=list.map(x=>`<button class="gbtn${cls?' '+cls:''}" data-t="${x.t}" onclick="${fn}(this)"><span class="e">${x.e}</span>${SHORT[x.t]||x.t}</button>`).join('');}
-let selTipos=[],selSubs=[],selUrg='urgente',selTipoO='',ayudarView='lista';
+let selTipos=[],selSubs=[],selUrg='urgente',selTipoO='',aporteCoverage='todo',ayudarStep='ruta',helpRoute='todas',ayudarView='lista',grupoSuggestTimer=null,grupoSuggestOpen=false,aporteGrupoSuggestTimer=null,donorType='persona',selectedNeedA=null,helpNeedsCache=[],gruposCache=[],gruposFilterTimer=null,selectedGrupo=null,aporteGrupoTipo='comida',returnAyudarStep='lista';
 function pickTipo(btn){const t=btn.dataset.t,i=selTipos.indexOf(t);
   if(i>=0){selTipos.splice(i,1);btn.classList.remove('on');}else{selTipos.push(t);btn.classList.add('on');}
   syncSubChips();syncRefugioTip();}
+function setRequesterType(btn){
+  requesterType=btn.dataset.requester||'persona';
+  document.querySelectorAll('#requester-seg .requester-btn').forEach(b=>b.classList.toggle('on',b===btn));
+  syncRequesterUI();
+}
+function pickSiteType(btn){
+  document.querySelectorAll('#site-type-chips .chip').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');selSiteType=btn.dataset.siteType||'Hospital';syncRefugioTip();
+}
+function syncRequesterUI(){
+  const isSite=requesterType==='sitio',isGroup=requesterType==='grupo';
+  document.getElementById('site-fields').classList.toggle('show',isSite);
+  document.getElementById('group-fields').classList.toggle('show',isGroup);
+  document.getElementById('r-nombre-label').innerHTML=isGroup?'Nombre del coordinador <span class="req">*</span>':'Nombre del contacto <span class="req">*</span>';
+  document.getElementById('r-nombre').placeholder=isGroup?'Ej: María Pérez':'Ej: Carmen González';
+  document.getElementById('r-pers-label').textContent=isSite?'Personas afectadas (contacto)':'Personas afectadas';
+  document.querySelector('.chk-row').style.display=isSite||isGroup?'none':'flex';
+  if(isSite||isGroup){
+    document.getElementById('r-sin-tel').checked=false;
+    document.getElementById('tel-req-mark').style.display='inline';
+    document.getElementById('post-req-mark').style.display='none';
+    document.getElementById('r-tel-hint').textContent='— obligatorio para coordinar ayuda';
+    document.getElementById('r-post-hint').textContent=isSite?'— opcional si viste el caso en redes':'— opcional si el grupo compartió la solicitud en redes';
+  }else onSinTelToggle();
+}
 function syncSubChips(){const box=document.getElementById('sub-box'),sc=document.getElementById('sub-chips');
   if(selTipos.includes('Herramientas / Equipos')){box.classList.add('show');
     sc.innerHTML=HERRAM.map(h=>`<button type="button" class="subchip${selSubs.includes(h)?' on':''}" data-h="${h}" onclick="pickSub(this)">${selSubs.includes(h)?'✓ ':''}${h}</button>`).join('');}
@@ -652,6 +873,26 @@ function pickSub(btn){const h=btn.dataset.h,i=selSubs.indexOf(h);
   else{selSubs.push(h);btn.classList.add('on');btn.textContent='✓ '+h;}}
 function setUrg(btn){document.querySelectorAll('.ubtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selUrg=btn.dataset.u;}
 function pickTipoO(btn){document.querySelectorAll('#tipo-grid-o .gbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');selTipoO=btn.dataset.t;renderCentroPicker();}
+function setAporteCoverage(btn){
+  aporteCoverage=btn.dataset.coverage||'todo';
+  document.querySelectorAll('#coverage-seg .requester-btn').forEach(b=>b.classList.toggle('on',b===btn));
+  document.getElementById('p-qty-label').innerHTML=(aporteCoverage==='todo'?'Confirma que cubres todo':'¿Qué parte vas a aportar?')+' <span class="req">*</span>';
+  document.getElementById('p-qty').placeholder=aporteCoverage==='todo'?'Ej: Cierro esta necesidad completa':'Ej: 20 cajas hoy · cubro una parte';
+  document.getElementById('p-desc-label').innerHTML=aporteCoverage==='todo'
+    ?'Detalle <span style="font-weight:400;color:var(--txt3)">— opcional</span>'
+    :'Detalle <span class="req">*</span>';
+}
+function setDonorType(btn){
+  donorType=btn.dataset.donor||'persona';
+  document.querySelectorAll('#donor-seg .requester-btn').forEach(b=>b.classList.toggle('on',b===btn));
+  syncDonorUI();
+}
+function syncDonorUI(){
+  const isGroup=donorType==='grupo',isInst=donorType==='institucion';
+  document.getElementById('donor-group-fields').classList.toggle('show',isGroup);
+  document.getElementById('p-nombre-label').innerHTML=(isInst?'Nombre de la institución':isGroup?'Nombre del coordinador':'Nombre')+' <span class="req">*</span>';
+  document.getElementById('p-nombre').placeholder=isInst?'Ej: Fundación ABC':isGroup?'Ej: María Pérez':'Ej: Carmen González';
+}
 
 function openInfo(){document.getElementById('info-modal').classList.add('on');ph(_ev().INFO_MODAL_OPENED);}
 function closeInfo(){document.getElementById('info-modal').classList.remove('on');ph(_ev().INFO_MODAL_CLOSED);}
@@ -776,7 +1017,7 @@ async function populateMap(){initMainMap();
     db.from('necesidades').select('*').in('estado',['pendiente','en_proceso']).is('merged_into',null),
     db.from('centros_acopio').select('*').eq('activo',true),
     db.from('edificios_colapsados').select('*')]);
-  mapData={needs:needs||[],acopios:acopios||[],edifs:edifs||[]};renderMap();}
+  mapData={needs:(needs||[]).filter(n=>!isRescateNeed(n)),acopios:acopios||[],edifs:edifs||[]};renderMap();}
 function renderMap(){if(!mapData||!markersLayer)return;markersLayer.clearLayers();
   const b=[],{needs,acopios,edifs}=mapData;
   edifs.forEach(e=>{if(!e.lat||!e.lng)return;const m=L.marker([e.lat,e.lng],{icon:dot('#C0392B',12)}).addTo(markersLayer);
@@ -885,10 +1126,10 @@ function mapEstado(s){s=(s||'').toLowerCase();
   if(s.includes('yaracuy'))return'Yaracuy';if(s.includes('aragua'))return'Aragua';if(s.includes('carabobo'))return'Carabobo';
   if(s.includes('falc'))return'Falcón';if(s.includes('miranda'))return'Miranda';if(s.includes('lara'))return'Lara';return'Otra';}
 
-function focusEdifOnMap(id){goScreen('ayudar');setAyudarView('mapa');setTimeout(()=>{const e=(mapData?.edifs||[]).find(x=>x.id===id);if(e?.lat&&e?.lng)mainMap.setView([e.lat,e.lng],16);},350);}
+function focusEdifOnMap(id){enterAyudar('lista');setAyudarView('mapa');setTimeout(()=>{const e=(mapData?.edifs||[]).find(x=>x.id===id);if(e?.lat&&e?.lng)mainMap.setView([e.lat,e.lng],16);},350);}
 function needSortKey(n){const urg={critica:0,urgente:1,normal:2}[n.urgencia]??3;const st=n.estado==='pendiente'?0:n.estado==='en_proceso'?1:2;return urg*10+st;}
-function emptyHelpMsg(){const mapHint='<br><span style="font-size:12px;color:var(--txt3)">Los edificios colapsados están en la vista <button type="button" class="donar-link" style="font-size:12px;padding:0" onclick="setAyudarView(\'mapa\')">Mapa</button>.</span>';
-  return`<div class="empty">🎉 Nadie pide eso cerca ahora.${mapHint}</div>`;}
+function emptyHelpMsg(){const rescateHint='<br><span style="font-size:12px;color:var(--txt3)">Los reportes de <b>rescate</b> están en <a href="rescatistas.html" style="color:var(--grn);font-weight:800">Soy rescatista</a>.</span>';
+  return`<div class="empty">🎉 Nadie pide eso cerca ahora.${rescateHint}</div>`;}
 function normTel(t){return(t||'').replace(/[\s\-()]/g,'');}
 function isMyAttend(n){return volTel&&n.en_atencion_por&&normTel(n.en_atencion_por)===normTel(volTel);}
 let volTel='',pendingAttendId=null;
@@ -938,51 +1179,192 @@ function onSinTelToggle(){
 function flashFixed(msg,err=false){let t=document.getElementById('toast-fixed');
   if(!t){t=document.createElement('div');t.id='toast-fixed';t.className='toast-fixed';document.body.appendChild(t);}
   t.textContent=msg;t.className='toast-fixed show '+(err?'err':'ok');clearTimeout(flashFixed._t);flashFixed._t=setTimeout(()=>t.classList.remove('show'),4200);}
+function truncText(s,max=110){if(!s)return'';const t=String(s).trim();return t.length>max?t.slice(0,max-1)+'…':t;}
 function needCard(n){const done=n.estado==='cubierta',enProc=n.estado==='en_proceso'&&n.en_atencion_por;
-  const cls=done?'done':enProc?'en-proceso':(UE[n.urgencia]||'');
-  let badge=done?'<span class="badge done">✓ Cubierta</span>':enProc?'<span class="badge atn">🙋 En camino</span>':`<span class="badge ${UE[n.urgencia]||''}">${UL[n.urgencia]||''}</span>`;
-  const unval=!n.validada&&n.fuente!=='ciudadano'?'<span class="unval">Sin validar</span>':'';const hasTel=hasNeedTel(n);
+  const cls=needCardClass(n)+(done?' done':'');
+  const badge=needCardBadge(n,done,enProc);
+  const hasTel=hasNeedTel(n);
   const wa=hasTel?(n.whatsapp||n.telefono):null;
   const waMsg=`Hola ${n.nombre_contacto||''}, vi tu solicitud de ${tipoText(n)} en Ayuda Venezuela. ¿Cómo ayudo?`;
-  const dist=n.distancia_m!=null?fmDist(n.distancia_m):'';
-  const conf=n.confirmaciones>1?` · ${n.confirmaciones} confirmaciones`:'';const subs=subtiposText(n);
-  const desc=cleanPublicText(n.descripcion);const extras=[];
-  if(subs)extras.push('🔧 '+subs);if(n.otro)extras.push('➕ '+n.otro);if(n.cantidad)extras.push(n.cantidad);
-  const extraLine=extras.length?`<div class="c-tipo" style="margin-top:6px">${escHtml(extras.join(' · '))}</div>`:'';
-  const guauBadge=isRefugioNeed(n)?'<span class="badge guau">🐾 Refugio de mascotas</span>':'';
-  const loc=escHtml(n.zona)+(n.edificio_id?' 🏚':'');
+  const subs=subtiposText(n);
+  const desc=cleanPublicText(n.descripcion);
+  const extras=[];
+  if(n.ninos_total)extras.push('Niños: '+n.ninos_total);
+  if(n.ninos_custodia)extras.push('Custodia: '+n.ninos_custodia);
+  if(subs)extras.push('🔧 '+subs);
+  if(n.otro)extras.push('➕ '+n.otro);
+  const extraLine=extras.length?`<div class="need-meta" style="margin-top:8px;white-space:normal">${escHtml(extras.join(' · '))}</div>`:'';
   const mine=isMyAttend(n);
   const atencionLine=enProc&&!mine?`<div class="c-atencion">🙋 Voluntario en camino${n.en_atencion_at?' · '+ago(n.en_atencion_at):''}</div>`:'';
   const atencionMine=enProc&&mine?`<div class="c-atencion" style="background:var(--grnl);color:var(--grnh)">✓ Tú vas en camino${n.en_atencion_at?' · '+ago(n.en_atencion_at):''}</div>`:'';
-  let actions='';
+  let detailActions='';
   if(!done){
     const telLine=hasTel?`<a class="btn-call" href="tel:${n.telefono}" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'tel',need_id:'${n.id}'})">📞 ${escHtml(n.telefono)}</a>`:'';
     const waLine=wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'wa',need_id:'${n.id}'})">💬 WhatsApp</a>`:'';
     const postLine=needPostBtn(n).replace('<a class="btn-post"','<a class="btn-post" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:\'post\',need_id:\''+n.id+'\'})"');
     const guauLine=isRefugioNeed(n)?`<a class="btn-guau" href="${guauRefugioUrl({slug:n.refugio_guau_slug,needId:n.id,zona:n.zona,accion:'apadrinar',medium:'ayudar_card'})}" target="_blank" rel="noopener" onclick="trackGuauLink('ayudar_card',{need_id:'${n.id}'})">🐾 Apadrinar en Guau</a>`:'';
-    const noTelLine=!hasTel&&!hasNeedPost(n)?'<span class="c-nota" style="background:var(--yell);color:var(--yelt);border-color:var(--yel);flex:1 1 100%">📵 Sin teléfono en el sitio — ir al mapa</span>':'';
-    const contact=`${telLine}${waLine}${postLine}${guauLine}${noTelLine}<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'map',need_id:'${n.id}'})">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
-    if(n.estado==='pendiente')actions=contact+`<button class="btn-voy" onclick="openAttend('${n.id}')">🙋 Voy en camino</button>`;
-    else if(mine)actions=contact+`<button class="btn-voy" style="background:var(--grn)" onclick="markCubierta('${n.id}')">✓ Ya atendido</button>`;
-    else actions=contact;
+    const mapLine=`<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'map',need_id:'${n.id}'})">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
+    const voyLine=n.estado==='pendiente'?`<button class="btn-voy" onclick="openAttend('${n.id}')">🙋 Voy en camino</button>`:(mine?`<button class="btn-voy" style="background:var(--grn)" onclick="markCubierta('${n.id}')">✓ Ya atendido</button>`:'');
+    detailActions=`<div class="actions">${telLine}${waLine}${postLine}${guauLine}${mapLine}${voyLine}</div>`;
   }
-  return `<div class="card ${cls}">
-    <div class="c-top"><div><div class="c-loc">${needTitle(n)}</div><div class="c-addr">📍 ${escHtml(shortAddr(n))}${loc?` · ${loc}`:''}${srcTag(n.fuente)}${unval}</div></div>${badge}</div>
-    <div class="c-tipo"><b>${tipoIcons(n)} ${tipoText(n)}</b>${dist?' · a '+dist:''} · ⏱ ${ago(n.created_at)}${conf}</div>
-    ${guauBadge}
-    ${extraLine}
-    ${desc?`<div class="c-desc">${escHtml(desc)}</div>`:''}
-    ${trapWarning(n)?'<div class="c-nota">⚠️ Posibles personas atrapadas</div>':''}
-    ${atencionLine}${atencionMine}
-    ${n.notas_coordinador?`<div class="c-nota" style="background:var(--blul);color:var(--blut);border-color:var(--blu)">📋 ${escHtml(cleanPublicText(n.notas_coordinador))}</div>`:''}
-    ${actions?`<div class="actions">${actions}</div>`:''}
+  const detailBody=[
+    desc?`<div class="need-detail-desc">${escHtml(desc)}</div>`:'',
+    extraLine,
+    trapWarning(n)?'<div class="c-nota">⚠️ Posibles personas atrapadas</div>':'',
+    atencionLine,atencionMine,
+    n.notas_coordinador?`<div class="c-nota" style="background:var(--blul);color:var(--blut);border-color:var(--blu)">📋 ${escHtml(cleanPublicText(n.notas_coordinador))}</div>`:'',
+    detailActions
+  ].filter(Boolean).join('');
+  const ofrecerBtn=done?'':`<button type="button" class="btn-ofrecer" onclick="openAportar('${n.id}')">${needCardOfferLabel(n)}</button>`;
+  const detalleBtn=done?'':`<button type="button" class="btn-detalle" data-detail-btn="${n.id}" data-detail-label="${needCardDetailLabel(n)}" onclick="toggleNeedDetail('${n.id}')">${needCardDetailLabel(n)}</button>`;
+  return `<div class="need-card ${cls}">
+    <div class="need-top"><div><div class="need-name">${needCardName(n)}</div><div class="need-meta">${needCardMeta(n)}</div></div>${badge}</div>
+    <div class="need-tipo">${escHtml(truncText(needCardNeedLine(n),90))}</div>
+    ${needCardProgress(n)}
+    <div class="trust-row">${needCardTrust(n)}</div>
+    ${!done?`<div class="need-actions">${ofrecerBtn}${detalleBtn}</div>`:''}
+    ${!done&&detailBody?`<div class="need-detail" id="need-detail-${n.id}">${detailBody}</div>`:''}
   </div>`;}
 
-let helpTipo='',helpPos=null;
-function setChip(btn){document.querySelectorAll('#help-chips .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');helpTipo=btn.dataset.t;
+let helpTipo='',helpPos=null,aportesByNeed={};
+function needCardClass(n){
+  if(n.solicitante_tipo==='grupo')return'need-brig';
+  if(n.urgencia==='critica'||n.urgencia==='urgente')return'need-urg';
+  return'need-cont';
+}
+function needCardBadge(n,done,enProc){
+  if(done)return'<span class="badge done">✓ Cubierta</span>';
+  if(enProc)return'<span class="badge atn">🙋 En camino</span>';
+  if(n.urgencia==='critica')return'<span class="badge r">🔴 Crítica</span>';
+  if(n.urgencia==='urgente')return'<span class="badge r">Urgente</span>';
+  return'<span class="badge o">Continuidad</span>';
+}
+function needCardName(n){
+  if(n.solicitante_tipo==='sitio'&&n.nombre_contacto)return escHtml(n.nombre_contacto);
+  if(n.solicitante_tipo==='grupo'&&(n.grupo_nombre||n.nombre_contacto))return escHtml(n.grupo_nombre||n.nombre_contacto);
+  return needTitle(n);
+}
+function needCardMeta(n){
+  const parts=[];
+  if(n.solicitante_tipo==='sitio'&&n.sitio_tipo)parts.push(escHtml(n.sitio_tipo));
+  else if(n.solicitante_tipo==='grupo')parts.push('Grupo de voluntariado');
+  else if(n.solicitante_tipo==='persona')parts.push('Persona / familia');
+  else parts.push('Solicitud');
+  if(n.distancia_m!=null)parts.push('a '+fmDist(n.distancia_m));
+  else if(n.zona)parts.push(escHtml(n.zona));
+  return parts.join(' · ');
+}
+function needCardNeedLine(n){
+  const tip=tipoText(n);
+  const desc=cleanPublicText(n.descripcion);
+  if(tip&&tip!=='Otro')return tip;
+  return desc||tip||'Ayuda solicitada';
+}
+function needCardOfferLabel(n){
+  const t=tipoText(n).toLowerCase();
+  if(t.includes('transport'))return'Ofrecer transporte';
+  return'Ofrecer ayuda';
+}
+function needCardDetailLabel(n){
+  if(n.solicitante_tipo==='grupo'||n.grupo_slug)return'Ver jornada';
+  return'Ver detalle';
+}
+function parseNeedGoal(n){
+  const m=(n.cantidad||'').replace(',','.').match(/\d+(\.\d+)?/);
+  return m?parseFloat(m[0]):null;
+}
+function needCardProgress(n){
+  const ap=aportesByNeed[n.id]||{count:0,sum:0};
+  const goal=parseNeedGoal(n);
+  const covered=ap.sum>0?ap.sum:ap.count;
+  if(goal&&goal>0){
+    const pct=Math.min(100,Math.round((covered/goal)*100));
+    return`<div class="cov-wrap"><div class="cov-lbl"><span>Meta ${goal}</span><span>${covered} cubiertos (${pct}%)</span></div><div class="cov-bar"><div class="cov-fill" style="width:${pct}%"></div></div></div>`;
+  }
+  if(ap.count>0)return`<div class="cov-wrap"><div class="cov-lbl"><span>${ap.count} aporte${ap.count===1?'':'s'} prometido${ap.count===1?'':'s'}</span><span>sin meta numérica</span></div><div class="cov-bar"><div class="cov-fill" style="width:${Math.min(100,ap.count*20)}%"></div></div></div>`;
+  return`<div class="cov-wrap"><div class="cov-lbl"><span>Sin aportes aún</span><span>0 cubiertos</span></div><div class="cov-bar"><div class="cov-fill" style="width:0%"></div></div></div>`;
+}
+function needCardTrust(n){
+  const tags=[];
+  if(n.validada||n.confirmaciones>2)tags.push('<span class="trust ok">Confirmado por brigada</span>');
+  else if(n.confirmaciones>1)tags.push('<span class="trust ok">Con apoyos previos</span>');
+  else tags.push('<span class="trust new">Nuevo</span>');
+  if(n.fuente&&n.fuente!=='ciudadano')tags.push('<span class="trust">Desde redes</span>');
+  tags.push(`<span class="trust">⏱ ${ago(n.created_at)}</span>`);
+  return tags.join('');
+}
+function toggleNeedDetail(id){
+  const el=document.getElementById('need-detail-'+id);
+  if(!el)return;
+  el.classList.toggle('show');
+  const btn=document.querySelector(`[data-detail-btn="${id}"]`);
+  if(btn){
+    const open=el.classList.contains('show');
+    btn.textContent=open?'Ocultar detalle':(btn.dataset.detailLabel||'Ver detalle');
+  }
+}
+async function loadAportesSummary(ids){
+  if(!ids.length)return{};
+  const{data}=await db.from('aportes_necesidad').select('necesidad_id,cantidad,estado').in('necesidad_id',ids).neq('estado','cancelado');
+  const map={};
+  (data||[]).forEach(a=>{
+    if(!map[a.necesidad_id])map[a.necesidad_id]={count:0,sum:0};
+    map[a.necesidad_id].count++;
+    if(a.cantidad)map[a.necesidad_id].sum+=parseFloat(a.cantidad)||0;
+  });
+  return map;
+}
+function pickHelpRoute(btn){
+  helpRoute=btn.dataset.route||'';
+  document.querySelectorAll('#help-routes .help-route').forEach(b=>b.classList.toggle('on',b===btn));
+  const goBtn=document.getElementById('btn-ayudar-go');
+  if(goBtn)goBtn.textContent=helpRoute==='grupo'?'Ver grupos':'Ver necesidades';
+}
+function syncAyudarUI(){
+  document.getElementById('ayudar-step-ruta').style.display=ayudarStep==='ruta'?'block':'none';
+  document.getElementById('ayudar-step-lista').style.display=ayudarStep==='lista'?'block':'none';
+  document.getElementById('ayudar-step-grupos').style.display=ayudarStep==='grupos'?'block':'none';
+  document.getElementById('ayudar-step-grupo').style.display=ayudarStep==='grupo'?'block':'none';
+}
+function enterAyudar(step){
+  ayudarStep=step||'ruta';
+  if(ayudarStep==='ruta'){helpRoute='todas';document.querySelectorAll('#help-routes .help-route').forEach(b=>b.classList.toggle('on',b.dataset.route==='todas'));const goBtn=document.getElementById('btn-ayudar-go');if(goBtn)goBtn.textContent='Ver necesidades';}
+  ayudarView='lista';
+  syncAyudarUI();
+  goScreen('ayudar');
+}
+function ayudarBack(){
+  if(ayudarStep==='grupo'){ayudarStep='grupos';syncAyudarUI();window.scrollTo(0,0);return;}
+  if(ayudarStep==='grupos'||ayudarStep==='lista'){ayudarStep='ruta';syncAyudarUI();window.scrollTo(0,0);return;}
+  goScreen('home');
+}
+function continueAyudar(){
+  if(!helpRoute){flashFixed('Elige a quién quieres ayudar.',true);return;}
+  if(helpRoute==='acopio'){goScreen('acopio');return;}
+  if(helpRoute==='grupo'){ayudarStep='grupos';syncAyudarUI();loadGruposAyudar();window.scrollTo(0,0);return;}
+  ayudarStep='lista';
+  ayudarView='lista';
+  syncAyudarUI();
+  setAyudarView('lista');
+  window.scrollTo(0,0);
+}
+function aportarBack(){
+  ayudarStep=returnAyudarStep||'lista';
+  syncAyudarUI();
+  goScreen('ayudar');
+  if(ayudarStep==='grupo'&&selectedGrupo)renderGrupoDetalle(selectedGrupo);
+}
+function ayudarBackFromAporteGrupo(){
+  ayudarStep='grupo';
+  syncAyudarUI();
+  goScreen('ayudar');
+}
+function setChip(btn){document.querySelectorAll('#help-chips .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');helpTipo=btn.dataset.t||'';
   ph(_ev().HELP_FILTER_CHANGED,{tipo:helpTipo||'todo'});
-  if(ayudarView==='lista')loadHelp();else populateMap();}
-function setAyudarView(v){ayudarView=v;
+  if(ayudarStep==='lista'){if(ayudarView==='lista')loadHelp();else populateMap();}}
+function setAyudarView(v){
+  if(ayudarStep!=='lista')return;
+  ayudarView=v;
   ph(_ev().HELP_VIEW_CHANGED,{view:v});
   document.getElementById('tgl-lista').classList.toggle('on',v==='lista');
   document.getElementById('tgl-mapa').classList.toggle('on',v==='mapa');
@@ -998,12 +1380,130 @@ function locateForHelp(){const btn=document.getElementById('geo-ayudar-btn');btn
 async function loadHelp(){const el=document.getElementById('lista-ayudar');el.innerHTML='<div class="spin-wrap"><div class="spinner"></div>Buscando solicitudes...</div>';
   const{data:needsRaw}=helpPos?await db.rpc('necesidades_cercanas',{p_lat:helpPos.lat,p_lng:helpPos.lng,p_radio_m:300000,p_tipo:null})
     :await db.from('necesidades').select('*').in('estado',['pendiente','en_proceso']).is('merged_into',null).order('urgencia');
-  let needs=needsRaw||[];
-  if(helpTipo)needs=needs.filter(n=>needTipos(n).some(t=>(t||'').toLowerCase().includes(helpTipo.toLowerCase())));
+  let needs=(needsRaw||[]).filter(n=>!isRescateNeed(n));
+  helpNeedsCache=needs.slice();
+  if(helpTipo){
+    const f=helpTipo;
+    needs=needs.filter(n=>{
+      const blob=[tipoText(n),(n.descripcion||''),(n.otro||''),(n.cantidad||'')].join(' ').toLowerCase();
+      if(f==='medicinas')return blob.includes('medic');
+      if(f==='comida')return blob.includes('comida')||blob.includes('alimento');
+      if(f==='transporte')return blob.includes('transporte')||blob.includes('vehículo')||blob.includes('vehiculo');
+      if(f==='voluntariado')return blob.includes('voluntari')||blob.includes('manos')||blob.includes('personal');
+      if(f==='dinero')return blob.includes('donación')||blob.includes('donacion')||blob.includes('usd')||blob.includes('$');
+      return true;
+    });
+  }
   needs.sort((a,b)=>{const ka=needSortKey(a),kb=needSortKey(b);if(ka!==kb)return ka-kb;
     return(a.distancia_m??999999999)-(b.distancia_m??999999999);});
-  ph(_ev().HELP_LIST_LOADED,{count:needs.length,has_gps:!!helpPos,filter:helpTipo||'todo',empty:needs.length===0});
+  aportesByNeed=await loadAportesSummary(needs.map(n=>n.id));
+  ph(_ev().HELP_LIST_LOADED,{count:needs.length,has_gps:!!helpPos,filter:helpTipo||'todo',route:helpRoute||'todas',empty:needs.length===0});
   el.innerHTML=needs.map(needCard).join('')||emptyHelpMsg();}
+
+function getNeedForAporte(id){
+  return helpNeedsCache.find(n=>n.id===id)||(mapData?.needs||[]).find(n=>n.id===id)||null;
+}
+function needToAporteTipo(n){
+  const tipo=(n?.tipo||'').toLowerCase();
+  const tipos=(needTipos(n)||[]).map(t=>(t||'').toLowerCase()).join(' ');
+  const blob=(tipo+' '+tipos+' '+(n?.descripcion||'')+' '+(n?.otro||'')).toLowerCase();
+  if(blob.includes('medic'))return 'medicinas';
+  if(blob.includes('agua'))return 'agua';
+  if(blob.includes('alimento')||blob.includes('comida'))return 'comida';
+  if(blob.includes('refug'))return 'refugio';
+  if(blob.includes('transport'))return 'transporte';
+  if(blob.includes('herramient')||blob.includes('insumo')||blob.includes('equipo'))return 'insumos';
+  return 'otro';
+}
+function openAportar(id){
+  const n=getNeedForAporte(id);
+  if(!n){flashFixed('No pude abrir esa necesidad. Recarga la lista.',true);return;}
+  selectedNeedA=n;
+  returnAyudarStep=ayudarStep==='grupo'?'grupo':'lista';
+  document.getElementById('aportar-summary-title').textContent=needTitle(n).replace(/&quot;/g,'"');
+  document.getElementById('aportar-summary-meta').textContent=`Piden: ${tipoText(n)} · ${shortAddr(n)}${n.zona?' · '+n.zona:''}`;
+  goScreen('aportar');
+}
+
+function debounceGruposRender(){clearTimeout(gruposFilterTimer);gruposFilterTimer=setTimeout(renderGruposAyudar,180);}
+async function loadGruposAyudar(){
+  const el=document.getElementById('lista-grupos');
+  if(!el)return;
+  el.innerHTML='<div class="spin-wrap"><div class="spinner"></div>Cargando grupos...</div>';
+  const{data,error}=await db.from('grupos_voluntarios').select('slug,nombre,descripcion,ruta_web').eq('activo',true).order('nombre');
+  if(error){el.innerHTML='<div class="empty">No se pudieron cargar los grupos.</div>';return;}
+  gruposCache=data||[];
+  renderGruposAyudar();
+}
+function renderGruposAyudar(){
+  const el=document.getElementById('lista-grupos');
+  if(!el)return;
+  const q=(document.getElementById('grupos-q')?.value||'').trim().toLowerCase();
+  let list=gruposCache.slice();
+  if(q)list=list.filter(g=>[g.nombre,g.descripcion,g.slug].filter(Boolean).join(' ').toLowerCase().includes(q));
+  el.innerHTML=list.map(g=>`<button type="button" class="centro-pick-item" onclick="openGrupoDetalle('${g.slug.replace(/'/g,"\\'")}')"><span class="cp-name">${escHtml(g.nombre)}</span><span class="cp-meta">${g.descripcion?escHtml(g.descripcion):'Grupo de voluntariado'}${g.ruta_web?' · /'+escHtml(g.ruta_web):''}</span></button>`).join('')
+    ||'<div class="empty">No hay grupos que coincidan.</div>';
+}
+async function openGrupoDetalle(slug){
+  const g=gruposCache.find(x=>x.slug===slug);
+  if(!g){flashFixed('Grupo no encontrado.',true);return;}
+  selectedGrupo=g;
+  ayudarStep='grupo';
+  syncAyudarUI();
+  renderGrupoDetalle(g);
+  window.scrollTo(0,0);
+}
+async function renderGrupoDetalle(g){
+  document.getElementById('grupo-summary-nombre').textContent=g.nombre||g.slug;
+  document.getElementById('grupo-summary-desc').textContent=g.descripcion||'Grupo de voluntariado';
+  const el=document.getElementById('lista-grupo-needs');
+  el.innerHTML='<div class="spin-wrap"><div class="spinner"></div>Cargando necesidades...</div>';
+  const{data}=await db.from('necesidades').select('*').eq('grupo_slug',g.slug).in('estado',['pendiente','en_proceso']).is('merged_into',null).order('created_at',{ascending:false});
+  const needs=(data||[]).filter(n=>!isRescateNeed(n));
+  helpNeedsCache=needs.slice();
+  if(!needs.length){el.innerHTML='<div class="empty" style="padding:16px">Este grupo no tiene necesidades abiertas ahora. Puedes hacer una donación general.</div>';return;}
+  aportesByNeed=await loadAportesSummary(needs.map(n=>n.id));
+  el.innerHTML=needs.map(needCard).join('');
+}
+function pickAporteGrupoTipo(btn){
+  aporteGrupoTipo=btn.dataset.t||'otro';
+  document.querySelectorAll('#aporte-grupo-chips .chip').forEach(b=>b.classList.toggle('on',b===btn));
+}
+function openAporteGrupoGeneral(){
+  if(!selectedGrupo){flashFixed('Elige un grupo primero.',true);return;}
+  document.getElementById('aportar-grupo-nombre').textContent=selectedGrupo.nombre||selectedGrupo.slug;
+  document.getElementById('aportar-grupo-meta').textContent='Donación general (sin necesidad específica)';
+  goScreen('aportar-grupo');
+}
+function resetAporteGrupo(){
+  aporteGrupoTipo='comida';
+  document.querySelectorAll('#aporte-grupo-chips .chip').forEach(b=>b.classList.toggle('on',b.dataset.t==='comida'));
+  ['pg-qty','pg-desc','pg-nombre','pg-contacto'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
+}
+async function submitAporteGrupo(){
+  if(!selectedGrupo){showToast('g','Elige un grupo.',true);return;}
+  const qty=document.getElementById('pg-qty').value.trim();
+  const nombre=document.getElementById('pg-nombre').value.trim();
+  const contacto=document.getElementById('pg-contacto').value.trim();
+  if(!qty||!nombre||!contacto){showToast('g','Falta qué ofreces, nombre o contacto.',true);return;}
+  const btn=document.getElementById('btn-pg');btn.disabled=true;btn.textContent='Registrando...';
+  const{data,error}=await db.rpc('registrar_aporte_grupo_publico',{
+    p_grupo_slug:selectedGrupo.slug,
+    p_tipo_aporte:aporteGrupoTipo,
+    p_cantidad:aporteCantidadNum(qty),
+    p_unidad:null,
+    p_descripcion:document.getElementById('pg-desc').value.trim()||qty,
+    p_donante_nombre:nombre,
+    p_donante_contacto:contacto
+  });
+  btn.disabled=false;btn.textContent='Registrar aporte';
+  if(error){showToast('g','No se pudo registrar el aporte.',true);return;}
+  showToast('g','✅ Aporte registrado. El grupo te contactará para confirmar.');
+  resetAporteGrupo();
+  ayudarStep='grupo';
+  syncAyudarUI();
+  goScreen('ayudar');
+}
 
 let acopioCache=[],acopioPos=null,acopioNeedFilter='',acopioView='lista',acopioMap,acopioMarkersLayer,acopioFilterTimer,centroPickerTimer,selCentroO='';
 const TIPO_O_KEY={'Agua embotellada':'agua','Alimentos no perecederos':'comida','Medicamentos':'medicin','Transporte (vehículo)':'transport','Personal médico':'medic','Equipos de rescate':'rescate','Herramientas / Equipos':'herramient','Refugio / espacio físico':'refug','Donación económica':'donac'};
@@ -1161,6 +1661,47 @@ function pickNearestCentro(){
   },{enableHighAccuracy:true,timeout:10000});
 }
 function dist0(la1,lo1,la2,lo2){const R=6371,dL=(la2-la1)*Math.PI/180,dG=(lo2-lo1)*Math.PI/180;const a=Math.sin(dL/2)**2+Math.cos(la1*Math.PI/180)*Math.cos(la2*Math.PI/180)*Math.sin(dG/2)**2;return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));}
+function aporteCantidadNum(raw){const m=(raw||'').replace(',','.').match(/\d+(\.\d+)?/);return m?parseFloat(m[0]):null;}
+function resetAporte(){
+  aporteCoverage='todo';selectedNeedA=null;donorType='persona';
+  document.querySelectorAll('#coverage-seg .requester-btn').forEach(b=>b.classList.toggle('on',b.dataset.coverage==='todo'));
+  document.querySelectorAll('#donor-seg .requester-btn').forEach(b=>b.classList.toggle('on',b.dataset.donor==='persona'));
+  ['p-qty','p-unit','p-desc','p-grupo-nombre','p-nombre','p-contacto'].forEach(i=>{const e=document.getElementById(i);if(e)e.value='';});
+  const g=document.getElementById('p-grupo-nombre');if(g)delete g.dataset.slug;
+  clearAporteGrupoSuggest();syncDonorUI();setAporteCoverage(document.querySelector('#coverage-seg .requester-btn[data-coverage="todo"]'));
+}
+async function submitAporte(){
+  if(!selectedNeedA){showToast('p','Primero elige una necesidad.',true);return;}
+  const qty=document.getElementById('p-qty').value.trim();
+  const desc=document.getElementById('p-desc').value.trim();
+  const contacto=document.getElementById('p-contacto').value.trim();
+  const nombre=document.getElementById('p-nombre').value.trim();
+  const grupoNombre=document.getElementById('p-grupo-nombre').value.trim();
+  if(!qty||!contacto||!nombre){showToast('p','Falta cantidad, nombre o contacto.',true);return;}
+  if(aporteCoverage==='parcial'&&!desc){showToast('p','Describe qué parte vas a cubrir.',true);return;}
+  if(donorType==='grupo'&&!grupoNombre){showToast('p','Falta el nombre del grupo.',true);return;}
+  const btn=document.getElementById('btn-p');btn.disabled=true;btn.textContent='Registrando...';
+  const tipoAporte=needToAporteTipo(selectedNeedA);
+  const fullDesc=[aporteCoverage==='todo'?'Cubre toda la necesidad':'Cubre parcialmente la necesidad', desc||qty].filter(Boolean).join(' · ');
+  const payload={
+    p_necesidad_id:selectedNeedA.id,
+    p_tipo_aporte:tipoAporte,
+    p_cantidad:aporteCantidadNum(qty),
+    p_unidad:document.getElementById('p-unit').value.trim()||null,
+    p_descripcion:fullDesc,
+    p_dono_como:donorType,
+    p_grupo_nombre:donorType==='grupo'?grupoNombre:null,
+    p_donante_nombre:nombre,
+    p_donante_contacto:contacto
+  };
+  const {data,error}=await db.rpc('registrar_aporte_publico',payload);
+  btn.disabled=false;btn.textContent='Registrar aporte';
+  if(error){showToast('p','No se pudo registrar el aporte.',true);return;}
+  ph(_ev().RESOURCE_PUBLISHED,{tipo:tipoAporte,need_id:selectedNeedA.id,dono_como:donorType,coverage:aporteCoverage,has_group:!!payload.p_grupo_nombre,aporte_id:data||null});
+  showToast('p','✅ Aporte registrado. Gracias por sumarte.');
+  resetAporte();ayudarStep=returnAyudarStep||'lista';syncAyudarUI();goScreen('ayudar');
+  if(ayudarStep==='grupo'&&selectedGrupo)renderGrupoDetalle(selectedGrupo);
+}
 
 async function loadHomeStats(){
   const[{count:nc},{count:cc},{count:rc}]=await Promise.all([
@@ -1175,6 +1716,9 @@ async function loadHomeStats(){
 function startSOS(){ph(_ev().SOS_FAB_CLICKED);goScreen('reportar');if(!locationConfirmed)captureGeo();}
 function gatherNeed(){const tipos=[...selTipos],labels=tipos.map(t=>SHORT[t]||t),otro=document.getElementById('r-otro').value.trim();
   let desc=document.getElementById('r-desc').value.trim();
+  const isSite=requesterType==='sitio',isGroup=requesterType==='grupo';
+  const siteName=document.getElementById('r-sitio-nombre').value.trim();
+  const groupName=document.getElementById('r-grupo-nombre').value.trim();
   if(otro&&!desc)desc=`Otro: ${otro}`;
   else if(otro)desc=`Otro: ${otro} — ${desc}`;
   if(!desc)desc=labels.length?`Necesita ${labels.join(', ')}`:(otro?`Necesita: ${otro}`:'Solicitud de ayuda');
@@ -1182,21 +1726,31 @@ function gatherNeed(){const tipos=[...selTipos],labels=tipos.map(t=>SHORT[t]||t)
   return {zona:document.getElementById('r-zona').value||'Otra',direccion_exacta:dirTxt||'Ubicación GPS',
   lat:parseFloat(document.getElementById('r-lat').value)||null,lng:parseFloat(document.getElementById('r-lng').value)||null,
   tipo:tipos[0]||'Otro',tipos:tipos.length?tipos:null,subtipo:selSubs[0]||null,subtipos:selSubs.length?selSubs:null,otro:otro||null,
-  urgencia:selUrg,descripcion:desc,cantidad:null,personas_afectadas:parseInt(document.getElementById('r-pers').value)||null,
-  nombre_contacto:document.getElementById('r-nombre').value.trim()||'Vecino/a',telefono:document.getElementById('r-tel').value.trim()||null,
+  urgencia:selUrg,descripcion:desc,cantidad:null,
+  personas_afectadas:isSite?(parseInt(document.getElementById('r-sitio-personas').value,10)||null):(parseInt(document.getElementById('r-pers').value,10)||null),
+  nombre_contacto:isSite?siteName:(document.getElementById('r-nombre').value.trim()||(isGroup?'Coordinación':'Vecino/a')),telefono:document.getElementById('r-tel').value.trim()||null,
   whatsapp:document.getElementById('r-wa').value.trim()||null,edificio_id:document.getElementById('r-edif').value||null,
   source_url:(()=>{const u=document.getElementById('r-post-url').value.trim();return u||null;})(),
   fuente:fuenteFromPostUrl(document.getElementById('r-post-url').value.trim()),
-  validada:false,estado:'pendiente'};}
+  solicitante_tipo:requesterType,sitio_tipo:isSite?selSiteType:null,
+  grupo_nombre:isGroup?groupName:null,grupo_slug:isGroup?document.getElementById('r-grupo-nombre').dataset.slug||null:null,
+  ninos_total:isSite?(parseInt(document.getElementById('r-sitio-ninos').value,10)||null):null,
+  ninos_custodia:isSite?(parseInt(document.getElementById('r-sitio-ninos-custodia').value,10)||null):null,
+  casos_especiales:isSite?(document.getElementById('r-sitio-casos').value.trim()||null):null,
+  sitio_id:null,validada:false,estado:'pendiente'};}
 function tiposOverlap(a,b){return a.some(t=>b.some(x=>x===t||(t&&x&&t.toLowerCase()===x.toLowerCase())))}
 async function findDupes(n){const{data}=await db.rpc('necesidades_cercanas',{p_lat:n.lat,p_lng:n.lng,p_radio_m:200,p_tipo:null});
   if(!data?.length)return[];const mine=needTipos(n);return data.filter(d=>tiposOverlap(mine,needTipos(d)));}
 async function checkAndSubmit(){
   const otro=document.getElementById('r-otro').value.trim();
   if(!locationConfirmed||!hasReportCoords()){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'no_location'});showToast('r','Confirma tu ubicación en el paso 1 (GPS, dirección o edificio).',true);return;}
+  if(requesterType==='sitio'&&!document.getElementById('r-sitio-nombre').value.trim()){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'no_site_name'});showToast('r','Falta el nombre del sitio.',true);return;}
+  if(requesterType==='grupo'&&!document.getElementById('r-grupo-nombre').value.trim()){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'no_group_name'});showToast('r','Falta el nombre del grupo de voluntariado.',true);return;}
   if(!selTipos.length&&!otro){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'no_tipo'});showToast('r','Toca qué necesitas o escribe en Otro (paso 2).',true);return;}
   const sinTel=document.getElementById('r-sin-tel').checked,tel=document.getElementById('r-tel').value.trim(),desc=document.getElementById('r-desc').value.trim();
   const postUrl=document.getElementById('r-post-url').value.trim();
+  if(!document.getElementById('r-nombre').value.trim()&&requesterType==='persona'){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'no_contact_name'});showToast('r','Falta el nombre del contacto.',true);return;}
+  if((requesterType==='sitio'||requesterType==='grupo')&&!tel){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'no_org_tel'});showToast('r','Falta teléfono de contacto.',true);return;}
   if(!sinTel&&!tel){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'no_tel'});showToast('r','Falta teléfono de contacto.',true);return;}
   if(postUrl&&!/^https?:\/\/.+/i.test(postUrl)){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'bad_url'});showToast('r','El enlace del post debe empezar con http:// o https://',true);return;}
   if(sinTel&&!tel&&!postUrl&&!desc){ph(_ev().NEED_SUBMIT_VALIDATION_FAILED,{reason:'sin_tel_sin_detalle'});showToast('r','Sin teléfono: pega el enlace del post o escribe un detalle (cuántas personas, qué pasa).',true);return;}
@@ -1209,15 +1763,152 @@ function showDupe(list,n){pendingNeed=n;ph(_ev().NEED_DUPLICATE_SHOWN,{dupe_coun
 function closeDupe(){document.getElementById('dupe-modal').classList.remove('on');}
 async function confirmExisting(id){await db.rpc('confirmar_necesidad',{p_id:id});ph(_ev().NEED_DUPLICATE_CONFIRMED,{need_id:id});closeDupe();showToast('r','✅ Confirmaste un reporte existente. ¡Gracias!');resetNeed();}
 async function forceNew(){ph(_ev().NEED_DUPLICATE_FORCED_NEW,{dupe_count:document.querySelectorAll('#dupe-list .dupe').length});closeDupe();if(pendingNeed)await doInsertNeed(pendingNeed);}
+async function maybeAttachPublicSite(n){
+  if(n.solicitante_tipo!=='sitio'||!n.lat||!n.lng||!n.nombre_contacto)return n;
+  const {data,error}=await db.rpc('crear_o_enlazar_sitio_publico',{
+    p_nombre:n.nombre_contacto,
+    p_zona:n.zona,
+    p_direccion:n.direccion_exacta,
+    p_lat:n.lat,
+    p_lng:n.lng,
+    p_personas_afectadas:n.personas_afectadas,
+    p_ninos_total:n.ninos_total,
+    p_ninos_custodia:n.ninos_custodia,
+    p_casos_especiales:n.casos_especiales,
+    p_contacto_telefono:n.telefono
+  });
+  if(!error&&data)n.sitio_id=data;
+  return n;
+}
+async function maybeAttachPublicGroup(n){
+  if(n.solicitante_tipo!=='grupo')return n;
+  if(n.grupo_slug)return n;
+  if(!n.grupo_nombre)return n;
+  const {data,error}=await db.rpc('encontrar_o_crear_grupo_publico',{p_nombre:n.grupo_nombre});
+  if(!error&&data)n.grupo_slug=data;
+  return n;
+}
+
+function pickGrupoFromSuggest(slug,nombre){
+  const input=document.getElementById('r-grupo-nombre');
+  if(input){
+    input.value=nombre;
+    input.dataset.slug=slug||'';
+  }
+  clearGrupoSuggest();
+}
+
+async function fetchGrupoSuggestions(term){
+  if(!term||term.trim().length<2){clearGrupoSuggest();return;}
+  if(!window.db)return;
+  try{
+    const {data,error}=await db
+      .from('grupos_voluntarios')
+      .select('slug,nombre,ruta_web,activo')
+      .eq('activo',true)
+      .ilike('nombre','%'+term.trim()+'%')
+      .limit(7);
+    if(error)return;
+    const box=document.getElementById('r-grupo-suggest');
+    if(!box)return;
+    if(!data||!data.length){clearGrupoSuggest();return;}
+    box.innerHTML='';
+    data.forEach(g=>{
+      const btn=document.createElement('button');
+      btn.type='button';
+      btn.className='grupo-suggest-item';
+      btn.onclick=()=>pickGrupoFromSuggest(g.slug,g.nombre||'');
+      const span=document.createElement('span');
+      span.textContent=g.nombre||'';
+      btn.appendChild(span);
+      if(g.ruta_web){
+        const small=document.createElement('small');
+        small.textContent='/' + g.ruta_web;
+        btn.appendChild(small);
+      }
+      box.appendChild(btn);
+    });
+    box.style.display='block';
+    grupoSuggestOpen=true;
+  }catch(e){
+    // silencioso
+  }
+}
+
+function onGrupoInput(){
+  const input=document.getElementById('r-grupo-nombre');
+  if(!input)return;
+  delete input.dataset.slug;
+  const term=input.value;
+  if(grupoSuggestTimer)clearTimeout(grupoSuggestTimer);
+  grupoSuggestTimer=setTimeout(()=>fetchGrupoSuggestions(term),180);
+}
+
+async function queryGrupoSuggestions(term){
+  if(!term||term.trim().length<2||!window.db)return [];
+  const {data,error}=await db
+    .from('grupos_voluntarios')
+    .select('slug,nombre,ruta_web,activo')
+    .eq('activo',true)
+    .ilike('nombre','%'+term.trim()+'%')
+    .limit(7);
+  if(error)return [];
+  return data||[];
+}
+function clearAporteGrupoSuggest(){const box=document.getElementById('p-grupo-suggest');if(box){box.style.display='none';box.innerHTML='';}}
+function pickAporteGrupoFromSuggest(slug,nombre){
+  const input=document.getElementById('p-grupo-nombre');
+  if(input){input.value=nombre;input.dataset.slug=slug||'';}
+  clearAporteGrupoSuggest();
+}
+async function fetchAporteGrupoSuggestions(term){
+  if(!term||term.trim().length<2){clearAporteGrupoSuggest();return;}
+  const data=await queryGrupoSuggestions(term);
+  const box=document.getElementById('p-grupo-suggest');
+  if(!box)return;
+  if(!data.length){clearAporteGrupoSuggest();return;}
+  box.innerHTML='';
+  data.forEach(g=>{
+    const btn=document.createElement('button');
+    btn.type='button';
+    btn.className='grupo-suggest-item';
+    btn.onclick=()=>pickAporteGrupoFromSuggest(g.slug,g.nombre||'');
+    const span=document.createElement('span');
+    span.textContent=g.nombre||'';
+    btn.appendChild(span);
+    if(g.ruta_web){
+      const small=document.createElement('small');
+      small.textContent='/' + g.ruta_web;
+      btn.appendChild(small);
+    }
+    box.appendChild(btn);
+  });
+  box.style.display='block';
+}
+function onAporteGrupoInput(){
+  const input=document.getElementById('p-grupo-nombre');
+  if(!input)return;
+  delete input.dataset.slug;
+  const term=input.value;
+  if(aporteGrupoSuggestTimer)clearTimeout(aporteGrupoSuggestTimer);
+  aporteGrupoSuggestTimer=setTimeout(()=>fetchAporteGrupoSuggestions(term),180);
+}
 async function doInsertNeed(n){const btn=document.getElementById('btn-r');btn.disabled=true;btn.textContent='Publicando...';
+  await maybeAttachPublicSite(n);
+  await maybeAttachPublicGroup(n);
   const{error}=await db.from('necesidades').insert(n);btn.disabled=false;btn.textContent='Publicar SOS';
   if(error){ph(_ev().NEED_PUBLISH_FAILED,{error_code:error.code||'unknown'});showToast('r','Error al enviar. Revisa tu conexión.',true);return;}
-  ph(_ev().NEED_PUBLISHED,{tipos:needTipos(n),urgencia:n.urgencia,loc_method:locMethod,sin_tel:document.getElementById('r-sin-tel').checked,has_post_url:!!n.source_url,has_edificio:!!n.edificio_id,fuente:n.fuente});
+  ph(_ev().NEED_PUBLISHED,{tipos:needTipos(n),urgencia:n.urgencia,loc_method:locMethod,sin_tel:document.getElementById('r-sin-tel').checked,has_post_url:!!n.source_url,has_edificio:!!n.edificio_id,fuente:n.fuente,requester_type:n.solicitante_tipo,has_site:!!n.sitio_id});
   showToast('r','✅ SOS publicado. Quien ayude cerca lo verá enseguida.');resetNeed();}
-function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-dir-input','r-edif','r-edif-nombre','r-edif-search','r-tel','r-wa','r-post-url','r-desc','r-pers','r-nombre','r-otro'].forEach(i=>document.getElementById(i).value='');
+function clearGrupoSuggest(){const box=document.getElementById('r-grupo-suggest');if(box){box.style.display='none';box.innerHTML='';}grupoSuggestOpen=false;}
+function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-dir-input','r-edif','r-edif-nombre','r-edif-search','r-tel','r-wa','r-post-url','r-desc','r-pers','r-nombre','r-otro','r-sitio-nombre','r-sitio-personas','r-sitio-ninos','r-sitio-ninos-custodia','r-sitio-casos','r-grupo-nombre','r-grupo-ref'].forEach(i=>document.getElementById(i).value='');
   selTipos=[];selSubs=[];selUrg='urgente';locFromGps=false;locationConfirmed=false;locMethod=null;gpsAccuracy=null;edifListCache=[];
   document.querySelectorAll('#tipo-grid .gbtn').forEach(b=>b.classList.remove('on'));
   document.querySelectorAll('.ubtn').forEach(b=>b.classList.remove('on'));document.querySelector('.ubtn.urg').classList.add('on');
+  requesterType='persona';selSiteType='Hospital';
+  document.querySelectorAll('#requester-seg .requester-btn').forEach(b=>b.classList.toggle('on',b.dataset.requester==='persona'));
+  document.querySelectorAll('#site-type-chips .chip').forEach(b=>b.classList.toggle('on',b.dataset.siteType==='Hospital'));
+  const g=document.getElementById('r-grupo-nombre');if(g)delete g.dataset.slug;clearGrupoSuggest();
   document.getElementById('edif-list').innerHTML='';
   document.getElementById('sub-box').classList.remove('show');document.getElementById('sub-chips').innerHTML='';
   document.getElementById('geo-btn-r').textContent='📍 Usar mi ubicación';document.getElementById('geo-btn-r').disabled=false;
@@ -1230,6 +1921,7 @@ function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-dir-input','r-edif','r
   document.getElementById('edif-pick-wrap').classList.remove('open');
   document.getElementById('loc-confirmed').style.display='none';document.getElementById('loc-selector').style.display='block';
   document.getElementById('r-sin-tel').checked=false;onSinTelToggle();
+  syncRequesterUI();
   setLocTab('gps');}
 
 async function submitRecurso(){if(!selTipoO){showToast('o','Toca qué ofreces.',true);return;}
@@ -1377,16 +2069,18 @@ function goScreen(name,fromHistory){document.querySelectorAll('.view').forEach(v
   if(!fromHistory&&window.ForVzlaAnalytics)ForVzlaAnalytics.capturePageview(name);
   document.getElementById('fab').classList.toggle('show',name==='ayudar'||name==='acopio'||name==='asesoria');
   if(name==='home')loadHomeStats();
-  if(name==='ayudar'){if(ayudarView==='lista')loadHelp();else{initMainMap();populateMap();}}
+  if(name==='ayudar'){syncAyudarUI();if(ayudarStep==='lista'){if(ayudarView==='lista')loadHelp();else{initMainMap();populateMap();}}}
+  if(name==='aportar-grupo'){pickAporteGrupoTipo(document.querySelector('#aporte-grupo-chips .chip.on')||document.querySelector('#aporte-grupo-chips .chip'));}
   if(name==='acopio')loadAcopio();
   if(name==='ofrecer'){ensureAcopioCache().then(()=>renderCentroPicker());}
+  if(name==='aportar'){syncDonorUI();}
   if(name==='asesoria')loadAsesoria();
   window.scrollTo(0,0);
   setTimeout(()=>{if(mainMap)mainMap.invalidateSize();if(reportEdifMap)reportEdifMap.invalidateSize();if(dirPickMap)dirPickMap.invalidateSize();if(acopioMap)acopioMap.invalidateSize();},150);}
 
 function onLiveData(){
   if(document.getElementById('view-home').classList.contains('on'))loadHomeStats();
-  if(document.getElementById('view-ayudar').classList.contains('on')){
+  if(document.getElementById('view-ayudar').classList.contains('on')&&ayudarStep==='lista'){
     if(ayudarView==='lista')loadHelp();else populateMap();}
   if(document.getElementById('view-asesoria').classList.contains('on'))loadAsesoria();
   if(document.getElementById('view-acopio').classList.contains('on'))loadAcopio(acopioPos?.lat,acopioPos?.lng);}
@@ -1398,6 +2092,10 @@ window.addEventListener('resize',()=>{if(mainMap)mainMap.invalidateSize();if(rep
 
 buildGrid('tipo-grid',TIPOS,'pickTipo');
 buildGrid('tipo-grid-o',TIPOS_O,'pickTipoO','gbtn-g');
+syncRequesterUI();
+syncDonorUI();
+syncAyudarUI();
+setAporteCoverage(document.querySelector('#coverage-seg .requester-btn[data-coverage="todo"]'));
 document.getElementById('asesor-cat-grid').innerHTML=AS_CATS_FORM.map(x=>`<button type="button" class="gbtn gbtn-as" data-t="${x.t}" onclick="pickAsesorCat(this)"><span class="e">${x.e}</span>${x.t}</button>`).join('');
 document.getElementById('asesor-modos-chips').innerHTML=AS_MODOS.map(m=>`<button type="button" class="subchip subchip-as" data-m="${m}" onclick="pickModoAsesor(this)">${m}</button>`).join('');
 window.__forvzlaGoScreenFromHistory=function(name){goScreen(name,true);};
