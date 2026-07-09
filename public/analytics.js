@@ -199,6 +199,9 @@
           })(),
         });
         const screen = screenFromPath(global.location.pathname);
+        if (screen !== 'home' && typeof global.__forvzlaGoScreenFromHistory === 'function') {
+          global.__forvzlaGoScreenFromHistory(screen);
+        }
         capturePageview(screen);
         track(EVENTS.SCREEN_VIEWED, { screen });
       },

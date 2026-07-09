@@ -780,6 +780,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 const SB_URL='https://ebsgvamzaegjgpjkpick.supabase.co';
 const SB_KEY='sb_publishable_vg8SSOkKpgvwOSyi2k-aVg_lslrQsBA';
 const db=supabase.createClient(SB_URL,SB_KEY);
+window.db=db;
+const NOMINATIM_HDR={'Accept-Language':'es','User-Agent':'AyudaVenezuela/1.0 ('+(location.origin||'forvzla.vercel.app')+')'};
 function ph(ev,p){if(window.ForVzlaAnalytics)ForVzlaAnalytics.track(ev,p);}
 function _ev(){return ForVzlaAnalytics.EVENTS;}
 const GUAU_REFUGIOS_BASE='https://guau.app/refugios-ve';
@@ -1045,8 +1047,10 @@ let locFromGps=false;
 let dirPickMap,dirPickMarker,dirPickLat=null,dirPickLng=null;
 function hasReportCoords(){return!!(document.getElementById('r-lat').value&&document.getElementById('r-lng').value);}
 async function nominatimSearch(q){
-  const url=`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1&accept-language=es&countrycodes=ve`;
-  const r=await fetch(url,{headers:{'Accept-Language':'es'}});return r.json();}
+  const url=`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=5&accept-language=es&countrycodes=ve`;
+  const r=await fetch(url,{headers:NOMINATIM_HDR});
+  if(!r.ok)return[];
+  return r.json();}
 async function showDirPickMap(){
   const wrap=document.getElementById('loc-dir-map-wrap');
   wrap.style.display='block';
@@ -1113,7 +1117,7 @@ function captureGeo(){const btn=document.getElementById('geo-btn-r');btn.textCon
     gpsAccuracy=Math.round(ac);document.getElementById('r-lat').value=la;document.getElementById('r-lng').value=lo;
     document.getElementById('r-edif').value='';locFromGps=true;
     btn.textContent='📍 Usar mi ubicación';btn.disabled=false;
-    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${la}&lon=${lo}&zoom=14&accept-language=es`);const j=await r.json(),a=j.address||{};
+    try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${la}&lon=${lo}&zoom=14&accept-language=es`,{headers:NOMINATIM_HDR});const j=r.ok?await r.json():{},a=j.address||{};
       const zona=mapEstado(a.state||a.region||'');const dir=[a.road,a.neighbourhood||a.suburb,a.city||a.town||a.village].filter(Boolean).join(', ');
       document.getElementById('r-zona').value=zona;document.getElementById('r-dir').value=dir||'Ubicación GPS';
     }catch{document.getElementById('r-zona').value='';document.getElementById('r-dir').value='Ubicación GPS';}
@@ -1893,11 +1897,17 @@ function onAporteGrupoInput(){
   if(aporteGrupoSuggestTimer)clearTimeout(aporteGrupoSuggestTimer);
   aporteGrupoSuggestTimer=setTimeout(()=>fetchAporteGrupoSuggestions(term),180);
 }
+function needPublishErrMsg(error){
+  const m=(error&&error.message)||'';
+  if(/column/i.test(m))return'Error del servidor al guardar. Si persiste, avisa al equipo.';
+  if(/violates check constraint/i.test(m))return'Hay un dato inválido. Revisa el formulario.';
+  if(/null value/i.test(m))return'Falta un dato obligatorio. Revisa el formulario.';
+  return'No se pudo publicar. Revisa tu conexión e intenta otra vez.';}
 async function doInsertNeed(n){const btn=document.getElementById('btn-r');btn.disabled=true;btn.textContent='Publicando...';
   await maybeAttachPublicSite(n);
   await maybeAttachPublicGroup(n);
   const{error}=await db.from('necesidades').insert(n);btn.disabled=false;btn.textContent='Publicar SOS';
-  if(error){ph(_ev().NEED_PUBLISH_FAILED,{error_code:error.code||'unknown'});showToast('r','Error al enviar. Revisa tu conexión.',true);return;}
+  if(error){ph(_ev().NEED_PUBLISH_FAILED,{error_code:error.code||'unknown'});showToast('r',needPublishErrMsg(error),true);return;}
   ph(_ev().NEED_PUBLISHED,{tipos:needTipos(n),urgencia:n.urgencia,loc_method:locMethod,sin_tel:document.getElementById('r-sin-tel').checked,has_post_url:!!n.source_url,has_edificio:!!n.edificio_id,fuente:n.fuente,requester_type:n.solicitante_tipo,has_site:!!n.sitio_id});
   showToast('r','✅ SOS publicado. Quien ayude cerca lo verá enseguida.');resetNeed();}
 function clearGrupoSuggest(){const box=document.getElementById('r-grupo-suggest');if(box){box.style.display='none';box.innerHTML='';}grupoSuggestOpen=false;}
@@ -2099,8 +2109,12 @@ setAporteCoverage(document.querySelector('#coverage-seg .requester-btn[data-cove
 document.getElementById('asesor-cat-grid').innerHTML=AS_CATS_FORM.map(x=>`<button type="button" class="gbtn gbtn-as" data-t="${x.t}" onclick="pickAsesorCat(this)"><span class="e">${x.e}</span>${x.t}</button>`).join('');
 document.getElementById('asesor-modos-chips').innerHTML=AS_MODOS.map(m=>`<button type="button" class="subchip subchip-as" data-m="${m}" onclick="pickModoAsesor(this)">${m}</button>`).join('');
 window.__forvzlaGoScreenFromHistory=function(name){goScreen(name,true);};
+(function restoreBootScreen(){
+  const screen=ForVzlaAnalytics.screenFromPath(location.pathname);
+  if(screen!=='home')goScreen(screen,true);
+})();
 if(window.POSTHOG_KEY&&window.ForVzlaAnalytics)ForVzlaAnalytics.initPostHog(POSTHOG_KEY,{apiHost:window.POSTHOG_HOST});
-else ph(_ev().SCREEN_VIEWED,{screen:'home'});
+else ph(_ev().SCREEN_VIEWED,{screen:ForVzlaAnalytics.screenFromPath(location.pathname)});
 initGuauLinks();
 loadHomeStats();
 </script>
