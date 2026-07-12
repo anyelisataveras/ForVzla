@@ -2,6 +2,7 @@
 (function () {
   let jornadas = [], sitios = [], jTab = 'proximas', jBrigFilter = '', jDetailId = null, jEditId = null, jEditTareas = [], jEditMateriales = [], inventarioCat = [], jCloseId = null, jCloseRows = [], jStats = {}, jMediaCounts = {};
   let asignarJornadaId = null, asignarVoluntarias = [], asignarInscripciones = [];
+  let jornadasUiInited = false, jornadaSaving = false;
 
   const COBERTURAS = ['ninguna', 'baja', 'ok', 'sobra'];
   const MEDIA_BUCKET = 'jornada-media';
@@ -828,9 +829,15 @@
   }
 
   async function saveJornada(doCopyWa) {
+    if (jornadaSaving) return;
     const titulo = document.getElementById('jf-titulo').value.trim();
     const fecha = document.getElementById('jf-fecha').value;
     if (!titulo || !fecha) { toast('Título y fecha obligatorios'); return; }
+    jornadaSaving = true;
+    const saveBtn = document.getElementById('jf-save');
+    const saveWaBtn = document.getElementById('jf-save-wa');
+    if (saveBtn) saveBtn.disabled = true;
+    if (saveWaBtn) saveWaBtn.disabled = true;
     const wasNew = !jEditId;
     const payload = {
       grupo: GRUPO, titulo, fecha,
@@ -848,25 +855,31 @@
       brigadas: getJfBrigadas(),
       creada_por: session?.user?.email,
     };
-    let saved;
-    if (jEditId) {
-      const { data, error } = await db.from('jornadas').update(payload).eq('id', jEditId).select('*,sitios(nombre,zona)').single();
-      if (error) { toast(error.message); return; }
-      saved = { ...data, sitio_nombre: data.sitios?.nombre };
-    } else {
-      const { data, error } = await db.from('jornadas').insert(payload).select('*,sitios(nombre,zona)').single();
-      if (error) { toast(error.message); return; }
-      saved = { ...data, sitio_nombre: data.sitios?.nombre };
-      jEditId = saved.id;
+    try {
+      let saved;
+      if (jEditId) {
+        const { data, error } = await db.from('jornadas').update(payload).eq('id', jEditId).select('*,sitios(nombre,zona)').single();
+        if (error) { toast(error.message); return; }
+        saved = { ...data, sitio_nombre: data.sitios?.nombre };
+      } else {
+        const { data, error } = await db.from('jornadas').insert(payload).select('*,sitios(nombre,zona)').single();
+        if (error) { toast(error.message); return; }
+        saved = { ...data, sitio_nombre: data.sitios?.nombre };
+        jEditId = saved.id;
+      }
+      if (wasNew && (jEditTareas.length || jEditMateriales.length)) {
+        const ok = await persistJfDrafts(saved.id);
+        if (!ok) return;
+      }
+      toast('Jornada guardada');
+      closeJornadaEditPanel();
+      await loadJornadas();
+      if (doCopyWa && saved.estado === 'abierta') copyWa(saved.id);
+    } finally {
+      jornadaSaving = false;
+      if (saveBtn) saveBtn.disabled = false;
+      if (saveWaBtn) saveWaBtn.disabled = false;
     }
-    if (wasNew && (jEditTareas.length || jEditMateriales.length)) {
-      const ok = await persistJfDrafts(saved.id);
-      if (!ok) return;
-    }
-    toast('Jornada guardada');
-    closeJornadaEditPanel();
-    await loadJornadas();
-    if (doCopyWa && saved.estado === 'abierta') copyWa(saved.id);
   }
 
   let jDetailTab = 'resumen';
@@ -1239,6 +1252,8 @@
   }
 
   function initJornadasUi() {
+    if (jornadasUiInited) return;
+    jornadasUiInited = true;
     initAsignarUi();
     initMediaUi();
     document.getElementById('j-filters')?.addEventListener('click', e => {
