@@ -182,6 +182,13 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .task-row .st{font-size:11px;font-weight:800}
 .task-row.warn .st{color:var(--red)}
 .task-row.ok .st{color:var(--grn)}
+.task-edit-row{display:grid;grid-template-columns:1fr 44px auto 32px;gap:6px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+.task-edit-row:last-of-type{border-bottom:none}
+.task-edit-row input[type="text"],.task-edit-row input[type="number"]{width:100%;border:1px solid var(--line2);border-radius:8px;padding:8px;font-size:14px;font-family:inherit}
+.task-edit-row input[type="number"]{text-align:center;padding:8px 4px}
+.task-edit-row .st{font-size:10px;font-weight:800;white-space:nowrap}
+.task-edit-row.warn .st{color:var(--red)}
+.task-edit-row.ok .st{color:var(--grn)}
 .j-share{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
 .j-share-lbl{font-size:10px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
 .j-link-wrap{position:relative;margin-bottom:10px}
@@ -210,7 +217,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .task-add-row{display:flex;gap:8px;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
 .task-add-row input{flex:1;border:1px solid var(--line2);border-radius:8px;padding:10px 12px;font-size:14px;font-family:inherit}
 .task-add-row .btn{margin:0;width:auto;padding:10px 14px;flex-shrink:0}
-@media(max-width:480px){.mat-row{grid-template-columns:1fr 48px 48px auto 32px}}
+@media(max-width:480px){.mat-row{grid-template-columns:1fr 48px 48px auto 32px}.task-edit-row{grid-template-columns:1fr 40px auto 32px}}
 .media-upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:2px dashed var(--line2);border-radius:12px;font-size:14px;font-weight:700;color:var(--ind);cursor:pointer;background:var(--g1);text-align:center}
 .media-upload-btn:active{opacity:.85}
 .media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
@@ -746,7 +753,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 <div class="toast" id="toast"></div>
 
-<script src="coord-jornadas.js?v=20260707p"></script>
+<script src="coord-jornadas.js?v=20260712a"></script>
 <script src="coord-brigadas.js?v=20260706a"></script>
 <script src="coord-finanzas.js?v=20260708a"></script>
 

@@ -775,19 +775,76 @@
   function renderJfTareas(jornadaId) {
     const box = document.getElementById('jf-tareas');
     if (!box) return;
-    const rows = jEditTareas.map(t => {
+    const rows = jEditTareas.map((t) => {
       const sin = !t.voluntario_id;
-      return `<div class="task-row ${sin ? 'warn' : 'ok'}"><div>${esc(t.titulo)}${t.brigada_slug ? ` · ${esc((brigCat.find(b => b.slug === t.brigada_slug)?.nombre || t.brigada_slug).replace(/^Brigada de\s*/i, ''))}` : ''}${t.cupos ? ` · ${t.cupos}` : ''}</div><span class="st">${sin ? 'sin dueño' : 'asignada'}</span></div>`;
-    }).join('') || '<p style="font-size:12px;color:var(--txt2)">Sin tareas aún.</p>';
+      const brigLabel = t.brigada_slug
+        ? (brigCat.find((b) => b.slug === t.brigada_slug)?.icono || '•')
+        : '';
+      return `<div class="task-edit-row ${sin ? 'warn' : 'ok'}" data-task-id="${t.id}">
+        <input type="text" value="${esc(t.titulo)}" data-task-titulo placeholder="Tarea" title="${brigLabel ? 'Brigada: ' + esc(brigLabel) : 'Tarea'}">
+        <input type="number" min="1" max="20" value="${t.cupos || 1}" data-task-cupos title="Cupos" inputmode="numeric">
+        <span class="st">${sin ? 'sin dueño' : 'asignada'}</span>
+        <button type="button" class="btn btn-s" data-task-del style="padding:4px 6px;width:32px;min-width:32px;font-size:14px;margin:0" title="Quitar">×</button>
+      </div>`;
+    }).join('');
     box.innerHTML = `<div class="task-box">
-      <b style="font-size:13px;display:block;margin-bottom:6px">Tareas de la jornada</b>
-      ${rows}
+      <div style="margin-bottom:6px"><span style="font-size:11px;color:var(--txt3)">Tarea · Cupos</span></div>
+      ${rows || ''}
       <div class="task-add-row">
         <input id="jt-new-titulo" placeholder="Nueva tarea (ej: Preparar lonches)" autocomplete="off">
         <button type="button" class="btn btn-p" id="jt-add-save">Agregar</button>
       </div>
     </div>`;
     bindJfTareaAdd(jornadaId);
+    box.querySelectorAll('.task-edit-row').forEach((row) => bindTaskRow(row, jornadaId));
+  }
+
+  function bindTaskRow(row, jornadaId) {
+    const id = row.dataset.taskId;
+    const save = async () => {
+      const titulo = row.querySelector('[data-task-titulo]')?.value?.trim();
+      const cupos = Math.min(20, Math.max(1, parseInt(row.querySelector('[data-task-cupos]')?.value, 10) || 1));
+      if (!titulo) return;
+      if (isDraftId(id)) {
+        const item = jEditTareas.find((t) => t.id === id);
+        if (item) {
+          item.titulo = titulo;
+          item.cupos = cupos;
+        }
+        return;
+      }
+      const { error } = await db.from('tareas_jornada').update({ titulo, cupos }).eq('id', id);
+      if (error) { toast(error.message); return; }
+      const item = jEditTareas.find((t) => t.id === id);
+      if (item) {
+        item.titulo = titulo;
+        item.cupos = cupos;
+      }
+    };
+    row.querySelectorAll('input').forEach((inp) => {
+      inp.addEventListener('change', save);
+      inp.addEventListener('blur', save);
+    });
+    row.querySelector('[data-task-del]')?.addEventListener('click', async () => {
+      const btn = row.querySelector('[data-task-del]');
+      if (btn?.dataset.confirm !== '1') {
+        btn.dataset.confirm = '1';
+        btn.textContent = '✓';
+        btn.title = 'Toca otra vez para quitar';
+        setTimeout(() => { if (btn.isConnected) { btn.dataset.confirm = ''; btn.textContent = '×'; btn.title = 'Quitar'; } }, 4000);
+        return;
+      }
+      if (isDraftId(id)) {
+        jEditTareas = jEditTareas.filter((t) => t.id !== id);
+        toast('Tarea quitada');
+        renderJfTareas(jornadaId);
+        return;
+      }
+      const { error } = await db.from('tareas_jornada').delete().eq('id', id);
+      if (error) { toast(error.message); return; }
+      toast('Tarea quitada');
+      loadJornadaTareas(jornadaId);
+    });
   }
 
   function bindJfTareaAdd(jornadaId) {
