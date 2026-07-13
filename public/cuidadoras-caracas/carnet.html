@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#5A4AA0">
+<meta name="robots" content="noindex,nofollow">
+<title>Mi carnet — Cuidadoras Caracas</title>
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<script>window.__nativeFetch=window.fetch.bind(window);</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--bg:#F1EEEA;--surf:#FBFAF8;--ind:#5A4AA0;--indh:#4A3C88;--indl:#EEEBF6;--indt:#463A82;--grn:#1E8449;--grnh:#15603A;--grnl:#E9F6EE;--red:#C0392B;--redl:#FBEDEA;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--app-max:580px}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px}
+.app{max-width:var(--app-max);margin:0 auto;min-height:100vh;padding-bottom:24px}
+.hdr{background:var(--ind);color:#fff;padding:16px 18px}
+.hdr a{color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px}
+.hdr h1{font-size:20px;font-weight:800;margin-top:8px;line-height:1.2}
+.hdr p{font-size:13px;opacity:.88;margin-top:4px;line-height:1.45}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;margin:16px;padding:18px 18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.stitle{font-size:17px;font-weight:800;margin-bottom:4px}
+.ssub{font-size:13px;color:var(--txt2);margin-bottom:16px;line-height:1.45}
+.photo-box{border:1px dashed var(--line2);border-radius:14px;padding:14px;background:var(--surf);margin-bottom:12px}
+.photo-hint{font-size:12px;color:var(--txt3);margin-top:8px;line-height:1.45}
+.photo-row{display:flex;gap:14px;align-items:flex-start;margin-top:10px}
+.photo-frame{width:90px;height:120px;border-radius:10px;border:2px solid var(--line2);background:#ddd;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--txt3)}
+.photo-frame img{width:100%;height:100%;object-fit:cover}
+.photo-frame.has{background:var(--indl);border-color:var(--ind)}
+.media-upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:2px dashed var(--ind);border-radius:12px;font-size:14px;font-weight:700;color:var(--ind);cursor:pointer;background:var(--indl);text-align:center;font-family:inherit;width:100%}
+.media-upload-btn:active{opacity:.85}
+.media-upload-btn input{display:none}
+.btn{border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;margin-top:10px}
+.btn-grn{background:var(--grn);color:#fff}
+.btn-grn:active{background:var(--grnh)}
+.btn-ghost{background:#fff;border:1px solid var(--line2);color:var(--txt2)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.badge{font-size:10px;font-weight:800;padding:4px 10px;border-radius:999px;display:inline-block}
+.badge.proc{background:var(--indl);color:var(--indt)}
+.badge.ok{background:var(--grnl);color:var(--grnh)}
+.badge.err{background:var(--redl);color:var(--red)}
+.proc-row{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--txt2);margin:8px 0}
+.spinner{width:22px;height:22px;border:3px solid var(--indl);border-top-color:var(--ind);border-radius:50%;animation:spin .8s linear infinite;flex-shrink:0}
+@media(prefers-reduced-motion:reduce){.spinner{animation:none;border-top-color:var(--ind)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.confirm{background:var(--redl);border:1px solid rgba(192,57,43,.25);border-radius:12px;padding:12px;margin:12px 0;font-size:13px;line-height:1.45;color:var(--txt)}
+.confirm b{color:var(--red);display:block;margin-bottom:4px}
+.empty-state{text-align:center;padding:20px 8px;color:var(--txt2);font-size:14px;line-height:1.5}
+.empty-state .ico{font-size:36px;margin-bottom:8px;opacity:.6}
+.carnet-preview{width:100%;border-radius:12px;border:1px solid var(--line2);background:linear-gradient(135deg,#5A4AA0 0%,#7B68C4 38%,#fff 38%);min-height:140px;margin:12px 0;overflow:hidden;position:relative}
+.carnet-preview iframe,.carnet-preview embed{width:100%;height:min(52vw,320px);border:none;display:block;background:#fff}
+.carnet-preview-fallback{padding:28px 12px;text-align:center;font-size:13px;color:var(--txt2);line-height:1.5}
+.carnet-preview img{width:100%;max-height:200px;object-fit:contain;display:block;background:#fff}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:opacity .2s;z-index:99;pointer-events:none}
+.toast.show{opacity:1}
+.err-box{background:var(--redl);color:var(--red);border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;margin-bottom:12px;display:none;line-height:1.45}
+.err-box.show{display:block}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hdr">
+    <a href="#" id="backLink">← Mi cuenta</a>
+    <h1 id="pageTitle">Mi carnet</h1>
+    <p id="pageSub"></p>
+  </header>
+  <div id="content"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
+<script src="vol.js?v=20260712h"></script>
+<script src="carnet.js?v=20260712h"></script>
+<script>
+(function () {
+  const params = new URLSearchParams(location.search);
+  const fromRegistro = params.get('from') === 'registro';
+  const autoStart = params.get('start') === '1';
+  const backHref = fromRegistro ? CC_VOL.basePath() + 'registro.html' : CC_VOL.basePath() + 'mi-cuenta';
+  const backLabel = fromRegistro ? '← Registro' : '← Mi cuenta';
+
+  if (!CC_VOL.requireSession(location.pathname + location.search)) return;
+
+  const vol = CC_VOL.getSession();
+  let disp = null;
+  let pendingBlob = null;
+  let previewUrl = null;
+  let busy = false;
+  let pollTimer = null;
+  let regenerating = false;
+
+  document.getElementById('backLink').href = backHref;
+  document.getElementById('backLink').textContent = backLabel;
+  document.getElementById('pageSub').textContent = 'Voluntaria N° ' + (vol.numero_voluntaria ?? '—');
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  }
+
+  function setErr(msg) {
+    const el = document.querySelector('.err-box');
+    if (!el) return;
+    if (msg) {
+      el.textContent = msg;
+      el.classList.add('show');
+    } else el.classList.remove('show');
+  }
+
+  function uploadHtml(showPreview) {
+    return `
+      <div class="card">
+        <div class="err-box"></div>
+        <div class="stitle">${regenerating ? 'Foto nueva para regenerar' : 'Sube tu foto'}</div>
+        <div class="ssub">Foto de rostro, fondo claro, sin filtros. Recorte vertical 3:4 para el carnet.</div>
+        <div class="photo-box">
+          <div class="photo-row" id="photoRow" ${showPreview ? '' : 'style="display:none"'}>
+            <div class="photo-frame has" id="photoFrame"><img id="photoImg" alt="Vista previa"></div>
+            <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">
+              <b style="color:var(--txt);display:block;margin-bottom:4px">Vista previa</b>
+              Ajustamos el encuadre automáticamente.
+            </div>
+          </div>
+          <label class="media-upload-btn" style="margin-top:${showPreview ? '12px' : '0'}">
+            📷 ${showPreview ? 'Cambiar foto' : 'Elegir foto'}
+            <input type="file" id="fileIn" accept="image/jpeg,image/png,image/webp,image/*" capture="user">
+          </label>
+          <div class="photo-hint">Máx. 5 MB · mínimo 480 px en el lado corto.</div>
+        </div>
+        <button type="button" class="btn btn-grn" id="btnConfirmPhoto" disabled>${regenerating ? 'Confirmar foto y regenerar' : 'Confirmar y generar'}</button>
+        <button type="button" class="btn btn-ghost" id="btnSkip">${fromRegistro ? 'Hacerlo después en mi cuenta' : 'Volver a mi cuenta'}</button>
+      </div>`;
+  }
+
+  function processingHtml(msg) {
+    return `
+      <div class="card">
+        <div class="proc-row"><span class="spinner"></span><span id="procMsg">${esc(msg)}</span></div>
+        <span class="badge proc">En proceso</span>
+        <p class="ssub" style="margin-top:12px;margin-bottom:0">Un momento. Aquí podrás descargarlo.</p>
+        <button type="button" class="btn btn-ghost" id="btnLeave">${fromRegistro ? 'Ir a mi cuenta' : 'Volver a mi cuenta'}</button>
+      </div>`;
+  }
+
+  let previewBlobUrl = null;
+
+  async function readyHtml() {
+    let preview = '';
+    try {
+      if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl);
+      previewBlobUrl = await CC_CARNET.carnetPreviewUrl();
+      preview = '<iframe src="' + esc(previewBlobUrl) + '" title="Vista previa carnet"></iframe>';
+    } catch (e) {
+      preview = '<div class="carnet-preview-fallback">' + esc(e.message || 'No se pudo cargar la vista previa.') + '<br>Usa <b>Descargar carnet (PDF)</b>.</div>';
+    }
+    return `
+      <div class="card">
+        <div class="stitle">¡Tu carnet está listo!</div>
+        <div class="carnet-preview" role="img" aria-label="Vista previa carnet">${preview}</div>
+        <button type="button" class="btn btn-grn" id="btnDownload">Descargar carnet (PDF)</button>
+        <button type="button" class="btn btn-ghost" id="btnRegen">Regenerar carnet</button>
+        <button type="button" class="btn btn-ghost" id="btnDone">${fromRegistro ? 'Ir a mi cuenta →' : 'Volver a mi cuenta'}</button>
+        <p class="photo-hint" style="text-align:center;margin-top:8px">Imprímelo tamaño real (100%).</p>
+      </div>`;
+  }
+
+  function sinPlantillaHtml() {
+    return `
+      <div class="card">
+        <div class="empty-state">
+          <div class="ico">🪪</div>
+          <p>El carnet aún no está disponible para este grupo.</p>
+        </div>
+        <button type="button" class="btn btn-ghost" id="btnDone">Volver a mi cuenta</button>
+      </div>`;
+  }
+
+  function listoGenerarHtml() {
+    return `
+      <div class="card">
+        <div class="stitle">Genera tu carnet</div>
+        <p class="ssub">Ya tienes foto. La usaremos en tu carnet impreso para jornadas.</p>
+        <div class="photo-row">
+          <div class="photo-frame has" id="existingPhoto">🪪</div>
+          <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">Datos de tu registro: ${esc(vol.nombre)} ${esc(vol.apellido || '')}</div>
+        </div>
+        <button type="button" class="btn btn-grn" id="btnGenerate">Generar carnet</button>
+        <button type="button" class="btn btn-ghost" id="btnDone">Volver a mi cuenta</button>
+      </div>`;
+  }
+
+  function errorHtml(msg) {
+    return `
+      <div class="card">
+        <span class="badge err">Error</span>
+        <p class="ssub" style="margin-top:10px">${esc(msg || 'No se pudo generar el carnet.')}</p>
+        <button type="button" class="btn btn-grn" id="btnRetry">Intentar de nuevo</button>
+        <button type="button" class="btn btn-ghost" id="btnDone">Volver a mi cuenta</button>
+      </div>`;
+  }
+
+  function bindDone() {
+    const b = document.getElementById('btnDone');
+    if (b) b.onclick = () => { location.href = CC_VOL.basePath() + 'mi-cuenta'; };
+    const leave = document.getElementById('btnLeave');
+    if (leave) leave.onclick = () => { location.href = CC_VOL.basePath() + 'mi-cuenta'; };
+    const skip = document.getElementById('btnSkip');
+    if (skip) skip.onclick = () => { location.href = CC_VOL.basePath() + 'mi-cuenta'; };
+  }
+
+  async function showReady() {
+    document.getElementById('pageTitle').textContent = '¡Tu carnet está listo!';
+    document.getElementById('content').innerHTML = await readyHtml();
+    document.getElementById('btnDownload').onclick = async () => {
+      try {
+        await CC_CARNET.downloadPdf(vol.numero_voluntaria);
+        toast('Descarga iniciada');
+      } catch (e) {
+        toast(e.message || 'No se pudo descargar');
+      }
+    };
+    document.getElementById('btnRegen').onclick = () => {
+      if (!confirm('¿Regenerar tu carnet?\n\nNecesitarás subir una foto nueva. El PDF anterior dejará de servir.')) return;
+      regenerating = true;
+      pendingBlob = null;
+      renderUpload();
+    };
+    bindDone();
+  }
+
+  function renderUpload() {
+    document.getElementById('pageTitle').textContent = regenerating ? 'Regenerar carnet' : 'Genera tu carnet';
+    document.getElementById('content').innerHTML = uploadHtml(!!pendingBlob);
+    bindDone();
+    const fileIn = document.getElementById('fileIn');
+    const btn = document.getElementById('btnConfirmPhoto');
+    fileIn.onchange = async () => {
+      setErr('');
+      const file = fileIn.files && fileIn.files[0];
+      if (!file) return;
+      try {
+        const { blob } = await CC_CARNET.cropPortrait3x4(file);
+        pendingBlob = blob;
+        const url = URL.createObjectURL(blob);
+        document.getElementById('photoRow').style.display = '';
+        document.getElementById('photoImg').src = url;
+        btn.disabled = false;
+      } catch (e) {
+        setErr(e.message);
+        pendingBlob = null;
+        btn.disabled = true;
+      }
+    };
+    btn.onclick = () => startFlow(true);
+  }
+
+  function renderProcessing(msg) {
+    document.getElementById('pageTitle').textContent = 'Generando tu carnet';
+    document.getElementById('content').innerHTML = processingHtml(msg || 'Preparando tu carnet…');
+    bindDone();
+  }
+
+  async function startFlow(uploadFirst) {
+    if (busy) return;
+    busy = true;
+    setErr('');
+    const isRegen = regenerating;
+    try {
+      if (uploadFirst) {
+        if (!pendingBlob) {
+          setErr('Elige una foto primero.');
+          busy = false;
+          return;
+        }
+        renderProcessing('Subiendo foto…');
+        await CC_CARNET.uploadFoto(pendingBlob, 'image/jpeg');
+        pendingBlob = null;
+      }
+      renderProcessing('Preparando tu carnet…');
+      const req = await CC_CARNET.solicitar(isRegen);
+      regenerating = false;
+      await CC_CARNET.invokeRender(req.job_id);
+      await CC_CARNET.pollUntilReady(req.job_id, (_st, elapsed) => {
+        const msg = CC_CARNET.procMessage(elapsed);
+        const el = document.getElementById('procMsg');
+        if (el) el.textContent = msg;
+      });
+      busy = false;
+      await showReady();
+    } catch (e) {
+      busy = false;
+      if (e.data?.necesita_foto || e.data?.necesita_foto_nueva) {
+        renderUpload();
+        setErr(e.message);
+        return;
+      }
+      document.getElementById('content').innerHTML = errorHtml(e.message);
+      document.getElementById('btnRetry').onclick = () => init();
+      bindDone();
+    }
+  }
+
+  async function loadExistingPhoto() {
+    try {
+      previewUrl = await CC_CARNET.fotoPreviewUrl();
+      const frame = document.getElementById('existingPhoto');
+      if (frame && previewUrl) frame.innerHTML = '<img src="' + previewUrl + '" alt="Tu foto">';
+    } catch (e) {}
+  }
+
+  async function init() {
+    try {
+      disp = await CC_CARNET.disponible();
+    } catch (e) {
+      document.getElementById('content').innerHTML = errorHtml(e.message);
+      bindDone();
+      return;
+    }
+
+    if (!disp.template_available) {
+      document.getElementById('content').innerHTML = sinPlantillaHtml();
+      bindDone();
+      return;
+    }
+
+    const inflight = disp.ultimo_estado === 'queued' || disp.ultimo_estado === 'processing';
+    if (inflight && disp.ultimo_job_id) {
+      renderProcessing('Preparando tu carnet…');
+      try {
+        await CC_CARNET.invokeRender(disp.ultimo_job_id);
+        await CC_CARNET.pollUntilReady(disp.ultimo_job_id, (_st, elapsed) => {
+          const el = document.getElementById('procMsg');
+          if (el) el.textContent = CC_CARNET.procMessage(elapsed);
+        });
+        await showReady();
+      } catch (e) {
+        document.getElementById('content').innerHTML = errorHtml(e.message);
+        document.getElementById('btnRetry').onclick = () => init();
+        bindDone();
+      }
+      return;
+    }
+
+    if (disp.tiene_carnet_listo && disp.ultimo_estado === 'ready') {
+      await showReady();
+      return;
+    }
+
+    if (!disp.tiene_foto) {
+      renderUpload();
+      if (autoStart) setErr('Sube una foto para generar tu carnet.');
+      return;
+    }
+
+    if (autoStart) {
+      await startFlow(false);
+      return;
+    }
+
+    document.getElementById('content').innerHTML = listoGenerarHtml();
+    await loadExistingPhoto();
+    document.getElementById('btnGenerate').onclick = () => startFlow(false);
+    bindDone();
+  }
+
+  init();
+})();
+</script>
+</body>
+</html>

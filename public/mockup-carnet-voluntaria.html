@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Mockup — Carnet de Voluntaria (ARTIFACT-FOR-001)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F1EEEA;--surf:#FBFAF8;--ind:#5A4AA0;--indh:#4A3C88;--indl:#EEEBF6;--indt:#463A82;
+  --grn:#1E8449;--grnh:#15603A;--grnl:#E9F6EE;--red:#C0392B;--redl:#FBEDEA;
+  --txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--app-max:580px;
+}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#2a2826;color:var(--txt);font-size:15px}
+.mock-shell{max-width:1280px;margin:0 auto;padding:16px}
+.mock-top{color:#fff;margin-bottom:16px}
+.mock-top h1{font-size:20px;font-weight:800}
+.mock-top p{font-size:13px;opacity:.75;margin-top:4px;line-height:1.45;max-width:80ch}
+.mock-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.mock-meta span{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15)}
+.mock-nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.mock-nav button{font-size:11px;font-weight:700;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-family:inherit;line-height:1.3;text-align:left}
+.mock-nav button.on{background:#fff;color:var(--indt);border-color:#fff}
+.layout{display:grid;gap:20px}
+@media(min-width:960px){.layout{grid-template-columns:1fr 340px}}
+.phone-label{text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,.55);margin-bottom:8px;letter-spacing:.04em;text-transform:uppercase}
+.phone{width:100%;max-width:var(--app-max);margin:0 auto;background:var(--bg);border-radius:28px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45);border:6px solid #1a1a1a;min-height:740px;display:flex;flex-direction:column}
+.notes{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:18px;color:#e8e4df;font-size:13px;line-height:1.55;align-self:start;position:sticky;top:16px}
+.notes h2{font-size:15px;font-weight:800;color:#fff;margin-bottom:10px}
+.notes ul{padding-left:18px;margin:8px 0}
+.notes li{margin-bottom:6px}
+.notes .tag{display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;background:var(--indl);color:var(--indt);margin-right:4px}
+.notes .scope{font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;background:var(--grnl);color:var(--grn);margin-right:4px}
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+.screen.on{display:flex}
+/* Cuidadoras app chrome */
+.hdr{background:var(--ind);color:#fff;padding:16px 18px;flex-shrink:0}
+.hdr a{color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px}
+.hdr h1{font-size:20px;font-weight:800;line-height:1.2;margin-top:8px}
+.hdr p{font-size:13px;opacity:.88;margin-top:4px;line-height:1.45}
+.body-scroll{flex:1;overflow-y:auto;padding-bottom:24px;-webkit-overflow-scrolling:touch}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;margin:16px;padding:18px 18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.card-t{font-size:13px;font-weight:800;color:var(--indt);margin-bottom:10px}
+.card-sub{font-size:13px;color:var(--txt2);margin-bottom:12px;line-height:1.45}
+.steps{display:flex;gap:6px;margin-bottom:18px}
+.step{flex:1;text-align:center;font-size:11px;font-weight:700;color:var(--txt3)}
+.step-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--line2);display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:13px;font-weight:800;background:#fff}
+.step.on .step-dot{border-color:var(--ind);background:var(--ind);color:#fff}
+.step.done .step-dot{border-color:var(--grn);background:var(--grnl);color:var(--grnh)}
+.stitle{font-size:17px;font-weight:800;margin-bottom:4px}
+.ssub{font-size:13px;color:var(--txt2);margin-bottom:16px;line-height:1.45}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:5px}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line2);border-radius:10px;padding:12px 13px;font-size:16px;font-family:inherit;background:#fff;color:var(--txt)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:420px){.grid2{grid-template-columns:1fr}}
+.box{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.box-t{font-size:13px;font-weight:800;margin-bottom:10px;color:var(--indt)}
+.photo-box{border:1px dashed var(--line2);border-radius:14px;padding:14px;background:var(--surf)}
+.photo-hint{font-size:12px;color:var(--txt3);margin-top:8px;line-height:1.45}
+.photo-row{display:flex;gap:14px;align-items:flex-start;margin-top:10px}
+.photo-frame{width:90px;height:120px;border-radius:10px;border:2px solid var(--line2);background:#ddd;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--txt3)}
+.photo-frame img{width:100%;height:100%;object-fit:cover}
+.photo-frame.has{background:var(--indl);border-color:var(--ind)}
+.upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:2px dashed var(--ind);border-radius:12px;font-size:14px;font-weight:700;color:var(--ind);cursor:pointer;background:var(--indl);text-align:center;font-family:inherit;width:100%}
+.upload-btn:active{opacity:.85}
+.crop-bar{height:6px;background:var(--line);border-radius:999px;margin-top:12px;position:relative}
+.crop-thumb{position:absolute;left:30%;width:40%;height:100%;background:var(--ind);border-radius:999px}
+.btn{border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;width:100%}
+.btn-ind{background:var(--ind);color:#fff}
+.btn-grn{background:var(--grn);color:#fff}
+.btn-ghost{background:#fff;border:1px solid var(--line2);color:var(--txt2);margin-top:8px}
+.nav-row{display:flex;gap:10px;margin-top:8px}
+.nav-row .btn{flex:1}
+.badge{font-size:10px;font-weight:800;padding:4px 10px;border-radius:999px;display:inline-block}
+.badge.proc{background:var(--indl);color:var(--indt)}
+.badge.ok{background:var(--grnl);color:var(--grnh)}
+.badge.muted{background:#eee;color:var(--txt3)}
+.carnet-preview{width:100%;max-height:200px;border-radius:12px;border:1px solid var(--line2);background:linear-gradient(135deg,#5A4AA0 0%,#7B68C4 40%,#fff 40%);object-fit:contain;margin:12px 0;display:block;min-height:140px;position:relative;overflow:hidden}
+.carnet-mock-inner{position:absolute;inset:0;display:flex;padding:12px;gap:10px}
+.carnet-mock-photo{width:72px;height:96px;border-radius:6px;background:#ccc;border:2px solid #fff;flex-shrink:0}
+.carnet-mock-data{flex:1;color:#fff;font-size:11px;line-height:1.5;padding-top:8px}
+.carnet-mock-data b{display:block;font-size:13px;margin-bottom:4px}
+.spinner{width:22px;height:22px;border:3px solid var(--indl);border-top-color:var(--ind);border-radius:50%;animation:spin .8s linear infinite;display:inline-block;vertical-align:middle;margin-right:8px}
+@media(prefers-reduced-motion:reduce){.spinner{animation:none;border-top-color:var(--ind)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.proc-row{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--txt2);margin:8px 0}
+.confirm{background:var(--redl);border:1px solid rgba(192,57,43,.25);border-radius:12px;padding:12px;margin:12px 0;font-size:13px;line-height:1.45;color:var(--txt)}
+.confirm b{color:var(--red);display:block;margin-bottom:4px}
+.ok{text-align:center;padding:24px 8px}
+.ok-ico{font-size:48px;margin-bottom:12px}
+.ok h2{font-size:22px;font-weight:800;margin-bottom:8px}
+.ok p{color:var(--txt2);font-size:14px;line-height:1.5;margin-bottom:12px}
+.ok-num{font-size:28px;font-weight:800;color:var(--ind);margin:8px 0 16px}
+.cred-box{background:var(--indl);border:1px solid var(--ind);border-radius:14px;padding:14px;margin:0 0 12px;text-align:left}
+.carnet-hint{background:var(--grnl);border:1px solid rgba(30,132,73,.25);border-radius:12px;padding:12px;font-size:13px;line-height:1.45;color:var(--grnh);margin-top:12px;text-align:left}
+.empty-state{text-align:center;padding:20px 8px;color:var(--txt2);font-size:14px;line-height:1.5}
+.empty-state .ico{font-size:36px;margin-bottom:8px;opacity:.6}
+.jcard-mini{background:var(--bg);border:1px solid var(--line2);border-radius:14px;padding:12px;margin-top:8px;font-size:13px;color:var(--txt2)}
+.expand{border-top:1px solid var(--line);margin-top:14px;padding-top:14px}
+.toast-demo{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:12px 18px;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap;z-index:5}
+.phone{position:relative}
+.dim .card:not(.focus-card){opacity:.45}
+.menu-list{display:flex;flex-direction:column;gap:0;margin-top:4px}
+.menu-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;width:100%;font-family:inherit;text-align:left;color:inherit}
+.menu-item:last-child{border-bottom:none;padding-bottom:0}
+.menu-item:first-child{padding-top:0}
+.menu-item:active{opacity:.7}
+.menu-item-ico{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.menu-item-body{flex:1;min-width:0}
+.menu-item-t{font-size:15px;font-weight:800;display:block}
+.menu-item-s{font-size:12px;color:var(--txt2);margin-top:2px;line-height:1.35}
+.menu-item-arrow{color:var(--txt3);font-size:18px;font-weight:700;flex-shrink:0}
+.ok-actions{display:flex;flex-direction:column;gap:10px;margin-top:16px;width:100%}
+.ok-actions .btn{margin-top:0}
+.carnet-cta-box{background:var(--indl);border:1px solid var(--ind);border-radius:16px;padding:16px;margin-top:16px;text-align:left}
+.carnet-cta-box .box-t{margin-bottom:6px}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;border:1.5px solid var(--line2);background:#fff;border-radius:10px;padding:10px 6px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;color:var(--txt2);text-align:center}
+.tab.on{border-color:var(--ind);background:var(--indl);color:var(--indt)}
+</style>
+</head>
+<body>
+<div class="mock-shell">
+  <div class="mock-top">
+    <h1>Mockup — Carnet de Voluntaria</h1>
+    <p>ARTIFACT-FOR-001 · CTA de carnet al terminar registro · Jornadas primero en Mi cuenta · Carnet en submenú “Datos de mi cuenta”. <code style="opacity:.8">npm run dev</code> → <code style="opacity:.8">/mockup-carnet-voluntaria.html</code></p>
+    <div class="mock-meta">
+      <span>Spec: ARTIFACT-FOR-001</span>
+      <span>Piloto: Cuidadoras Caracas</span>
+      <span>3:4 · max 5MB · sin moderación MVP</span>
+    </div>
+  </div>
+
+  <div class="mock-nav" id="nav"></div>
+
+  <div class="layout">
+    <div>
+      <div class="phone-label" id="phone-label">Pantalla</div>
+      <div class="phone" id="phone">
+        <!-- UX OPEN: exact print dimensions pending reference PDF in Context/source-docs/ -->
+
+        <!-- S1: Registro paso 1 + foto opcional -->
+        <!-- in_scope: optional photo upload field added to voluntarios-registro -->
+        <div class="screen on" data-id="reg-p1" data-label="1 · Registro paso 1 + foto">
+          <header class="hdr">
+            <a href="#">← Cuidadoras Caracas</a>
+            <h1>👩‍👧 Cuidadoras Caracas</h1>
+            <p>Registro de voluntarias</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="steps">
+                <div class="step on"><div class="step-dot">1</div>Datos</div>
+                <div class="step"><div class="step-dot">2</div>Entorno</div>
+                <div class="step"><div class="step-dot">3</div>Colaborar</div>
+              </div>
+              <div class="stitle">Datos personales</div>
+              <div class="ssub">Información básica y dónde estás.</div>
+              <div class="grid2">
+                <div class="field"><label>Nombre *</label><input value="María" readonly></div>
+                <div class="field"><label>Apellido *</label><input value="González" readonly></div>
+              </div>
+              <div class="field"><label>Cédula / ID *</label><input value="V-24.567.890" readonly></div>
+              <div class="field"><label>Teléfono *</label><input value="+58 412 555 1234" readonly></div>
+
+              <div class="photo-box" style="margin-top:4px">
+                <div class="box-t" style="margin-bottom:4px">Tu foto (opcional)</div>
+                <div class="ssub" style="margin-bottom:0">Para tu carnet. Puedes sacarlo al terminar el registro o después en Mi cuenta.</div>
+                <label class="upload-btn" style="margin-top:12px">📷 Elegir foto<input type="file" hidden></label>
+                <div class="photo-hint">Foto de rostro, fondo claro, sin filtros. Máx. 5 MB.</div>
+              </div>
+
+              <div class="box" style="margin-top:14px;margin-bottom:0">
+                <div class="box-t">Ubicación actual</div>
+                <div class="field"><label>Ciudad *</label><input value="Caracas" readonly></div>
+              </div>
+              <div class="nav-row" style="margin-top:16px">
+                <button type="button" class="btn btn-ind" onclick="go('reg-p1-photo')">Siguiente → (con foto demo)</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S1b: Registro paso 1 con foto seleccionada + crop -->
+        <div class="screen" data-id="reg-p1-photo" data-label="2 · Registro foto + crop">
+          <header class="hdr">
+            <a href="#" onclick="go('reg-p1');return false">← Cuidadoras Caracas</a>
+            <h1>👩‍👧 Cuidadoras Caracas</h1>
+            <p>Registro de voluntarias</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="steps">
+                <div class="step on"><div class="step-dot">1</div>Datos</div>
+                <div class="step"><div class="step-dot">2</div>Entorno</div>
+                <div class="step"><div class="step-dot">3</div>Colaborar</div>
+              </div>
+              <div class="stitle">Tu foto (opcional)</div>
+              <div class="photo-row">
+                <div class="photo-frame has">👩</div>
+                <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">
+                  <b style="color:var(--txt);display:block;margin-bottom:4px">Ajusta el encuadre</b>
+                  Recorte vertical 3:4 para el carnet.
+                  <label class="upload-btn" style="margin-top:10px;padding:10px;font-size:13px">📷 Cambiar foto</label>
+                </div>
+              </div>
+              <div class="crop-bar" aria-hidden="true"><div class="crop-thumb"></div></div>
+              <div class="nav-row" style="margin-top:16px">
+                <button type="button" class="btn btn-ghost" style="margin-top:0" onclick="go('reg-p1')">Omitir foto</button>
+                <button type="button" class="btn btn-ind" onclick="go('reg-ok-foto')">Siguiente →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S2: Registro exitoso con foto — CTA carnet primero -->
+        <div class="screen" data-id="reg-ok-foto" data-label="3 · Registro OK → carnet">
+          <header class="hdr">
+            <h1>👩‍👧 Cuidadoras Caracas</h1>
+          </header>
+          <div class="body-scroll">
+            <div class="card ok">
+              <div class="ok-ico">✅</div>
+              <h2>¡Registro exitoso!</h2>
+              <p>Gracias por unirte a <b>Cuidadoras Caracas</b>.</p>
+              <div class="ok-num">Voluntaria N° 142</div>
+              <div class="cred-box">
+                <div class="box-t">🔑 Tus datos para entrar</div>
+                <p style="font-size:12px;color:var(--txt2);line-height:1.45">Red social + últimos 4 dígitos de cédula.</p>
+              </div>
+              <div class="carnet-cta-box">
+                <div class="box-t">🪪 Tu carnet</div>
+                <p style="font-size:13px;color:var(--txt2);line-height:1.45;margin-bottom:0">Ya tienes foto. Genera tu carnet ahora para imprimirlo.</p>
+              </div>
+              <div class="ok-actions">
+                <button type="button" class="btn btn-grn" onclick="go('reg-carnet-proc')">Generar y descargar mi carnet</button>
+                <button type="button" class="btn btn-ghost" onclick="go('cuenta-home')">Entrar a mi cuenta →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S3: Registro exitoso sin foto -->
+        <div class="screen" data-id="reg-ok-sin" data-label="4 · Registro OK (sin foto)">
+          <header class="hdr">
+            <h1>👩‍👧 Cuidadoras Caracas</h1>
+          </header>
+          <div class="body-scroll">
+            <div class="card ok">
+              <div class="ok-ico">✅</div>
+              <h2>¡Registro exitoso!</h2>
+              <div class="ok-num">Voluntaria N° 143</div>
+              <div class="cred-box">
+                <div class="box-t">🔑 Tus datos para entrar</div>
+                <p style="font-size:12px;color:var(--txt2);line-height:1.45">Red social + últimos 4 dígitos de cédula.</p>
+              </div>
+              <div class="carnet-cta-box">
+                <div class="box-t">🪪 Tu carnet</div>
+                <p style="font-size:13px;color:var(--txt2);line-height:1.45;margin-bottom:0">Súbele una foto y sácalo en segundos.</p>
+              </div>
+              <div class="ok-actions">
+                <button type="button" class="btn btn-grn" onclick="go('reg-carnet-foto')">Generar mi carnet</button>
+                <button type="button" class="btn btn-ghost" onclick="go('cuenta-home')">Entrar a mi cuenta →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S3b: Post-registro — subir foto para carnet -->
+        <div class="screen" data-id="reg-carnet-foto" data-label="5 · Post-registro foto">
+          <header class="hdr">
+            <a href="#" onclick="go('reg-ok-sin');return false">← Registro</a>
+            <h1>Genera tu carnet</h1>
+            <p>Voluntaria N° 143</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="stitle">Sube tu foto</div>
+              <div class="ssub">La usaremos en tu carnet impreso.</div>
+              <label class="upload-btn">📷 Elegir foto<input type="file" accept="image/*" capture="user" hidden></label>
+              <div class="photo-hint">Foto de rostro, fondo claro. Recorte 3:4.</div>
+              <button type="button" class="btn btn-grn" style="margin-top:14px" onclick="go('reg-carnet-proc')">Confirmar y generar</button>
+              <button type="button" class="btn btn-ghost" onclick="go('cuenta-home')">Hacerlo después en mi cuenta</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S3c: Post-registro — procesando -->
+        <div class="screen" data-id="reg-carnet-proc" data-label="6 · Post-registro procesando">
+          <header class="hdr">
+            <h1>Generando tu carnet</h1>
+            <p>Voluntaria N° 142</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="proc-row"><span class="spinner"></span> Preparando tu carnet…</div>
+              <span class="badge proc">En proceso</span>
+              <p class="card-sub" style="margin-top:12px;margin-bottom:0">Un momento. Aquí podrás descargarlo.</p>
+            </div>
+          </div>
+          <div class="toast-demo" id="toast-reg" style="display:none">¡Listo!</div>
+        </div>
+
+        <!-- S3d: Post-registro — listo descargar -->
+        <div class="screen" data-id="reg-carnet-listo" data-label="7 · Post-registro descargar">
+          <header class="hdr">
+            <h1>¡Tu carnet está listo!</h1>
+          </header>
+          <div class="body-scroll">
+            <div class="card ok" style="padding-top:16px">
+              <div class="carnet-preview" role="img" aria-label="Vista previa carnet">
+                <div class="carnet-mock-inner">
+                  <div class="carnet-mock-photo"></div>
+                  <div class="carnet-mock-data">
+                    <b>CUIDADORAS CARACAS</b>
+                    María González<br>
+                    V-24.567.890<br>
+                    Vol. N° 142
+                  </div>
+                </div>
+              </div>
+              <div class="ok-actions">
+                <button type="button" class="btn btn-grn">Descargar carnet (PDF)</button>
+                <button type="button" class="btn btn-ghost" onclick="go('cuenta-home')">Ir a mi cuenta →</button>
+              </div>
+              <p class="photo-hint" style="text-align:center;margin-top:8px">Imprímelo tamaño real (100%).</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- S4: Mi cuenta — jornadas primero + menú -->
+        <div class="screen" data-id="cuenta-home" data-label="8 · Mi cuenta (home)">
+          <header class="hdr">
+            <a href="#">← Inicio</a>
+            <h1 id="hola-demo">Hola, María 👋</h1>
+            <p>Voluntaria N° 142</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card focus-card">
+              <div class="card-t">Jornadas</div>
+              <div class="tabs">
+                <button type="button" class="tab on">Próximas</button>
+                <button type="button" class="tab">Pasadas</button>
+                <button type="button" class="tab">Todas</button>
+              </div>
+              <div class="jcard-mini" style="margin-top:0;padding:14px;background:#fff;border-left:3px solid var(--grn)">
+                <b style="color:var(--txt);display:block;margin-bottom:4px">🍲 Brigada alimentos</b>
+                sáb 14 jul · 8:00 · Catia<br>
+                <span class="badge open" style="margin-top:8px">Confirmada</span>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-t">Mis brigadas</div>
+              <p style="font-size:13px;color:var(--txt2);margin-bottom:10px;line-height:1.45">Elige dónde quieres colaborar.</p>
+              <div class="jcard-mini">🍲 Logística de alimentos · 💜 Contención</div>
+              <button type="button" class="btn btn-grn" style="margin-top:12px">Guardar brigadas</button>
+            </div>
+            <div class="card">
+              <div class="card-t">Datos de mi cuenta</div>
+              <div class="menu-list">
+                <button type="button" class="menu-item" onclick="go('cuenta-carnet-listo')">
+                  <span class="menu-item-ico">🪪</span>
+                  <span class="menu-item-body">
+                    <span class="menu-item-t">Mi carnet</span>
+                    <span class="menu-item-s">Descargar o regenerar · Listo</span>
+                  </span>
+                  <span class="menu-item-arrow">›</span>
+                </button>
+                <!-- demo: pantalla 9 muestra fila "Aún no generado" -->
+                <button type="button" class="menu-item" style="opacity:.55;cursor:default" disabled>
+                  <span class="menu-item-ico">🔑</span>
+                  <span class="menu-item-body">
+                    <span class="menu-item-t">Datos de acceso</span>
+                    <span class="menu-item-s">Futuro · spec edición voluntarias</span>
+                  </span>
+                  <span class="menu-item-arrow">›</span>
+                </button>
+              </div>
+              <button type="button" class="btn btn-ghost" style="margin-top:14px">Cerrar sesión</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S5: Subpágina Mi carnet — sin generar -->
+        <div class="screen" data-id="cuenta-carnet-sin" data-label="9 · Menú → carnet (nuevo)">
+          <header class="hdr">
+            <a href="#" onclick="go('cuenta-home');return false">← Mi cuenta</a>
+            <h1>Mi carnet</h1>
+            <p>Voluntaria N° 143</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <p class="card-sub">Genera tu carnet con foto para identificarte en jornadas.</p>
+              <div class="photo-row">
+                <div class="photo-frame">🪪</div>
+                <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">Necesitas una foto de rostro.</div>
+              </div>
+              <button type="button" class="btn btn-grn" style="margin-top:14px" onclick="go('cuenta-generar')">Generar carnet</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S5b: Generar — subir foto -->
+        <div class="screen" data-id="cuenta-generar" data-label="10 · Generar foto">
+          <header class="hdr">
+            <a href="#" onclick="go('cuenta-carnet-sin');return false">← Mi carnet</a>
+            <h1>Generar carnet</h1>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <label class="upload-btn">📷 Elegir foto<input type="file" accept="image/*" capture="user" hidden></label>
+              <div class="photo-hint">Recorte 3:4 automático.</div>
+              <button type="button" class="btn btn-grn" style="margin-top:14px" onclick="go('cuenta-proc')">Confirmar y generar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S6: Procesando (desde menú carnet) -->
+        <div class="screen" data-id="cuenta-proc" data-label="11 · Carnet procesando">
+          <header class="hdr">
+            <a href="#" onclick="go('cuenta-home');return false">← Mi cuenta</a>
+            <h1>Mi carnet</h1>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="proc-row"><span class="spinner"></span> Preparando tu carnet…</div>
+              <span class="badge proc">En proceso</span>
+              <p class="card-sub" style="margin-top:12px;margin-bottom:0">Puedes volver a Jornadas mientras tanto.</p>
+              <button type="button" class="btn btn-ghost" style="margin-top:14px" onclick="go('cuenta-home')">Volver a mi cuenta</button>
+            </div>
+          </div>
+          <div class="toast-demo" id="toast-proc" style="display:none">¡Tu carnet está listo!</div>
+        </div>
+
+        <!-- S7: Mi carnet — listo -->
+        <div class="screen" data-id="cuenta-carnet-listo" data-label="12 · Menú → carnet (listo)">
+          <header class="hdr">
+            <a href="#" onclick="go('cuenta-home');return false">← Mi cuenta</a>
+            <h1>Mi carnet</h1>
+            <p>Voluntaria N° 142 · <span class="badge ok">Listo</span></p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="carnet-preview" role="img" aria-label="Vista previa carnet">
+                <div class="carnet-mock-inner">
+                  <div class="carnet-mock-photo"></div>
+                  <div class="carnet-mock-data">
+                    <b>CUIDADORAS CARACAS</b>
+                    María González<br>
+                    V-24.567.890<br>
+                    Vol. N° 142
+                  </div>
+                </div>
+              </div>
+              <button type="button" class="btn btn-grn">Descargar carnet (PDF)</button>
+              <button type="button" class="btn btn-ghost" onclick="go('cuenta-regenerar')">Regenerar carnet</button>
+              <p class="photo-hint" style="text-align:center;margin-top:8px">Imprímelo tamaño real (100%).</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- S8: Regenerar -->
+        <div class="screen" data-id="cuenta-regenerar" data-label="13 · Regenerar">
+          <header class="hdr">
+            <a href="#" onclick="go('cuenta-carnet-listo');return false">← Mi carnet</a>
+            <h1>Regenerar carnet</h1>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="confirm">
+                <b>¿Continuar?</b>
+                Sube una foto nueva y reemplazamos tu carnet actual.
+              </div>
+              <label class="upload-btn">📷 Elegir foto nueva<input type="file" accept="image/*" capture="user" hidden></label>
+              <button type="button" class="btn btn-grn" style="margin-top:14px" onclick="go('cuenta-proc')">Confirmar y regenerar</button>
+              <button type="button" class="btn btn-ghost" onclick="go('cuenta-carnet-listo')">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S9: Sin plantilla -->
+        <div class="screen" data-id="cuenta-sin-plat" data-label="14 · Sin plantilla">
+          <header class="hdr">
+            <a href="#" onclick="go('cuenta-home');return false">← Mi cuenta</a>
+            <h1>Mi carnet</h1>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="empty-state">
+                <div class="ico">🪪</div>
+                El carnet digital aún no está disponible para este grupo.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <aside class="notes" id="notes">
+      <h2 id="notes-title">Registro paso 1</h2>
+      <p id="notes-body">Selecciona una pantalla arriba.</p>
+    </aside>
+  </div>
+</div>
+
+<script>
+const SCREENS={
+  'reg-p1':{
+    title:'Registro — foto opcional (paso 1)',
+    body:`<span class="scope">in_scope</span> Campo opcional en paso 1.<ul><li>Omitir permitido</li><li>Hint carnet + 5 MB</li></ul>`
+  },
+  'reg-p1-photo':{
+    title:'Registro — crop 3:4',
+    body:`Recorte vertical antes de continuar.`
+  },
+  'reg-ok-foto':{
+    title:'Éxito registro — CTA carnet',
+    body:`<b>PM:</b> CTA principal verde <em>Generar y descargar mi carnet</em>. Secundario: Entrar a mi cuenta. Box resaltado explica el carnet.`
+  },
+  'reg-ok-sin':{
+    title:'Éxito sin foto — CTA carnet',
+    body:`CTA principal <em>Generar mi carnet</em> (lleva a subir foto). Secundario: Entrar a mi cuenta.`
+  },
+  'reg-carnet-foto':{
+    title:'Post-registro — upload',
+    body:`Flujo inline tras registro si no había foto. Escape: "Hacerlo después en mi cuenta".`
+  },
+  'reg-carnet-proc':{
+    title:'Post-registro — async',
+    body:`Spinner en pantalla dedicada → descarga. No bloquea ir a cuenta después.`
+  },
+  'reg-carnet-listo':{
+    title:'Post-registro — descargar',
+    body:`CTA verde Descargar PDF + secundario Ir a mi cuenta.`
+  },
+  'cuenta-home':{
+    title:'Mi cuenta — home',
+    body:`<b>PM:</b> Jornadas <b>primero</b>, luego brigadas, luego card <em>Datos de mi cuenta</em> con fila menú 🪪 Mi carnet (estado en subtítulo). Sin card de carnet arriba.`
+  },
+  'cuenta-carnet-sin':{
+    title:'Subpágina Mi carnet',
+    body:`Acceso desde menú. Generar carnet + upload si falta foto.`
+  },
+  'cuenta-generar':{
+    title:'Generar — upload',
+    body:`Subpágina bajo Mi carnet. Confirmar → async.`
+  },
+  'cuenta-proc':{
+    title:'Carnet procesando',
+    body:`Subpágina. Volver a mi cuenta permitido mientras poll.`
+  },
+  'cuenta-carnet-listo':{
+    title:'Mi carnet listo',
+    body:`Descargar PDF + Regenerar. Back ← Mi cuenta.`
+  },
+  'cuenta-regenerar':{
+    title:'Regenerar',
+    body:`Confirm + foto nueva obligatoria.`
+  },
+  'cuenta-sin-plat':{
+    title:'Sin plantilla',
+    body:`Mensaje amigable desde subpágina Mi carnet.`
+  }
+};
+
+const nav=document.getElementById('nav');
+document.querySelectorAll('.screen').forEach(s=>{
+  const id=s.dataset.id;
+  const b=document.createElement('button');
+  b.textContent=s.dataset.label;
+  b.onclick=()=>go(id);
+  b.dataset.target=id;
+  nav.appendChild(b);
+});
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.dataset.id===id));
+  document.querySelectorAll('.mock-nav button').forEach(b=>b.classList.toggle('on',b.dataset.target===id));
+  document.getElementById('phone-label').textContent=SCREENS[id]?.title||id;
+  const n=SCREENS[id];
+  if(n){
+    document.getElementById('notes-title').textContent=n.title;
+    document.getElementById('notes-body').innerHTML=n.body;
+  }
+  const toast=document.getElementById('toast-proc');
+  const toastReg=document.getElementById('toast-reg');
+  if(toast)toast.style.display='none';
+  if(toastReg)toastReg.style.display='none';
+  if(id==='cuenta-proc'){
+    setTimeout(()=>{if(document.querySelector('[data-id="cuenta-proc"].on')){toast.style.display='block';setTimeout(()=>toast.style.display='none',2200)}},1800);
+  }
+  if(id==='reg-carnet-proc'){
+    setTimeout(()=>{if(document.querySelector('[data-id="reg-carnet-proc"].on')){toastReg.style.display='block';setTimeout(()=>{toastReg.style.display='none';go('reg-carnet-listo')},1200)}},1800);
+  }
+}
+go('reg-p1');
+</script>
+</body>
+</html>

@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mockup — Plantilla carnet Cuidadoras Voluntarias (aprobación PM)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@600;700;800&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1a1918;--panel:#252322;--line:rgba(255,255,255,.1);--txt:#ece8e3;--muted:rgba(255,255,255,.5);
+  --card-w:720px;
+  --vz-yellow:#ffcc00;--vz-blue:#003893;--vz-red:#cf142b;
+  --title-blue:#1a4fa0;--title-red:#d62828;--label:#0d2d6b;
+}
+html,body{min-height:100%;font-family:"DM Sans",system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:15px;line-height:1.5}
+.shell{max-width:1240px;margin:0 auto;padding:20px 16px 48px}
+.top h1{font-size:22px;font-weight:800}
+.top p{color:var(--muted);font-size:14px;margin-top:8px;max-width:78ch}
+.ref-img{max-width:360px;border-radius:12px;border:2px solid var(--line);margin-top:12px;display:block}
+.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.meta span{font-size:11px;font-weight:700;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.06);border:1px solid var(--line)}
+.meta .scope{background:rgba(30,132,73,.2);color:#b8f0cf;border-color:rgba(30,132,73,.35)}
+.meta .gate{background:rgba(90,74,160,.22);color:#d4ccf5}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}
+.tab{font:700 12px/1.2 inherit;padding:10px 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:var(--txt);cursor:pointer}
+.tab.on{background:#fff;color:#111;border-color:#fff}
+.layout{display:grid;gap:24px}
+@media(min-width:980px){.layout{grid-template-columns:1fr 300px}}
+.panel{display:none}.panel.on{display:block}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.stage-label{font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:center}
+.ruler{font-size:12px;color:var(--muted);text-align:center}
+
+/* ── Carnet 7×5 in ── */
+.carnet-wrap{width:min(100%,var(--card-w));aspect-ratio:7/5}
+.carnet{
+  width:100%;height:100%;position:relative;border-radius:16px;overflow:hidden;background:#fff;
+  box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 0 1px rgba(0,0,0,.08);
+  font-family:"Montserrat",sans-serif;
+}
+.carnet svg.deco{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.carnet .asset{position:absolute;pointer-events:none;user-select:none}
+.asset-flag-tl{top:0;left:0;width:34%;height:auto;z-index:2}
+.asset-title{top:0;left:28%;width:58%;height:auto;z-index:5}
+.asset-heart-br{bottom:5%;right:0;width:19%;height:auto;z-index:4}
+
+/* Foto */
+.photo-slot{
+  position:absolute;left:5%;top:18%;width:24%;height:60%;z-index:6;
+  border:2.5px dashed #8eb4d8;border-radius:12px;background:#ececec;overflow:hidden;
+}
+.photo-slot .silhouette{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(180deg,#e8e8e8,#d5d5d5);
+}
+.photo-slot .silhouette svg{width:55%;opacity:.45}
+.photo-slot img{width:100%;height:100%;object-fit:cover}
+
+/* Campos */
+.fields{position:absolute;left:32%;top:34%;width:58%;z-index:7;display:flex;flex-direction:column;gap:clamp(8px,2.2vw,16px)}
+.field{display:flex;align-items:center;gap:clamp(6px,1.5vw,10px);min-height:0}
+.field-icon{
+  width:clamp(26px,6.5vw,38px);height:clamp(26px,6.5vw,38px);border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;color:#fff;font-size:clamp(12px,2.8vw,16px);
+  box-shadow:0 2px 4px rgba(0,0,0,.15);
+}
+.field.nombre .field-icon{background:var(--vz-yellow);color:#333}
+.field.apellido .field-icon{background:var(--vz-blue)}
+.field.cedula .field-icon{background:var(--vz-red)}
+.field-body{flex:1;min-width:0;padding:4px 0 2px}
+.field-label{font-size:clamp(7px,1.5vw,10px);font-weight:800;color:var(--label);letter-spacing:.06em;line-height:1}
+.field-value{
+  font-size:clamp(10px,2.2vw,15px);font-weight:700;color:#1a1a1a;margin-top:2px;
+  border-bottom:2px dashed #b0b0b0;padding-bottom:2px;min-height:1.2em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.field.nombre .field-body{background:linear-gradient(90deg,rgba(255,204,0,.35),transparent 85%);border-radius:4px;padding-left:4px}
+.field.apellido .field-body{background:linear-gradient(90deg,rgba(0,56,147,.12),transparent 85%);border-radius:4px;padding-left:4px}
+.field.cedula .field-body{background:linear-gradient(90deg,rgba(207,20,43,.15),transparent 85%);border-radius:4px;padding-left:4px}
+.field.empty .field-value{color:#aaa;font-weight:600;font-style:italic;font-size:clamp(9px,1.8vw,12px)}
+
+.num-badge{
+  position:absolute;left:6%;bottom:8%;z-index:7;font-size:clamp(8px,1.6vw,11px);font-weight:800;
+  color:var(--label);background:rgba(255,255,255,.85);padding:3px 8px;border-radius:999px;
+  border:1px solid rgba(0,56,147,.2);
+}
+
+/* Modo capas */
+.carnet.layers .photo-slot{outline:3px dashed var(--vz-blue);outline-offset:-3px;background:rgba(0,56,147,.06)}
+.carnet.layers .photo-slot .silhouette,.carnet.layers .photo-slot img{opacity:.15}
+.carnet.layers .photo-slot::after{
+  content:"FOTO";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-weight:800;font-size:11px;color:var(--vz-blue);
+}
+.carnet.layers .field-body{outline:2px dashed var(--vz-red);outline-offset:2px}
+.carnet.layers .field-value{font-size:9px;color:var(--vz-blue)}
+
+.compare{display:grid;gap:16px;width:100%}
+@media(min-width:760px){.compare{grid-template-columns:1fr 1fr}}
+.compare h3{font-size:13px;font-weight:800;margin-bottom:8px}
+
+aside.notes{background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:16px;padding:16px;font-size:13px;position:sticky;top:16px;align-self:start}
+aside.notes h2{font-size:15px;font-weight:800;margin-bottom:8px}
+aside.notes ul{padding-left:18px;margin:8px 0}
+aside.notes li{margin-bottom:6px}
+aside.notes .open{margin-top:12px;padding:10px;border-radius:10px;background:rgba(255,180,60,.07);border:1px solid rgba(255,180,60,.18);font-size:12px;color:#ffd89a}
+aside.notes code{font-size:11px;background:rgba(0,0,0,.3);padding:1px 5px;border-radius:4px}
+.field-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:10px}
+.field-table th,.field-table td{border:1px solid var(--line);padding:5px 7px;text-align:left}
+.field-table th{background:rgba(255,255,255,.05)}
+.approve{margin-top:14px;padding:12px;border-radius:10px;background:rgba(90,74,160,.15);border:1px solid rgba(90,74,160,.3);font-size:12px}
+</style>
+</head>
+<body>
+<!-- scope: in_scope — template Cuidadoras Voluntarias 7×5 in -->
+<!-- scope: in_scope — foto + nombre + apellido + cédula -->
+<!-- UX OPEN: N° voluntaria no aparece en plantilla Canva — ¿badge junto al título (como mockup) o 4.ª barra? -->
+<!-- UX OPEN: Export PNG blank desde Canva exacto vs rebuild SVG/CSS nativo -->
+
+<div class="shell">
+  <header class="top">
+    <h1>Plantilla carnet — Cuidadoras Voluntarias</h1>
+    <p>
+      Mockup alineado con la plantilla Canva del grupo (bandera VE, skyline, 3 campos).
+      El renderer debe usar esta plantilla <b>vacía</b> como fondo y superponer solo foto + datos —
+      no el export con ejemplos rellenos.
+    </p>
+    <p>Assets Canva reales para título, bandera y corazón. Recarga con <code>Cmd+Shift+R</code>.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:12px;align-items:flex-end">
+      <img class="ref-img" src="assets/carnet/title-cuidadoras-voluntarias.png" alt="Título" width="200" style="max-width:200px;background:#fff;padding:6px;border-radius:8px">
+      <img class="ref-img" src="assets/carnet/flag-swoosh-tl.png" alt="Bandera" width="120" style="max-width:120px;background:#fff;padding:6px;border-radius:8px">
+      <img class="ref-img" src="assets/carnet/heart-flag-ve.png" alt="Corazón" width="100" style="max-width:100px;background:#fff;padding:6px;border-radius:8px">
+      <img class="ref-img" src="assets/carnet-template-ref.png" alt="Plantilla completa" width="200" style="max-width:200px">
+    </div>
+    <div class="meta">
+      <span class="scope">in_scope · template nativo</span>
+      <span class="scope">177,8 × 127 mm · 7×5 in</span>
+      <span class="gate">Gate PM · approve</span>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button type="button" class="tab on" data-panel="blank">1 · Plantilla vacía</button>
+    <button type="button" class="tab" data-panel="filled">2 · Con datos</button>
+    <button type="button" class="tab" data-panel="layers">3 · Capas builder</button>
+    <button type="button" class="tab" data-panel="compare">4 · Objetivo vs hoy</button>
+  </nav>
+
+  <div class="layout">
+    <main>
+      <section class="panel on" id="panel-blank">
+        <div class="stage">
+          <div class="stage-label">Asset <code>template-cuidadoras-voluntarias-blank.png</code></div>
+          <div class="carnet-wrap"><div class="carnet" id="card-blank"></div></div>
+          <p class="ruler">Impresión 7 × 5 pulgadas · horizontal</p>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-filled">
+        <div class="stage">
+          <div class="stage-label">Ejemplo · María González · N° 142</div>
+          <div class="carnet-wrap"><div class="carnet" id="card-filled"></div></div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-layers">
+        <div class="stage">
+          <div class="stage-label">Zonas dinámicas para <code>render-carnet</code></div>
+          <div class="carnet-wrap"><div class="carnet layers" id="card-layers"></div></div>
+          <table class="field-table">
+            <thead><tr><th>Capa</th><th>BD</th><th>Notas</th></tr></thead>
+            <tbody>
+              <tr><td>Foto 3:4</td><td><code>foto_storage_path</code></td><td>Marco punteado izquierdo</td></tr>
+              <tr><td>NOMBRE</td><td><code>nombre</code></td><td>Barra amarilla</td></tr>
+              <tr><td>APELLIDO</td><td><code>apellido</code></td><td>Barra azul</td></tr>
+              <tr><td>CÉDULA</td><td><code>id_dni</code></td><td>Barra roja</td></tr>
+              <tr><td>N° badge</td><td><code>numero_voluntaria</code></td><td>UX OPEN — no en Canva ref</td></tr>
+              <tr><td>Título + estrellas</td><td><code>title-cuidadoras-voluntarias.png</code></td><td>Asset Canva fijo</td></tr>
+              <tr><td>Bandera brush</td><td><code>flag-swoosh-tl.png</code></td><td>Esquina sup. izq.</td></tr>
+              <tr><td>Corazón VE</td><td><code>heart-flag-ve.png</code></td><td>Esquina inf. der.</td></tr>
+              <tr><td>Skyline / borde</td><td>SVG o PNG fondo</td><td>Parte inferior</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-compare">
+        <div class="compare">
+          <div>
+            <h3>❌ Hoy — PNG Canva relleno</h3>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Fantasmas (Anyelisa, Flor Guerrero) + watermark.</p>
+          </div>
+          <div>
+            <h3>✅ Objetivo — plantilla vacía + capas</h3>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:10px">Como pestaña 2 · solo datos de la voluntaria.</p>
+            <div class="carnet-wrap"><div class="carnet" id="card-target"></div></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="notes">
+      <h2 id="notes-title">Plantilla vacía</h2>
+      <div id="notes-body">
+        <ul>
+          <li>Título fijo: <b>Cuidadoras Voluntarias</b> (script azul + rojo)</li>
+          <li>3 campos con etiqueta: NOMBRE · APELLIDO · CÉDULA</li>
+          <li>Decoración VE: bandera arriba-izq, corazón abajo-der, skyline</li>
+          <li>Coord. exporta PNG <em>sin</em> foto ni textos de ejemplo</li>
+        </ul>
+        <div class="open" id="notes-open">
+          <b>UX OPEN</b>
+          <ul style="margin-top:6px;padding-left:16px">
+            <li>¿Dónde va el <b>N° voluntaria</b>? (badge propuesto arriba-derecha)</li>
+            <li>¿Rebuild 100% nativo o PNG blank + overlay?</li>
+          </ul>
+        </div>
+        <div class="approve" id="notes-approve">
+          <b>Gate PM</b> — Responde <code>approve</code> o cambios. Luego builder actualiza <code>render-carnet</code>.
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const ASSET = 'assets/carnet/';
+const SILHOUETTE = '<svg viewBox="0 0 24 24" fill="#999"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v1.2h19.2v-1.2c0-3.2-6.4-4.8-9.6-4.8z"/></svg>';
+
+function fixedAssetsHtml() {
+  return `<img class="asset asset-flag-tl" src="${ASSET}flag-swoosh-tl.png" alt="">
+    <img class="asset asset-title" src="${ASSET}title-cuidadoras-voluntarias.png" alt="Cuidadoras Voluntarias">
+    <img class="asset asset-heart-br" src="${ASSET}heart-flag-ve.png" alt="">`;
+}
+
+function decoSvg() {
+  return `<svg class="deco" viewBox="0 0 700 500" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <g opacity=".06" fill="#888" stroke="#888" stroke-width="1">
+      <path d="M520 180 L540 120 L560 180 Z M530 180 v40"/>
+      <rect x="480" y="200" width="30" height="25" rx="2"/>
+    </g>
+    <path d="M0 430 Q87 410 175 430 T350 430 T525 430 T700 430 V500 H0 Z" fill="#ffcc00"/>
+    <path d="M0 445 Q87 425 175 445 T350 445 T525 445 T700 445 V500 H0 Z" fill="#003893"/>
+    <path d="M0 460 Q87 440 175 460 T350 460 T525 460 T700 460 V500 H0 Z" fill="#cf142b"/>
+    <path fill="#003893" opacity=".85" d="M0 400 L30 380 L55 395 L80 370 L110 390 L140 360 L170 385 L200 355 L230 375 L260 350 L290 370 L320 345 L350 365 L380 340 L410 360 L440 335 L470 355 L500 330 L530 350 L560 325 L590 345 L620 320 L650 340 L680 315 L700 330 L700 430 L0 430 Z"/>
+    <path fill="none" stroke="#003893" stroke-width="3" d="M180 400 Q280 320 380 400"/>
+    <path fill="none" stroke="#003893" stroke-width="2" d="M200 400 L200 360 M240 400 L240 350 M280 400 L280 345 M320 400 L320 350 M360 400 L360 360"/>
+    <path d="M680 120 Q710 250 680 380" fill="none" stroke="#003893" stroke-width="16" opacity=".2"/>
+    <path d="M690 130 Q715 250 690 370" fill="none" stroke="#cf142b" stroke-width="7" opacity=".15"/>
+  </svg>`;
+}
+
+function fieldsHtml(data) {
+  const d = data || {};
+  const e = (k, ph) => d[k] ? d[k] : `<span class="empty">${ph}</span>`;
+  return `<div class="fields">
+    <div class="field nombre"><div class="field-icon">👤</div><div class="field-body"><div class="field-label">NOMBRE</div><div class="field-value">${e('nombre','—')}</div></div></div>
+    <div class="field apellido"><div class="field-icon">👤</div><div class="field-body"><div class="field-label">APELLIDO</div><div class="field-value">${e('apellido','—')}</div></div></div>
+    <div class="field cedula"><div class="field-icon">🪪</div><div class="field-body"><div class="field-label">CÉDULA</div><div class="field-value">${e('cedula','—')}</div></div></div>
+  </div>`;
+}
+
+function photoHtml(src) {
+  if (src) return `<div class="photo-slot"><img src="${src}" alt="Foto"></div>`;
+  return `<div class="photo-slot"><div class="silhouette">${SILHOUETTE}</div></div>`;
+}
+
+function buildCard(el, opts) {
+  const num = opts.num ? `<div class="num-badge">N° ${opts.num}</div>` : '';
+  el.innerHTML = decoSvg() + fixedAssetsHtml() + photoHtml(opts.photo) + fieldsHtml(opts.data) + num;
+}
+
+buildCard(document.getElementById('card-blank'), {});
+buildCard(document.getElementById('card-filled'), {
+  data: { nombre: 'María Fernanda', apellido: 'González', cedula: 'V-24.567.890' },
+  num: 142,
+  photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=533&fit=crop&crop=face',
+});
+buildCard(document.getElementById('card-layers'), {
+  data: { nombre: '{{ nombre }}', apellido: '{{ apellido }}', cedula: '{{ id_dni }}' },
+  num: '{{ numero }}',
+});
+buildCard(document.getElementById('card-target'), {
+  data: { nombre: 'María Fernanda', apellido: 'González', cedula: 'V-24.567.890' },
+  num: 88,
+  photo: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=533&fit=crop&crop=face',
+});
+
+const NOTES = {
+  blank: { title: 'Plantilla vacía', extra: '<p>Coord. exporta este diseño <b>sin</b> rellenar campos ni foto.</p>' },
+  filled: { title: 'Con datos', extra: '<p>Valores desde registro · foto upload 3:4.</p>' },
+  layers: { title: 'Capas builder', extra: '<p>Fondo = PNG/SVG fijo · encima foto + 3 textos + N°.</p>' },
+  compare: { title: 'Objetivo', extra: '<p>Dejar de usar export Canva con datos demo.</p>' },
+};
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab,.panel').forEach(el => el.classList.remove('on'));
+    btn.classList.add('on');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('on');
+    const n = NOTES[btn.dataset.panel];
+    document.getElementById('notes-title').textContent = n.title;
+    document.getElementById('notes-body').innerHTML = n.extra +
+      document.getElementById('notes-open').outerHTML +
+      document.getElementById('notes-approve').outerHTML;
+  });
+});
+</script>
+</body>
+</html>

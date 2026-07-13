@@ -8,6 +8,11 @@
       "source": "/cuidadoras-caracas/cuidadoras-caracas:path(.*)",
       "destination": "/cuidadoras-caracas/",
       "statusCode": 302
+    },
+    {
+      "source": "/cuidadoras-caracas",
+      "destination": "/cuidadoras-caracas/",
+      "statusCode": 302
     }
   ],
   "rewrites": [
@@ -26,8 +31,9 @@
     { "source": "/cuidadoras-caracas/jornada/", "destination": "/cuidadoras-caracas/jornada.html" },
     { "source": "/cuidadoras-caracas/jornada/:id", "destination": "/cuidadoras-caracas/jornada.html?id=:id" },
     { "source": "/cuidadoras-caracas/jornada/:id/", "destination": "/cuidadoras-caracas/jornada.html?id=:id" },
+    { "source": "/cuidadoras-caracas/carnet", "destination": "/cuidadoras-caracas/carnet.html" },
+    { "source": "/cuidadoras-caracas/carnet/", "destination": "/cuidadoras-caracas/carnet.html" },
     { "source": "/cuidadoras-caracas/", "destination": "/cuidadoras-caracas/index.html" },
-    { "source": "/cuidadoras-caracas", "destination": "/cuidadoras-caracas/index.html" },
     { "source": "/voluntarios/cuidadoras-caracas", "destination": "/cuidadoras-caracas/index.html" },
     { "source": "/voluntarios/cuidadoras-caracas/", "destination": "/cuidadoras-caracas/index.html" },
     { "source": "/cuidadoras-caracas.html", "destination": "/cuidadoras-caracas/index.html" },

@@ -6,10 +6,11 @@
 <meta name="theme-color" content="#5A4AA0">
 <title>Mi cuenta — Cuidadoras Caracas</title>
 <link rel="icon" href="../icon.svg" type="image/svg+xml">
+<script>window.__nativeFetch=window.fetch.bind(window);</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#F1EEEA;--ind:#5A4AA0;--indl:#EEEBF6;--indt:#463A82;--grn:#1E8449;--txt:#1C1A19;--txt2:#6B6560;--line:#E7E2DB;--line2:#E2DCD4;--app-max:580px}
+:root{--bg:#F1EEEA;--ind:#5A4AA0;--indl:#EEEBF6;--indt:#463A82;--grn:#1E8449;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--app-max:580px}
 html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px}
 .app{max-width:var(--app-max);margin:0 auto;min-height:100vh;padding-bottom:24px}
 .hdr{background:var(--ind);color:#fff;padding:16px 18px}
@@ -24,9 +25,6 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .brig{display:flex;flex-direction:column;gap:8px}
 .brig-item{border:1.5px solid var(--line2);border-radius:12px;padding:12px;cursor:pointer;font-size:14px}
 .brig-item.on{border-color:var(--ind);background:var(--indl)}
-.nav-links{display:flex;flex-direction:column;gap:8px;margin-top:12px}
-.link{display:block;text-align:center;padding:14px;border-radius:12px;background:var(--ind);color:#fff;text-decoration:none;font-weight:800;font-size:15px}
-.link-s{background:#fff;border:1px solid var(--line2);color:var(--txt2)}
 .jlist{display:flex;flex-direction:column;gap:10px}
 .jcard{display:block;background:var(--bg);border:1px solid var(--line2);border-radius:14px;padding:14px;text-decoration:none;color:inherit}
 .jcard b{font-size:15px;display:block;margin-bottom:4px;line-height:1.35}
@@ -39,7 +37,18 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .badge.me{background:var(--indl);color:var(--indt)}
 .jempty{font-size:13px;color:var(--txt2);line-height:1.5;padding:8px 0;text-align:center}
 .jcta{font-size:12px;font-weight:800;color:var(--ind)}
+.menu-list{display:flex;flex-direction:column;gap:0;margin-top:4px}
+.menu-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;width:100%;font-family:inherit;text-align:left;color:inherit;text-decoration:none}
+.menu-item:last-child{border-bottom:none;padding-bottom:0}
+.menu-item:first-child{padding-top:0}
+.menu-item:active{opacity:.7}
+.menu-item-ico{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.menu-item-body{flex:1;min-width:0}
+.menu-item-t{font-size:15px;font-weight:800;display:block}
+.menu-item-s{font-size:12px;color:var(--txt2);margin-top:2px;line-height:1.35}
+.menu-item-arrow{color:var(--txt3);font-size:18px;font-weight:700;flex-shrink:0}
 .btn{border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;width:100%;background:var(--grn);color:#fff;font-family:inherit;margin-top:8px}
+.btn-ghost{background:#fff;border:1px solid var(--line2);color:var(--txt2);margin-top:14px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:opacity .2s;z-index:99}
 .toast.show{opacity:1}
 </style>
@@ -47,7 +56,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 <body>
 <div class="app">
   <header class="hdr">
-    <a href="./">← Inicio</a>
+    <a href="/cuidadoras-caracas/">← Inicio</a>
     <h1 id="hola">Mi cuenta</h1>
     <p id="num"></p>
   </header>
@@ -65,14 +74,26 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <p style="font-size:13px;color:var(--txt2);margin-bottom:12px;line-height:1.45">Elige dónde quieres colaborar. Si te asignaron una brigada, puedes cambiarla cuando quieras.</p>
     <div class="brig" id="brig"></div>
     <button type="button" class="btn" id="btn-save">Guardar brigadas</button>
-    <div class="nav-links">
-      <button type="button" class="link link-s" id="btn-out" style="border:none;font-family:inherit;cursor:pointer">Cerrar sesión</button>
+  </div>
+  <div class="card">
+    <div class="card-t">Datos de mi cuenta</div>
+    <div class="menu-list">
+      <a class="menu-item" id="menu-carnet" href="/cuidadoras-caracas/carnet?from=cuenta">
+        <span class="menu-item-ico">🪪</span>
+        <span class="menu-item-body">
+          <span class="menu-item-t">Mi carnet</span>
+          <span class="menu-item-s" id="carnet-sub">Cargando…</span>
+        </span>
+        <span class="menu-item-arrow">›</span>
+      </a>
     </div>
+    <button type="button" class="btn btn-ghost" id="btn-out">Cerrar sesión</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
 <script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
-<script src="vol.js?v=20260707"></script>
+<script src="vol.js?v=20260713a"></script>
+<script src="carnet.js?v=20260712h"></script>
 <script>
 if(!CC_VOL.requireSession('mi-cuenta'))throw 0;
 const vol=CC_VOL.getSession();
@@ -142,6 +163,21 @@ async function loadJornadas(){
   renderJornadas();
 }
 
+async function loadCarnetMenu(){
+  const sub=document.getElementById('carnet-sub');
+  const link=document.getElementById('menu-carnet');
+  try{
+    const d=await CC_CARNET.disponible();
+    if(!d.template_available){
+      sub.textContent='No disponible para este grupo';
+      return;
+    }
+    sub.textContent=d.menu_subtitulo||'Generar o descargar';
+  }catch(e){
+    sub.textContent='Generar o descargar';
+  }
+}
+
 function renderBrigadas(){
   document.getElementById('brig').innerHTML=brigCat.map(b=>`
     <div class="brig-item${sel.has(b.slug)?' on':''}" data-s="${b.slug}">
@@ -159,6 +195,7 @@ async function init(){
   brigCat=data||[];
   renderBrigadas();
   loadJornadas();
+  loadCarnetMenu();
 }
 
 document.getElementById('btn-save').onclick=async()=>{
@@ -168,7 +205,7 @@ document.getElementById('btn-save').onclick=async()=>{
   CC_VOL.setSession({...vol,brigadas:data.brigadas},vol.cred);
   toast('Brigadas guardadas');
 };
-document.getElementById('btn-out').onclick=()=>{CC_VOL.clearSession();location.href='./'};
+document.getElementById('btn-out').onclick=()=>{CC_VOL.clearSession();location.href='/cuidadoras-caracas/'};
 init();
 </script>
 </body>

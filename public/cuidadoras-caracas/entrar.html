@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#5A4AA0">
 <title>Entrar — Cuidadoras Caracas</title>
 <link rel="icon" href="../icon.svg" type="image/svg+xml">
+<script>window.__nativeFetch=window.fetch.bind(window);</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -29,7 +30,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 </head>
 <body>
 <div class="app">
-  <header class="hdr"><a href="./">← Cuidadoras Caracas</a></header>
+  <header class="hdr"><a href="/cuidadoras-caracas/">← Cuidadoras Caracas</a></header>
   <div class="card">
     <h2>💜 Ya soy voluntaria</h2>
     <p class="sub">Usa la misma red social y cédula del registro.</p>
@@ -44,18 +45,19 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       <input id="ced4" type="password" inputmode="numeric" maxlength="4" placeholder="••••" autocomplete="off" autocapitalize="off" spellcheck="false">
     </div>
     <button type="button" class="btn" id="btn-go">Entrar</button>
-    <p class="foot">¿Primera vez? <a href="registro">Regístrate aquí</a></p>
+    <p class="foot">¿Primera vez? <a href="/cuidadoras-caracas/registro">Regístrate aquí</a></p>
   </div>
 </div>
 <script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
-<script src="vol.js?v=20260707"></script>
+<script src="vol.js?v=20260713a"></script>
 <script>
 const ret=new URLSearchParams(location.search).get('return')||'mi-cuenta';
 function resolveReturn(path){
-  if(!path||path==='mi-cuenta')return CC_VOL.basePath()+'mi-cuenta';
-  if(path.startsWith('http'))return path;
-  if(path.startsWith('/'))return path;
-  return CC_VOL.basePath()+path.replace(/^\//,'');
+  const short=CC_VOL.normalizeReturnPath(path);
+  if(!short||short==='mi-cuenta')return CC_VOL.basePath()+'mi-cuenta';
+  if(short.startsWith('http'))return short;
+  if(short.startsWith('/'))return short;
+  return CC_VOL.basePath()+short.replace(/^\//,'');
 }
 if(CC_VOL.getSession())location.replace(resolveReturn(ret));
 function showErr(m){const e=document.getElementById('err');e.textContent=m;e.classList.add('show')}

@@ -8,6 +8,7 @@
 <title>Cuidadoras Caracas — Registro · Ayuda Venezuela</title>
 <link rel="icon" href="../icon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
+<script>window.__nativeFetch=window.fetch.bind(window);</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../analytics-config.js"></script>
 <style>
@@ -85,6 +86,17 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .brig-mision{font-size:12px;color:var(--txt2);margin-top:3px;line-height:1.4}
 .brig-req{font-size:11px;color:var(--txt3);margin-top:6px;line-height:1.35}
 .brig-req b{color:var(--txt2);font-weight:700}
+.photo-box{border:1px dashed var(--line2);border-radius:14px;padding:14px;background:var(--surf);margin-bottom:12px}
+.photo-hint{font-size:12px;color:var(--txt3);margin-top:8px;line-height:1.45}
+.photo-row{display:flex;gap:14px;align-items:flex-start;margin-top:10px}
+.photo-frame{width:90px;height:120px;border-radius:10px;border:2px solid var(--line2);background:#ddd;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--txt3)}
+.photo-frame img{width:100%;height:100%;object-fit:cover}
+.photo-frame.has{background:var(--indl);border-color:var(--ind)}
+.media-upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:2px dashed var(--ind);border-radius:12px;font-size:14px;font-weight:700;color:var(--ind);cursor:pointer;background:var(--indl);text-align:center;font-family:inherit;width:100%}
+.media-upload-btn:active{opacity:.85}
+.media-upload-btn input{display:none}
+.carnet-cta-box{background:var(--indl);border:1px solid var(--ind);border-radius:16px;padding:16px;margin-top:16px;text-align:left}
+.carnet-cta-box .box-t{margin-bottom:6px}
 </style>
 </head>
 <body>
@@ -119,6 +131,23 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         </div>
         <div class="field"><label for="idDni">Cédula / ID *</label><input id="idDni" required placeholder="Ej: V-12.345.678"></div>
         <div class="field"><label for="telefono">Teléfono *</label><input id="telefono" type="tel" required autocomplete="tel"></div>
+        <div class="photo-box">
+          <div class="box-t" style="margin-bottom:4px">Tu foto (opcional)</div>
+          <div class="ssub" style="margin-bottom:0">Para tu carnet. Puedes sacarlo al terminar el registro o después en Mi cuenta.</div>
+          <div class="photo-row" id="photoRow" style="display:none">
+            <div class="photo-frame has" id="photoFrame"><img id="photoPreview" alt="Vista previa"></div>
+            <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">
+              <b style="color:var(--txt);display:block;margin-bottom:4px">Vista previa</b>
+              Recorte vertical 3:4 para el carnet.
+              <button type="button" class="btn btn-ghost" id="btnQuitarFoto" style="margin-top:8px;padding:8px;font-size:12px">Quitar foto</button>
+            </div>
+          </div>
+          <label class="media-upload-btn" style="margin-top:12px" id="photoUploadLbl">
+            📷 Elegir foto
+            <input type="file" id="fotoIn" accept="image/jpeg,image/png,image/webp,image/*" capture="user">
+          </label>
+          <div class="photo-hint">Foto de rostro, fondo claro, sin filtros. Máx. 5 MB.</div>
+        </div>
         <div class="box">
           <div class="box-t">Ubicación actual</div>
           <div class="grid2">
@@ -237,8 +266,13 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <div class="cred-warn" id="credWarn" hidden>
       No indicaste red social en el registro. Pide a una coordinadora que la agregue para poder entrar al portal.
     </div>
+    <div class="carnet-cta-box" id="carnetCtaBox" hidden>
+      <div class="box-t">🪪 Tu carnet</div>
+      <p style="font-size:13px;color:var(--txt2);line-height:1.45;margin-bottom:0" id="carnetCtaHint">Súbele una foto y sácalo en segundos.</p>
+    </div>
     <div class="ok-actions">
-      <button type="button" class="btn btn-next" id="btnEntrar" hidden>Entrar a mi cuenta →</button>
+      <button type="button" class="btn btn-submit" id="btnCarnet" hidden>Generar mi carnet</button>
+      <button type="button" class="btn btn-next" id="btnEntrar" hidden style="background:#fff;border:1px solid var(--line2);color:var(--txt2)">Entrar a mi cuenta →</button>
       <button type="button" class="btn btn-ghost" onclick="location.reload()">Registrar otra voluntaria</button>
     </div>
   </div>
@@ -247,18 +281,58 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 <script src="../scraper-config.js"></script>
 <script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
-<script src="vol.js?v=20260707"></script>
+<script src="vol.js?v=20260712h"></script>
+<script src="carnet.js?v=20260712h"></script>
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
 <script>
 const GRUPO=window.CC_GRUPO_SLUG||'cuidadoras_caracas';
 const SB_URL='https://ebsgvamzaegjgpjkpick.supabase.co';
 const SB_KEY='sb_publishable_vg8SSOkKpgvwOSyi2k-aVg_lslrQsBA';
-const db=supabase.createClient(SB_URL,SB_KEY);
+function volFetch(input,init){
+  const headers=new Headers(init?.headers||{});
+  headers.set('apikey',SB_KEY);
+  headers.set('Authorization','Bearer '+SB_KEY);
+  return fetch(input,{...init,headers});
+}
+const db=supabase.createClient(SB_URL,SB_KEY,{
+  auth:{
+    persistSession:false,
+    autoRefreshToken:false,
+    detectSessionInUrl:false,
+    storage:{getItem:()=>null,setItem:()=>{},removeItem:()=>{}},
+  },
+  global:{fetch:volFetch},
+});
 
 let step=1,iti;
 const brigadasSel=new Set();
 let brigadasCatalogo=[];
 let registroOk=null;
+let fotoBlob=null;
+
+const fotoIn=document.getElementById('fotoIn');
+if(fotoIn){
+  fotoIn.onchange=async()=>{
+    const file=fotoIn.files&&fotoIn.files[0];
+    if(!file)return;
+    try{
+      const cropped=await CC_CARNET.cropPortrait3x4(file);
+      fotoBlob=cropped.blob;
+      document.getElementById('photoRow').style.display='';
+      document.getElementById('photoPreview').src=URL.createObjectURL(fotoBlob);
+      document.getElementById('photoUploadLbl').firstChild.textContent='📷 Cambiar foto';
+    }catch(e){
+      fotoBlob=null;
+      flash(e.message||'No se pudo usar esa foto');
+    }
+  };
+}
+document.getElementById('btnQuitarFoto')?.addEventListener('click',()=>{
+  fotoBlob=null;
+  fotoIn.value='';
+  document.getElementById('photoRow').style.display='none';
+  document.getElementById('photoUploadLbl').firstChild.textContent='📷 Elegir foto';
+});
 
 const BRIGADAS_FALLBACK=[
   {slug:'logistica_alimentos',nombre:'Brigada de Logística de Alimentos',mision:'Preparar, trasladar y distribuir comidas de forma organizada.',requisitos:'Experiencia en cocina deseable. No es obligatorio.',icono:'🍲',color_bg:'#D6EAF8',color_fg:'#1A5276'},
@@ -321,7 +395,7 @@ function showRegistroOk(result,payload){
   const ced4=cedula4(payload.id_dni);
   const puedeEntrar=plat&&user&&ced4.length===4&&result?.id;
 
-  registroOk={result,payload,plat,user,ced4,puedeEntrar};
+  registroOk={result,payload,plat,user,ced4,puedeEntrar,fotoSubida:false,fotoPendiente:!!fotoBlob};
   document.getElementById('form-wrap').hidden=true;
   document.getElementById('ok').hidden=false;
   document.getElementById('okNum').textContent='Voluntaria N° '+(result?.numero_voluntaria??'—');
@@ -329,6 +403,9 @@ function showRegistroOk(result,payload){
   const credBox=document.getElementById('credBox');
   const credWarn=document.getElementById('credWarn');
   const btnEntrar=document.getElementById('btnEntrar');
+  const btnCarnet=document.getElementById('btnCarnet');
+  const carnetBox=document.getElementById('carnetCtaBox');
+  const carnetHint=document.getElementById('carnetCtaHint');
 
   if(puedeEntrar){
     credBox.hidden=false;
@@ -337,13 +414,62 @@ function showRegistroOk(result,payload){
     document.getElementById('credUser').textContent=user;
     document.getElementById('credCed4').textContent=ced4;
     btnEntrar.hidden=false;
+    carnetBox.hidden=false;
+    btnCarnet.hidden=false;
+    CC_VOL.setSession({
+      id:result.id,
+      nombre:payload.nombre,
+      apellido:payload.apellido,
+      numero_voluntaria:result.numero_voluntaria,
+      brigadas:payload.brigadas||[],
+    },{plataforma:plat,usuario:user,cedula4:ced4});
+    if(fotoBlob){
+      carnetHint.textContent='Ya tienes foto. Genera tu carnet ahora para imprimirlo.';
+      btnCarnet.textContent='Guardando foto…';
+      btnCarnet.disabled=true;
+      subirFotoPostRegistro().finally(()=>{
+        btnCarnet.disabled=false;
+        if(registroOk.fotoSubida){
+          btnCarnet.textContent='Generar y descargar mi carnet';
+        }else{
+          btnCarnet.textContent='Generar mi carnet';
+        }
+      });
+    }else{
+      carnetHint.textContent='Súbele una foto y sácalo en segundos.';
+      btnCarnet.textContent='Generar mi carnet';
+    }
   }else{
     credBox.hidden=true;
     credWarn.hidden=false;
     btnEntrar.hidden=true;
+    btnCarnet.hidden=true;
+    carnetBox.hidden=true;
   }
   flash('Registro guardado');
 }
+
+async function subirFotoPostRegistro(){
+  if(!fotoBlob||!registroOk?.puedeEntrar)return;
+  try{
+    await CC_CARNET.uploadFoto(fotoBlob,'image/jpeg');
+    registroOk.fotoSubida=true;
+    fotoBlob=null;
+  }catch(e){
+    CC_CARNET.track('carnet_photo_upload_failed',{step:'registro'});
+    flash('Registro guardado. No pudimos guardar la foto…');
+    registroOk.fotoSubida=false;
+    registroOk.fotoPendiente=false;
+    document.getElementById('carnetCtaHint').textContent='Súbele una foto y sácalo en segundos.';
+    document.getElementById('btnCarnet').textContent='Generar mi carnet';
+  }
+}
+
+document.getElementById('btnCarnet').onclick=()=>{
+  if(!registroOk?.puedeEntrar)return;
+  const start=registroOk.fotoSubida?'1':'0';
+  location.href=CC_VOL.basePath()+'carnet.html?from=registro&start='+start;
+};
 
 document.querySelectorAll('.cred-copy[data-copy]').forEach(btn=>{
   btn.onclick=()=>{
