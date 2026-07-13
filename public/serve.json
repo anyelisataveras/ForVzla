@@ -1,0 +1,25 @@
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/cuidadoras-caracas", "destination": "/cuidadoras-caracas/", "type": 302 }
+  ],
+  "rewrites": [
+    { "source": "/rescatistas", "destination": "/rescatistas.html" },
+    { "source": "/cuidadoras-caracas/", "destination": "/cuidadoras-caracas/index.html" },
+    { "source": "/cuidadoras-caracas/registro", "destination": "/cuidadoras-caracas/registro.html" },
+    { "source": "/cuidadoras-caracas/registro/", "destination": "/cuidadoras-caracas/registro.html" },
+    { "source": "/cuidadoras-caracas/coord", "destination": "/cuidadoras-caracas/coord.html" },
+    { "source": "/cuidadoras-caracas/coord/", "destination": "/cuidadoras-caracas/coord.html" },
+    { "source": "/cuidadoras-caracas/entrar", "destination": "/cuidadoras-caracas/entrar.html" },
+    { "source": "/cuidadoras-caracas/entrar/", "destination": "/cuidadoras-caracas/entrar.html" },
+    { "source": "/cuidadoras-caracas/mi-cuenta", "destination": "/cuidadoras-caracas/mi-cuenta.html" },
+    { "source": "/cuidadoras-caracas/mi-cuenta/", "destination": "/cuidadoras-caracas/mi-cuenta.html" },
+    { "source": "/cuidadoras-caracas/jornadas", "destination": "/cuidadoras-caracas/jornadas.html" },
+    { "source": "/cuidadoras-caracas/jornadas/", "destination": "/cuidadoras-caracas/jornadas.html" },
+    { "source": "/cuidadoras-caracas/jornada", "destination": "/cuidadoras-caracas/jornada.html" },
+    { "source": "/cuidadoras-caracas/jornada/", "destination": "/cuidadoras-caracas/jornada.html" },
+    { "source": "/cuidadoras-caracas/carnet", "destination": "/cuidadoras-caracas/carnet.html" },
+    { "source": "/cuidadoras-caracas/carnet/", "destination": "/cuidadoras-caracas/carnet.html" }
+  ]
+}

@@ -113,6 +113,14 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .export-actions{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
 .export-preview-lbl{font-size:11px;font-weight:800;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin:4px 2px 8px}
 .export-preview{background:#0b141a;color:#e9edef;border-radius:14px;padding:16px;font-size:13px;line-height:1.55;white-space:pre-wrap;min-height:80px;margin-bottom:12px;max-height:280px;overflow:auto}
+.carnet-spec{font-size:12px;color:var(--txt2);line-height:1.5;margin:0 0 12px;padding-left:18px}
+.carnet-spec li{margin-bottom:4px}
+.carnet-prev-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px;margin:12px 0;text-align:center}
+.carnet-prev-wrap img{max-width:100%;height:auto;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+.carnet-prev-empty{font-size:13px;color:var(--txt3);padding:24px 8px}
+.carnet-upload{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:2px dashed var(--ind);border-radius:12px;font-size:14px;font-weight:700;color:var(--ind);cursor:pointer;background:var(--indl);text-align:center;font-family:inherit;width:100%}
+.carnet-upload input{display:none}
+.carnet-meta{font-size:11px;color:var(--txt3);margin-top:8px;line-height:1.45}
 .bottom{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:6px 8px calc(6px + env(safe-area-inset-bottom));z-index:30}
 .bottom button{flex:1;border:none;background:none;padding:8px 4px;font-size:10px;font-weight:700;color:var(--txt3);cursor:pointer;font-family:inherit}
 .bottom button.on{color:var(--ind)}
@@ -240,7 +248,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 <body>
 <div id="login-screen">
   <div class="login-hdr">
-    <a href="./">← Cuidadoras Caracas</a>
+    <a href="/cuidadoras-caracas/">← Cuidadoras Caracas</a>
     <h1>👩‍👧 Coordinación</h1>
   </div>
   <p style="font-size:14px;color:var(--txt2);margin-bottom:16px;line-height:1.5">Solo coordinadoras autorizadas. Usa el correo y contraseña que te dio el equipo.</p>
@@ -248,6 +256,9 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <div class="fld"><label for="login-password">Contraseña</label><input type="password" id="login-password" autocomplete="current-password"></div>
   <button type="button" class="btn btn-p" id="btn-login">Entrar</button>
   <p class="err" id="login-err"></p>
+  <p style="margin-top:18px;font-size:14px;text-align:center;line-height:1.5">
+    ¿Eres voluntaria? <a href="/cuidadoras-caracas/entrar" style="color:var(--ind);font-weight:700">Entrar al portal</a>
+  </p>
 </div>
 
 <div id="app">
@@ -266,6 +277,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       <button type="button" data-tab="jornadas">🗓 Jornadas</button>
       <button type="button" data-tab="sitios">📍 Sitios</button>
       <button type="button" data-tab="exportar">📤 Exportar</button>
+      <button type="button" data-tab="carnet">🪪 Carnet</button>
       <button type="button" data-tab="transparencia">💸 Transparencia</button>
       <button type="button" data-tab="equipo" id="nav-equipo" hidden>⚙️ Equipo</button>
     </nav>
@@ -376,6 +388,33 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         <div class="export-preview" id="export-preview">Elige una plantilla y pulsa «Generar texto».</div>
         <button type="button" class="btn btn-s" id="btn-export-copy" style="width:100%;margin-bottom:16px">📋 Copiar</button>
       </section>
+      <section class="panel" id="panel-carnet">
+        <div class="export-box">
+          <h3 style="font-size:15px;font-weight:800;margin-bottom:8px">Fondo del carnet</h3>
+          <p style="font-size:13px;color:var(--txt2);margin-bottom:10px;line-height:1.45">
+            Imagen <b>vacía</b> del diseño (sin foto ni nombres de ejemplo). Las voluntarias verán su foto y datos encima al generar el PDF.
+          </p>
+          <ul class="carnet-spec">
+            <li><b>Tamaño impresión:</b> 7 × 5 pulgadas (horizontal)</li>
+            <li><b>Píxeles recomendados:</b> 2100 × 1500 px (300 DPI) o mín. 1050 × 750 px (150 DPI)</li>
+            <li><b>Proporción:</b> 7:5 exacta (ancho &gt; alto)</li>
+            <li><b>Formato:</b> PNG (mejor) o JPEG · máx. 10 MB</li>
+            <li><b>Contenido:</b> plantilla en blanco, sin watermark Canva</li>
+          </ul>
+          <div class="carnet-prev-wrap" id="carnet-prev-wrap">
+            <div class="carnet-prev-empty" id="carnet-prev-empty">Sin fondo personalizado — se usa el diseño por defecto.</div>
+            <img id="carnet-prev-img" alt="Vista previa fondo carnet" hidden>
+          </div>
+          <p class="carnet-meta" id="carnet-meta"></p>
+          <label class="carnet-upload">
+            📷 Subir nuevo fondo
+            <input type="file" id="carnet-bg-file" accept="image/png,image/jpeg,image/webp">
+          </label>
+          <p style="font-size:12px;color:var(--txt3);margin-top:10px;line-height:1.45">
+            Al subir, los carnets <b>nuevos</b> usan esta imagen. Las voluntarias deben <b>regenerar</b> el carnet para ver el cambio.
+          </p>
+        </div>
+      </section>
       <section class="panel" id="panel-transparencia">
         <div class="quick" style="margin-bottom:12px">
           <button type="button" class="btn btn-p btn-sm" id="btn-fin-new-don">+ Donación</button>
@@ -423,6 +462,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     <button type="button" class="btn btn-s" data-tab="brigadas" style="margin-bottom:8px">🎯 Brigadas</button>
     <button type="button" class="btn btn-s" data-tab="sitios" style="margin-bottom:8px">📍 Sitios</button>
     <button type="button" class="btn btn-s" data-tab="exportar" style="margin-bottom:8px">📤 Exportar</button>
+    <button type="button" class="btn btn-s" data-tab="carnet" style="margin-bottom:8px">🪪 Carnet</button>
     <button type="button" class="btn btn-s" data-tab="transparencia" style="margin-bottom:8px">💸 Transparencia</button>
     <button type="button" class="btn btn-s" data-tab="equipo" id="mas-equipo" hidden>⚙️ Equipo</button>
   </div>
@@ -768,7 +808,7 @@ const db=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSe
 
 let session=null,authSeq=0,vols=[],brigCat=[],sitiosList=[],filter='todas',editId=null,sitioEditId=null,editBrig=new Set(),itiEdit=null,currentTab='inicio',esAdminGrupo=false,myRol='',creatingVol=false,exportSel=0,exportPreview='';
 
-const PAGE_TITLES={inicio:'Inicio',voluntarias:'Voluntarias',brigadas:'Brigadas',jornadas:'Jornadas',sitios:'Sitios',exportar:'Exportar',transparencia:'Transparencia',equipo:'Equipo'};
+const PAGE_TITLES={inicio:'Inicio',voluntarias:'Voluntarias',brigadas:'Brigadas',jornadas:'Jornadas',sitios:'Sitios',exportar:'Exportar',carnet:'Carnet',transparencia:'Transparencia',equipo:'Equipo'};
 
 function updatePageHdr(tab){
   currentTab=tab;
@@ -889,7 +929,11 @@ async function login(){
 }
 
 document.getElementById('btn-login').onclick=login;
-document.getElementById('btn-logout').onclick=async()=>{await db.auth.signOut();toast('Sesión cerrada')};
+document.getElementById('btn-logout').onclick=async()=>{
+  await db.auth.signOut();
+  toast('Sesión cerrada');
+  setTimeout(()=>{ location.href='/cuidadoras-caracas/'; }, 400);
+};
 ['login-email','login-password'].forEach(id=>{
   document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 });
@@ -911,6 +955,7 @@ function showTab(name){
   if(name==='brigadas')window.CC_BRIG?.renderBrigadas();
   if(name==='sitios')renderSitios();
   if(name==='exportar')renderExportOpts();
+  if(name==='carnet')loadCarnetPlantilla();
   if(name==='transparencia')window.CC_FIN?.refresh();
   if(name==='equipo'&&esAdminGrupo)renderEquipo();
   if(window.CC_JORN)CC_JORN.onShowTab(name);
@@ -931,6 +976,110 @@ document.getElementById('btn-incompletas').onclick=()=>{
   filter='incompleto';
   document.querySelectorAll('#filters .chip').forEach(c=>c.classList.toggle('on',c.dataset.f==='incompleto'));
   showTab('voluntarias');
+};
+
+const CARNET_BG_MAX = 10 * 1024 * 1024;
+const CARNET_TARGET_W = 2100;
+const CARNET_TARGET_H = 1500;
+
+async function loadCarnetPlantilla(){
+  const emptyEl=document.getElementById('carnet-prev-empty');
+  const imgEl=document.getElementById('carnet-prev-img');
+  const metaEl=document.getElementById('carnet-meta');
+  metaEl.textContent='Cargando…';
+  const{data,error}=await db.rpc('plantilla_carnet_coord',{p_grupo:GRUPO});
+  if(error||!data?.ok){
+    metaEl.textContent=error?.message||data?.error||'No se pudo cargar';
+    return;
+  }
+  const path=data.background_storage_path;
+  if(!path){
+    emptyEl.hidden=false;
+    imgEl.hidden=true;
+    metaEl.textContent='Versión plantilla: '+data.version+' · Sin fondo personalizado';
+    return;
+  }
+  const{data:signed,error:signErr}=await db.storage.from('carnet-plantillas').createSignedUrl(path,300);
+  if(signErr||!signed?.signedUrl){
+    metaEl.textContent='Fondo guardado pero no se pudo previsualizar';
+    return;
+  }
+  emptyEl.hidden=true;
+  imgEl.hidden=false;
+  imgEl.src=signed.signedUrl;
+  const updated=data.background_updated_at?new Date(data.background_updated_at).toLocaleString('es-VE'):'—';
+  metaEl.textContent='Versión '+data.version+' · Actualizado: '+updated;
+}
+
+function validateCarnetBgFile(file){
+  if(!file)return 'Elige una imagen.';
+  if(file.size>CARNET_BG_MAX)return 'La imagen pesa más de 10 MB.';
+  const t=(file.type||'').toLowerCase();
+  if(!['image/png','image/jpeg','image/webp'].includes(t))return 'Usa PNG o JPEG.';
+  return null;
+}
+
+async function checkCarnetDimensions(file){
+  return new Promise((resolve)=>{
+    const url=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{
+      URL.revokeObjectURL(url);
+      const w=img.naturalWidth,h=img.naturalHeight;
+      const ratio=w/h;
+      const target=7/5;
+      if(Math.abs(ratio-target)>0.02){
+        resolve('La proporción debe ser 7:5 (horizontal). Tu imagen: '+w+'×'+h+' px.');
+        return;
+      }
+      if(w<1050||h<750){
+        resolve('Muy pequeña para imprimir. Mínimo 1050×750 px; ideal 2100×1500 px.');
+        return;
+      }
+      if(w!==CARNET_TARGET_W||h!==CARNET_TARGET_H){
+        resolve('warn:Recomendado 2100×1500 px a 300 DPI. La tuya: '+w+'×'+h+' px (se aceptará).');
+        return;
+      }
+      resolve(null);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);resolve('No se pudo leer la imagen.');};
+    img.src=url;
+  });
+}
+
+document.getElementById('carnet-bg-file').onchange=async()=>{
+  const input=document.getElementById('carnet-bg-file');
+  const file=input.files&&input.files[0];
+  input.value='';
+  if(!file)return;
+  const err=validateCarnetBgFile(file);
+  if(err){toast(err);return}
+  const dim=await checkCarnetDimensions(file);
+  if(dim&&dim.startsWith('warn:')){
+    if(!confirm(dim.slice(5)+'\n\n¿Subir igual?'))return;
+  }else if(dim){toast(dim);return}
+  const ext=file.type.includes('png')?'png':(file.type.includes('webp')?'webp':'jpg');
+  const path=GRUPO+'/background-'+Date.now()+'.'+ext;
+  toast('Subiendo fondo…');
+  const{error:upErr}=await db.storage.from('carnet-plantillas').upload(path,file,{
+    contentType:file.type||'image/png',
+    upsert:true,
+  });
+  if(upErr){toast(upErr.message);return}
+  const{data:conf,error:rpcErr}=await db.rpc('actualizar_fondo_carnet_grupo',{
+    p_grupo:GRUPO,
+    p_storage_path:path,
+    p_mime:file.type||'image/png',
+  });
+  if(rpcErr||!conf?.ok){
+    toast(rpcErr?.message||conf?.error||'No se pudo guardar');
+    return;
+  }
+  if(conf.old_storage_path){
+    await db.storage.from('carnet-plantillas').remove([conf.old_storage_path]);
+  }
+  toast('Fondo del carnet actualizado');
+  await loadCarnetPlantilla();
 };
 
 async function asignarBrigadasPorFit(){

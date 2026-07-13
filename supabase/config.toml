@@ -23,3 +23,7 @@ enabled = true
 [studio]
 enabled = true
 port = 54323
+
+[functions.render-carnet]
+verify_jwt = false
+static_files = [ "./functions/render-carnet/assets/*" ]

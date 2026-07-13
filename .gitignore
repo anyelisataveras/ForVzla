@@ -11,3 +11,5 @@ data/
 supabase/migrations/20250705230000_voluntarios_grupos.sql
 supabase/migrations/20250705230100_voluntarios_seq_fix.sql
 supabase/migrations/20250705230200_registrar_voluntario_rpc.sql
+# WholeLoop ephemeral runs
+workspace/
