@@ -8,6 +8,7 @@
 <title>Mi carnet — Cuidadoras Caracas</title>
 <link rel="icon" href="../icon.svg" type="image/svg+xml">
 <script>window.__nativeFetch=window.fetch.bind(window);</script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -47,10 +48,11 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .confirm b{color:var(--red);display:block;margin-bottom:4px}
 .empty-state{text-align:center;padding:20px 8px;color:var(--txt2);font-size:14px;line-height:1.5}
 .empty-state .ico{font-size:36px;margin-bottom:8px;opacity:.6}
-.carnet-preview{width:100%;border-radius:12px;border:1px solid var(--line2);background:linear-gradient(135deg,#5A4AA0 0%,#7B68C4 38%,#fff 38%);min-height:140px;margin:12px 0;overflow:hidden;position:relative}
-.carnet-preview iframe,.carnet-preview embed{width:100%;height:min(52vw,320px);border:none;display:block;background:#fff}
+.carnet-preview{width:100%;border-radius:12px;border:1px solid var(--line2);background:#fff;margin:12px 0;overflow:hidden;position:relative}
+.carnet-preview canvas{width:100%;height:auto;display:block;background:#fff}
+.carnet-preview-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:36px 12px;font-size:13px;color:var(--txt2)}
 .carnet-preview-fallback{padding:28px 12px;text-align:center;font-size:13px;color:var(--txt2);line-height:1.5}
-.carnet-preview img{width:100%;max-height:200px;object-fit:contain;display:block;background:#fff}
+.preview-lbl{font-size:11px;font-weight:700;color:var(--txt3);text-align:center;margin:0 0 6px;letter-spacing:.04em;text-transform:uppercase}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:opacity .2s;z-index:99;pointer-events:none}
 .toast.show{opacity:1}
 .err-box{background:var(--redl);color:var(--red);border-radius:10px;padding:10px 12px;font-size:13px;font-weight:700;margin-bottom:12px;display:none;line-height:1.45}
@@ -69,8 +71,8 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 <div class="toast" id="toast"></div>
 
 <script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
-<script src="vol.js?v=20260712h"></script>
-<script src="carnet.js?v=20260712h"></script>
+<script src="vol.js?v=20260714a"></script>
+<script src="carnet.js?v=20260714a"></script>
 <script>
 (function () {
   const params = new URLSearchParams(location.search);
@@ -151,18 +153,31 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   let previewBlobUrl = null;
 
   async function readyHtml() {
-    // Nota UX: en móvil, el visor PDF embebido muestra un botón "Open" propio del navegador.
-    // Para evitar confusión (no está en el spec), no embebemos el PDF aquí.
-    const preview = '<div class="carnet-preview-fallback">Tu carnet está listo. Usa <b>Descargar carnet (PDF)</b>.</div>';
     return `
       <div class="card">
         <div class="stitle">¡Tu carnet está listo!</div>
-        <div class="carnet-preview" role="img" aria-label="Vista previa carnet">${preview}</div>
+        <p class="preview-lbl">Vista previa</p>
+        <div class="carnet-preview" id="carnetPreviewMount" role="img" aria-label="Vista previa carnet">
+          <div class="carnet-preview-loading"><span class="spinner"></span><span>Cargando vista previa…</span></div>
+        </div>
         <button type="button" class="btn btn-grn" id="btnDownload">Descargar carnet (PDF)</button>
         <button type="button" class="btn btn-ghost" id="btnRegen">Regenerar carnet</button>
         <button type="button" class="btn btn-ghost" id="btnDone">${fromRegistro ? 'Ir a mi cuenta →' : 'Volver a mi cuenta'}</button>
         <p class="photo-hint" style="text-align:center;margin-top:8px">Imprímelo tamaño real (100%).</p>
       </div>`;
+  }
+
+  async function loadCarnetPreview() {
+    const mount = document.getElementById('carnetPreviewMount');
+    if (!mount) return;
+    try {
+      if (previewBlobUrl) URL.revokeObjectURL(previewBlobUrl);
+      previewBlobUrl = await CC_CARNET.carnetPreviewUrl();
+      await CC_CARNET.mountPdfPreview(mount, previewBlobUrl);
+    } catch (e) {
+      mount.innerHTML =
+        '<div class="carnet-preview-fallback">No pudimos mostrar la vista previa.<br>Usa <b>Descargar carnet (PDF)</b>.</div>';
+    }
   }
 
   function sinPlantillaHtml() {
@@ -227,6 +242,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
       renderUpload();
     };
     bindDone();
+    void loadCarnetPreview();
   }
 
   function renderUpload() {

@@ -183,6 +183,55 @@
     return vol().storageFetchBlob('carnet-generados', data.storage_path, 300);
   }
 
+  const PDF_JS_VERSION = '3.11.174';
+  const PDF_WORKER_SRC =
+    'https://cdn.jsdelivr.net/npm/pdfjs-dist@' + PDF_JS_VERSION + '/build/pdf.worker.min.js';
+  let pdfWorkerReady = false;
+
+  function ensurePdfJs() {
+    const pdfjs = global.pdfjsLib;
+    if (!pdfjs) throw new Error('No se pudo cargar el visor PDF.');
+    if (!pdfWorkerReady) {
+      pdfjs.GlobalWorkerOptions.workerSrc = PDF_WORKER_SRC;
+      pdfWorkerReady = true;
+    }
+    return pdfjs;
+  }
+
+  /** Renderiza la 1ª página del PDF en un canvas dentro del contenedor (sin iframe). */
+  async function mountPdfPreview(containerEl, blobUrl) {
+    if (!containerEl || !blobUrl) return;
+    const pdfjs = ensurePdfJs();
+    const loadingTask = pdfjs.getDocument(blobUrl);
+    const pdf = await loadingTask.promise;
+    try {
+      const page = await pdf.getPage(1);
+      const baseViewport = page.getViewport({ scale: 1 });
+      const maxWidth = containerEl.clientWidth || Math.min(global.innerWidth - 68, 520);
+      const displayScale = maxWidth / baseViewport.width;
+      const viewport = page.getViewport({ scale: displayScale });
+      const outputScale = Math.min(global.devicePixelRatio || 1, 2);
+
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d', { alpha: false });
+      canvas.width = Math.floor(viewport.width * outputScale);
+      canvas.height = Math.floor(viewport.height * outputScale);
+      canvas.style.width = '100%';
+      canvas.style.height = 'auto';
+      canvas.style.display = 'block';
+      canvas.setAttribute('role', 'img');
+      canvas.setAttribute('aria-label', 'Vista previa del carnet');
+
+      const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+      await page.render({ canvasContext: ctx, viewport, transform }).promise;
+
+      containerEl.innerHTML = '';
+      containerEl.appendChild(canvas);
+    } finally {
+      await pdf.destroy();
+    }
+  }
+
   async function downloadPdf(numeroVoluntaria) {
     const c = cred();
     const data = await vol().rpc('url_descarga_carnet', c);
@@ -249,6 +298,7 @@
     estado,
     fotoPreviewUrl,
     carnetPreviewUrl,
+    mountPdfPreview,
     urlDescarga,
     downloadPdf,
     procMessage,
