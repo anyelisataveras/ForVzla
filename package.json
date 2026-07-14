@@ -4,7 +4,7 @@
   "private": true,
   "description": "PWA SOS — une a quien necesita ayuda con quien puede ayudar (terremoto Venezuela 2026)",
   "scripts": {
-    "dev": "serve public -l 3000",
+    "dev": "serve public -l 3000 -c serve.json",
     "start": "npm run dev",
     "build": "echo 'Static PWA — no build step'",
     "scraper:dry": "npm run dry --workspace=scraper",

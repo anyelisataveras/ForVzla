@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Mockup — Recorte manual de foto (ARTIFACT-FOR-001 add-on)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F1EEEA;--surf:#FBFAF8;--ind:#5A4AA0;--indh:#4A3C88;--indl:#EEEBF6;--indt:#463A82;
+  --grn:#1E8449;--grnh:#15603A;--grnl:#E9F6EE;--red:#C0392B;--redl:#FBEDEA;
+  --txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--app-max:580px;
+}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#2a2826;color:var(--txt);font-size:15px}
+.mock-shell{max-width:1280px;margin:0 auto;padding:16px}
+.mock-top{color:#fff;margin-bottom:16px}
+.mock-top h1{font-size:20px;font-weight:800}
+.mock-top p{font-size:13px;opacity:.75;margin-top:4px;line-height:1.45;max-width:90ch}
+.mock-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.mock-meta span{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15)}
+.mock-nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.mock-nav button{font-size:11px;font-weight:700;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-family:inherit;line-height:1.3;text-align:left}
+.mock-nav button.on{background:#fff;color:var(--indt);border-color:#fff}
+.layout{display:grid;gap:20px}
+@media(min-width:960px){.layout{grid-template-columns:1fr 360px}}
+.phone-label{text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,.55);margin-bottom:8px;letter-spacing:.04em;text-transform:uppercase}
+.phone{width:100%;max-width:var(--app-max);margin:0 auto;background:var(--bg);border-radius:28px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45);border:6px solid #1a1a1a;min-height:740px;display:flex;flex-direction:column;position:relative}
+.notes{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:18px;color:#e8e4df;font-size:13px;line-height:1.55;align-self:start;position:sticky;top:16px}
+.notes h2{font-size:15px;font-weight:800;color:#fff;margin-bottom:10px}
+.notes ul{padding-left:18px;margin:8px 0}
+.notes li{margin-bottom:6px}
+.notes .tag{display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;background:var(--indl);color:var(--indt);margin-right:4px}
+.notes .scope{font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;background:var(--grnl);color:var(--grn);margin-right:4px}
+.notes .open{font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;background:#fff3cd;color:#856404;margin-right:4px}
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+.screen.on{display:flex}
+.hdr{background:var(--ind);color:#fff;padding:16px 18px;flex-shrink:0}
+.hdr a{color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.hdr h1{font-size:20px;font-weight:800;line-height:1.2;margin-top:8px}
+.hdr p{font-size:13px;opacity:.88;margin-top:4px;line-height:1.45}
+.body-scroll{flex:1;overflow-y:auto;padding-bottom:24px;-webkit-overflow-scrolling:touch}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;margin:16px;padding:18px 18px 20px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.stitle{font-size:17px;font-weight:800;margin-bottom:4px}
+.ssub{font-size:13px;color:var(--txt2);margin-bottom:16px;line-height:1.45}
+.photo-box{border:1px dashed var(--line2);border-radius:14px;padding:14px;background:var(--surf);margin-bottom:12px}
+.photo-hint{font-size:12px;color:var(--txt3);margin-top:8px;line-height:1.45}
+.photo-row{display:flex;gap:14px;align-items:flex-start;margin-top:10px}
+.photo-frame{width:90px;height:120px;border-radius:10px;border:2px solid var(--line2);background:#ddd;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:28px;color:var(--txt3)}
+.photo-frame img{width:100%;height:100%;object-fit:cover;display:block}
+.photo-frame.has{background:var(--indl);border-color:var(--ind)}
+.photo-frame-wrap{position:relative;flex-shrink:0;width:90px}
+.photo-frame-wrap .photo-frame{width:100%}
+.crop-fab{position:absolute;bottom:6px;right:6px;width:34px;height:34px;border-radius:50%;border:2px solid #fff;background:rgba(26,26,26,.72);color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.35);font-family:inherit;padding:0;line-height:1}
+.crop-fab:active{transform:scale(.94);background:rgba(26,26,26,.9)}
+.crop-fab:focus-visible{outline:2px solid var(--ind);outline-offset:2px}
+.preview-callout{background:var(--indl);border:1px solid rgba(90,74,160,.25);border-radius:12px;padding:10px 12px;font-size:12px;color:var(--indt);line-height:1.45;margin-top:10px}
+.preview-callout b{display:block;font-size:13px;margin-bottom:2px;color:var(--txt)}
+.option-grid{display:grid;gap:10px;margin-top:8px}
+.option-card{border:1px solid var(--line2);border-radius:12px;padding:12px;background:var(--surf)}
+.option-card.rec{border-color:var(--grn);background:var(--grnl)}
+.option-card h3{font-size:14px;font-weight:800;margin-bottom:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.option-card p{font-size:12px;color:var(--txt2);line-height:1.45;margin:0}
+.option-card .rec-tag{font-size:10px;font-weight:800;padding:2px 7px;border-radius:999px;background:var(--grn);color:#fff}
+.media-upload-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border:2px dashed var(--ind);border-radius:12px;font-size:14px;font-weight:700;color:var(--ind);cursor:pointer;background:var(--indl);text-align:center;font-family:inherit;width:100%}
+.media-upload-btn:active{opacity:.85}
+.btn{border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;width:100%;margin-top:10px}
+.btn-grn{background:var(--grn);color:#fff}
+.btn-grn:active{background:var(--grnh)}
+.btn-ind{background:var(--ind);color:#fff}
+.btn-ghost{background:#fff;border:1px solid var(--line2);color:var(--txt2)}
+.btn-link{background:none;border:none;color:var(--ind);font-size:14px;font-weight:800;padding:10px 0;margin-top:4px;cursor:pointer;font-family:inherit;width:100%;text-align:center;text-decoration:underline;text-underline-offset:3px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.badge{font-size:10px;font-weight:800;padding:4px 10px;border-radius:999px;display:inline-block}
+.badge.auto{background:var(--indl);color:var(--indt)}
+.badge.ok{background:var(--grnl);color:var(--grnh)}
+.link-row{display:flex;gap:10px;margin-top:6px}
+.link-row .btn-link{flex:1;margin-top:0}
+/* Crop overlay screen */
+.crop-screen{background:#1a1a1a;flex:1;display:flex;flex-direction:column;min-height:0}
+.crop-top{padding:14px 16px 10px;color:#fff;flex-shrink:0}
+.crop-top h2{font-size:17px;font-weight:800}
+.crop-top p{font-size:13px;opacity:.75;margin-top:4px;line-height:1.45}
+.crop-stage-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 16px 12px;min-height:0;touch-action:none}
+.crop-stage{position:relative;width:100%;max-width:320px;aspect-ratio:3/4;border-radius:4px;overflow:hidden;background:#111;box-shadow:0 0 0 2px rgba(255,255,255,.9),0 0 0 9999px rgba(0,0,0,.55);cursor:grab}
+.crop-stage:active{cursor:grabbing}
+.crop-img{position:absolute;left:50%;top:50%;width:140%;height:auto;max-width:none;transform:translate(-50%,-50%);user-select:none;pointer-events:none;will-change:transform}
+.crop-img.landscape{width:auto;height:140%}
+.crop-grid{position:absolute;inset:0;pointer-events:none;background:
+  linear-gradient(rgba(255,255,255,.25) 1px,transparent 1px) 0 0/33.33% 100%,
+  linear-gradient(90deg,rgba(255,255,255,.25) 1px,transparent 1px) 0 0/100% 33.33%;
+opacity:.35}
+.crop-hint{text-align:center;font-size:12px;color:rgba(255,255,255,.65);padding:0 16px 8px;line-height:1.45}
+.crop-controls{padding:12px 16px 20px;flex-shrink:0;background:rgba(0,0,0,.35)}
+.zoom-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.zoom-btn{width:44px;height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;font-size:22px;font-weight:700;cursor:pointer;font-family:inherit;flex-shrink:0}
+.zoom-btn:active{background:rgba(255,255,255,.18)}
+.zoom-track{flex:1;height:6px;background:rgba(255,255,255,.2);border-radius:999px;position:relative}
+.zoom-fill{position:absolute;left:0;top:0;height:100%;width:55%;background:#fff;border-radius:999px}
+.zoom-thumb{position:absolute;left:55%;top:50%;width:22px;height:22px;background:#fff;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 2px 8px rgba(0,0,0,.35)}
+.crop-actions{display:flex;gap:10px}
+.crop-actions .btn{margin-top:0;flex:1}
+.crop-actions .btn-ghost{background:transparent;border-color:rgba(255,255,255,.35);color:#fff}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.compare-box{border:1px solid var(--line2);border-radius:12px;padding:10px;background:var(--surf);text-align:center}
+.compare-box b{font-size:11px;display:block;margin-bottom:8px;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em}
+.compare-frame{width:100%;aspect-ratio:3/4;border-radius:8px;overflow:hidden;background:#ddd;border:1px solid var(--line2)}
+.compare-frame img{width:100%;height:100%;object-fit:cover}
+.compare-frame.bad img{object-position:center}
+.compare-frame.good img{object-position:50% 20%}
+.demo-pill{display:inline-block;font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;margin-top:6px}
+.demo-pill.bad{background:var(--redl);color:var(--red)}
+.demo-pill.good{background:var(--grnl);color:var(--grnh)}
+.steps{display:flex;gap:6px;margin-bottom:18px}
+.step{flex:1;text-align:center;font-size:11px;font-weight:700;color:var(--txt3)}
+.step-dot{width:28px;height:28px;border-radius:50%;border:2px solid var(--line2);display:flex;align-items:center;justify-content:center;margin:0 auto 4px;font-size:13px;font-weight:800;background:#fff}
+.step.on .step-dot{border-color:var(--ind);background:var(--ind);color:#fff}
+.flow-arrow{text-align:center;font-size:20px;color:var(--txt3);margin:4px 0}
+@media(prefers-reduced-motion:reduce){.crop-img{transition:none}}
+</style>
+</head>
+<body>
+<div class="mock-shell">
+  <div class="mock-top">
+    <h1>Mockup — Recorte manual de foto para carnet</h1>
+    <p>Add-on ARTIFACT-FOR-001 · Recorte opcional 3:4 sobre la misma herramienta de subida · Registro + carnet + regenerar.
+      Abrir con <code style="opacity:.8">npm run dev</code> → <code style="opacity:.8">/mockup-carnet-foto-recorte.html</code></p>
+    <div class="mock-meta">
+      <span>Ratio fijo 3:4</span>
+      <span>Icono ✂ sobre foto (estilo galería)</span>
+      <span>Preview inmediata al subir</span>
+      <span>Pan + pinch + botones ±</span>
+      <span>Sin rotar en MVP</span>
+    </div>
+  </div>
+
+  <div class="mock-nav" id="nav"></div>
+
+  <div class="layout">
+    <div>
+      <div class="phone-label" id="phone-label">Pantalla</div>
+      <div class="phone" id="phone">
+
+        <!-- UX OPEN: ¿El editor de recorte es pantalla completa o modal sobre la card? → Propuesta: pantalla completa en móvil (más espacio para el marco). -->
+        <!-- UX OPEN: ¿Guardamos la posición de recorte si la usuaria toca "Cambiar foto" y vuelve a la misma? → Propuesta: no, reset al elegir archivo nuevo. -->
+        <!-- UX RESUELTO: preview siempre al subir + icono ✂ sobre la foto (estilo galería). NO abrir editor automáticamente en cada upload. -->
+
+        <!-- S1: Carnet — recién subida (preview + icono) RECOMENDADO -->
+        <div class="screen on" data-id="carnet-just-uploaded" data-label="1 · Recién subida ★">
+          <header class="hdr">
+            <a onclick="go('carnet-just-uploaded');return false">← Mi cuenta</a>
+            <h1>Genera tu carnet</h1>
+            <p>Voluntaria N° 142</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="stitle">Sube tu foto</div>
+              <div class="ssub">Foto de rostro, fondo claro, sin filtros. Recorte vertical 3:4 para el carnet.</div>
+              <div class="photo-box">
+                <div class="photo-row">
+                  <div class="photo-frame-wrap">
+                    <div class="photo-frame has"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop" alt=""></div>
+                    <button type="button" class="crop-fab" aria-label="Ajustar recorte" title="Ajustar recorte" onclick="go('carnet-crop')">✂</button>
+                  </div>
+                  <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">
+                    <b style="color:var(--txt);display:block;margin-bottom:4px">¿Se ve bien?</b>
+                    Toca el ✂ sobre la foto si quieres mover el encuadre.
+                  </div>
+                </div>
+                <div class="preview-callout">
+                  <b>Vista previa lista</b>
+                  Si tu rostro se ve completo, confirma abajo. Si no, ajusta con el botón sobre la foto.
+                </div>
+                <label class="media-upload-btn" style="margin-top:12px">📷 Cambiar foto</label>
+                <div class="photo-hint">Máx. 5 MB · mínimo 480 px en el lado corto.</div>
+              </div>
+              <button type="button" class="btn btn-grn">Confirmar y generar</button>
+              <button type="button" class="btn btn-ghost">Volver a mi cuenta</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S1b: Carnet upload — preview auto (patrón anterior, link texto) -->
+        <div class="screen" data-id="carnet-preview" data-label="1b · Solo link texto">
+          <header class="hdr">
+            <a onclick="go('carnet-preview');return false">← Mi cuenta</a>
+            <h1>Genera tu carnet</h1>
+            <p>Voluntaria N° 142</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="stitle">Sube tu foto</div>
+              <div class="ssub">Foto de rostro, fondo claro, sin filtros. Recorte vertical 3:4 para el carnet.</div>
+              <div class="photo-box">
+                <div class="photo-row">
+                  <div class="photo-frame has"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&h=300&fit=crop" alt=""></div>
+                  <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">
+                    <b style="color:var(--txt);display:block;margin-bottom:4px">Vista previa</b>
+                    Ajustamos el encuadre automáticamente.
+                    <span class="badge auto" style="margin-top:6px">Recorte automático</span>
+                  </div>
+                </div>
+                <label class="media-upload-btn" style="margin-top:12px">📷 Cambiar foto</label>
+                <div class="photo-hint">Máx. 5 MB · mínimo 480 px en el lado corto.</div>
+              </div>
+              <button type="button" class="btn-link" onclick="go('carnet-crop')">✂ Ajustar recorte</button>
+              <button type="button" class="btn btn-grn" onclick="go('carnet-done-preview')">Confirmar y generar</button>
+              <button type="button" class="btn btn-ghost">Volver a mi cuenta</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S2: Editor recorte — foto vertical -->
+        <div class="screen" data-id="carnet-crop" data-label="2 · Editor recorte (vertical)">
+          <div class="crop-screen">
+            <div class="crop-top">
+              <a style="color:#fff;font-size:14px;font-weight:600;opacity:.85;cursor:pointer" onclick="go('carnet-preview');return false">← Volver</a>
+              <h2 style="margin-top:10px">Ajustar recorte</h2>
+              <p>Encuadra tu rostro dentro del marco. Arrastra o pellizca para acercar.</p>
+            </div>
+            <div class="crop-stage-wrap">
+              <div class="crop-stage" id="cropStageV" aria-label="Área de recorte 3:4">
+                <img class="crop-img" id="cropImgV" src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=800&h=600&fit=crop" alt="" draggable="false">
+                <div class="crop-grid"></div>
+              </div>
+            </div>
+            <p class="crop-hint">Marco fijo 3:4 — igual que en el carnet impreso</p>
+            <div class="crop-controls">
+              <div class="zoom-row">
+                <button type="button" class="zoom-btn" id="zoomOutV" aria-label="Alejar">−</button>
+                <div class="zoom-track" aria-hidden="true"><div class="zoom-fill" id="zoomFillV"></div><div class="zoom-thumb" id="zoomThumbV"></div></div>
+                <button type="button" class="zoom-btn" id="zoomInV" aria-label="Acercar">+</button>
+              </div>
+              <div class="crop-actions">
+                <button type="button" class="btn btn-ghost" onclick="go('carnet-preview')">Cancelar</button>
+                <button type="button" class="btn btn-grn" onclick="go('carnet-preview-manual')">Listo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S3: Carnet preview — después de recorte manual -->
+        <div class="screen" data-id="carnet-preview-manual" data-label="3 · Carnet — recorte manual">
+          <header class="hdr">
+            <a onclick="go('carnet-preview-manual');return false">← Mi cuenta</a>
+            <h1>Genera tu carnet</h1>
+            <p>Voluntaria N° 142</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="stitle">Sube tu foto</div>
+              <div class="photo-box">
+                <div class="photo-row">
+                  <div class="photo-frame-wrap">
+                    <div class="photo-frame has"><img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&h=400&fit=crop&crop=faces" alt="" style="object-position:50% 15%"></div>
+                    <button type="button" class="crop-fab" aria-label="Ajustar recorte" onclick="go('carnet-crop')">✂</button>
+                  </div>
+                  <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">
+                    <b style="color:var(--txt);display:block;margin-bottom:4px">Vista previa</b>
+                    Recorte ajustado por ti.
+                    <span class="badge ok" style="margin-top:6px">Recorte manual</span>
+                  </div>
+                </div>
+                <label class="media-upload-btn" style="margin-top:12px">📷 Cambiar foto</label>
+              </div>
+              <button type="button" class="btn btn-grn">Confirmar y generar</button>
+              <button type="button" class="btn btn-ghost">Volver a mi cuenta</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S4: Foto horizontal — problema + CTA ajustar -->
+        <div class="screen" data-id="carnet-landscape" data-label="4 · Foto horizontal (caso real)">
+          <header class="hdr">
+            <a>← Mi cuenta</a>
+            <h1>Genera tu carnet</h1>
+            <p>Voluntaria N° 158</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="stitle">Sube tu foto</div>
+              <div class="ssub">Si la foto es horizontal o sale cortada, toca ✂ sobre la miniatura.</div>
+              <div class="photo-box">
+                <div class="photo-row" style="margin-bottom:12px">
+                  <div class="photo-frame-wrap">
+                    <div class="photo-frame has"><img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=300&fit=crop" alt=""></div>
+                    <button type="button" class="crop-fab" aria-label="Ajustar recorte" onclick="go('carnet-crop-h')">✂</button>
+                  </div>
+                  <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">
+                    <b style="color:var(--txt);display:block;margin-bottom:4px">Revisa el encuadre</b>
+                    En fotos horizontales el recorte automático puede cortar caras.
+                  </div>
+                </div>
+                <div class="compare">
+                  <div class="compare-box">
+                    <b>Solo automático</b>
+                    <div class="compare-frame bad"><img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=600&h=400&fit=crop" alt=""></div>
+                    <span class="demo-pill bad">Corta las caras</span>
+                  </div>
+                  <div class="compare-box">
+                    <b>Con ajuste manual</b>
+                    <div class="compare-frame good"><img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=400&h=533&fit=crop&crop=faces" alt=""></div>
+                    <span class="demo-pill good">Rostro centrado</span>
+                  </div>
+                </div>
+                <label class="media-upload-btn" style="margin-top:14px">📷 Cambiar foto</label>
+              </div>
+              <button type="button" class="btn btn-grn" onclick="go('carnet-crop-h')">Confirmar y generar</button>
+              <p class="photo-hint" style="text-align:center">Revisa el encuadre antes de confirmar.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- S5: Editor recorte — foto horizontal -->
+        <div class="screen" data-id="carnet-crop-h" data-label="5 · Editor (horizontal)">
+          <div class="crop-screen">
+            <div class="crop-top">
+              <a style="color:#fff;font-size:14px;font-weight:600;opacity:.85;cursor:pointer" onclick="go('carnet-landscape');return false">← Volver</a>
+              <h2 style="margin-top:10px">Ajustar recorte</h2>
+              <p>Acerca y mueve la foto hasta que tu rostro quede en el marco.</p>
+            </div>
+            <div class="crop-stage-wrap">
+              <div class="crop-stage" id="cropStageH">
+                <img class="crop-img landscape" id="cropImgH" src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900&h=500&fit=crop" alt="" draggable="false">
+                <div class="crop-grid"></div>
+              </div>
+            </div>
+            <p class="crop-hint">Tip: usa los botones + y − si el pellizco no responde bien</p>
+            <div class="crop-controls">
+              <div class="zoom-row">
+                <button type="button" class="zoom-btn" id="zoomOutH">−</button>
+                <div class="zoom-track"><div class="zoom-fill" id="zoomFillH" style="width:72%"></div><div class="zoom-thumb" id="zoomThumbH" style="left:72%"></div></div>
+                <button type="button" class="zoom-btn" id="zoomInH">+</button>
+              </div>
+              <div class="crop-actions">
+                <button type="button" class="btn btn-ghost" onclick="go('carnet-landscape')">Cancelar</button>
+                <button type="button" class="btn btn-grn" onclick="go('carnet-landscape')">Listo</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S6: Registro — mismo patrón -->
+        <div class="screen" data-id="reg-foto" data-label="6 · Registro — foto opcional">
+          <header class="hdr">
+            <a>← Cuidadoras Caracas</a>
+            <h1>👩‍👧 Cuidadoras Caracas</h1>
+            <p>Registro de voluntarias</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="steps">
+                <div class="step on"><div class="step-dot">1</div>Datos</div>
+                <div class="step"><div class="step-dot">2</div>Entorno</div>
+                <div class="step"><div class="step-dot">3</div>Colaborar</div>
+              </div>
+              <div class="stitle">Tu foto (opcional)</div>
+              <div class="ssub">Para tu carnet. Puedes omitirla y subirla después.</div>
+              <div class="photo-box">
+                <div class="photo-row">
+                  <div class="photo-frame-wrap">
+                    <div class="photo-frame has"><img src="https://images.unsplash.com/photo-1580489944761-15a19d654956?w=300&h=400&fit=crop&crop=face" alt=""></div>
+                    <button type="button" class="crop-fab" aria-label="Ajustar recorte" onclick="go('carnet-crop')">✂</button>
+                  </div>
+                  <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">
+                    <b style="color:var(--txt);display:block;margin-bottom:4px">¿Se ve bien?</b>
+                    Toca ✂ para ajustar antes de continuar.
+                  </div>
+                </div>
+                <label class="media-upload-btn" style="margin-top:12px">📷 Cambiar foto</label>
+                <div class="photo-hint">Máx. 5 MB · foto de rostro, fondo claro.</div>
+              </div>
+              <div style="display:flex;gap:10px;margin-top:4px">
+                <button type="button" class="btn btn-ghost" style="margin-top:0;flex:1">Omitir foto</button>
+                <button type="button" class="btn btn-ind" style="margin-top:0;flex:1;background:var(--ind);color:#fff">Siguiente →</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S7: Regenerar carnet -->
+        <div class="screen" data-id="regen" data-label="7 · Regenerar carnet">
+          <header class="hdr">
+            <a>← Mi carnet</a>
+            <h1>Regenerar carnet</h1>
+            <p>Voluntaria N° 142</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="stitle">Foto nueva para regenerar</div>
+              <div class="ssub">El PDF anterior dejará de servir. Mismo flujo de recorte que al generar.</div>
+              <div class="photo-box">
+                <label class="media-upload-btn">📷 Elegir foto nueva</label>
+                <div class="photo-hint">Después de elegir: vista previa + opción <b>Ajustar recorte</b>.</div>
+              </div>
+              <button type="button" class="btn btn-grn" disabled>Confirmar foto y regenerar</button>
+              <button type="button" class="btn btn-ghost">Cancelar</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- S8: Comparación de 3 enfoques UX -->
+        <div class="screen" data-id="options" data-label="8 · 3 enfoques UX">
+          <header class="hdr">
+            <h1>¿Cómo invitar a ajustar?</h1>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="stitle">Tres opciones</div>
+              <div class="option-grid">
+                <div class="option-card rec">
+                  <h3>A + B juntas <span class="rec-tag">Recomendado</span></h3>
+                  <p><b>A)</b> Preview inmediata al subir (auto 3:4). <b>B)</b> Icono ✂ sobre la foto, estilo galería. El editor solo abre si lo toca.</p>
+                </div>
+                <div class="option-card">
+                  <h3>Solo icono sobre foto</h3>
+                  <p>Menos texto. Descubrimiento depende del ícono (familiar en galerías).</p>
+                </div>
+                <div class="option-card">
+                  <h3>Abrir editor siempre al subir</h3>
+                  <p>Máximo control, pero un paso extra obligatorio aunque la foto ya esté bien. Más fricción en registro.</p>
+                </div>
+              </div>
+              <p class="photo-hint" style="margin-top:14px;text-align:left">
+                <b>Implementación:</b> al <code>onchange</code> del file → auto-recorte → mostrar preview con ✂ FAB. Tap ✂ → pantalla editor. <b>Listo</b> → actualiza preview. Confirmar → sube blob final.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- S9: Flujo resumido -->
+        <div class="screen" data-id="flow" data-label="9 · Flujo resumido">
+          <header class="hdr">
+            <h1>Flujo propuesto</h1>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="stitle">Camino feliz (80%)</div>
+              <p class="ssub" style="margin-bottom:8px">Foto ya vertical → preview inmediata → confirmar (sin abrir editor).</p>
+              <div class="flow-arrow">📷 Elegir foto</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-arrow">👁 Preview + ✂ sobre foto</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-arrow">✅ Confirmar y generar</div>
+
+              <div class="stitle" style="margin-top:24px">Cuando hace falta (20%)</div>
+              <p class="ssub" style="margin-bottom:8px">Toca ✂ sobre la miniatura → editor pantalla completa.</p>
+              <div class="flow-arrow">📷 Elegir foto</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-arrow">👁 Preview inmediata</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-arrow">✂ Tap icono sobre foto</div>
+              <div class="flow-arrow">↓</div>
+              <div class="flow-arrow">✅ Listo → preview actualizada → confirmar</div>
+
+              <p class="photo-hint" style="margin-top:20px;text-align:left">
+                <b>Módulo compartido:</b> <code>openPhotoCropper(blob)</code> en carnet.js · mismo export JPEG 3:4 · registro + carnet + regenerar.
+              </p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <aside class="notes" id="notes">
+      <h2 id="notes-title">Preview automático</h2>
+      <p id="notes-body">Selecciona una pantalla.</p>
+    </aside>
+  </div>
+</div>
+
+<script>
+const SCREENS={
+  'carnet-just-uploaded':{
+    title:'Recién subida — patrón recomendado ★',
+    body:`<span class="scope">A + B</span><ul><li><b>Preview inmediata</b> tras elegir archivo (auto 3:4)</li><li><b>Icono ✂</b> flotante sobre la miniatura (esquina inferior derecha, estilo galería / WhatsApp perfil)</li><li>Copy <em>¿Se ve bien?</em> + callout corto</li><li><b>No</b> abrir editor automáticamente</li><li>Confirmar verde siempre visible</li></ul>`
+  },
+  'carnet-preview':{
+    title:'Alternativa — solo link texto',
+    body:`Patrón anterior (link debajo). Menos descubrible que el icono sobre la foto. Mantener solo como fallback accesible si hace falta.`
+  },
+  'carnet-crop':{
+    title:'Editor — foto vertical',
+    body:`Pantalla completa en móvil.<ul><li>Marco 3:4 fijo + overlay oscuro</li><li>Arrastrar imagen + pinch-zoom</li><li>Botones ± accesibles (sin depender solo del pinch)</li><li><b>Listo</b> → vuelve a preview con recorte manual</li><li><b>Cancelar</b> → descarta cambios, mantiene auto-recorte</li></ul><span class="open">UX OPEN</span> Sin rotar en MVP. EXIF orientation se corrige al cargar, antes del editor.`
+  },
+  'carnet-preview-manual':{
+    title:'Carnet — tras recorte manual',
+    body:`Misma miniatura con ✂ siempre visible para re-editar. Preview actualizada al volver del editor.`
+  },
+  'carnet-landscape':{
+    title:'Caso foto horizontal',
+    body:`✂ sobre miniatura + comparación auto vs manual. Copy invita a revisar antes de confirmar.`
+  },
+  'carnet-crop-h':{
+    title:'Editor — foto horizontal',
+    body:`Misma UI; imagen empieza más zoomed-out (class landscape).<ul><li>Zoom inicial mayor para llenar marco</li><li>Hint sobre botones ±</li></ul>`
+  },
+  'reg-foto':{
+    title:'Registro paso 1 — foto opcional',
+    body:`<span class="scope">mismo módulo</span> Preview + ✂ FAB. Omitir foto sigue disponible.`
+  },
+  'regen':{
+    title:'Regenerar carnet',
+    body:`Tras elegir foto → preview + ✂. Confirm deshabilitado hasta blob válido.`
+  },
+  'options':{
+    title:'Comparación 3 enfoques',
+    body:`<b>PM gate:</b><ul><li><b>Recomendado:</b> preview inmediata + icono sobre foto (A+B)</li><li><b>No recomendado:</b> abrir editor siempre — fricción en registro</li></ul>El icono puede ser ✂ o ⊞ (crop); ✂ más universal en VE.`
+  },
+  'flow':{
+    title:'Flujo resumido',
+    body:`Un módulo <code>openPhotoCropper()</code> en carnet.js · superficies: registro, carnet, regenerar.`
+  }
+};
+
+const nav=document.getElementById('nav');
+document.querySelectorAll('.screen').forEach(s=>{
+  const id=s.dataset.id;
+  const b=document.createElement('button');
+  b.textContent=s.dataset.label;
+  b.onclick=()=>go(id);
+  b.dataset.target=id;
+  nav.appendChild(b);
+});
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.dataset.id===id));
+  document.querySelectorAll('.mock-nav button').forEach(b=>b.classList.toggle('on',b.dataset.target===id));
+  document.getElementById('phone-label').textContent=SCREENS[id]?.title||id;
+  const n=SCREENS[id];
+  if(n){
+    document.getElementById('notes-title').textContent=n.title;
+    document.getElementById('notes-body').innerHTML=n.body;
+  }
+}
+
+/* Demo interactivo: arrastrar + zoom en editores */
+function wireCrop(stageId, imgId, fillId, thumbId, outId, inId, startZoom){
+  const stage=document.getElementById(stageId);
+  const img=document.getElementById(imgId);
+  const fill=document.getElementById(fillId);
+  const thumb=document.getElementById(thumbId);
+  if(!stage||!img) return;
+  let zoom=startZoom||1.15;
+  let panX=0, panY=0, dragging=false, sx=0, sy=0;
+  const ZMIN=1, ZMAX=2.4;
+  function apply(){
+    img.style.transform='translate(calc(-50% + '+panX+'px), calc(-50% + '+panY+'px)) scale('+zoom+')';
+    const pct=((zoom-ZMIN)/(ZMAX-ZMIN))*100;
+    if(fill) fill.style.width=pct+'%';
+    if(thumb) thumb.style.left=pct+'%';
+  }
+  apply();
+  stage.onpointerdown=e=>{dragging=true;sx=e.clientX-panX;sy=e.clientY-panY;stage.setPointerCapture(e.pointerId)};
+  stage.onpointermove=e=>{if(!dragging)return;panX=e.clientX-sx;panY=e.clientY-sy;apply()};
+  stage.onpointerup=stage.onpointercancel=()=>{dragging=false};
+  document.getElementById(outId)?.addEventListener('click',()=>{zoom=Math.max(ZMIN,zoom-.15);apply()});
+  document.getElementById(inId)?.addEventListener('click',()=>{zoom=Math.min(ZMAX,zoom+.15);apply()});
+}
+
+wireCrop('cropStageV','cropImgV','zoomFillV','zoomThumbV','zoomOutV','zoomInV',1.1);
+wireCrop('cropStageH','cropImgH','zoomFillH','zoomThumbH','zoomOutH','zoomInH',1.45);
+
+go('carnet-just-uploaded');
+</script>
+</body>
+</html>

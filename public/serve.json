@@ -1,12 +1,9 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
-  "redirects": [
-    { "source": "/cuidadoras-caracas", "destination": "/cuidadoras-caracas/", "type": 302 }
-  ],
   "rewrites": [
     { "source": "/rescatistas", "destination": "/rescatistas.html" },
-    { "source": "/cuidadoras-caracas/", "destination": "/cuidadoras-caracas/index.html" },
+    { "source": "/cuidadoras-caracas", "destination": "/cuidadoras-caracas/index.html" },
     { "source": "/cuidadoras-caracas/registro", "destination": "/cuidadoras-caracas/registro.html" },
     { "source": "/cuidadoras-caracas/registro/", "destination": "/cuidadoras-caracas/registro.html" },
     { "source": "/cuidadoras-caracas/coord", "destination": "/cuidadoras-caracas/coord.html" },

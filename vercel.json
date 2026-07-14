@@ -6,17 +6,13 @@
   "redirects": [
     {
       "source": "/cuidadoras-caracas/cuidadoras-caracas:path(.*)",
-      "destination": "/cuidadoras-caracas/",
-      "statusCode": 302
-    },
-    {
-      "source": "/cuidadoras-caracas",
-      "destination": "/cuidadoras-caracas/",
+      "destination": "/cuidadoras-caracas",
       "statusCode": 302
     }
   ],
   "rewrites": [
     { "source": "/rescatistas", "destination": "/rescatistas.html" },
+    { "source": "/cuidadoras-caracas", "destination": "/cuidadoras-caracas/index.html" },
     { "source": "/cuidadoras-caracas/registro", "destination": "/cuidadoras-caracas/registro.html" },
     { "source": "/cuidadoras-caracas/registro/", "destination": "/cuidadoras-caracas/registro.html" },
     { "source": "/cuidadoras-caracas/coord", "destination": "/cuidadoras-caracas/coord.html" },

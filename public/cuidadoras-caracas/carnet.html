@@ -71,8 +71,8 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 <div class="toast" id="toast"></div>
 
 <script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
-<script src="vol.js?v=20260714a"></script>
-<script src="carnet.js?v=20260714a"></script>
+<script src="vol.js?v=20260714b"></script>
+<script src="carnet.js?v=20260714b"></script>
 <script>
 (function () {
   const params = new URLSearchParams(location.search);
@@ -86,6 +86,10 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   const vol = CC_VOL.getSession();
   let disp = null;
   let pendingBlob = null;
+  let photoSource = null;
+  let photoCropRect = null;
+  let photoPreviewUrl = null;
+  let photoManual = false;
   let previewUrl = null;
   let busy = false;
   let pollTimer = null;
@@ -123,11 +127,18 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         <div class="ssub">Foto de rostro, fondo claro, sin filtros. Recorte vertical 3:4 para el carnet.</div>
         <div class="photo-box">
           <div class="photo-row" id="photoRow" ${showPreview ? '' : 'style="display:none"'}>
-            <div class="photo-frame has" id="photoFrame"><img id="photoImg" alt="Vista previa"></div>
-            <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">
-              <b style="color:var(--txt);display:block;margin-bottom:4px">Vista previa</b>
-              Ajustamos el encuadre automáticamente.
+            <div class="photo-frame-wrap">
+              <div class="photo-frame has" id="photoFrame"><img id="photoImg" alt="Vista previa"></div>
+              <button type="button" class="crop-fab" id="btnCropFab" aria-label="Ajustar recorte" title="Ajustar recorte">✂</button>
             </div>
+            <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">
+              <b style="color:var(--txt);display:block;margin-bottom:4px" id="photoPreviewTitle">${photoManual ? 'Vista previa' : '¿Se ve bien?'}</b>
+              <span id="photoPreviewHint">${photoManual ? 'Recorte ajustado por ti.' : 'Toca el ✂ sobre la foto si quieres mover el encuadre.'}</span>
+            </div>
+          </div>
+          <div class="preview-callout" id="previewCallout" ${showPreview ? '' : 'style="display:none"'}>
+            <b>Vista previa lista</b>
+            Si tu rostro se ve completo, confirma abajo. Si no, ajusta con el botón sobre la foto.
           </div>
           <label class="media-upload-btn" style="margin-top:${showPreview ? '12px' : '0'}">
             📷 ${showPreview ? 'Cambiar foto' : 'Elegir foto'}
@@ -138,6 +149,49 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         <button type="button" class="btn btn-grn" id="btnConfirmPhoto" disabled>${regenerating ? 'Confirmar foto y regenerar' : 'Confirmar y generar'}</button>
         <button type="button" class="btn btn-ghost" id="btnSkip">${fromRegistro ? 'Hacerlo después en mi cuenta' : 'Volver a mi cuenta'}</button>
       </div>`;
+  }
+
+  function updatePhotoPreviewUi() {
+    const row = document.getElementById('photoRow');
+    const callout = document.getElementById('previewCallout');
+    const img = document.getElementById('photoImg');
+    const title = document.getElementById('photoPreviewTitle');
+    const hint = document.getElementById('photoPreviewHint');
+    const btn = document.getElementById('btnConfirmPhoto');
+    const uploadLbl = document.querySelector('.media-upload-btn');
+    if (!row || !pendingBlob) return;
+    row.style.display = '';
+    if (callout) callout.style.display = '';
+    if (img && photoPreviewUrl) img.src = photoPreviewUrl;
+    if (title) title.textContent = photoManual ? 'Vista previa' : '¿Se ve bien?';
+    if (hint) hint.textContent = photoManual ? 'Recorte ajustado por ti.' : 'Toca el ✂ sobre la foto si quieres mover el encuadre.';
+    if (btn) btn.disabled = false;
+    if (uploadLbl) uploadLbl.childNodes[0].textContent = '📷 Cambiar foto';
+  }
+
+  function clearPhotoSelection() {
+    CC_CARNET.revokePreviewUrl(photoPreviewUrl);
+    photoPreviewUrl = null;
+    photoSource = null;
+    photoCropRect = null;
+    photoManual = false;
+    pendingBlob = null;
+  }
+
+  async function openCropEditor() {
+    if (!photoSource) return;
+    setErr('');
+    try {
+      const edited = await CC_CARNET.openPhotoCropper(photoSource, photoCropRect);
+      CC_CARNET.revokePreviewUrl(photoPreviewUrl);
+      photoPreviewUrl = edited.previewUrl;
+      pendingBlob = edited.blob;
+      photoCropRect = edited.cropRect;
+      photoManual = true;
+      updatePhotoPreviewUi();
+    } catch (e) {
+      if (e.message !== 'cancelled') setErr(e.message || 'No se pudo ajustar el recorte');
+    }
   }
 
   function processingHtml(msg) {
@@ -238,7 +292,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     document.getElementById('btnRegen').onclick = () => {
       if (!confirm('¿Regenerar tu carnet?\n\nNecesitarás subir una foto nueva. El PDF anterior dejará de servir.')) return;
       regenerating = true;
-      pendingBlob = null;
+      clearPhotoSelection();
       renderUpload();
     };
     bindDone();
@@ -251,21 +305,30 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
     bindDone();
     const fileIn = document.getElementById('fileIn');
     const btn = document.getElementById('btnConfirmPhoto');
+    const cropFab = document.getElementById('btnCropFab');
+    if (cropFab) cropFab.onclick = () => openCropEditor();
+    if (pendingBlob) updatePhotoPreviewUi();
     fileIn.onchange = async () => {
       setErr('');
       const file = fileIn.files && fileIn.files[0];
       if (!file) return;
       try {
-        const { blob } = await CC_CARNET.cropPortrait3x4(file);
-        pendingBlob = blob;
-        const url = URL.createObjectURL(blob);
-        document.getElementById('photoRow').style.display = '';
-        document.getElementById('photoImg').src = url;
-        btn.disabled = false;
+        const result = await CC_CARNET.processPhotoFile(file);
+        CC_CARNET.revokePreviewUrl(photoPreviewUrl);
+        photoSource = result.source;
+        photoCropRect = result.cropRect;
+        photoPreviewUrl = result.previewUrl;
+        pendingBlob = result.blob;
+        photoManual = false;
+        updatePhotoPreviewUi();
       } catch (e) {
         setErr(e.message);
-        pendingBlob = null;
-        btn.disabled = true;
+        clearPhotoSelection();
+        if (btn) btn.disabled = true;
+        const row = document.getElementById('photoRow');
+        const callout = document.getElementById('previewCallout');
+        if (row) row.style.display = 'none';
+        if (callout) callout.style.display = 'none';
       }
     };
     btn.onclick = () => startFlow(true);
@@ -291,7 +354,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
         }
         renderProcessing('Subiendo foto…');
         await CC_CARNET.uploadFoto(pendingBlob, 'image/jpeg');
-        pendingBlob = null;
+        clearPhotoSelection();
       }
       renderProcessing('Preparando tu carnet…');
       const req = await CC_CARNET.solicitar(isRegen);

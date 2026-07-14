@@ -135,12 +135,19 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
           <div class="box-t" style="margin-bottom:4px">Tu foto (opcional)</div>
           <div class="ssub" style="margin-bottom:0">Para tu carnet. Puedes sacarlo al terminar el registro o después en Mi cuenta.</div>
           <div class="photo-row" id="photoRow" style="display:none">
-            <div class="photo-frame has" id="photoFrame"><img id="photoPreview" alt="Vista previa"></div>
+            <div class="photo-frame-wrap">
+              <div class="photo-frame has" id="photoFrame"><img id="photoPreview" alt="Vista previa"></div>
+              <button type="button" class="crop-fab" id="btnCropFab" aria-label="Ajustar recorte" title="Ajustar recorte">✂</button>
+            </div>
             <div style="flex:1;font-size:13px;color:var(--txt2);line-height:1.45">
-              <b style="color:var(--txt);display:block;margin-bottom:4px">Vista previa</b>
-              Recorte vertical 3:4 para el carnet.
+              <b style="color:var(--txt);display:block;margin-bottom:4px" id="photoPreviewTitle">¿Se ve bien?</b>
+              <span id="photoPreviewHint">Toca el ✂ sobre la foto si quieres mover el encuadre.</span>
               <button type="button" class="btn btn-ghost" id="btnQuitarFoto" style="margin-top:8px;padding:8px;font-size:12px">Quitar foto</button>
             </div>
+          </div>
+          <div class="preview-callout" id="previewCallout" style="display:none">
+            <b>Vista previa lista</b>
+            Si tu rostro se ve completo, sigue con el registro. Si no, ajusta con el botón sobre la foto.
           </div>
           <label class="media-upload-btn" style="margin-top:12px" id="photoUploadLbl">
             📷 Elegir foto
@@ -281,8 +288,8 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 <script src="../scraper-config.js"></script>
 <script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
-<script src="vol.js?v=20260712h"></script>
-<script src="carnet.js?v=20260712h"></script>
+<script src="vol.js?v=20260714b"></script>
+<script src="carnet.js?v=20260714b"></script>
 <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
 <script>
 const GRUPO=window.CC_GRUPO_SLUG||'cuidadoras_caracas';
@@ -309,28 +316,75 @@ const brigadasSel=new Set();
 let brigadasCatalogo=[];
 let registroOk=null;
 let fotoBlob=null;
+let fotoSource=null;
+let fotoCropRect=null;
+let fotoPreviewUrl=null;
+let fotoManual=false;
+
+function updateFotoPreviewUi(){
+  document.getElementById('photoRow').style.display='';
+  document.getElementById('previewCallout').style.display='';
+  document.getElementById('photoPreview').src=fotoPreviewUrl;
+  document.getElementById('photoPreviewTitle').textContent=fotoManual?'Vista previa':'¿Se ve bien?';
+  document.getElementById('photoPreviewHint').textContent=fotoManual?'Recorte ajustado por ti.':'Toca el ✂ sobre la foto si quieres mover el encuadre.';
+  document.getElementById('photoUploadLbl').firstChild.textContent='📷 Cambiar foto';
+}
+
+function clearFotoSelection(){
+  CC_CARNET.revokePreviewUrl(fotoPreviewUrl);
+  fotoPreviewUrl=null;
+  fotoSource=null;
+  fotoCropRect=null;
+  fotoManual=false;
+  fotoBlob=null;
+}
+
+async function openFotoCropEditor(){
+  if(!fotoSource)return;
+  try{
+    const edited=await CC_CARNET.openPhotoCropper(fotoSource,fotoCropRect);
+    CC_CARNET.revokePreviewUrl(fotoPreviewUrl);
+    fotoPreviewUrl=edited.previewUrl;
+    fotoBlob=edited.blob;
+    fotoCropRect=edited.cropRect;
+    fotoManual=true;
+    updateFotoPreviewUi();
+  }catch(e){
+    if(e.message!=='cancelled')flash(e.message||'No se pudo ajustar el recorte');
+  }
+}
 
 const fotoIn=document.getElementById('fotoIn');
+const btnCropFab=document.getElementById('btnCropFab');
+if(btnCropFab)btnCropFab.onclick=()=>openFotoCropEditor();
 if(fotoIn){
   fotoIn.onchange=async()=>{
     const file=fotoIn.files&&fotoIn.files[0];
     if(!file)return;
     try{
-      const cropped=await CC_CARNET.cropPortrait3x4(file);
-      fotoBlob=cropped.blob;
-      document.getElementById('photoRow').style.display='';
-      document.getElementById('photoPreview').src=URL.createObjectURL(fotoBlob);
-      document.getElementById('photoUploadLbl').firstChild.textContent='📷 Cambiar foto';
+      const result=await CC_CARNET.processPhotoFile(file);
+      CC_CARNET.revokePreviewUrl(fotoPreviewUrl);
+      fotoSource=result.source;
+      fotoCropRect=result.cropRect;
+      fotoPreviewUrl=result.previewUrl;
+      fotoBlob=result.blob;
+      fotoManual=false;
+      updateFotoPreviewUi();
     }catch(e){
-      fotoBlob=null;
+      clearFotoSelection();
+      fotoIn.value='';
+      document.getElementById('photoRow').style.display='none';
+      document.getElementById('previewCallout').style.display='none';
+      document.getElementById('photoUploadLbl').firstChild.textContent='📷 Elegir foto';
       flash(e.message||'No se pudo usar esa foto');
     }
   };
 }
 document.getElementById('btnQuitarFoto')?.addEventListener('click',()=>{
-  fotoBlob=null;
+  clearFotoSelection();
   fotoIn.value='';
   document.getElementById('photoRow').style.display='none';
+  document.getElementById('previewCallout').style.display='none';
   document.getElementById('photoUploadLbl').firstChild.textContent='📷 Elegir foto';
 });
 
@@ -454,7 +508,7 @@ async function subirFotoPostRegistro(){
   try{
     await CC_CARNET.uploadFoto(fotoBlob,'image/jpeg');
     registroOk.fotoSubida=true;
-    fotoBlob=null;
+    clearFotoSelection();
   }catch(e){
     CC_CARNET.track('carnet_photo_upload_failed',{step:'registro'});
     flash('Registro guardado. No pudimos guardar la foto…');
