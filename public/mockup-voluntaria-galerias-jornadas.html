@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Mockup — Galerías de jornadas (voluntarias)</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F1EEEA;--surf:#FBFAF8;--ind:#5A4AA0;--indh:#4A3C88;--indl:#EEEBF6;--indt:#463A82;
+  --grn:#1E8449;--grnh:#15603A;--grnl:#E9F6EE;--ora:#E67E22;--orl:#FEF9E7;
+  --txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--app-max:580px;
+}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:#2a2826;color:var(--txt);font-size:15px}
+.mock-shell{max-width:1280px;margin:0 auto;padding:16px}
+.mock-top{color:#fff;margin-bottom:16px}
+.mock-top h1{font-size:20px;font-weight:800}
+.mock-top p{font-size:13px;opacity:.75;margin-top:4px;line-height:1.45;max-width:92ch}
+.mock-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.mock-meta span{font-size:11px;font-weight:700;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15)}
+.mock-nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.mock-nav button{font-size:11px;font-weight:700;padding:8px 12px;border-radius:20px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;cursor:pointer;font-family:inherit;line-height:1.3;text-align:left}
+.mock-nav button.on{background:#fff;color:var(--indt);border-color:#fff}
+.layout{display:grid;gap:20px}
+@media(min-width:960px){.layout{grid-template-columns:1fr 360px}}
+.phone-label{text-align:center;font-size:11px;font-weight:700;color:rgba(255,255,255,.55);margin-bottom:8px;letter-spacing:.04em;text-transform:uppercase}
+.phone{width:100%;max-width:var(--app-max);margin:0 auto;background:var(--bg);border-radius:28px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.45);border:6px solid #1a1a1a;min-height:740px;display:flex;flex-direction:column;position:relative}
+.notes{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:18px;color:#e8e4df;font-size:13px;line-height:1.55;align-self:start;position:sticky;top:16px}
+.notes h2{font-size:15px;font-weight:800;color:#fff;margin-bottom:10px}
+.notes ul{padding-left:18px;margin:8px 0}
+.notes li{margin-bottom:6px}
+.notes .tag{display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;background:var(--indl);color:var(--indt);margin-right:4px}
+.notes .scope{display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;background:var(--grnl);color:var(--grn);margin-right:4px}
+.notes .open{display:inline-block;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;background:#fff3cd;color:#856404;margin-right:4px}
+.screen{display:none;flex:1;flex-direction:column;overflow:hidden;min-height:0}
+.screen.on{display:flex}
+.hdr{background:var(--ind);color:#fff;padding:16px 18px;flex-shrink:0}
+.hdr a{color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.hdr h1{font-size:20px;font-weight:800;line-height:1.2;margin-top:8px}
+.hdr p{font-size:13px;opacity:.88;margin-top:4px;line-height:1.45}
+.body-scroll{flex:1;overflow-y:auto;padding-bottom:24px;-webkit-overflow-scrolling:touch}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;margin:16px;padding:18px;box-shadow:0 2px 12px rgba(0,0,0,.04)}
+.card-t{font-size:13px;font-weight:800;color:var(--indt);margin-bottom:10px}
+.card-sub{font-size:13px;color:var(--txt2);margin-bottom:12px;line-height:1.45}
+.tabs{display:flex;gap:8px;margin-bottom:14px}
+.tab{flex:1;border:1.5px solid var(--line2);background:#fff;border-radius:10px;padding:10px 6px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;color:var(--txt2);text-align:center}
+.tab.on{border-color:var(--ind);background:var(--indl);color:var(--indt)}
+.jlist{display:flex;flex-direction:column;gap:10px}
+.jcard{display:block;background:var(--bg);border:1px solid var(--line2);border-radius:14px;padding:14px;text-decoration:none;color:inherit;cursor:pointer}
+.jcard b{font-size:15px;display:block;margin-bottom:4px;line-height:1.35}
+.jmeta{font-size:13px;color:var(--txt2);line-height:1.45}
+.jrow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;flex-wrap:wrap}
+.badge{font-size:10px;font-weight:800;padding:3px 8px;border-radius:999px;display:inline-block}
+.badge.done{background:#eee;color:var(--txt3)}
+.badge.me{background:var(--indl);color:var(--indt)}
+.badge.photos{background:var(--orl);color:var(--ora)}
+.badge.new{background:var(--grnl);color:var(--grnh)}
+.jcta{font-size:12px;font-weight:800;color:var(--ind)}
+/* Thumb strip on jornada cards */
+.thumb-strip{display:flex;gap:4px;margin-top:10px;border-radius:10px;overflow:hidden}
+.thumb{width:33.33%;aspect-ratio:4/3;background:#ccc;position:relative;overflow:hidden}
+.thumb img,.thumb .ph{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .more{position:absolute;inset:0;background:rgba(0,0,0,.52);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.thumb-vid::after{content:'▶';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;background:rgba(0,0,0,.28)}
+/* Recuerdos feed */
+.recuerdos-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;scroll-snap-type:x mandatory}
+.recuerdos-scroll::-webkit-scrollbar{height:4px}
+.recuerdos-scroll::-webkit-scrollbar-thumb{background:var(--line2);border-radius:999px}
+.rec-item{flex:0 0 108px;scroll-snap-align:start;cursor:pointer}
+.rec-thumb{width:108px;height:108px;border-radius:12px;overflow:hidden;position:relative;background:#ccc}
+.rec-thumb img,.rec-thumb .ph{width:100%;height:100%;object-fit:cover;display:block}
+.rec-cap{font-size:10px;color:var(--txt2);margin-top:4px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rec-new{position:absolute;top:6px;left:6px;font-size:9px;font-weight:800;padding:2px 6px;border-radius:999px;background:var(--grn);color:#fff}
+/* Gallery grid on jornada detail */
+.sect-t{font-size:12px;font-weight:800;color:var(--indt);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.04em}
+.meta{font-size:14px;color:var(--txt2);line-height:1.55}
+.media-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.media-item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#1a1a1a;cursor:pointer}
+.media-item img,.media-item .ph{width:100%;height:100%;object-fit:cover;display:block}
+.media-item .vid-badge{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;background:rgba(0,0,0,.28);pointer-events:none}
+.media-more{text-align:center;font-size:13px;font-weight:700;color:var(--ind);padding:10px 0 2px;cursor:pointer}
+/* Lightbox */
+.lightbox{position:absolute;inset:0;background:#000;z-index:20;display:flex;flex-direction:column}
+.lb-top{padding:14px 16px 8px;color:#fff;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.lb-top button{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px;font-family:inherit}
+.lb-meta{font-size:12px;opacity:.8;line-height:1.4}
+.lb-stage{flex:1;display:flex;align-items:center;justify-content:center;padding:8px 0;min-height:0;position:relative}
+.lb-img{max-width:100%;max-height:100%;object-fit:contain;border-radius:4px}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:20px;cursor:pointer;font-family:inherit}
+.lb-nav.prev{left:8px}
+.lb-nav.next{right:8px}
+.lb-dots{display:flex;justify-content:center;gap:6px;padding:12px 16px 20px;flex-shrink:0}
+.lb-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.35)}
+.lb-dot.on{background:#fff;width:18px;border-radius:999px}
+/* Placeholder photo colors */
+.ph{background:linear-gradient(135deg,#8B7EC8 0%,#5A4AA0 50%,#3d3470 100%)}
+.ph2{background:linear-gradient(135deg,#7ec88b 0%,#1E8449 50%,#15603A 100%)}
+.ph3{background:linear-gradient(135deg,#e8b87a 0%,#E67E22 50%,#c45a10 100%)}
+.ph4{background:linear-gradient(135deg,#7eb8e8 0%,#3498db 50%,#1a6fa8 100%)}
+.ph5{background:linear-gradient(135deg,#e87e9a 0%,#c0396b 50%,#8e2449 100%)}
+.ph6{background:linear-gradient(135deg,#b8a87e 0%,#8B7355 50%,#5c4a32 100%)}
+.menu-list{display:flex;flex-direction:column;gap:0;margin-top:4px}
+.menu-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;width:100%;font-family:inherit;text-align:left;color:inherit;text-decoration:none}
+.menu-item:last-child{border-bottom:none;padding-bottom:0}
+.menu-item-ico{font-size:20px;width:28px;text-align:center;flex-shrink:0}
+.menu-item-body{flex:1;min-width:0}
+.menu-item-t{font-size:15px;font-weight:800;display:block}
+.menu-item-s{font-size:12px;color:var(--txt2);margin-top:2px;line-height:1.35}
+.menu-item-arrow{color:var(--txt3);font-size:18px;font-weight:700;flex-shrink:0}
+.banner{background:var(--grnl);border:1px solid #b8dfc4;border-radius:12px;padding:12px;font-size:13px;font-weight:700;color:var(--grn);margin-bottom:12px;line-height:1.45}
+.empty-gal{text-align:center;padding:20px 12px;color:var(--txt2);font-size:13px;line-height:1.5;background:var(--surf);border:1px dashed var(--line2);border-radius:12px}
+.empty-gal .ico{font-size:32px;margin-bottom:6px;opacity:.5}
+@media(prefers-reduced-motion:reduce){.recuerdos-scroll{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="mock-shell">
+  <div class="mock-top">
+    <h1>Mockup — Galerías de jornadas para voluntarias</h1>
+    <p>Confirmación de coordinadoras: las voluntarias deben ver las fotos y videos que suben al cerrar cada jornada. Propuesta de UX en el dashboard existente (<code style="opacity:.8">mi-cuenta</code> + detalle de jornada). <code style="opacity:.8">npm run dev</code> → <code style="opacity:.8">/mockup-voluntaria-galerias-jornadas.html</code></p>
+    <div class="mock-meta">
+      <span>Datos: jornada_media (ya existe)</span>
+      <span>Piloto: Cuidadoras Caracas</span>
+      <span>Solo lectura · sin subida por voluntarias</span>
+    </div>
+  </div>
+
+  <div class="mock-nav" id="nav"></div>
+
+  <div class="layout">
+    <div>
+      <div class="phone-label" id="phone-label">Pantalla</div>
+      <div class="phone" id="phone">
+
+        <!-- in_scope: thumbs + badge en listado jornadas pasadas (mi-cuenta / jornadas) -->
+        <!-- UX OPEN: badge «Nuevas» últimos 7 días — fuera MVP -->
+        <div class="screen on" data-id="cuenta-pasadas" data-label="1 · Mi cuenta — Pasadas">
+          <header class="hdr">
+            <a href="#">← Inicio</a>
+            <h1>Hola, María 👋</h1>
+            <p>Voluntaria N° 142</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="card-t">Jornadas</div>
+              <div class="tabs">
+                <button type="button" class="tab">Próximas</button>
+                <button type="button" class="tab on">Pasadas</button>
+                <button type="button" class="tab">Todas</button>
+              </div>
+              <div class="jlist">
+                <div class="jcard" onclick="go('jornada-galeria')">
+                  <b>Jornada La Guaira — Playa y comedor</b>
+                  <div class="jmeta">🗓 Sáb 5 jul · 07:30<br>📍 Playa Grande, La Guaira</div>
+                  <div class="thumb-strip" aria-hidden="true">
+                    <div class="thumb"><div class="ph"></div></div>
+                    <div class="thumb"><div class="ph ph2"></div></div>
+                    <div class="thumb thumb-vid"><div class="ph ph3"></div><span class="more">+9</span></div>
+                  </div>
+                  <div class="jrow">
+                    <div><span class="badge done">Realizada</span> <span class="badge me">Fuiste</span> <span class="badge photos">📷 12</span></div>
+                    <span class="jcta">Ver galería →</span>
+                  </div>
+                </div>
+                <div class="jcard" onclick="go('jornada-sin-fotos')">
+                  <b>Visita CENAPAI La Vega</b>
+                  <div class="jmeta">🗓 Dom 22 jun · 08:00<br>📍 La Vega, Caracas</div>
+                  <div class="jrow" style="margin-top:10px">
+                    <div><span class="badge done">Realizada</span> <span class="badge me">Fuiste</span></div>
+                    <span class="jcta">Ver resumen →</span>
+                  </div>
+                </div>
+                <div class="jcard">
+                  <b>Comedor comunitario Petare</b>
+                  <div class="jmeta">🗓 Sáb 14 jun · 09:00<br>📍 Petare, Miranda</div>
+                  <div class="thumb-strip" aria-hidden="true">
+                    <div class="thumb"><div class="ph ph4"></div></div>
+                    <div class="thumb"><div class="ph ph5"></div></div>
+                    <div class="thumb"><div class="ph ph6"></div><span class="more">+3</span></div>
+                  </div>
+                  <div class="jrow">
+                    <div><span class="badge done">Realizada</span> <span class="badge photos">📷 6</span></div>
+                    <span class="jcta">Ver galería →</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-t">Mis brigadas</div>
+              <p class="card-sub">La Guaira · Comedores · CENAPAI</p>
+            </div>
+            <div class="card">
+              <div class="card-t">Datos de mi cuenta</div>
+              <div class="menu-list">
+                <a class="menu-item" href="#">
+                  <span class="menu-item-ico">🪪</span>
+                  <span class="menu-item-body">
+                    <span class="menu-item-t">Mi carnet</span>
+                    <span class="menu-item-s">Listo para descargar</span>
+                  </span>
+                  <span class="menu-item-arrow">›</span>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- out_of_scope: feed horizontal «Recuerdos recientes» — alternativa PM -->
+        <div class="screen" data-id="cuenta-recuerdos" data-label="2 · Alt. — Recuerdos arriba">
+          <header class="hdr">
+            <a href="#">← Inicio</a>
+            <h1>Hola, María 👋</h1>
+            <p>Voluntaria N° 142</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <div class="card-t">Recuerdos recientes</div>
+              <p class="card-sub">Fotos de las jornadas del grupo. Toca para ver la galería completa.</p>
+              <div class="recuerdos-scroll">
+                <div class="rec-item" onclick="go('galeria-viewer')">
+                  <div class="rec-thumb"><div class="ph"></div><span class="rec-new">Nuevo</span></div>
+                  <div class="rec-cap">La Guaira · 5 jul</div>
+                </div>
+                <div class="rec-item" onclick="go('galeria-viewer')">
+                  <div class="rec-thumb"><div class="ph ph2"></div></div>
+                  <div class="rec-cap">La Guaira · 5 jul</div>
+                </div>
+                <div class="rec-item" onclick="go('galeria-viewer')">
+                  <div class="rec-thumb thumb-vid"><div class="ph ph3"></div></div>
+                  <div class="rec-cap">Video · 5 jul</div>
+                </div>
+                <div class="rec-item">
+                  <div class="rec-thumb"><div class="ph ph4"></div></div>
+                  <div class="rec-cap">Petare · 14 jun</div>
+                </div>
+                <div class="rec-item">
+                  <div class="rec-thumb"><div class="ph ph5"></div></div>
+                  <div class="rec-cap">Petare · 14 jun</div>
+                </div>
+                <div class="rec-item">
+                  <div class="rec-thumb"><div class="ph ph6"></div></div>
+                  <div class="rec-cap">Petare · 14 jun</div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-t">Jornadas</div>
+              <div class="tabs">
+                <button type="button" class="tab">Próximas</button>
+                <button type="button" class="tab on">Pasadas</button>
+                <button type="button" class="tab">Todas</button>
+              </div>
+              <div class="jlist">
+                <div class="jcard" onclick="go('jornada-galeria')">
+                  <b>Jornada La Guaira — Playa y comedor</b>
+                  <div class="jmeta">🗓 Sáb 5 jul · 📍 Playa Grande</div>
+                  <div class="jrow">
+                    <div><span class="badge done">Realizada</span> <span class="badge photos">📷 12</span> <span class="badge new">Nuevas</span></div>
+                    <span class="jcta">Ver galería →</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S3: Jornada próxima — sin galería -->
+        <div class="screen" data-id="jornada-proxima" data-label="3 · Jornada próxima">
+          <header class="hdr">
+            <a href="#" onclick="go('cuenta-pasadas');return false">← Mi cuenta</a>
+            <p style="margin-top:8px;opacity:.95">Hola, María 👋 · N° 142</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <h2 style="font-size:17px;font-weight:800;margin-bottom:10px">Jornada Macuto — Día de playa</h2>
+              <div class="meta">
+                🗓 Sáb 19 jul<br>
+                ⏰ Encuentro 07:00 — CCCT<br>
+                🚐 Salida 07:30<br>
+                📍 Playa Los Cocos, Macuto
+              </div>
+              <div class="sect-t">Misión</div>
+              <p class="meta">Acompañar a las niñas en actividades recreativas y apoyo en comedor.</p>
+            </div>
+            <div class="card">
+              <h2 style="font-size:17px;font-weight:800;margin-bottom:10px">Tu asistencia</h2>
+              <div class="banner">Ya respondiste. Puedes cambiar tu respuesta.</div>
+              <p class="meta" style="text-align:center;padding:8px 0">✅ Confirmaste que vas</p>
+            </div>
+            <div class="card" style="opacity:.55">
+              <div class="card-t">Recuerdos de la jornada</div>
+              <div class="empty-gal">
+                <div class="ico">📷</div>
+                Las fotos aparecen aquí después de la jornada, cuando la coordinadora las suba.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- in_scope: sección «Recuerdos de la jornada» en jornada.html -->
+        <div class="screen" data-id="jornada-galeria" data-label="4 · Jornada — Galería">
+          <header class="hdr">
+            <a href="#" onclick="go('cuenta-pasadas');return false">← Jornadas</a>
+            <p style="margin-top:8px;opacity:.95">Hola, María 👋 · N° 142</p>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <h2 style="font-size:17px;font-weight:800;margin-bottom:10px">Jornada La Guaira — Playa y comedor</h2>
+              <div class="meta">
+                🗓 Sáb 5 jul 2026<br>
+                📍 Playa Grande, La Guaira<br>
+                ✅ Realizada · Fuiste
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-t">Recuerdos de la jornada</div>
+              <p class="card-sub">12 fotos y videos compartidos por el equipo.</p>
+              <div class="media-grid">
+                <div class="media-item" onclick="go('galeria-viewer')"><div class="ph"></div></div>
+                <div class="media-item" onclick="go('galeria-viewer')"><div class="ph ph2"></div></div>
+                <div class="media-item" onclick="go('galeria-viewer')"><div class="ph ph3 vid-badge"></div><span class="vid-badge">▶</span></div>
+                <div class="media-item" onclick="go('galeria-viewer')"><div class="ph ph4"></div></div>
+                <div class="media-item" onclick="go('galeria-viewer')"><div class="ph ph5"></div></div>
+                <div class="media-item" onclick="go('galeria-viewer')"><div class="ph ph6"></div></div>
+                <div class="media-item" onclick="go('galeria-viewer')"><div class="ph"></div></div>
+                <div class="media-item" onclick="go('galeria-viewer')"><div class="ph ph2"></div></div>
+                <div class="media-item" onclick="go('galeria-viewer')"><div class="ph ph3"></div></div>
+              </div>
+              <div class="media-more" onclick="go('galeria-viewer')">Ver las 12 →</div>
+            </div>
+            <div class="card">
+              <div class="card-t">Resumen</div>
+              <p class="meta">Gracias por acompañar a 18 niñas. Materiales entregados: kits de higiene, merienda.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- S5: Jornada sin fotos aún -->
+        <div class="screen" data-id="jornada-sin-fotos" data-label="5 · Sin fotos aún">
+          <header class="hdr">
+            <a href="#" onclick="go('cuenta-pasadas');return false">← Jornadas</a>
+          </header>
+          <div class="body-scroll">
+            <div class="card">
+              <h2 style="font-size:17px;font-weight:800;margin-bottom:10px">Visita CENAPAI La Vega</h2>
+              <div class="meta">🗓 Dom 22 jun · 📍 La Vega · ✅ Realizada</div>
+            </div>
+            <div class="card">
+              <div class="card-t">Recuerdos de la jornada</div>
+              <div class="empty-gal">
+                <div class="ico">📷</div>
+                Aún no hay fotos de esta jornada.<br>Vuelve pronto — la coordinadora las sube después del día.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- S6: Visor fullscreen -->
+        <div class="screen" data-id="galeria-viewer" data-label="6 · Visor fullscreen">
+          <div class="lightbox">
+            <div class="lb-top">
+              <button type="button" onclick="go('jornada-galeria')" aria-label="Cerrar">✕</button>
+              <div class="lb-meta" style="text-align:center;flex:1">
+                <div style="font-weight:800;font-size:14px">La Guaira — Playa y comedor</div>
+                <div>3 de 12 · Foto</div>
+              </div>
+              <button type="button" aria-label="Compartir" style="font-size:16px">⤴</button>
+            </div>
+            <div class="lb-stage">
+              <button type="button" class="lb-nav prev" aria-label="Anterior">‹</button>
+              <div class="lb-img ph ph3" style="width:88%;aspect-ratio:4/3;border-radius:8px"></div>
+              <button type="button" class="lb-nav next" aria-label="Siguiente">›</button>
+            </div>
+            <div class="lb-dots">
+              <span class="lb-dot"></span><span class="lb-dot"></span><span class="lb-dot on"></span>
+              <span class="lb-dot"></span><span class="lb-dot"></span><span class="lb-dot"></span>
+              <span class="lb-dot"></span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <aside class="notes" id="notes">
+      <h2 id="notes-title">Galerías en dashboard</h2>
+      <p id="notes-body">Selecciona una pantalla arriba.</p>
+    </aside>
+  </div>
+</div>
+
+<script>
+const SCREENS={
+  'cuenta-pasadas':{
+    title:'Mi cuenta — tab Pasadas (recomendado)',
+    body:`<span class="scope">Recomendado</span> Extender las cards de jornada pasada sin cambiar la estructura del dashboard.<ul>
+      <li><b>Franja de 3 miniaturas</b> cuando hay media (la 3.ª muestra +N si hay más)</li>
+      <li>Badge <b>📷 N</b> junto a estado e inscripción</li>
+      <li>CTA cambia de «Ver resumen» a <b>«Ver galería →»</b> si hay fotos</li>
+      <li>Sin franja ni badge si la jornada no tiene media</li>
+      <li>Solo jornadas <b>realizadas</b> o pasadas — las próximas no muestran galería</li>
+    </ul>
+    <span class="open">Backend</span> Nuevo RPC público con URLs firmadas (RLS hoy solo permite moderadoras).`
+  },
+  'cuenta-recuerdos':{
+    title:'Alternativa — feed «Recuerdos recientes»',
+    body:`<span class="open">Alternativa</span> Carrusel horizontal arriba del listado de jornadas.<ul>
+      <li>Útil si quieren <b>descubrimiento rápido</b> sin entrar a cada jornada</li>
+      <li>Badge <b>Nuevo</b> en fotos de los últimos 7 días</li>
+      <li>Riesgo: duplica info con las cards — puede sentirse cargado en móvil</li>
+    </ul>
+    <b>PM:</b> Empezar solo con thumbs en cards (pantalla 1). Añadir feed si piden más visibilidad.`
+  },
+  'jornada-proxima':{
+    title:'Jornada próxima — placeholder',
+    body:`Jornadas futuras o abiertas: sección «Recuerdos» <b>atenuada</b> con mensaje claro.<ul>
+      <li>No confundir con error — explica que las fotos llegan después</li>
+      <li>Misma sección que en jornada realizada, solo cambia el contenido</li>
+    </ul>`
+  },
+  'jornada-galeria':{
+    title:'Detalle jornada — galería completa',
+    body:`<span class="scope">in_scope</span> En <code>jornada.html</code> cuando <code>estado = realizada</code>:<ul>
+      <li>Sección <b>«Recuerdos de la jornada»</b> con grid 3×N (mismo patrón que panel coord)</li>
+      <li>▶ en videos; tap abre visor fullscreen</li>
+      <li>«Ver las N →» si hay más de 9 en pantalla</li>
+      <li>Resumen de la jornada debajo (texto que ya sube la coord)</li>
+    </ul>`
+  },
+  'jornada-sin-fotos':{
+    title:'Jornada realizada sin media',
+    body:`Estado vacío amigable — la coord aún no subió o no hubo fotos.<ul>
+      <li>Sin badge 📷 en la card del listado</li>
+      <li>CTA sigue siendo «Ver resumen →»</li>
+    </ul>`
+  },
+  'galeria-viewer':{
+    title:'Visor fullscreen',
+    body:`<span class="scope">in_scope</span> Lightbox sobre la app (sin salir del flujo).<ul>
+      <li>Swipe / flechas · contador «3 de 12»</li>
+      <li>Título de jornada arriba</li>
+      <li>Compartir nativo del navegador (opcional MVP)</li>
+      <li>Videos: reproductor inline con controles</li>
+    </ul>
+    <span class="open">Accesibilidad</span> Botón cerrar grande, foco en visor, <code>prefers-reduced-motion</code>.`
+  }
+};
+
+const nav=document.getElementById('nav');
+document.querySelectorAll('.screen').forEach(s=>{
+  const id=s.dataset.id;
+  const b=document.createElement('button');
+  b.textContent=s.dataset.label;
+  b.onclick=()=>go(id);
+  b.dataset.target=id;
+  nav.appendChild(b);
+});
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.dataset.id===id));
+  document.querySelectorAll('.mock-nav button').forEach(b=>b.classList.toggle('on',b.dataset.target===id));
+  document.getElementById('phone-label').textContent=SCREENS[id]?.title||id;
+  const n=SCREENS[id];
+  if(n){
+    document.getElementById('notes-title').textContent=n.title;
+    document.getElementById('notes-body').innerHTML=n.body;
+  }
+}
+go('cuenta-pasadas');
+</script>
+</body>
+</html>

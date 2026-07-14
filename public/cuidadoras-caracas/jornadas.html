@@ -29,8 +29,22 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 .badge.full{background:#FEF9E7;color:var(--ora)}
 .badge.done{background:#eee;color:var(--txt3)}
 .badge.me{background:var(--indl);color:var(--indt)}
+.badge.photos{background:var(--orl);color:var(--ora)}
+.thumb-strip{display:flex;gap:4px;margin-top:10px;border-radius:10px;overflow:hidden}
+.thumb{flex:1;aspect-ratio:4/3;background:#ccc;position:relative;overflow:hidden;min-width:0}
+.thumb img,.thumb video{width:100%;height:100%;object-fit:cover;display:block}
+.thumb .more{position:absolute;inset:0;background:rgba(0,0,0,.52);color:#fff;font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.thumb-vid::after{content:'▶';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;background:rgba(0,0,0,.28);pointer-events:none}
 .jcta{font-size:12px;font-weight:800;color:var(--ind)}
 .empty{text-align:center;padding:48px 20px;color:var(--txt2);line-height:1.5}
+.jm-lightbox{position:fixed;inset:0;background:#000;z-index:200;display:flex;flex-direction:column}
+.jm-lb-top{padding:14px 16px 8px;color:#fff;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;flex-shrink:0}
+.jm-lb-close{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px;font-family:inherit}
+.jm-lb-head{flex:1;text-align:center}.jm-lb-title{font-weight:800;font-size:14px}.jm-lb-counter{font-size:12px;opacity:.8;margin-top:2px}
+.jm-lb-stage-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;position:relative;padding:0 4px}
+.jm-lb-media{max-width:100%;max-height:72vh;object-fit:contain}
+.jm-lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:50%;border:none;background:rgba(255,255,255,.15);color:#fff;font-size:20px;cursor:pointer;font-family:inherit;z-index:2}
+.jm-lb-prev{left:8px}.jm-lb-next{right:8px}
 </style>
 </head>
 <body>
@@ -47,7 +61,8 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   <div class="jlist" id="list"><div class="empty">Cargando…</div></div>
 </div>
 <script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
-<script src="vol.js?v=20260712d"></script>
+<script src="vol.js?v=20260714a"></script>
+<script src="jornada-media.js?v=20260714c"></script>
 <script>
 if(!CC_VOL.requireSession('jornadas'))throw 0;
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
@@ -65,17 +80,18 @@ function render(){
   const el=document.getElementById('list');
   const rows=CC_VOL.filterJornadas(jornadasAll,jornadaTab);
   if(!rows.length){el.innerHTML=`<div class="empty">${emptyMsg()}</div>`;return}
-  const past=jornadaTab!=='proximas';
+  const JM=CC_JORNADA_MEDIA;
   el.innerHTML=rows.map(j=>{
-    const cta=past||j.estado==='realizada'
-      ?'Ver resumen →'
-      :(j.inscEstado==='confirmada'?'Ver detalle →':'Ver y confirmar →');
+    const strip=j.mediaTotal?JM.thumbStripHtml(j.mediaPreviews,j.mediaTotal,j.mediaUrls||{}):'';
+    const photos=j.mediaTotal?JM.badgesMedia(j.mediaTotal):'';
+    const cta=JM.ctaForJornada(j,jornadaTab,j.mediaTotal||0);
     return`<a class="jcard" href="${CC_VOL.jornadaUrl(j.id)}">
       <b>${esc(j.titulo)}</b>
       <div class="jmeta">🗓 ${CC_VOL.fmtJornadaDate(j.fecha)}${j.hora_salida?' · '+CC_VOL.fmtJornadaTime(j.hora_salida):''}<br>
       📍 ${esc(j.sitio_nombre||j.sitio_zona||'Por confirmar')}</div>
+      ${strip}
       <div class="jrow">
-        <div>${CC_VOL.jornadaEstadoBadge(j.estado)} ${CC_VOL.inscripcionBadge(j.inscEstado)}</div>
+        <div>${CC_VOL.jornadaEstadoBadge(j.estado)} ${CC_VOL.inscripcionBadge(j.inscEstado)} ${photos}</div>
         <span class="jcta">${cta}</span>
       </div>
     </a>`;
@@ -89,25 +105,35 @@ function setTab(tab){
     btn.classList.toggle('on',on);
     btn.setAttribute('aria-selected',on?'true':'false');
   });
-  render();
+  CC_JORNADA_MEDIA.enrichJornadasWithMedia(jornadasAll).then(rows=>{
+    jornadasAll=rows;
+    render();
+  });
 }
 
 async function load(){
   const el=document.getElementById('list');
-  const cred=CC_VOL.credParams();
-  const{data,error}=await CC_VOL.db.rpc('jornadas_publicas',{p_grupo:CC_VOL.GRUPO});
-  if(error){el.innerHTML=`<div class="empty">${esc(error.message)}</div>`;return}
-  const rows=Array.isArray(data)?data:[];
-  if(!cred){
-    jornadasAll=rows.map(j=>({...j,inscEstado:null}));
+  try{
+    const cred=CC_VOL.credParams();
+    const{data,error}=await CC_VOL.db.rpc('jornadas_publicas',{p_grupo:CC_VOL.GRUPO});
+    if(error){el.innerHTML=`<div class="empty">${esc(error.message)}</div>`;return}
+    const rows=Array.isArray(data)?data:[];
+    if(!cred){
+      jornadasAll=rows.map(j=>({...j,inscEstado:null}));
+      render();
+      return;
+    }
+    jornadasAll=await Promise.all(rows.map(async j=>{
+      const{data:ins}=await CC_VOL.db.rpc('mi_inscripcion_jornada',{...cred,p_jornada_id:j.id});
+      return{...j,inscEstado:ins?.inscripcion?.estado||null};
+    }));
+    try{
+      jornadasAll=await CC_JORNADA_MEDIA.enrichJornadasWithMedia(jornadasAll);
+    }catch(_e){}
     render();
-    return;
+  }catch(e){
+    el.innerHTML=`<div class="empty">${esc(e.message||'No se pudieron cargar las jornadas')}</div>`;
   }
-  jornadasAll=await Promise.all(rows.map(async j=>{
-    const{data:ins}=await CC_VOL.db.rpc('mi_inscripcion_jornada',{...cred,p_jornada_id:j.id});
-    return{...j,inscEstado:ins?.inscripcion?.estado||null};
-  }));
-  render();
 }
 
 document.querySelectorAll('.tab').forEach(btn=>btn.onclick=()=>setTab(btn.dataset.tab));
