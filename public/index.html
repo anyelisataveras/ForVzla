@@ -242,6 +242,18 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
 .need-detail{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line2)}
 .need-detail.show{display:block}
 .need-detail-desc{font-size:13px;line-height:1.5;color:#3A3530}
+.need-landing{padding:0 16px 28px;max-width:560px;margin:0 auto}
+.need-landing .nl-badge{display:inline-block;margin-bottom:10px}
+.need-landing .nl-title{font-size:22px;font-weight:800;line-height:1.25;margin:0 0 6px}
+.need-landing .nl-meta{font-size:13px;color:var(--txt2);line-height:1.45;margin-bottom:14px}
+.need-landing .nl-block{background:#fff;border:1px solid var(--line2);border-radius:14px;padding:14px 15px;margin-bottom:12px}
+.need-landing .nl-lbl{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--txt3);margin-bottom:6px}
+.need-landing .nl-desc{font-size:14px;line-height:1.55;color:#3A3530;white-space:pre-wrap;overflow-wrap:anywhere}
+.need-landing .nl-closed{background:var(--yell);border:1px solid var(--yel);border-radius:14px;padding:14px 15px;font-size:14px;font-weight:700;color:var(--yelt);line-height:1.45;margin-bottom:12px}
+.need-landing .nl-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+.need-landing .nl-actions a,.need-landing .nl-actions button{color:#fff;border:none;border-radius:10px;padding:11px 14px;font-size:13px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:4px;font-family:inherit}
+.need-share-url{font-size:12px;word-break:break-all;background:var(--bg);border:1px solid var(--line2);border-radius:10px;padding:10px 12px;margin:12px 0;color:var(--txt2);line-height:1.4}
+.need-share-actions{display:flex;flex-direction:column;gap:8px;margin-top:8px}
 .need-detail .actions{margin-top:10px}
 .flow-hint{margin-top:14px;padding:10px 12px;border-radius:10px;background:var(--blul);font-size:12px;color:var(--blut);line-height:1.45}
 .centro-pick-list{display:flex;flex-direction:column;gap:8px;margin-top:10px;max-height:min(42vh,320px);overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -741,6 +753,14 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
   </div>
 </div>
 
+<!-- DETALLE PÚBLICO ?need= -->
+<div class="view" id="view-need">
+  <div class="fsec need-landing">
+    <button class="back-btn" type="button" onclick="closeNeedLanding()">← Volver</button>
+    <div id="need-landing-body"><div class="spin-wrap"><div class="spinner"></div>Cargando solicitud...</div></div>
+  </div>
+</div>
+
 <div class="fab-bar"><button class="fab" id="fab" onclick="startSOS()">🆘 Pedir ayuda</button></div>
 </div>
 
@@ -774,6 +794,21 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sy
     <input type="tel" id="attend-tel" inputmode="tel" placeholder="+58 412 555 1234"></div>
   <button class="modal-new" style="background:var(--ora)" onclick="confirmAttend()">Confirmar — voy a ayudar</button>
   <button class="modal-cancel" onclick="closeAttend()">Cancelar</button>
+</div></div>
+
+<div class="modal" id="need-share-modal"><div class="modal-card" onclick="event.stopPropagation()">
+  <div class="modal-top">
+    <h3>✅ SOS publicado</h3>
+    <button class="modal-x" type="button" onclick="closeNeedShareModal()">✕</button>
+  </div>
+  <p class="modal-body" style="font-size:13px;color:var(--txt2);margin-bottom:0">Copia este link y pégalo en tu reel, WhatsApp o historia. Quien lo abra ve el detalle y puede ayudar.</p>
+  <div class="need-share-url" id="need-share-url"></div>
+  <div class="need-share-actions">
+    <button type="button" class="modal-new" style="margin-top:0;background:var(--grn)" id="need-share-copy" onclick="copyNeedLinkFromModal()">📋 Copiar link</button>
+    <button type="button" class="modal-new" style="margin-top:0;background:var(--blu)" id="need-share-native" onclick="shareNeedLinkFromModal()">📤 Compartir</button>
+    <button type="button" class="modal-new" style="margin-top:0;background:var(--txt)" id="need-share-open" onclick="openNeedFromShareModal()">Ver solicitud</button>
+    <button type="button" class="modal-cancel" onclick="closeNeedShareModal()">Cerrar</button>
+  </div>
 </div></div>
 
 <script>
@@ -975,6 +1010,104 @@ function pickEdifFromList(id){
   confirmLocation('edif',`🏚 ${e.nombre} · ${e.sector||e.zona||''}`);}
 function escHtml(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
 function escAttr(s){return(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function needPublicUrl(id){return `${location.origin}${location.pathname||'/'}?need=${encodeURIComponent(id)}`;}
+function isNeedHelpable(n){return!!n&&!n.merged_into&&(n.estado==='pendiente'||n.estado==='en_proceso');}
+let pendingShareNeedId=null,landingNeedCache=null;
+async function copyText(txt){
+  try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(txt);return true;}}catch(_){}
+  try{const ta=document.createElement('textarea');ta.value=txt;ta.setAttribute('readonly','');ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();const ok=document.execCommand('copy');document.body.removeChild(ta);return ok;}catch(_){return false;}
+}
+async function copyNeedLink(id){
+  const url=needPublicUrl(id);
+  const ok=await copyText(url);
+  if(ok)flashFixed('Link copiado');
+  else{prompt('Copia este link:',url);flashFixed('Copia el link del cuadro',true);}
+  return ok;
+}
+function openNeedLanding(n){
+  landingNeedCache=n;
+  const body=document.getElementById('need-landing-body');
+  if(!body)return;
+  const helpable=isNeedHelpable(n);
+  const urg=UL[n.urgencia]||n.urgencia||'';
+  const badge=helpable
+    ?(n.urgencia==='critica'||n.urgencia==='urgente'?`<span class="badge r">${escHtml(urg)}</span>`:`<span class="badge o">${escHtml(urg||'Abierta')}</span>`)
+    :'<span class="badge done">✓ Cubierta / cerrada</span>';
+  const groupLine=(n.grupo_nombre||n.grupo_slug)
+    ?`<div class="nl-meta"><b>Grupo:</b> ${escHtml(n.grupo_nombre||n.grupo_slug)}${n.solicitante_tipo==='grupo'?' · Voluntariado':''}</div>`:'';
+  const contactName=n.nombre_contacto&&n.nombre_contacto!=='Vecino/a'?`<div class="nl-meta">${escHtml(n.nombre_contacto)}</div>`:'';
+  const addr=[n.direccion_exacta,n.zona].filter(Boolean).map(escHtml).join(' · ');
+  const desc=escHtml(n.descripcion||'');
+  const otro=n.otro&&!(n.descripcion||'').includes(String(n.otro).slice(0,40))?`<div class="nl-block"><div class="nl-lbl">También piden</div><div class="nl-desc">${escHtml(n.otro)}</div></div>`:'';
+  const closed=helpable?'':`<div class="nl-closed">Esta solicitud ya no está abierta para nueva ayuda. Gracias por tu interés.</div>`;
+  let actions='';
+  if(helpable){
+    const hasTel=hasNeedTel(n);
+    const wa=hasTel?(n.whatsapp||n.telefono):null;
+    const waMsg=`Hola ${n.nombre_contacto||''}, vi tu solicitud de ${tipoText(n)} en Ayuda Venezuela. ¿Cómo ayudo?`;
+    const telLine=hasTel?`<a class="btn-call" href="tel:${escAttr(n.telefono)}" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'tel',need_id:'${n.id}'})">📞 Llamar</a>`:'';
+    const waLine=wa?`<a class="btn-wa" href="${waLink(wa,waMsg)}" target="_blank" rel="noopener" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'wa',need_id:'${n.id}'})">💬 WhatsApp</a>`:'';
+    const postLine=hasNeedPost(n)?`<a class="btn-post" href="${escAttr(n.source_url)}" target="_blank" rel="noopener" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'post',need_id:'${n.id}'})">🔗 Ver post</a>`:'';
+    const mapLine=`<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank" rel="noopener" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'map',need_id:'${n.id}'})">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
+    const ofrecer=`<button type="button" class="btn-call" style="background:var(--ind)" onclick="openAportar('${n.id}')">Ofrecer ayuda</button>`;
+    const share=`<button type="button" class="btn-sh" style="background:#fff!important;border:1.5px solid var(--line2)!important;color:var(--txt)!important" onclick="copyNeedLink('${n.id}')">📋 Copiar link</button>`;
+    actions=`<div class="nl-actions">${telLine}${waLine}${postLine}${mapLine}${ofrecer}${share}</div>`;
+  }else if(hasNeedPost(n)){
+    actions=`<div class="nl-actions"><a class="btn-post" href="${escAttr(n.source_url)}" target="_blank" rel="noopener">🔗 Ver post original</a><button type="button" class="btn-sh" style="background:#fff!important;border:1.5px solid var(--line2)!important;color:var(--txt)!important" onclick="copyNeedLink('${n.id}')">📋 Copiar link</button></div>`;
+  }else{
+    actions=`<div class="nl-actions"><button type="button" class="btn-sh" style="background:#fff!important;border:1.5px solid var(--line2)!important;color:var(--txt)!important" onclick="copyNeedLink('${n.id}')">📋 Copiar link</button></div>`;
+  }
+  body.innerHTML=`${badge}<h1 class="nl-title">${tipoIcons(n)} ${escHtml(tipoText(n)||'Solicitud de ayuda')}</h1>${contactName}${groupLine}
+    <div class="nl-meta">📍 ${addr||'Ubicación no indicada'}</div>
+    ${closed}
+    <div class="nl-block"><div class="nl-lbl">Qué necesitan</div><div class="nl-desc">${desc||'Sin detalle adicional.'}</div></div>
+    ${otro}
+    ${actions}`;
+  helpNeedsCache=helpNeedsCache.some(x=>x.id===n.id)?helpNeedsCache:[...helpNeedsCache,n];
+  goScreen('need');
+}
+function closeNeedLanding(){
+  landingNeedCache=null;
+  const u=new URL(location.href);u.searchParams.delete('need');
+  history.replaceState({},'',u.pathname+(u.search||'')+u.hash);
+  goScreen('home');
+}
+async function bootstrapNeedDeepLink(){
+  const id=(new URLSearchParams(location.search).get('need')||'').trim();
+  if(!id)return;
+  const body=document.getElementById('need-landing-body');
+  if(body)body.innerHTML='<div class="spin-wrap"><div class="spinner"></div>Cargando solicitud...</div>';
+  goScreen('need');
+  const{data,error}=await db.from('necesidades').select('*').eq('id',id).maybeSingle();
+  if(error||!data){
+    if(body)body.innerHTML='<div class="nl-closed">No encontramos esa solicitud. Puede haber sido eliminada o el link está incompleto.</div><button type="button" class="btn-primary" style="margin-top:12px" onclick="closeNeedLanding()">Ir al inicio</button>';
+    flashFixed('No encontramos esa solicitud.',true);
+    return;
+  }
+  openNeedLanding(data);
+}
+function showNeedShareModal(id){
+  pendingShareNeedId=id;
+  const url=needPublicUrl(id);
+  const el=document.getElementById('need-share-url');
+  if(el)el.textContent=url;
+  document.getElementById('need-share-modal').classList.add('on');
+}
+function closeNeedShareModal(){document.getElementById('need-share-modal').classList.remove('on');pendingShareNeedId=null;}
+async function copyNeedLinkFromModal(){if(pendingShareNeedId)await copyNeedLink(pendingShareNeedId);}
+async function shareNeedLinkFromModal(){
+  if(!pendingShareNeedId)return;
+  const url=needPublicUrl(pendingShareNeedId);
+  const txt=`Ayuda Venezuela — solicitud de ayuda\n${url}`;
+  if(navigator.share){try{await navigator.share({title:'Ayuda Venezuela',text:txt,url});return;}catch(_){}}
+  await copyNeedLink(pendingShareNeedId);
+}
+async function openNeedFromShareModal(){
+  const id=pendingShareNeedId;closeNeedShareModal();
+  if(!id)return;
+  const{data}=await db.from('necesidades').select('*').eq('id',id).maybeSingle();
+  if(data)openNeedLanding(data);else{const u=new URL(location.href);u.searchParams.set('need',id);location.href=u.toString();}
+}
 
 let reportEdifMap,reportEdifLayer,reportEdifMarkers={},selectedReportEdifId=null;
 async function toggleEdifPickMap(){
@@ -1032,7 +1165,7 @@ function renderMap(){if(!mapData||!markersLayer)return;markersLayer.clearLayers(
     const telHtml=hasNeedTel(n)?`📞 <a href="tel:${n.telefono}">${n.telefono}</a>`:(hasNeedPost(n)?`🔗 <a href="${n.source_url}" target="_blank" rel="noopener">Ver en ${needPostLabel(n.fuente)}</a>`:'📵 Sin teléfono — ver ubicación');
     const wa=n.whatsapp||n.telefono;
     const guauPop=isRefugioNeed(n)?`<br><a class="btn-guau-popup" href="${guauRefugioUrl({slug:n.refugio_guau_slug,needId:n.id,zona:n.zona,accion:'apadrinar',medium:'map_popup'})}" target="_blank" rel="noopener" onclick="trackGuauLink('map_popup',{need_id:'${n.id}'})">🐾 Apadrinar en Guau</a>`:'';
-    m.bindPopup(`<b>${tipoIcons(n)} ${tipoText(n)}</b><br>${n.direccion_exacta}<br>${telHtml}${hasNeedTel(n)&&wa?`<br><a href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}${guauPop}`);b.push([n.lat,n.lng]);});
+    m.bindPopup(`<b>${tipoIcons(n)} ${tipoText(n)}</b><br>${n.direccion_exacta}<br>${telHtml}${hasNeedTel(n)&&wa?`<br><a href="${waLink(wa)}" target="_blank">💬 WhatsApp</a>`:''}${guauPop}<br><button type="button" class="btn-edif" style="background:var(--txt)!important;margin-top:6px" onclick="shareNeedById('${n.id}')">📤 Compartir link</button><br><a href="${needPublicUrl(n.id)}">Ver detalle</a>`);b.push([n.lat,n.lng]);});
   acopios.forEach(a=>{if(!a.lat||!a.lng)return;const m=L.marker([a.lat,a.lng],{icon:dot('#1E8449',13)}).addTo(markersLayer);
     m.bindPopup(`<b>📦 ${a.nombre}</b><br>${a.estado_vzla}<br>${a.direccion}`);b.push([a.lat,a.lng]);});
   if(b.length)mainMap.fitBounds(b,{padding:[25,25],maxZoom:12});}
@@ -1209,7 +1342,8 @@ function needCard(n){const done=n.estado==='cubierta',enProc=n.estado==='en_proc
     const guauLine=isRefugioNeed(n)?`<a class="btn-guau" href="${guauRefugioUrl({slug:n.refugio_guau_slug,needId:n.id,zona:n.zona,accion:'apadrinar',medium:'ayudar_card'})}" target="_blank" rel="noopener" onclick="trackGuauLink('ayudar_card',{need_id:'${n.id}'})">🐾 Apadrinar en Guau</a>`:'';
     const mapLine=`<a class="btn-map" href="${mapLink(n.lat,n.lng,n.direccion_exacta)}" target="_blank" onclick="ph(_ev().HELP_CONTACT_CLICKED,{channel:'map',need_id:'${n.id}'})">${n.lat?'🗺 Ruta':'🗺 Mapa'}</a>`;
     const voyLine=n.estado==='pendiente'?`<button class="btn-voy" onclick="openAttend('${n.id}')">🙋 Voy en camino</button>`:(mine?`<button class="btn-voy" style="background:var(--grn)" onclick="markCubierta('${n.id}')">✓ Ya atendido</button>`:'');
-    detailActions=`<div class="actions">${telLine}${waLine}${postLine}${guauLine}${mapLine}${voyLine}</div>`;
+    const shLine=`<button type="button" class="btn-sh" onclick="shareNeedById('${n.id}')">📤</button>`;
+    detailActions=`<div class="actions">${telLine}${waLine}${postLine}${guauLine}${mapLine}${voyLine}${shLine}</div>`;
   }
   const detailBody=[
     desc?`<div class="need-detail-desc">${escHtml(desc)}</div>`:'',
@@ -1906,10 +2040,14 @@ function needPublishErrMsg(error){
 async function doInsertNeed(n){const btn=document.getElementById('btn-r');btn.disabled=true;btn.textContent='Publicando...';
   await maybeAttachPublicSite(n);
   await maybeAttachPublicGroup(n);
-  const{error}=await db.from('necesidades').insert(n);btn.disabled=false;btn.textContent='Publicar SOS';
+  const{data,error}=await db.from('necesidades').insert(n).select('id').single();
+  btn.disabled=false;btn.textContent='Publicar SOS';
   if(error){ph(_ev().NEED_PUBLISH_FAILED,{error_code:error.code||'unknown'});showToast('r',needPublishErrMsg(error),true);return;}
-  ph(_ev().NEED_PUBLISHED,{tipos:needTipos(n),urgencia:n.urgencia,loc_method:locMethod,sin_tel:document.getElementById('r-sin-tel').checked,has_post_url:!!n.source_url,has_edificio:!!n.edificio_id,fuente:n.fuente,requester_type:n.solicitante_tipo,has_site:!!n.sitio_id});
-  showToast('r','✅ SOS publicado. Quien ayude cerca lo verá enseguida.');resetNeed();}
+  const newId=data&&data.id;
+  ph(_ev().NEED_PUBLISHED,{tipos:needTipos(n),urgencia:n.urgencia,loc_method:locMethod,sin_tel:document.getElementById('r-sin-tel').checked,has_post_url:!!n.source_url,has_edificio:!!n.edificio_id,fuente:n.fuente,requester_type:n.solicitante_tipo,has_site:!!n.sitio_id,need_id:newId||null});
+  resetNeed();
+  if(newId)showNeedShareModal(newId);
+  else showToast('r','✅ SOS publicado. Quien ayude cerca lo verá enseguida.');}
 function clearGrupoSuggest(){const box=document.getElementById('r-grupo-suggest');if(box){box.style.display='none';box.innerHTML='';}grupoSuggestOpen=false;}
 function resetNeed(){['r-lat','r-lng','r-zona','r-dir','r-dir-input','r-edif','r-edif-nombre','r-edif-search','r-tel','r-wa','r-post-url','r-desc','r-pers','r-nombre','r-otro','r-sitio-nombre','r-sitio-personas','r-sitio-ninos','r-sitio-ninos-custodia','r-sitio-casos','r-grupo-nombre','r-grupo-ref'].forEach(i=>document.getElementById(i).value='');
   selTipos=[];selSubs=[];selUrg='urgente';locFromGps=false;locationConfirmed=false;locMethod=null;gpsAccuracy=null;edifListCache=[];
@@ -2067,17 +2205,23 @@ async function submitAsesor(){
 
 function shareNeed(n){const contact=hasNeedTel(n)?`📞 ${n.telefono}`:(hasNeedPost(n)?`🔗 ${n.source_url}`:'');
   const guauExtra=isRefugioNeed(n)?`\n🐾 Apadrinar: ${guauRefugioUrl({slug:n.refugio_guau_slug,needId:n.id,zona:n.zona,accion:'apadrinar',medium:'share'})}`:'';
-  const txt=`${UL[n.urgencia]||''} #AyudaVenezuela\n📍 ${n.zona} — ${n.direccion_exacta}\n${tipoIcons(n)} ${tipoText(n)}\n📝 ${n.descripcion}${contact?'\n'+contact:''}${n.lat&&n.lng?'\n🗺 '+gmapsRoute(n.lat,n.lng):''}${guauExtra}`;
+  const link=n&&n.id?needPublicUrl(n.id):'';
+  const txt=`${UL[n.urgencia]||''} #AyudaVenezuela\n📍 ${n.zona} — ${n.direccion_exacta}\n${tipoIcons(n)} ${tipoText(n)}\n📝 ${n.descripcion}${contact?'\n'+contact:''}${n.lat&&n.lng?'\n🗺 '+gmapsRoute(n.lat,n.lng):''}${link?'\n🔗 '+link:''}${guauExtra}`;
   if(guauExtra)trackGuauLink('share',{need_id:n.id});
-  if(navigator.share)navigator.share({title:'Necesidad Venezuela',text:txt}).catch(()=>{});
+  if(navigator.share)navigator.share({title:'Necesidad Venezuela',text:txt,url:link||undefined}).catch(()=>{});
   else if(navigator.clipboard)navigator.clipboard.writeText(txt).then(()=>alert('Copiado. Pégalo en WhatsApp.'));else prompt('Copia:',txt);}
+function shareNeedById(id){
+  const n=getNeedForAporte(id)||landingNeedCache||helpNeedsCache.find(x=>x.id===id)||null;
+  if(!n){flashFixed('No pude compartir esa solicitud.',true);return;}
+  shareNeed(n);
+}
 function showToast(v,m,err=false){const t=document.getElementById('toast-'+v);t.textContent=m;t.className='toast '+(err?'err':'ok')+' show';t.scrollIntoView({behavior:'smooth',block:'nearest'});setTimeout(()=>t.classList.remove('show'),5500);}
 
 function goScreen(name,fromHistory){document.querySelectorAll('.view').forEach(v=>v.classList.remove('on'));
   document.getElementById('view-'+name).classList.add('on');
   ph(_ev().SCREEN_VIEWED,{screen:name});
   if(!fromHistory&&window.ForVzlaAnalytics)ForVzlaAnalytics.capturePageview(name);
-  document.getElementById('fab').classList.toggle('show',name==='ayudar'||name==='acopio'||name==='asesoria');
+  document.getElementById('fab').classList.toggle('show',name==='ayudar'||name==='acopio'||name==='asesoria'||name==='need');
   if(name==='home')loadHomeStats();
   if(name==='ayudar'){syncAyudarUI();if(ayudarStep==='lista'){if(ayudarView==='lista')loadHelp();else{initMainMap();populateMap();}}}
   if(name==='aportar-grupo'){pickAporteGrupoTipo(document.querySelector('#aporte-grupo-chips .chip.on')||document.querySelector('#aporte-grupo-chips .chip'));}
@@ -2117,6 +2261,7 @@ if(window.POSTHOG_KEY&&window.ForVzlaAnalytics)ForVzlaAnalytics.initPostHog(POST
 else ph(_ev().SCREEN_VIEWED,{screen:ForVzlaAnalytics.screenFromPath(location.pathname)});
 initGuauLinks();
 loadHomeStats();
+bootstrapNeedDeepLink();
 </script>
 </body>
 </html>
