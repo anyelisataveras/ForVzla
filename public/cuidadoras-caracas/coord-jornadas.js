@@ -155,8 +155,27 @@
     });
   }
 
+  function sitioFromCache(sitioId) {
+    if (!sitioId) return null;
+    return sitios.find((s) => s.id === sitioId) || null;
+  }
+
+  /** Nombre/zona del sitio: RPC, embed PostgREST o caché local por sitio_id. */
+  function enrichJornadaSitio(j) {
+    const cached = sitioFromCache(j.sitio_id);
+    return {
+      ...j,
+      sitio_nombre: j.sitio_nombre || j.sitios?.nombre || cached?.nombre || null,
+      sitio_zona: j.sitio_zona || j.sitios?.zona || cached?.zona || null,
+    };
+  }
+
+  function sitioLabel(j, fallback = 'Sin sitio') {
+    return j.sitio_nombre || j.sitio_zona || fallback;
+  }
+
   function jornadaMediaLabel(j) {
-    const lugar = j.sitio_nombre || j.sitio_zona || j.titulo || 'Sin sitio';
+    const lugar = sitioLabel(j, j.titulo || 'Sin sitio');
     return `${fmtDateCard(j.fecha)} · ${lugar}`;
   }
 
@@ -211,7 +230,7 @@
     body.innerHTML = `
       <div class="jd-hdr">
         <span class="badge-state">${esc(estadoLabel)}</span>
-        <div class="meta" style="margin-top:8px"><b>${fmtDateCard(j.fecha)}</b> · ${esc(j.sitio_nombre || j.sitio_zona || 'Sin sitio')}</div>
+        <div class="meta" style="margin-top:8px"><b>${fmtDateCard(j.fecha)}</b> · ${esc(sitioLabel(j))}</div>
       </div>
       <div class="kpi-grid">
         <div class="kpi"><b>${st.confirmadas}</b><span>confirmadas</span></div>
@@ -317,7 +336,7 @@
   }
 
   function waJornadaText(j) {
-    const lugar = j.sitios?.nombre || j.sitio_nombre || j.titulo;
+    const lugar = sitioLabel(j, j.titulo || 'Por confirmar');
     const lines = [
       `🗓 *${j.titulo}*`,
       `📅 ${fmtDate(j.fecha)}${j.hora_salida ? ' · salida ' + fmtTime(j.hora_salida) : ''}`,
@@ -588,10 +607,15 @@
   async function loadJornadas() {
     const el = document.getElementById('j-list');
     if (el) el.innerHTML = '<div class="empty">Cargando…</div>';
+    if (!sitios.length) await loadSitios();
     let data, error;
     ({ data, error } = await db.rpc('listar_jornadas_coord', { p_grupo: GRUPO }));
     if (error) {
-      ({ data, error } = await db.from('jornadas').select('*').eq('grupo', GRUPO).order('fecha', { ascending: false }));
+      // Prod a veces no tiene el RPC: traer jornadas + sitio por FK (RLS de sitios puede anular el embed)
+      ({ data, error } = await db.from('jornadas')
+        .select('*,sitios(nombre,zona)')
+        .eq('grupo', GRUPO)
+        .order('fecha', { ascending: false }));
     }
     if (error) { if (el) el.innerHTML = `<div class="empty">Error: ${esc(error.message)}</div>`; return; }
     const rows = data || [];
@@ -601,11 +625,18 @@
       renderProximaJornada();
       return;
     }
-    jornadas = rows.map(j => ({
-      ...j,
-      sitio_nombre: j.sitio_nombre || j.sitios?.nombre,
-      sitio_zona: j.sitio_zona || j.sitios?.zona,
-    }));
+    jornadas = rows.map(enrichJornadaSitio);
+    // Si el embed vino vacío por RLS, completar nombres con la lista de sitios (o fetch puntual)
+    const missingIds = [...new Set(jornadas.filter((j) => j.sitio_id && !j.sitio_nombre).map((j) => j.sitio_id))];
+    if (missingIds.length) {
+      const known = new Set(sitios.map((s) => s.id));
+      const needFetch = missingIds.filter((id) => !known.has(id));
+      if (needFetch.length) {
+        const { data: extra } = await db.from('sitios').select('id,nombre,zona').in('id', needFetch);
+        (extra || []).forEach((s) => { if (!known.has(s.id)) sitios.push(s); });
+      }
+      jornadas = jornadas.map(enrichJornadaSitio);
+    }
     await loadJStats(jornadas.map(j=>j.id));
     await loadJMediaCounts(jornadas.map(j => j.id));
     renderJornadaList();
@@ -639,7 +670,7 @@
       const mediaLbl = mediaN ? `📷 Fotos (${mediaN})` : '📷 Fotos';
       return `<article class="j-card">
         <div class="j-head"><div>
-          <div class="j-title">${fmtDateCard(j.fecha)} · ${fmtTime(j.hora_salida)||'--:--'} · ${esc(j.sitio_nombre || j.sitio_zona || 'Sin sitio')}</div>
+          <div class="j-title">${fmtDateCard(j.fecha)} · ${fmtTime(j.hora_salida)||'--:--'} · ${esc(sitioLabel(j))}</div>
           <div class="j-sub">${metaVol} · ${trans}${st.sinDueno?` · ⚠ ${st.sinDueno} tareas sin dueño`:''}</div>
           <div class="btags">${chips}</div>
         </div>
@@ -686,7 +717,7 @@
     el.innerHTML = `
       <div style="font-size:12px;font-weight:800;color:var(--indt);margin-bottom:8px">PRÓXIMA JORNADA</div>
       <b style="font-size:16px">${esc(prox.titulo)}</b>
-      <div class="vcard-meta" style="margin:6px 0 12px">${fmtDate(prox.fecha)} · ${esc(prox.sitio_nombre || '')} · ${fmtTime(prox.hora_salida)}</div>
+      <div class="vcard-meta" style="margin:6px 0 12px">${fmtDate(prox.fecha)} · ${esc(sitioLabel(prox, ''))} · ${fmtTime(prox.hora_salida)}</div>
       <div class="stat-grid" style="margin-bottom:12px">
         <div class="stat"><b>${r.confirmadas}</b><span>confirmadas</span></div>
         <div class="stat"><b>${r.necesitan}</b><span>sin ride</span></div>
@@ -917,11 +948,11 @@
       if (jEditId) {
         const { data, error } = await db.from('jornadas').update(payload).eq('id', jEditId).select('*,sitios(nombre,zona)').single();
         if (error) { toast(error.message); return; }
-        saved = { ...data, sitio_nombre: data.sitios?.nombre };
+        saved = enrichJornadaSitio(data);
       } else {
         const { data, error } = await db.from('jornadas').insert(payload).select('*,sitios(nombre,zona)').single();
         if (error) { toast(error.message); return; }
-        saved = { ...data, sitio_nombre: data.sitios?.nombre };
+        saved = enrichJornadaSitio(data);
         jEditId = saved.id;
       }
       if (wasNew && (jEditTareas.length || jEditMateriales.length)) {
