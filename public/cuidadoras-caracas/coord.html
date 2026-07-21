@@ -806,7 +806,7 @@ const REG_URL=location.origin+location.pathname.replace(/\/coord\/?$/,'')+'/regi
 
 const db=supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,detectSessionInUrl:false}});
 
-let session=null,authSeq=0,vols=[],brigCat=[],sitiosList=[],filter='todas',editId=null,sitioEditId=null,editBrig=new Set(),itiEdit=null,currentTab='inicio',esAdminGrupo=false,myRol='',creatingVol=false,exportSel=0,exportPreview='';
+let session=null,authSeq=0,coordBootstrapped=false,vols=[],brigCat=[],sitiosList=[],filter='todas',editId=null,sitioEditId=null,editBrig=new Set(),itiEdit=null,currentTab='inicio',esAdminGrupo=false,myRol='',creatingVol=false,exportSel=0,exportPreview='';
 
 const PAGE_TITLES={inicio:'Inicio',voluntarias:'Voluntarias',brigadas:'Brigadas',jornadas:'Jornadas',sitios:'Sitios',exportar:'Exportar',carnet:'Carnet',transparencia:'Transparencia',equipo:'Equipo'};
 
@@ -888,14 +888,26 @@ async function checkAccess(){
   return{ok:data===true,detail:'No tienes permiso de coordinadora para este grupo.'};
 }
 
-async function onSession(s){
+async function onSession(s,event){
   const seq=++authSeq;
   session=s;
   const errEl=document.getElementById('login-err');
-  if(!s?.user){document.getElementById('login-screen').style.display='block';document.getElementById('app').style.display='none';return}
+  if(!s?.user){
+    coordBootstrapped=false;
+    document.getElementById('login-screen').style.display='block';
+    document.getElementById('app').style.display='none';
+    return;
+  }
+  // TOKEN_REFRESHED (y cualquier evento tras el bootstrap) no deben reiniciar la UI:
+  // si la coordinadora está creando/editando una jornada, showTab() cierra el form y
+  // al reabrirlo openJornadaForm(null) borra título, fecha, tareas, etc.
+  if(event==='TOKEN_REFRESHED'||coordBootstrapped){
+    return;
+  }
   const{ok,detail}=await checkAccess();
   if(seq!==authSeq)return;
   if(!ok){
+    coordBootstrapped=false;
     await db.auth.signOut();
     showErr(errEl,detail);
     document.getElementById('login-screen').style.display='block';
@@ -909,9 +921,14 @@ async function onSession(s){
   await loadBrigadas();
   await loadVoluntarias();
   if (window.CC_JORN) await CC_JORN.onCoordReady();
-  const startTab=new URLSearchParams(location.search).get('tab');
-  if(startTab&&PAGE_TITLES[startTab])showTab(startTab);
-  else updatePageHdr('inicio');
+  if(seq!==authSeq)return;
+  const editingJornada=document.getElementById('panel-jornada-edit')?.classList.contains('on');
+  if(!editingJornada){
+    const startTab=new URLSearchParams(location.search).get('tab');
+    if(startTab&&PAGE_TITLES[startTab])showTab(startTab);
+    else updatePageHdr('inicio');
+  }
+  coordBootstrapped=true;
 }
 
 async function login(){
@@ -925,7 +942,8 @@ async function login(){
   const{data,error}=await db.auth.signInWithPassword({email,password:pw});
   btn.disabled=false;btn.textContent='Entrar';
   if(error){showErr(errEl,error.message==='Invalid login credentials'?'Correo o contraseña incorrectos':error.message);return}
-  await onSession(data.session);
+  // Pasa event explícito; si onAuthStateChange dispara SIGNED_IN después, coordBootstrapped lo ignora.
+  await onSession(data.session,'SIGNED_IN');
 }
 
 document.getElementById('btn-login').onclick=login;
@@ -937,7 +955,7 @@ document.getElementById('btn-logout').onclick=async()=>{
 ['login-email','login-password'].forEach(id=>{
   document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')login()});
 });
-db.auth.onAuthStateChange((_e,s)=>{void onSession(s)});
+db.auth.onAuthStateChange((e,s)=>{void onSession(s,e)});
 
 function showTab(name){
   if(name==='mas'){
