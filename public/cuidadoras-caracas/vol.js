@@ -155,7 +155,7 @@
   function basePath() {
     let p = location.pathname
       .replace(/\/index\.html\/?$/, '/')
-      .replace(/\/(entrar|mi-cuenta|jornadas|jornada|carnet|registro|coord)(\.html)?\/?$/, '');
+      .replace(/\/(entrar|mi-cuenta|jornadas|jornada|carnet|censo|registro|coord)(\.html)?\/?$/, '');
     if (!p.endsWith('/')) p += '/';
     return p;
   }
@@ -165,7 +165,7 @@
     if (path.startsWith('http')) return path;
     const q = path.includes('?') ? path.slice(path.indexOf('?')) : '';
     const bare = path.split('?')[0].replace(/^\//, '');
-    const m = bare.match(/^(?:cuidadoras-caracas\/)?(entrar|mi-cuenta|jornadas|jornada|carnet|registro)(?:\.html)?\/?$/);
+    const m = bare.match(/^(?:cuidadoras-caracas\/)?(entrar|mi-cuenta|jornadas|jornada|carnet|censo|registro)(?:\.html)?\/?$/);
     if (m) return m[1] + q;
     if (bare.startsWith('cuidadoras-caracas/')) return bare.slice('cuidadoras-caracas/'.length) + q;
     if (path.startsWith('/')) return path;
