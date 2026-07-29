@@ -1310,10 +1310,10 @@ const EXPORT_OPTS=[
   {id:'transporte',label:'Solo transporte'},
   {id:'sin_dueno',label:'Tareas sin dueño'},
   {id:'materiales',label:'Checklist materiales próxima jornada'},
-  {id:'incompletas',label:'Voluntarias sin registro completo'},
+  {id:'incompletas',label:'Voluntarias sin registro completo (texto)'},
   {id:'transparencia_resumen',label:'Transparencia (texto para WhatsApp)'},
   {id:'transparencia_csv',label:'Transparencia (CSV donaciones y gastos)'},
-  {id:'censo',label:'Censo completo (CSV — solo moderadoras)'},
+  {id:'censo',label:'Todas las voluntarias (CSV completo)'},
   {id:'censos_sociofamiliares',label:'Censos sociofamiliares (CSV — solo coordinadoras)'},
 ];
 
@@ -1328,7 +1328,19 @@ function renderExportOpts(){
   el.querySelectorAll('.export-opt').forEach((lab,i)=>{
     lab.onclick=()=>{exportSel=i;renderExportOpts();};
   });
-  if(!['censo','transparencia_csv','censos_sociofamiliares'].includes(EXPORT_OPTS[exportSel]?.id))void generateExport();
+  const csvIds=['censo','transparencia_csv','censos_sociofamiliares'];
+  const curId=EXPORT_OPTS[exportSel]?.id;
+  if(csvIds.includes(curId)){
+    const elPrev=document.getElementById('export-preview');
+    if(elPrev){
+      if(curId==='censo')elPrev.textContent='CSV con todas las voluntarias y todos los campos del registro. Pulsa «Descargar CSV».';
+      else if(curId==='transparencia_csv')elPrev.textContent='CSV de donaciones y gastos. Pulsa «Descargar CSV».';
+      else elPrev.textContent='CSV de censos sociofamiliares de todas las jornadas. Pulsa «Descargar CSV».';
+    }
+    exportPreview='';
+    return;
+  }
+  void generateExport();
 }
 
 function proxJornada(){
@@ -1489,11 +1501,29 @@ async function exportCsv(type){
     toast(`CSV transparencia descargado (${cols.length-1} filas)`);
     return;
   }
-  const rows=filteredVols();
-  const cols=[['numero','nombre','apellido','cedula','telefono','zona','transporte','brigadas','activa']];
+  // Censo: todas las voluntarias del grupo, todos los campos (no usa filtro de la pestaña Voluntarias)
+  const rows=vols.slice().sort((a,b)=>(a.numero_voluntaria||0)-(b.numero_voluntaria||0));
+  const fmtHijos=h=>{
+    if(h==null||h==='')return'';
+    if(typeof h==='string')return h;
+    try{return JSON.stringify(h)}catch(_){return String(h)}
+  };
+  const cols=[[
+    'numero','nombre','apellido','edad','estado_civil','cedula','telefono',
+    'pais','estado_provincia','ciudad','direccion',
+    'red_social_plataforma','red_social_usuario',
+    'profesion','oficio','disponibilidad','tiene_hijos','hijos',
+    'tareas','fortalezas','zona_asistencia','transporte','obs_logistica',
+    'brigadas','activa','notas_internas','ficha_incompleta','creado_at','id'
+  ]];
   rows.forEach(v=>cols.push([
-    v.numero_voluntaria,v.nombre,v.apellido,v.id_dni,v.telefono,
-    v.asistencia_zona||'',v.medio_transporte||'',(v.brigadas||[]).join(';'),v.activa===false?'no':'si'
+    v.numero_voluntaria,v.nombre,v.apellido,v.edad??'',v.estado_civil||'',v.id_dni,v.telefono,
+    v.pais||'',v.estado_provincia||'',v.ciudad||'',v.direccion||'',
+    v.red_social_plataforma||'',v.red_social_usuario||'',
+    v.profesion||'',v.oficio||'',v.disponibilidad||'',v.tiene_hijos||'',fmtHijos(v.hijos),
+    v.tareas||'',v.fortalezas||'',v.asistencia_zona||'',v.medio_transporte||'',v.observaciones_logistica||'',
+    (v.brigadas||[]).join(';'),v.activa===false?'no':'si',v.notas_internas||'',
+    isIncomplete(v)?'si':'no',v.created_at||'',v.id||''
   ]));
   const csv=cols.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
   const a=document.createElement('a');
@@ -1501,7 +1531,7 @@ async function exportCsv(type){
   a.download='cuidadoras-voluntarias.csv';
   a.click();
   URL.revokeObjectURL(a.href);
-  toast(`CSV descargado (${rows.length} filas)`);
+  toast(`CSV voluntarias descargado (${rows.length} filas)`);
 }
 
 function copyExport(){
