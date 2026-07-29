@@ -29,6 +29,8 @@
     { "source": "/cuidadoras-caracas/jornada/:id/", "destination": "/cuidadoras-caracas/jornada.html?id=:id" },
     { "source": "/cuidadoras-caracas/carnet", "destination": "/cuidadoras-caracas/carnet.html" },
     { "source": "/cuidadoras-caracas/carnet/", "destination": "/cuidadoras-caracas/carnet.html" },
+    { "source": "/cuidadoras-caracas/censo", "destination": "/cuidadoras-caracas/censo.html" },
+    { "source": "/cuidadoras-caracas/censo/", "destination": "/cuidadoras-caracas/censo.html" },
     { "source": "/cuidadoras-caracas/", "destination": "/cuidadoras-caracas/index.html" },
     { "source": "/voluntarios/cuidadoras-caracas", "destination": "/cuidadoras-caracas/index.html" },
     { "source": "/voluntarios/cuidadoras-caracas/", "destination": "/cuidadoras-caracas/index.html" },

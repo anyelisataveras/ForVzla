@@ -636,6 +636,16 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
   </div>
 </div>
 
+<div class="sheet drawer" id="censo-detail-sheet" hidden>
+  <header class="sheet-hdr">
+    <button type="button" id="cd-close" class="sheet-close-x" aria-label="Cerrar" title="Cerrar">×</button>
+    <h2>Censo sociofamiliar</h2>
+  </header>
+  <div class="sheet-body">
+    <div id="cd-body"></div>
+  </div>
+</div>
+
 
 <div class="sheet drawer" id="jornada-asignar-sheet" hidden>
   <header class="sheet-hdr">
@@ -793,7 +803,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 
 <div class="toast" id="toast"></div>
 
-<script src="coord-jornadas.js?v=20260721b"></script>
+<script src="coord-jornadas.js?v=20260729a"></script>
 <script src="coord-brigadas.js?v=20260706a"></script>
 <script src="coord-finanzas.js?v=20260708a"></script>
 
@@ -1304,6 +1314,7 @@ const EXPORT_OPTS=[
   {id:'transparencia_resumen',label:'Transparencia (texto para WhatsApp)'},
   {id:'transparencia_csv',label:'Transparencia (CSV donaciones y gastos)'},
   {id:'censo',label:'Censo completo (CSV — solo moderadoras)'},
+  {id:'censos_sociofamiliares',label:'Censos sociofamiliares (CSV — solo coordinadoras)'},
 ];
 
 function renderExportOpts(){
@@ -1317,7 +1328,7 @@ function renderExportOpts(){
   el.querySelectorAll('.export-opt').forEach((lab,i)=>{
     lab.onclick=()=>{exportSel=i;renderExportOpts();};
   });
-  if(!['censo','transparencia_csv'].includes(EXPORT_OPTS[exportSel]?.id))void generateExport();
+  if(!['censo','transparencia_csv','censos_sociofamiliares'].includes(EXPORT_OPTS[exportSel]?.id))void generateExport();
 }
 
 function proxJornada(){
@@ -1409,7 +1420,7 @@ ${ultGas||'—'}`;
 
 async function generateExport(){
   const opt=EXPORT_OPTS[exportSel];
-  if(['censo','transparencia_csv'].includes(opt.id)){exportCsv(opt.id);return}
+  if(['censo','transparencia_csv','censos_sociofamiliares'].includes(opt.id)){exportCsv(opt.id);return}
   const el=document.getElementById('export-preview');
   el.textContent='Generando…';
   exportPreview=await buildExportText(opt.id);
@@ -1417,6 +1428,34 @@ async function generateExport(){
 }
 
 async function exportCsv(type){
+  if(type==='censos_sociofamiliares'){
+    const list=window.CC_JORN?.getJornadas?.()||[];
+    const cols=[['id','fecha_jornada','jornada','sitio','representante','documento','telefono','prioridad','seguimiento','voluntaria','creado_at']];
+    let n=0;
+    let failed=0;
+    for(const j of list){
+      const{data,error}=await db.rpc('listar_censos_jornada',{p_grupo:GRUPO,p_jornada_id:j.id});
+      if(error||!data?.ok){failed++;continue}
+      const rows=Array.isArray(data?.censos)?data.censos:[];
+      rows.forEach(c=>{
+        n++;
+        cols.push([
+          c.id,j.fecha||'',j.titulo||'',c.sitio_nombre||'',c.rep_nombre||'',c.rep_documento||'',
+          c.rep_telefono||'',c.prioridad||'',c.seguimiento_requerido==null?'':(c.seguimiento_requerido?'si':'no'),
+          c.voluntaria_nombre||'',c.created_at||''
+        ]);
+      });
+    }
+    if(failed&&!n){toast('No se pudieron cargar los censos para exportar');return}
+    const csv=cols.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+    const a=document.createElement('a');
+    a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
+    a.download='censos-sociofamiliares.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast(failed?`CSV censos (${n} filas, ${failed} jornada(s) fallaron)`:`CSV censos descargado (${n} filas)`);
+    return;
+  }
   if(type==='transparencia_csv'){
     const [{data:don},{data:gas}]=await Promise.all([
       db.from('donaciones_grupo').select('fecha,tipo,monto,moneda,cantidad,unidad,donante_nombre,donante_contacto,descripcion,creado_por,created_at').eq('grupo',GRUPO).order('fecha',{ascending:false}),
@@ -1473,7 +1512,7 @@ function copyExport(){
 document.getElementById('btn-export-gen').onclick=generateExport;
 document.getElementById('btn-export-csv').onclick=()=>{
   const cur=EXPORT_OPTS[exportSel]?.id;
-  if(['censo','transparencia_csv'].includes(cur)){exportCsv(cur);return}
+  if(['censo','transparencia_csv','censos_sociofamiliares'].includes(cur)){exportCsv(cur);return}
   if(cur==='transparencia_resumen'){
     exportSel=EXPORT_OPTS.findIndex(o=>o.id==='transparencia_csv');
     renderExportOpts();

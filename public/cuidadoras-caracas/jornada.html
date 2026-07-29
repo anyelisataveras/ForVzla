@@ -72,7 +72,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
 </div>
 <div class="toast" id="toast"></div>
 <script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
-<script src="vol.js?v=20260714a"></script>
+<script src="vol.js?v=20260729a"></script>
 <script src="jornada-media.js?v=20260716a"></script>
 <script>
 const jid=new URLSearchParams(location.search).get('id');
@@ -84,6 +84,28 @@ function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
 function fmtDate(d){if(!d)return'';const p=d.split('-');const mes=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];return parseInt(p[2],10)+' '+mes[parseInt(p[1],10)-1]+' '+p[0]}
 function fmtTime(t){return t?t.slice(0,5):''}
+
+function censoCardHtml(){
+  const vol=CC_VOL.getSession();
+  if(!vol||!jornada)return'';
+  if(!['abierta','llena','realizada'].includes(jornada.estado))return'';
+  const inscOk=insc&&['confirmada','asistio'].includes(insc.estado);
+  const hasSitio=!!jornada.sitio_id;
+  let body='';
+  if(!hasSitio){
+    body=`<p class="meta">Esta jornada no tiene sitio asignado. Coordinación debe asignarlo antes de levantar censos.</p>`;
+  }else if(!inscOk){
+    if(jornada.estado==='realizada'){
+      body=`<p class="meta">Para censar en una jornada ya realizada, coordinación debe inscribirte como asistente.</p>`;
+    }else{
+      body=`<p class="meta">Confirma tu asistencia (arriba) para poder levantar un censo sociofamiliar en el sitio.</p>`;
+    }
+  }else{
+    body=`<p class="meta" style="margin-bottom:12px">Registra la situación de cada familia que entrevistes en ${esc(jornada.sitio_nombre||'el sitio')}.</p>
+      <a class="btn" style="display:block;text-align:center;text-decoration:none" href="${CC_VOL.basePath()}censo?id=${encodeURIComponent(jid)}">📋 Nuevo censo</a>`;
+  }
+  return`<div class="card"><div class="card-t">Censo sociofamiliar</div>${body}</div>`;
+}
 
 function galleryCardHtml(){
   return`<div class="card" id="gallery-card">
@@ -179,6 +201,7 @@ function render(){
 
   if(closed){
     html+=`<div class="card"><p class="meta">Esta jornada ya no acepta confirmaciones.</p></div>`;
+    html+=censoCardHtml();
     html+=galleryCardHtml();
     document.getElementById('content').innerHTML=html;
     bindTasks();
@@ -199,6 +222,7 @@ function render(){
   </div>
   <div class="field"><label>Notas (opcional)</label><textarea id="notas">${esc(insc?.notas||'')}</textarea></div>
   <button type="button" class="btn" id="btn-save">Guardar respuesta</button></div>`;
+  html+=censoCardHtml();
   html+=galleryCardHtml();
 
   document.getElementById('content').innerHTML=html;

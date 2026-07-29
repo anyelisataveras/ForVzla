@@ -983,8 +983,8 @@
     const j = jornadas.find(x => x.id === jDetailId);
     if (!j) return;
     document.getElementById('jd-title').textContent = j.titulo;
-    const tabs = ['resumen', 'confirmadas', 'transporte', 'tareas', 'materiales'];
-    const tabLabels = { resumen: 'Detalle', confirmadas: 'Confirmadas', transporte: 'Transporte', tareas: 'Tareas', materiales: 'Materiales' };
+    const tabs = ['resumen', 'confirmadas', 'transporte', 'tareas', 'materiales', 'censos'];
+    const tabLabels = { resumen: 'Detalle', confirmadas: 'Confirmadas', transporte: 'Transporte', tareas: 'Tareas', materiales: 'Materiales', censos: 'Censos' };
     document.getElementById('jd-tabs').innerHTML = tabs.map(t =>
       `<button type="button" class="chip${jDetailTab === t ? ' on' : ''}" data-jdt="${t}">${tabLabels[t]}</button>`).join('');
     document.getElementById('jd-tabs').querySelectorAll('[data-jdt]').forEach(b => {
@@ -1075,9 +1075,125 @@
           navigator.clipboard.writeText(msg).then(() => toast('Aviso copiado')).catch(() => prompt('Copia:', msg));
         };
       });
+      return;
+    }
+
+    if (jDetailTab === 'censos') {
+      await renderJornadaCensos(j, body);
     }
   }
 
+  function prioBadge(p) {
+    if (!p) return '—';
+    const map = { alta: 'Alta', media: 'Media', baja: 'Baja' };
+    return map[p] || p;
+  }
+
+  async function renderJornadaCensos(j, body) {
+    body.innerHTML = '<p class="meta">Cargando censos…</p>';
+    const { data, error } = await db.rpc('listar_censos_jornada', { p_grupo: GRUPO, p_jornada_id: j.id });
+    if (error || !data?.ok) {
+      body.innerHTML = `<div class="empty">${esc(error?.message || data?.error || 'No se pudieron cargar los censos')}</div>`;
+      return;
+    }
+    const rows = Array.isArray(data.censos) ? data.censos : [];
+    let html = `<div class="vcard-actions" style="margin-bottom:12px">
+      <button type="button" class="btn btn-s" id="jd-censo-csv" ${rows.length ? '' : 'disabled'}>⬇️ Exportar CSV</button>
+    </div>`;
+    if (!rows.length) {
+      html += '<div class="empty">Aún no hay censos en esta jornada.</div>';
+      body.innerHTML = html;
+      return;
+    }
+    html += `<p class="count" style="margin-bottom:8px">${rows.length} censo(s)</p>`;
+    html += rows.map(c => `
+      <div class="vcard" style="cursor:pointer" data-censo="${c.id}">
+        <b>${esc(c.rep_nombre)}</b>
+        <div class="vcard-meta">Prioridad: ${esc(prioBadge(c.prioridad))} · Por ${esc(c.voluntaria_nombre || '—')}</div>
+        <div class="vcard-meta">${esc(c.rep_telefono || '')} · Doc. ${esc(c.rep_documento || '')}</div>
+      </div>`).join('');
+    body.innerHTML = html;
+    body.querySelectorAll('[data-censo]').forEach(el => {
+      el.onclick = () => openCensoDetail(el.dataset.censo);
+    });
+    document.getElementById('jd-censo-csv')?.addEventListener('click', () => exportCensosCsv(j, rows));
+  }
+
+  async function openCensoDetail(id) {
+    const sheet = document.getElementById('censo-detail-sheet');
+    const body = document.getElementById('cd-body');
+    if (!sheet || !body) return;
+    sheet.hidden = false;
+    body.innerHTML = '<p class="meta">Cargando…</p>';
+    const { data, error } = await db.rpc('obtener_censo_sociofamiliar', {
+      p_grupo: GRUPO,
+      p_censo_id: id,
+      p_voluntario_id: null,
+      p_plataforma: null,
+      p_usuario: null,
+      p_cedula4: null,
+    });
+    if (error || !data?.ok) {
+      body.innerHTML = `<p class="meta">${esc(error?.message || data?.error || 'No se pudo abrir')}</p>`;
+      return;
+    }
+    const x = data.censo;
+    const viv = x.vivienda || {};
+    const salud = x.salud || {};
+    const apo = x.apoyos || {};
+    const nf = Array.isArray(x.nucleo_familiar) ? x.nucleo_familiar : [];
+    const nec = (x.necesidades || []).join(', ') || '—';
+    body.innerHTML = `
+      <div class="sect-t">Representante</div>
+      <div class="vcard-meta"><b>${esc(x.rep_nombre)}</b> · Doc. ${esc(x.rep_documento)} · ${esc(x.rep_edad ?? '—')} años</div>
+      <div class="vcard-meta">Tel. ${esc(x.rep_telefono)} · ${esc(x.rep_correo || 'sin correo')}</div>
+      <div class="vcard-meta">Parentesco: ${esc(x.rep_parentesco || '—')}</div>
+      <div class="sect-t">Contexto</div>
+      <div class="vcard-meta">📅 ${esc(fmtDate(x.jornada_fecha))} · ${esc(x.jornada_titulo || '')}</div>
+      <div class="vcard-meta">📍 ${esc(x.sitio_nombre)}${x.sitio_zona ? ' (' + esc(x.sitio_zona) + ')' : ''}</div>
+      <div class="vcard-meta">👩 ${esc(x.voluntaria_nombre)} · Prioridad ${esc(prioBadge(x.prioridad))} · Seguimiento: ${x.seguimiento_requerido == null ? '—' : (x.seguimiento_requerido ? 'Sí' : 'No')}</div>
+      <div class="sect-t">Vivienda</div>
+      <div class="vcard-meta">${esc(viv.lugar || '—')} · ${esc(viv.direccion || '—')}</div>
+      <div class="vcard-meta">Tipo: ${esc(viv.tipo || '—')} · Afectada: ${esc(viv.afectada || '—')} · Servicios: ${esc(viv.servicios || '—')} ${esc(viv.servicios_detalle || '')}</div>
+      <div class="sect-t">Núcleo familiar (${nf.length})</div>
+      ${nf.length ? nf.map(r => `<div class="vcard-meta">• ${esc(r.nombre || '?')} · ${esc(r.edad ?? '—')} · ${esc(r.parentesco || '')} ${r.condicion ? '· ' + esc(r.condicion) : ''}</div>`).join('') : '<div class="vcard-meta">—</div>'}
+      <div class="sect-t">Salud</div>
+      <div class="vcard-meta">Disc.: ${esc(salud.discapacidad || '—')}</div>
+      <div class="vcard-meta">Meds: ${esc(salud.medicamentos || '—')}</div>
+      <div class="vcard-meta">Vulnerables: ${esc(salud.vulnerables || '—')}</div>
+      <div class="vcard-meta">Ayudas: ${esc(salud.ayudas_tecnicas || '—')}</div>
+      <div class="sect-t">Apoyos</div>
+      <div class="vcard-meta">Org: ${esc(apo.organizacion || '—')} · Gob: ${esc(apo.gobierno || '—')}</div>
+      <div class="vcard-meta">${esc(apo.frecuencia || '')} · ${esc(apo.tipo || '')}</div>
+      <div class="sect-t">Necesidades</div>
+      <div class="vcard-meta">${esc(nec)}</div>
+      <div class="sect-t">Observaciones</div>
+      <div class="vcard-meta">${esc(x.observaciones || '—')}</div>`;
+  }
+
+  function exportCensosCsv(j, rows) {
+    const cols = [['id', 'fecha_jornada', 'jornada', 'sitio', 'representante', 'documento', 'telefono', 'prioridad', 'seguimiento', 'voluntaria', 'creado_at']];
+    rows.forEach(c => cols.push([
+      c.id,
+      j.fecha || '',
+      j.titulo || '',
+      c.sitio_nombre || '',
+      c.rep_nombre || '',
+      c.rep_documento || '',
+      c.rep_telefono || '',
+      c.prioridad || '',
+      c.seguimiento_requerido == null ? '' : (c.seguimiento_requerido ? 'si' : 'no'),
+      c.voluntaria_nombre || '',
+      c.created_at || '',
+    ]));
+    const csv = cols.map(r => r.map(c => '"' + String(c ?? '').replace(/"/g, '""') + '"').join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'censos-' + (j.fecha || 'jornada') + '.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast(`CSV descargado (${rows.length} filas)`);
+  }
 
   async function openJornadaClose(id) {
     jCloseId = id;
@@ -1359,6 +1475,7 @@
     document.getElementById('jf-save')?.addEventListener('click', () => saveJornada(false));
     document.getElementById('jf-save-wa')?.addEventListener('click', () => saveJornada(true));
     document.getElementById('jd-close')?.addEventListener('click', () => { document.getElementById('jornada-detail-sheet').hidden = true; });
+    document.getElementById('cd-close')?.addEventListener('click', () => { document.getElementById('censo-detail-sheet').hidden = true; });
     document.getElementById('jc-close')?.addEventListener('click', () => { document.getElementById('jornada-close-sheet').hidden = true; });
     document.getElementById('jc-cancel')?.addEventListener('click', () => { document.getElementById('jornada-close-sheet').hidden = true; });
     document.getElementById('jc-save')?.addEventListener('click', saveJornadaClose);
@@ -1405,5 +1522,9 @@
     return materialesWaText(j, data);
   }
 
-  window.CC_JORN = { onCoordReady, onShowTab, openJornadaForm, openJornadaClose, openJornadaMedia, openAsignarVoluntarias, copyWa, loadJornadas, reloadSitios, getProximaJornada, getWaText, setBrigadaFilter, getMaterialesExport, deleteMediaItem };
+  function getJornadas() {
+    return jornadas.slice();
+  }
+
+  window.CC_JORN = { onCoordReady, onShowTab, openJornadaForm, openJornadaClose, openJornadaMedia, openAsignarVoluntarias, copyWa, loadJornadas, reloadSitios, getProximaJornada, getJornadas, getWaText, setBrigadaFilter, getMaterialesExport, deleteMediaItem };
 })();

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#5A4AA0">
+<title>Censo sociofamiliar — Cuidadoras Caracas</title>
+<link rel="icon" href="../icon.svg" type="image/svg+xml">
+<script>window.__nativeFetch=window.fetch.bind(window);</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#F1EEEA;--surf:#FBFAF8;--ind:#5A4AA0;--indl:#EEEBF6;--indt:#463A82;--grn:#1E8449;--grnl:#E9F6EE;--red:#C0392B;--redl:#FBEDEA;--amb:#B7791F;--ambl:#FDF6E8;--txt:#1C1A19;--txt2:#6B6560;--line:#E7E2DB;--line2:#E2DCD4;--app-max:580px}
+html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--txt);font-size:16px}
+.app{max-width:var(--app-max);margin:0 auto;min-height:100vh;padding-bottom:100px}
+.hdr{background:var(--ind);color:#fff;padding:16px 18px;position:sticky;top:0;z-index:10}
+.hdr a{color:#fff;text-decoration:none;font-size:14px;font-weight:600;opacity:.9}
+.hdr h1{font-size:17px;font-weight:800;margin-top:8px}
+.warn{background:var(--ambl);border:1px solid #f0d9a8;border-radius:12px;padding:12px 14px;margin:14px 16px;font-size:13px;line-height:1.45;color:#7a5010;font-weight:600}
+.card{background:#fff;border:1px solid var(--line);border-radius:18px;margin:14px 16px;padding:16px}
+.card h2{font-size:15px;font-weight:800;color:var(--indt);margin-bottom:12px}
+.meta{font-size:13px;color:var(--txt2);line-height:1.5;margin-bottom:10px}
+.field{margin:0 0 12px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:4px}
+.field label .req{color:var(--red)}
+.field input,.field textarea,.field select{width:100%;border:1px solid var(--line2);border-radius:10px;padding:11px;font-size:16px;font-family:inherit;background:#fff}
+.field textarea{min-height:72px;resize:vertical}
+.chk-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chk{display:flex;align-items:flex-start;gap:8px;font-size:13px;line-height:1.35;padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--surf)}
+.chk input{width:18px;height:18px;margin-top:1px;flex-shrink:0}
+.radios{display:flex;gap:8px;flex-wrap:wrap}
+.radio{flex:1;min-width:72px;border:1.5px solid var(--line2);border-radius:10px;padding:10px;text-align:center;font-weight:700;font-size:13px;cursor:pointer}
+.radio.on{border-color:var(--ind);background:var(--indl);color:var(--indt)}
+.nucleo-row{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:8px;background:var(--surf)}
+.nucleo-row .rm{margin-top:8px;background:none;border:none;color:var(--red);font-weight:700;font-size:13px;cursor:pointer;font-family:inherit}
+.btn{width:100%;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit}
+.btn-p{background:var(--grn);color:#fff}
+.btn-s{background:var(--indl);color:var(--indt)}
+.btn:disabled{opacity:.5}
+.foot{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:12px 16px;z-index:20}
+.foot-inner{max-width:var(--app-max);margin:0 auto}
+.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--txt);color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;transition:opacity .2s;z-index:99;max-width:90%;text-align:center}
+.toast.show{opacity:1}
+.dup{background:var(--redl);border:1px solid #f3d3cc;border-radius:12px;padding:12px;margin-bottom:12px;font-size:13px;line-height:1.45}
+.dup b{display:block;margin-bottom:6px}
+.dup-item{padding:8px 0;border-top:1px solid #f3d3cc}
+.dup-item:first-of-type{border-top:none}
+.dup button{margin-top:6px;margin-right:6px;border:none;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:800;cursor:pointer;font-family:inherit;background:var(--ind);color:#fff}
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:80;display:flex;align-items:flex-end;justify-content:center}
+.sheet[hidden]{display:none}
+.sheet-panel{background:#fff;border-radius:18px 18px 0 0;width:100%;max-width:var(--app-max);max-height:85vh;overflow:auto;padding:18px 16px 28px}
+.sheet-panel h3{font-size:16px;font-weight:800;margin-bottom:10px}
+.err{color:var(--red);font-size:12px;font-weight:700;margin-top:4px}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hdr">
+    <a href="#" id="back">← Volver a la jornada</a>
+    <h1>Censo sociofamiliar</h1>
+  </header>
+  <div class="warn" role="status">
+    ⚠️ Si cierras esta pestaña o se cae la conexión antes de guardar, se pueden perder los datos. No hay borrador guardado en el teléfono.
+  </div>
+  <div id="meta" class="card" hidden></div>
+  <div id="form-wrap"><div class="card" style="text-align:center;color:var(--txt2)">Cargando…</div></div>
+</div>
+<div class="foot" id="foot" hidden>
+  <div class="foot-inner">
+    <button type="button" class="btn btn-p" id="btn-save">Guardar censo</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<div class="sheet" id="view-sheet" hidden>
+  <div class="sheet-panel">
+    <h3>Censo existente</h3>
+    <div id="view-body"></div>
+    <button type="button" class="btn btn-s" style="margin-top:14px" id="view-close">Cerrar</button>
+  </div>
+</div>
+
+<script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
+<script src="vol.js?v=20260729a"></script>
+<script>
+const jid = new URLSearchParams(location.search).get('id');
+const NECESIDADES = [
+  'Alimentos','Agua potable','Medicamentos','Atención médica','Terapias','Pañales',
+  'Fórmulas o suplementos','Ropa','Calzado','Material escolar','Apoyo psicológico','Ayudas técnicas'
+];
+const VIV_TIPOS = ['Casa','Apartamento','Refugio','Alquiler','Familiar','Otro'];
+
+let jornada = null;
+let insc = null;
+let nucleo = [];
+let dupMatches = [];
+let allowDupContinue = false;
+let dirty = false;
+let searching = false;
+let searchTimer = null;
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;')}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200)}
+function fmtDate(d){if(!d)return'';const p=d.split('-');const mes=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];return parseInt(p[2],10)+' '+mes[parseInt(p[1],10)-1]+' '+p[0]}
+
+document.getElementById('back').href = jid ? CC_VOL.jornadaUrl(jid) : (CC_VOL.basePath()+'jornadas');
+
+window.addEventListener('beforeunload', (e) => {
+  if (dirty) { e.preventDefault(); e.returnValue = ''; }
+});
+
+async function boot(){
+  if (!jid) {
+    document.getElementById('form-wrap').innerHTML = '<div class="card">Falta id de jornada.</div>';
+    return;
+  }
+  if (!CC_VOL.requireSession('censo?id='+jid)) return;
+
+  const { data: jd } = await CC_VOL.db.rpc('jornada_publica', { p_jornada_id: jid });
+  if (!jd?.ok || !jd.jornada) {
+    document.getElementById('form-wrap').innerHTML = '<div class="card">Jornada no encontrada o no publicada.</div>';
+    return;
+  }
+  jornada = jd.jornada;
+
+  if (!['abierta','llena','realizada'].includes(jornada.estado)) {
+    document.getElementById('form-wrap').innerHTML = '<div class="card"><h2>Jornada no disponible</h2><p class="meta">Esta jornada no acepta censos.</p><a class="btn btn-s" style="display:block;text-align:center;text-decoration:none;margin-top:12px" href="'+esc(CC_VOL.jornadaUrl(jid))+'">Volver</a></div>';
+    return;
+  }
+
+  if (!jornada.sitio_id) {
+    document.getElementById('form-wrap').innerHTML = '<div class="card"><h2>Sin sitio</h2><p class="meta">Esta jornada no tiene sitio asignado. Pide a coordinación que asigne el sitio antes de levantar censos.</p><a class="btn btn-s" style="display:block;text-align:center;text-decoration:none;margin-top:12px" href="'+esc(CC_VOL.jornadaUrl(jid))+'">Volver</a></div>';
+    return;
+  }
+
+  const c = CC_VOL.credParams();
+  const { data: mi } = await CC_VOL.db.rpc('mi_inscripcion_jornada', { ...c, p_jornada_id: jid });
+  insc = mi?.inscripcion || null;
+  if (!insc || !['confirmada','asistio'].includes(insc.estado)) {
+    document.getElementById('form-wrap').innerHTML = '<div class="card"><h2>Inscripción requerida</h2><p class="meta">Debes confirmar asistencia en la jornada para levantar un censo.</p><a class="btn btn-s" style="display:block;text-align:center;text-decoration:none;margin-top:12px" href="'+esc(CC_VOL.jornadaUrl(jid))+'">Ir a la jornada</a></div>';
+    return;
+  }
+
+  const vol = CC_VOL.getSession();
+  const meta = document.getElementById('meta');
+  meta.hidden = false;
+  meta.innerHTML = `<h2>Uso interno (automático)</h2>
+    <div class="meta">📅 Fecha jornada: <b>${esc(fmtDate(jornada.fecha))}</b><br>
+    📍 Sitio: <b>${esc(jornada.sitio_nombre||'')}${jornada.sitio_zona?' ('+esc(jornada.sitio_zona)+')':''}</b><br>
+    👩 Voluntaria: <b>${esc(vol.nombre)} ${esc(vol.apellido||'')} · N° ${esc(vol.numero_voluntaria)}</b></div>`;
+
+  renderForm();
+  document.getElementById('foot').hidden = false;
+}
+
+function renderForm(){
+  const wrap = document.getElementById('form-wrap');
+  wrap.innerHTML = `
+    <div class="card">
+      <h2>1. Datos del representante</h2>
+      <div id="dup-box" hidden></div>
+      <div class="field"><label>Nombre y apellido <span class="req">*</span></label><input id="rep-nombre" autocomplete="name"></div>
+      <div class="field"><label>Cédula o documento <span class="req">*</span></label><input id="rep-doc" inputmode="numeric" autocomplete="off"><div class="err" id="rep-doc-err" hidden></div></div>
+      <div class="field"><label>Edad <span class="req">*</span></label><input id="rep-edad" type="number" min="0" max="120" inputmode="numeric"></div>
+      <div class="field"><label>Teléfono <span class="req">*</span></label><input id="rep-tel" type="tel" inputmode="tel" autocomplete="tel"></div>
+      <div class="field"><label>Correo (opcional)</label><input id="rep-correo" type="email" autocomplete="email"></div>
+      <div class="field"><label>Parentesco con el niño/niña <span class="req">*</span></label><input id="rep-parentesco" placeholder="Madre, abuela, tía…"></div>
+    </div>
+    <div class="card">
+      <h2>2. Dirección y vivienda</h2>
+      <div class="field"><label>Estado / Municipio / Parroquia</label><input id="viv-lugar"></div>
+      <div class="field"><label>Dirección exacta</label><input id="viv-dir"></div>
+      <div class="field"><label>Tipo de vivienda</label>
+        <select id="viv-tipo"><option value="">—</option>${VIV_TIPOS.map(t=>`<option value="${t}">${t}</option>`).join('')}</select>
+      </div>
+      <div class="field"><label>¿Vivienda afectada por emergencia?</label>
+        <div class="radios" id="viv-afectada">
+          <div class="radio" data-v="si">Sí</div><div class="radio" data-v="no">No</div>
+        </div>
+      </div>
+      <div class="field"><label>¿Agua, electricidad y saneamiento?</label>
+        <div class="radios" id="viv-serv">
+          <div class="radio" data-v="si">Sí</div><div class="radio" data-v="no">No</div>
+        </div>
+      </div>
+      <div class="field"><label>Detalle de servicios (si no)</label><input id="viv-serv-det"></div>
+    </div>
+    <div class="card">
+      <h2>3. Núcleo familiar</h2>
+      <div class="field"><label>Número de personas en el hogar</label><input id="nf-total" type="number" min="0" inputmode="numeric"></div>
+      <div id="nucleo-list"></div>
+      <button type="button" class="btn btn-s" id="btn-add-nf">+ Agregar integrante</button>
+    </div>
+    <div class="card">
+      <h2>4. Situación de salud</h2>
+      <div class="field"><label>¿Discapacidad? ¿Cuál?</label><textarea id="salud-disc"></textarea></div>
+      <div class="field"><label>¿Medicamentos permanentes?</label><textarea id="salud-meds"></textarea></div>
+      <div class="field"><label>¿Embarazadas, adultos mayores o bebés?</label><textarea id="salud-vuln"></textarea></div>
+      <div class="field"><label>¿Ayudas técnicas?</label><textarea id="salud-ayudas"></textarea></div>
+    </div>
+    <div class="card">
+      <h2>5. Apoyos recibidos</h2>
+      <div class="field"><label>¿Ayuda de alguna organización?</label><input id="apo-org"></div>
+      <div class="field"><label>¿Ayuda del gobierno?</label><input id="apo-gob"></div>
+      <div class="field"><label>Frecuencia del apoyo</label><input id="apo-freq"></div>
+      <div class="field"><label>Tipo de ayuda</label><input id="apo-tipo" placeholder="Alimentos, medicinas…"></div>
+    </div>
+    <div class="card">
+      <h2>6. Necesidades prioritarias</h2>
+      <div class="chk-grid" id="nec-grid">
+        ${NECESIDADES.map(n=>`<label class="chk"><input type="checkbox" value="${esc(n)}"> ${esc(n)}</label>`).join('')}
+      </div>
+      <div class="field" style="margin-top:12px"><label>Otra</label><input id="nec-otra"></div>
+    </div>
+    <div class="card">
+      <h2>7. Observaciones y prioridad</h2>
+      <div class="field"><label>Observaciones</label><textarea id="obs"></textarea></div>
+      <div class="field"><label>Prioridad del caso</label>
+        <div class="radios" id="prio">
+          <div class="radio" data-v="alta">Alta</div>
+          <div class="radio" data-v="media">Media</div>
+          <div class="radio" data-v="baja">Baja</div>
+        </div>
+      </div>
+      <div class="field"><label>¿Seguimiento requerido?</label>
+        <div class="radios" id="seg">
+          <div class="radio" data-v="si">Sí</div><div class="radio" data-v="no">No</div>
+        </div>
+      </div>
+    </div>`;
+
+  bindRadios('viv-afectada');
+  bindRadios('viv-serv');
+  bindRadios('prio');
+  bindRadios('seg');
+  renderNucleo();
+  document.getElementById('btn-add-nf').onclick = () => {
+    dirty = true;
+    nucleo.push({ nombre:'', edad:'', parentesco:'', condicion:'', observaciones:'' });
+    renderNucleo();
+  };
+  wrap.querySelectorAll('input,textarea,select').forEach(el => {
+    el.addEventListener('input', () => { dirty = true; });
+  });
+  const doc = document.getElementById('rep-doc');
+  doc.addEventListener('input', () => {
+    allowDupContinue = false;
+    scheduleSearch();
+  });
+  doc.addEventListener('blur', () => scheduleSearch(true));
+  document.getElementById('btn-save').onclick = save;
+}
+
+function bindRadios(id){
+  const root = document.getElementById(id);
+  if (!root) return;
+  root.querySelectorAll('.radio').forEach(el => {
+    el.onclick = () => {
+      dirty = true;
+      root.querySelectorAll('.radio').forEach(x => x.classList.toggle('on', x === el));
+    };
+  });
+}
+
+function radioVal(id){
+  const on = document.querySelector('#'+id+' .radio.on');
+  return on ? on.dataset.v : null;
+}
+
+function renderNucleo(){
+  const el = document.getElementById('nucleo-list');
+  if (!nucleo.length) {
+    el.innerHTML = '<p class="meta">Opcional. Agrega integrantes del hogar si puedes.</p>';
+    return;
+  }
+  el.innerHTML = nucleo.map((r,i)=>`
+    <div class="nucleo-row" data-i="${i}">
+      <div class="field"><label>Nombre</label><input data-k="nombre" value="${esc(r.nombre)}"></div>
+      <div class="field"><label>Edad</label><input data-k="edad" type="number" min="0" inputmode="numeric" value="${esc(r.edad)}"></div>
+      <div class="field"><label>Parentesco</label><input data-k="parentesco" value="${esc(r.parentesco)}"></div>
+      <div class="field"><label>Condición de salud / discapacidad</label><input data-k="condicion" value="${esc(r.condicion)}"></div>
+      <div class="field"><label>Observaciones</label><input data-k="observaciones" value="${esc(r.observaciones)}"></div>
+      <button type="button" class="rm" data-rm="${i}">Quitar</button>
+    </div>`).join('');
+  el.querySelectorAll('.nucleo-row').forEach(row => {
+    const i = parseInt(row.dataset.i, 10);
+    row.querySelectorAll('input').forEach(inp => {
+      inp.oninput = () => { dirty = true; nucleo[i][inp.dataset.k] = inp.value; };
+    });
+  });
+  el.querySelectorAll('[data-rm]').forEach(btn => {
+    btn.onclick = () => {
+      dirty = true;
+      nucleo.splice(parseInt(btn.dataset.rm, 10), 1);
+      renderNucleo();
+    };
+  });
+}
+
+function scheduleSearch(immediate){
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(runSearch, immediate ? 0 : 450);
+}
+
+async function runSearch(){
+  const doc = (document.getElementById('rep-doc')?.value || '').trim();
+  const box = document.getElementById('dup-box');
+  const err = document.getElementById('rep-doc-err');
+  if (!doc || doc.length < 4) {
+    dupMatches = [];
+    allowDupContinue = false;
+    if (box) { box.hidden = true; box.innerHTML = ''; }
+    if (err) err.hidden = true;
+    return;
+  }
+  if (searching) return;
+  searching = true;
+  try {
+    const c = CC_VOL.credParams();
+    const data = await CC_VOL.rpc('buscar_censo_por_documento', { ...c, p_documento: doc });
+    if (!data?.ok) {
+      dupMatches = [];
+      allowDupContinue = false;
+      if (box) { box.hidden = true; box.innerHTML = ''; }
+      if (err) { err.hidden = false; err.textContent = data?.error || 'No se pudo buscar'; }
+      return;
+    }
+    if (err) err.hidden = true;
+    dupMatches = Array.isArray(data.matches) ? data.matches : [];
+    allowDupContinue = false;
+    if (!dupMatches.length) {
+      box.hidden = true;
+      box.innerHTML = '';
+      return;
+    }
+    box.hidden = false;
+    box.innerHTML = `<div class="dup"><b>Este documento ya aparece en el censo</b>
+      ${dupMatches.map(m=>`<div class="dup-item">
+        <div><b>${esc(m.rep_nombre)}</b> · ${esc(fmtDate(m.jornada_fecha))} · ${esc(m.sitio_nombre||'')}</div>
+        <div class="meta" style="margin:0">Por ${esc(m.voluntaria_nombre||'')}${m.prioridad?' · Prioridad '+esc(m.prioridad):''}</div>
+        <button type="button" data-view="${m.id}">Ver registro</button>
+      </div>`).join('')}
+      <button type="button" id="dup-continue" style="background:var(--txt2);margin-top:10px">Crear uno nuevo igual</button>
+    </div>`;
+    box.querySelectorAll('[data-view]').forEach(b => b.onclick = () => viewCenso(b.dataset.view));
+    document.getElementById('dup-continue').onclick = () => {
+      allowDupContinue = true;
+      toast('Puedes continuar y guardar un censo nuevo');
+    };
+  } catch (e) {
+    dupMatches = [];
+    allowDupContinue = false;
+    if (box) { box.hidden = true; box.innerHTML = ''; }
+    if (err) { err.hidden = false; err.textContent = 'Sin conexión para buscar duplicados'; }
+  } finally {
+    searching = false;
+  }
+}
+
+async function viewCenso(id){
+  const sheet = document.getElementById('view-sheet');
+  const body = document.getElementById('view-body');
+  body.innerHTML = '<p class="meta">Cargando…</p>';
+  sheet.hidden = false;
+  const c = CC_VOL.credParams();
+  try {
+    const data = await CC_VOL.rpc('obtener_censo_sociofamiliar', {
+      p_grupo: CC_VOL.GRUPO,
+      p_censo_id: id,
+      p_voluntario_id: c.p_voluntario_id,
+      p_plataforma: c.p_plataforma,
+      p_usuario: c.p_usuario,
+      p_cedula4: c.p_cedula4,
+    });
+    if (!data?.ok) { body.innerHTML = '<p class="meta">'+(esc(data?.error)||'No se pudo abrir')+'</p>'; return; }
+    const x = data.censo;
+    const nec = (x.necesidades||[]).join(', ') || '—';
+    const nf = Array.isArray(x.nucleo_familiar) ? x.nucleo_familiar : [];
+    body.innerHTML = `
+      <p class="meta"><b>${esc(x.rep_nombre)}</b> · Doc. ${esc(x.rep_documento)} · Tel. ${esc(x.rep_telefono)}</p>
+      <p class="meta">📅 ${esc(fmtDate(x.jornada_fecha))} · 📍 ${esc(x.sitio_nombre)}${x.sitio_zona?' ('+esc(x.sitio_zona)+')':''}</p>
+      <p class="meta">👩 ${esc(x.voluntaria_nombre)}${x.prioridad?' · Prioridad '+esc(x.prioridad):''}</p>
+      <p class="meta">Parentesco: ${esc(x.rep_parentesco||'—')} · Edad: ${esc(x.rep_edad??'—')}</p>
+      <p class="meta">Necesidades: ${esc(nec)}</p>
+      ${x.observaciones?`<p class="meta">Obs: ${esc(x.observaciones)}</p>`:''}
+      ${nf.length?`<p class="meta">Núcleo (${nf.length}): ${esc(nf.map(r=>r.nombre||'?').join(', '))}</p>`:''}`;
+  } catch (e) {
+    body.innerHTML = '<p class="meta">Sin conexión.</p>';
+  }
+}
+
+document.getElementById('view-close').onclick = () => { document.getElementById('view-sheet').hidden = true; };
+document.getElementById('view-sheet').addEventListener('click', (e) => {
+  if (e.target.id === 'view-sheet') e.target.hidden = true;
+});
+
+function collectPayload(){
+  const necesidades = [...document.querySelectorAll('#nec-grid input:checked')].map(i => i.value);
+  const otra = (document.getElementById('nec-otra').value || '').trim();
+  if (otra) necesidades.push(otra);
+
+  const vivienda = {
+    lugar: (document.getElementById('viv-lugar').value || '').trim() || null,
+    direccion: (document.getElementById('viv-dir').value || '').trim() || null,
+    tipo: document.getElementById('viv-tipo').value || null,
+    afectada: radioVal('viv-afectada'),
+    servicios: radioVal('viv-serv'),
+    servicios_detalle: (document.getElementById('viv-serv-det').value || '').trim() || null,
+    personas_hogar: document.getElementById('nf-total').value ? parseInt(document.getElementById('nf-total').value, 10) : null,
+  };
+  const hasViv = Object.values(vivienda).some(v => v != null && v !== '');
+  const salud = {
+    discapacidad: (document.getElementById('salud-disc').value || '').trim() || null,
+    medicamentos: (document.getElementById('salud-meds').value || '').trim() || null,
+    vulnerables: (document.getElementById('salud-vuln').value || '').trim() || null,
+    ayudas_tecnicas: (document.getElementById('salud-ayudas').value || '').trim() || null,
+  };
+  const hasSalud = Object.values(salud).some(Boolean);
+  const apoyos = {
+    organizacion: (document.getElementById('apo-org').value || '').trim() || null,
+    gobierno: (document.getElementById('apo-gob').value || '').trim() || null,
+    frecuencia: (document.getElementById('apo-freq').value || '').trim() || null,
+    tipo: (document.getElementById('apo-tipo').value || '').trim() || null,
+  };
+  const hasApo = Object.values(apoyos).some(Boolean);
+  const seg = radioVal('seg');
+
+  return {
+    p_rep_nombre: (document.getElementById('rep-nombre').value || '').trim(),
+    p_rep_documento: (document.getElementById('rep-doc').value || '').trim(),
+    p_rep_edad: document.getElementById('rep-edad').value === '' ? null : parseInt(document.getElementById('rep-edad').value, 10),
+    p_rep_telefono: (document.getElementById('rep-tel').value || '').trim(),
+    p_rep_correo: (document.getElementById('rep-correo').value || '').trim(),
+    p_rep_parentesco: (document.getElementById('rep-parentesco').value || '').trim(),
+    p_vivienda: hasViv ? vivienda : null,
+    p_nucleo_familiar: nucleo.filter(r => (r.nombre||'').trim() || r.edad || (r.parentesco||'').trim()).map(r => ({
+      nombre: (r.nombre||'').trim() || null,
+      edad: r.edad === '' || r.edad == null ? null : parseInt(r.edad, 10),
+      parentesco: (r.parentesco||'').trim() || null,
+      condicion: (r.condicion||'').trim() || null,
+      observaciones: (r.observaciones||'').trim() || null,
+    })),
+    p_salud: hasSalud ? salud : null,
+    p_apoyos: hasApo ? apoyos : null,
+    p_necesidades: necesidades,
+    p_observaciones: (document.getElementById('obs').value || '').trim(),
+    p_prioridad: radioVal('prio'),
+    p_seguimiento_requerido: seg === 'si' ? true : (seg === 'no' ? false : null),
+  };
+}
+
+function validate(p){
+  const missing = [];
+  if (!p.p_rep_nombre) missing.push('nombre');
+  if (!p.p_rep_documento) missing.push('cédula');
+  if (p.p_rep_edad == null || Number.isNaN(p.p_rep_edad)) missing.push('edad');
+  if (!p.p_rep_telefono) missing.push('teléfono');
+  if (!p.p_rep_parentesco) missing.push('parentesco');
+  return missing;
+}
+
+async function save(){
+  const btn = document.getElementById('btn-save');
+  const payload = collectPayload();
+  const missing = validate(payload);
+  if (missing.length) {
+    toast('Falta: ' + missing.join(', '));
+    return;
+  }
+  if (dupMatches.length && !allowDupContinue) {
+    toast('Este documento ya está en el censo. Revisa el aviso o toca «Crear uno nuevo»');
+    document.getElementById('dup-box')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+  const c = CC_VOL.credParams();
+  if (!c) return;
+  btn.disabled = true;
+  try {
+    const data = await CC_VOL.rpc('guardar_censo_sociofamiliar', {
+      ...c,
+      p_jornada_id: jid,
+      ...payload,
+    });
+    if (!data?.ok) {
+      toast(data?.error || 'No se pudo guardar');
+      btn.disabled = false;
+      return;
+    }
+    dirty = false;
+    toast('Censo guardado');
+    setTimeout(() => { location.href = CC_VOL.jornadaUrl(jid); }, 700);
+  } catch (e) {
+    toast('Sin conexión — no se guardó. Revisa la señal e intenta de nuevo.');
+    btn.disabled = false;
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
