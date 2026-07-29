@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
 <script>window.CC_GRUPO_SLUG='cuidadoras_caracas';</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--bg:#F1EEEA;--surf:#FBFAF8;--ind:#5A4AA0;--indh:#4A3C88;--indl:#EEEBF6;--indt:#463A82;--grn:#1E8449;--grnl:#E9F6EE;--red:#C0392B;--redl:#FBEDEA;--txt:#1C1A19;--txt2:#6B6560;--txt3:#9A938B;--line:#E7E2DB;--line2:#E2DCD4;--r:12px;--side:220px}
@@ -382,6 +383,7 @@ html,body{min-height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI
           <div class="export-actions">
             <button type="button" class="btn btn-p btn-sm" id="btn-export-gen">Generar texto</button>
             <button type="button" class="btn btn-s btn-sm" id="btn-export-csv">Descargar CSV</button>
+            <button type="button" class="btn btn-s btn-sm" id="btn-export-xlsx">Descargar Excel</button>
           </div>
         </div>
         <div class="export-preview-lbl">Vista previa</div>
@@ -1312,9 +1314,9 @@ const EXPORT_OPTS=[
   {id:'materiales',label:'Checklist materiales próxima jornada'},
   {id:'incompletas',label:'Voluntarias sin registro completo (texto)'},
   {id:'transparencia_resumen',label:'Transparencia (texto para WhatsApp)'},
-  {id:'transparencia_csv',label:'Transparencia (CSV donaciones y gastos)'},
-  {id:'censo',label:'Todas las voluntarias (CSV completo)'},
-  {id:'censos_sociofamiliares',label:'Censos sociofamiliares (CSV — solo coordinadoras)'},
+  {id:'transparencia_csv',label:'Transparencia (CSV / Excel)'},
+  {id:'censo',label:'Todas las voluntarias (CSV / Excel)'},
+  {id:'censos_sociofamiliares',label:'Censos sociofamiliares (CSV / Excel)'},
 ];
 
 function renderExportOpts(){
@@ -1328,14 +1330,14 @@ function renderExportOpts(){
   el.querySelectorAll('.export-opt').forEach((lab,i)=>{
     lab.onclick=()=>{exportSel=i;renderExportOpts();};
   });
-  const csvIds=['censo','transparencia_csv','censos_sociofamiliares'];
+  const tableIds=['censo','transparencia_csv','censos_sociofamiliares'];
   const curId=EXPORT_OPTS[exportSel]?.id;
-  if(csvIds.includes(curId)){
+  if(tableIds.includes(curId)){
     const elPrev=document.getElementById('export-preview');
     if(elPrev){
-      if(curId==='censo')elPrev.textContent='CSV con todas las voluntarias y todos los campos del registro. Pulsa «Descargar CSV».';
-      else if(curId==='transparencia_csv')elPrev.textContent='CSV de donaciones y gastos. Pulsa «Descargar CSV».';
-      else elPrev.textContent='CSV de censos sociofamiliares de todas las jornadas. Pulsa «Descargar CSV».';
+      if(curId==='censo')elPrev.textContent='Todas las voluntarias y todos los campos. Pulsa «Descargar Excel» o «Descargar CSV».';
+      else if(curId==='transparencia_csv')elPrev.textContent='Donaciones y gastos. Pulsa «Descargar Excel» o «Descargar CSV».';
+      else elPrev.textContent='Censos sociofamiliares de todas las jornadas. Pulsa «Descargar Excel» o «Descargar CSV».';
     }
     exportPreview='';
     return;
@@ -1432,14 +1434,34 @@ ${ultGas||'—'}`;
 
 async function generateExport(){
   const opt=EXPORT_OPTS[exportSel];
-  if(['censo','transparencia_csv','censos_sociofamiliares'].includes(opt.id)){exportCsv(opt.id);return}
+  if(['censo','transparencia_csv','censos_sociofamiliares'].includes(opt.id)){exportTable(opt.id,'csv');return}
   const el=document.getElementById('export-preview');
   el.textContent='Generando…';
   exportPreview=await buildExportText(opt.id);
   el.textContent=exportPreview||'(vacío)';
 }
 
-async function exportCsv(type){
+function downloadTableFile(filenameBase,sheetName,cols,format){
+  const n=Math.max(0,cols.length-1);
+  if(format==='xlsx'){
+    if(typeof XLSX==='undefined'){toast('No se pudo cargar Excel (SheetJS)');return n}
+    const ws=XLSX.utils.aoa_to_sheet(cols);
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,sheetName.slice(0,31));
+    XLSX.writeFile(wb,filenameBase+'.xlsx');
+    return n;
+  }
+  const csv=cols.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download=filenameBase+'.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  return n;
+}
+
+async function exportTable(type,format){
+  const fmtLabel=format==='xlsx'?'Excel':'CSV';
   if(type==='censos_sociofamiliares'){
     const list=window.CC_JORN?.getJornadas?.()||[];
     const cols=[['id','fecha_jornada','jornada','sitio','representante','documento','telefono','prioridad','seguimiento','voluntaria','creado_at']];
@@ -1459,13 +1481,8 @@ async function exportCsv(type){
       });
     }
     if(failed&&!n){toast('No se pudieron cargar los censos para exportar');return}
-    const csv=cols.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
-    a.download='censos-sociofamiliares.csv';
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast(failed?`CSV censos (${n} filas, ${failed} jornada(s) fallaron)`:`CSV censos descargado (${n} filas)`);
+    downloadTableFile('censos-sociofamiliares','Censos',cols,format);
+    toast(failed?`${fmtLabel} censos (${n} filas, ${failed} jornada(s) fallaron)`:`${fmtLabel} censos descargado (${n} filas)`);
     return;
   }
   if(type==='transparencia_csv'){
@@ -1492,13 +1509,8 @@ async function exportCsv(type){
     gasRows.forEach(g=>cols.push([
       'gasto',g.fecha_gasto,g.categoria,g.monto??'',String(g.moneda||'USD').toUpperCase(),'','','','',g.proveedor||'',g.pagado_por||'',g.descripcion||'',recMap[g.id]||0,g.creado_por||'',g.created_at||''
     ]));
-    const csv=cols.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
-    const a=document.createElement('a');
-    a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
-    a.download='cuidadoras-transparencia.csv';
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast(`CSV transparencia descargado (${cols.length-1} filas)`);
+    const n=downloadTableFile('cuidadoras-transparencia','Transparencia',cols,format);
+    toast(`${fmtLabel} transparencia descargado (${n} filas)`);
     return;
   }
   // Censo: todas las voluntarias del grupo, todos los campos (no usa filtro de la pestaña Voluntarias)
@@ -1525,13 +1537,8 @@ async function exportCsv(type){
     (v.brigadas||[]).join(';'),v.activa===false?'no':'si',v.notas_internas||'',
     isIncomplete(v)?'si':'no',v.created_at||'',v.id||''
   ]));
-  const csv=cols.map(r=>r.map(c=>'"'+String(c??'').replace(/"/g,'""')+'"').join(',')).join('\n');
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}));
-  a.download='cuidadoras-voluntarias.csv';
-  a.click();
-  URL.revokeObjectURL(a.href);
-  toast(`CSV voluntarias descargado (${rows.length} filas)`);
+  downloadTableFile('cuidadoras-voluntarias','Voluntarias',cols,format);
+  toast(`${fmtLabel} voluntarias descargado (${rows.length} filas)`);
 }
 
 function copyExport(){
@@ -1539,20 +1546,23 @@ function copyExport(){
   navigator.clipboard.writeText(exportPreview).then(()=>toast('Copiado')).catch(()=>prompt('Copia:',exportPreview));
 }
 
-document.getElementById('btn-export-gen').onclick=generateExport;
-document.getElementById('btn-export-csv').onclick=()=>{
+function runTableExport(format){
   const cur=EXPORT_OPTS[exportSel]?.id;
-  if(['censo','transparencia_csv','censos_sociofamiliares'].includes(cur)){exportCsv(cur);return}
+  if(['censo','transparencia_csv','censos_sociofamiliares'].includes(cur)){exportTable(cur,format);return}
   if(cur==='transparencia_resumen'){
     exportSel=EXPORT_OPTS.findIndex(o=>o.id==='transparencia_csv');
     renderExportOpts();
-    exportCsv('transparencia_csv');
+    exportTable('transparencia_csv',format);
     return;
   }
   exportSel=EXPORT_OPTS.findIndex(o=>o.id==='censo');
   renderExportOpts();
-  exportCsv('censo');
-};
+  exportTable('censo',format);
+}
+
+document.getElementById('btn-export-gen').onclick=generateExport;
+document.getElementById('btn-export-csv').onclick=()=>runTableExport('csv');
+document.getElementById('btn-export-xlsx').onclick=()=>runTableExport('xlsx');
 document.getElementById('btn-export-copy').onclick=copyExport;
 
 async function renderEquipo(){
